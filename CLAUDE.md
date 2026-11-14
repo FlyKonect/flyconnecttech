@@ -100,19 +100,35 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 
 ## Folder layout
 - `frontend/src/app/(site)/`: website pages
-- `frontend/src/app/portal/`: client portal
-- `frontend/src/app/team/`: team panel
+- `frontend/src/app/portal/(app)/`: client portal pages that have the sidebar. Sign-in and invitation screens go in `portal/` outside `(app)`, so they get no sidebar.
+- `frontend/src/app/team/(app)/`: team panel pages that have the sidebar. Team sign-in goes outside `(app)`.
+- `frontend/src/app/dev/components/`: every shared component on one page. Development only (404 on the live site).
 - `frontend/src/app/invite/[token]`, `frontend/src/app/reset-password/[token]`: account activation and password reset
-- `frontend/src/components/ui/`: shadcn components
+- `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row)
+- `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
 - `frontend/src/components/site/`, `portal/`, `team/`
 - `frontend/public/brand/`: logo files
+- `frontend/src/lib/labels.ts`: every display label and pill colour. Never write one anywhere else.
+- `frontend/src/lib/routes.ts`: every address in the app. Link to these.
+- `frontend/src/lib/team-nav.ts`: the team sidebar menu per role
+- `frontend/src/lib/preview-data.ts`: TEMPORARY sample people and counts for the layouts. Delete when Phases 4 to 6 supply real ones.
 - `frontend/e2e/`: Playwright tests
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
 - `backend/prisma/`: `schema.prisma`, `migrations/`, `seed.ts`
 - `backend/test/`: whole-app tests
+
+## Frontend conventions
+- **Use the shared components.** Check `/dev/components` (run the frontend, open http://localhost:3001/dev/components) before building a new piece. Add new shared components to that page.
+- **Pills:** `<LabelPill group="requestStatus" value="IN_PROGRESS" />`. Labels and colours come from `labels.ts`.
+- **Screen sizes** (Tailwind variants, set in `globals.css`): `site:` 860px and `nav:` 1240px for the website, `app:` 900px for the portal and team panel. Use `max-app:` and so on for "below". The design's full-menu width is 1180px; it is 1240px here because the FlyConnect Tech logo is wider.
+- **Book a demo** buttons all use `components/site/book-demo-button.tsx`. It links to Contact until Phase 2 builds the dialog.
+- **Team role preview** (development only): add `?role=developer`, `admin`, `manager` or `super-admin` to a `/team` address. Ignored on the live site. Goes away with real sign-in in Phase 4.
+- **Pages whose address has a changing part** (like `[code]`) sit under a layout that reads the address, so the shells are wrapped in `Suspense` in their layout files. Keep that.
+- **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright uses or starts the dev server on port 3001.
+- **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
 ## Logo
 - The logo is "Crew Wings": gold wings around a navy node, "FlyConnect" in navy and "Tech" in gold.

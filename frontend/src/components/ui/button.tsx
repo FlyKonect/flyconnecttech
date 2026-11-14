@@ -1,63 +1,104 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Slot } from "radix-ui";
 
+import { cn } from "@/lib/utils";
+
+/**
+ * Buttons (docs/03-design-system.md, "Buttons").
+ *
+ * Variants: navy (primary on white), gold (main call to action), outline,
+ * ghostOnNavy (on navy panels), success, danger, dangerOutline.
+ * Sizes: the portal sizes (sm, default, lg), the website sizes (site, siteSm)
+ * and icon (a 44px square).
+ *
+ * To make a link look like a button: <Button asChild><Link href="…">…</Link></Button>
+ */
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] font-bold whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        gold: "bg-gold text-navy hover:bg-gold/90",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
-        outline: "border border-input bg-background hover:bg-chip",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+        navy: "bg-navy text-white hover:bg-navy-700",
+        gold: "bg-gold text-navy hover:bg-[#c7a42c]",
+        outline: "border border-input bg-white text-navy hover:bg-soft",
+        ghostOnNavy:
+          "border border-white/32 bg-white/6 text-white hover:bg-white/14",
+        success: "bg-success text-white hover:bg-[#15803d]",
+        danger: "bg-danger text-white hover:bg-[#991b1b]",
+        dangerOutline:
+          "border border-[#fecaca] bg-white text-danger hover:bg-[#fef2f2]",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        sm: "h-10 px-3.5 text-[13px]",
+        default: "h-[46px] px-5 text-sm",
+        lg: "h-12 px-[22px] text-[15px]",
+        siteSm: "h-11 px-5 text-[15px] font-semibold",
+        site: "h-[52px] px-6 text-base font-semibold",
+        icon: "size-11",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "navy",
       size: "default",
     },
   },
 );
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
+type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
-  }) {
+  };
+
+function Button({
+  className,
+  variant = "navy",
+  size = "default",
+  asChild = false,
+  type,
+  ...props
+}: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button";
 
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
-      data-size={size}
+      // A plain button must not submit a form by accident.
+      type={asChild ? undefined : (type ?? "button")}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
   );
 }
 
-export { Button, buttonVariants };
+/**
+ * Text link with an arrow, in gold ("View all →").
+ * The onNavy option uses the lighter gold made for navy backgrounds.
+ */
+function TextLink({
+  className,
+  onNavy = false,
+  children,
+  ...props
+}: React.ComponentProps<typeof Link> & { onNavy?: boolean }) {
+  return (
+    <Link
+      data-slot="text-link"
+      className={cn(
+        "inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold hover:underline",
+        onNavy ? "text-gold-on-navy" : "text-gold-text",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <ArrowRight aria-hidden="true" className="size-4" />
+    </Link>
+  );
+}
+
+export { Button, TextLink, buttonVariants };
+export type { ButtonProps };

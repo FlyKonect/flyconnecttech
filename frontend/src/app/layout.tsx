@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 
+import { ToasterProvider } from "@/components/ui/toast";
+
 // Inter: body and UI text. Inter Tight: headings, big numbers and the logo.
 const inter = Inter({
   variable: "--font-inter",
@@ -31,7 +33,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${inter.variable} ${interTight.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <ToasterProvider>{children}</ToasterProvider>
+      </body>
     </html>
   );
 }

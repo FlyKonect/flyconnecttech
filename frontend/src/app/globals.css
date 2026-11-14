@@ -45,6 +45,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  /* Screen sizes where the layouts change (docs/03, "Breakpoints") */
+  --breakpoint-site: 53.75rem; /* 860px: website phone layout below this */
+  --breakpoint-nav: 77.5rem; /* 1240px: website shows the full menu from here */
+  --breakpoint-app: 56.25rem; /* 900px: portal and team panel show the sidebar from here */
+
   /* Brand colours (docs/03, "Colours" table) */
   --color-navy: #021a54;
   --color-navy-700: #0c3584;
@@ -60,6 +65,7 @@
   --color-line: #e1e8f2;
   --color-line-2: #e8edf4;
   --color-line-3: #eef2f7;
+  --color-stroke: #dce3ee;
   --color-soft: #f6f9ff;
   --color-chip: #f1f5fa;
   --color-portal-bg: #f6f8fc;
