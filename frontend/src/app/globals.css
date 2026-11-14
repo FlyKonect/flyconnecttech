@@ -1,0 +1,134 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * FlyConnect Tech theme. Values come from docs/03-design-system.md.
+ * Dark mode is not part of the design, so there is no dark theme here.
+ */
+
+@theme inline {
+  /* Fonts (loaded in src/app/layout.tsx) */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+
+  /* shadcn/ui tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand colours (docs/03, "Colours" table) */
+  --color-navy: #021a54;
+  --color-navy-700: #0c3584;
+  --color-navy-900: #01123d;
+  --color-gold: #d3af34;
+  --color-gold-text: #887122;
+  --color-gold-on-navy: #e9d27a;
+  --color-ink-2: #23324f;
+  --color-body: #3e4c66;
+  --color-on-navy: #c5d0ea;
+  --color-on-navy-muted: #9fb0d6;
+  --color-nav-label: #8d9dc0;
+  --color-line: #e1e8f2;
+  --color-line-2: #e8edf4;
+  --color-line-3: #eef2f7;
+  --color-soft: #f6f9ff;
+  --color-chip: #f1f5fa;
+  --color-portal-bg: #f6f8fc;
+  --color-team-bg: #f4f6fa;
+  --color-tint: #eef2fa;
+  --color-unread: #fbf7ea;
+  --color-success: #16a34a;
+  --color-danger: #b91c1c;
+
+  /* Radius: 10px for buttons, inputs, selects, tabs and chips */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --radius: 10px;
+  --background: #ffffff;
+  --foreground: #021a54;
+  --card: #ffffff;
+  --card-foreground: #021a54;
+  --popover: #ffffff;
+  --popover-foreground: #021a54;
+  --primary: #021a54;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5fa;
+  --secondary-foreground: #021a54;
+  --muted: #f1f5fa;
+  --muted-foreground: #5a6882;
+  --accent: #d3af34;
+  --accent-foreground: #021a54;
+  --destructive: #b91c1c;
+  --border: #e1e8f2;
+  --input: #cbd5e4;
+  --ring: rgba(211, 175, 52, 0.6);
+  --chart-1: #021a54;
+  --chart-2: #0c3584;
+  --chart-3: #d3af34;
+  --chart-4: #9fb0d6;
+  --chart-5: #5a6882;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #021a54;
+  --sidebar-primary: #021a54;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef2fa;
+  --sidebar-accent-foreground: #021a54;
+  --sidebar-border: #e1e8f2;
+  --sidebar-ring: rgba(211, 175, 52, 0.6);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-sans text-foreground;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading;
+  }
+  /* Gold focus ring on every interactive element (docs/03, "Focus") */
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+}

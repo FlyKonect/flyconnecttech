@@ -1,0 +1,46 @@
+# Development services for your PC only. Nothing here runs on the live hosting.
+#
+#   Start:  docker compose up -d
+#   Stop:   docker compose down          (your data is kept)
+#   Wipe:   docker compose down -v       (deletes the local database)
+#
+# MariaDB  -> localhost:3306   (the same version as the hosting: 10.11)
+# Mailpit  -> http://localhost:8025 shows every email the app sends in development.
+#             Nothing is really delivered.
+
+name: flyconnect-tech
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      # Local development passwords only. Never use these online.
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: flyconnect_tech
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+00:00
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # the app sends email here (SMTP)
+      - "8025:8025" # open this in the browser to read the emails
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+volumes:
+  db-data:

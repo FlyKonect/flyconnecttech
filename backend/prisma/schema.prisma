@@ -1,0 +1,13 @@
+// FlyConnect Tech database (MariaDB 10.11, the same as the hosting).
+// The tables are added in Phase 3 from docs/02-data-model.md.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "mysql"
+}

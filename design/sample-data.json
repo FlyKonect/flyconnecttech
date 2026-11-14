@@ -1,0 +1,1307 @@
+{
+  "_note": "Sample data shown in the design. In the design, \"today\" is Monday 9 November 2026 and times are UK time. Convert the relative labels (\"Today, 09:12\", \"8 Nov 2026\") to real dates when seeding. Ticket message kinds: c = customer reply, a = staff reply, n = internal note, s = system event. Lead log kinds: s = system, e = email to the contact, n = internal note.",
+  "team": [
+    {
+      "name": "Hamza Siddiqui",
+      "email": "hamza.siddiqui@yourdomain.com",
+      "role": "Super admin",
+      "title": "Founder",
+      "status": "Active",
+      "last": "Today, 09:40"
+    },
+    {
+      "name": "Emma Clarke",
+      "email": "emma.clarke@yourdomain.com",
+      "role": "Admin",
+      "title": "Support lead",
+      "status": "Active",
+      "last": "Today, 09:55"
+    },
+    {
+      "name": "Sofia Martins",
+      "email": "sofia.martins@yourdomain.com",
+      "role": "Manager",
+      "title": "Delivery manager",
+      "status": "Active",
+      "last": "Today, 08:30"
+    },
+    {
+      "name": "Daniyal Ahmed",
+      "email": "daniyal.ahmed@yourdomain.com",
+      "role": "Developer",
+      "title": "Integration engineer",
+      "status": "Active",
+      "last": "Today, 08:50"
+    },
+    {
+      "name": "Omar Farooq",
+      "email": "omar.farooq@yourdomain.com",
+      "role": "Developer",
+      "title": "Frontend developer",
+      "status": "Active",
+      "last": "Yesterday"
+    },
+    {
+      "name": "Priya Nair",
+      "email": "priya.nair@yourdomain.com",
+      "role": "Developer",
+      "title": "QA and support engineer",
+      "status": "Active",
+      "last": "Today, 07:15"
+    },
+    {
+      "name": "Bilal Khan",
+      "email": "bilal.khan@yourdomain.com",
+      "role": "Developer",
+      "title": "Backend developer",
+      "status": "Invited",
+      "last": "Invited 7 Nov"
+    }
+  ],
+  "customers": [
+    {
+      "name": "Sarah Mitchell",
+      "co": "Bluewave Holidays",
+      "email": "sarah.mitchell@bluewaveholidays.co.uk",
+      "phone": "+44 20 7946 0321",
+      "country": "United Kingdom",
+      "status": "Active",
+      "since": "August 2026",
+      "by": "Emma Clarke",
+      "last": "Today, 09:02",
+      "projects": [
+        {
+          "code": "P-1042",
+          "name": "Bluewave booking website",
+          "type": "Travel booking platform",
+          "status": "Live"
+        },
+        {
+          "code": "P-1047",
+          "name": "Bluewave agent portal",
+          "type": "Agent portal",
+          "status": "In development"
+        }
+      ]
+    },
+    {
+      "name": "James Carter",
+      "co": "Northgate Tours",
+      "email": "james.carter@northgatetours.ie",
+      "phone": "+353 1 555 0142",
+      "country": "Ireland",
+      "status": "Active",
+      "since": "June 2026",
+      "by": "Emma Clarke",
+      "last": "Today, 09:12",
+      "projects": [
+        {
+          "code": "P-1039",
+          "name": "Northgate checkout rebuild",
+          "type": "Website",
+          "status": "Live"
+        }
+      ]
+    },
+    {
+      "name": "Lina Haddad",
+      "co": "Atlas Outdoor",
+      "email": "lina.haddad@atlasoutdoor.ae",
+      "phone": "+971 4 555 0198",
+      "country": "United Arab Emirates",
+      "status": "Active",
+      "since": "May 2026",
+      "by": "Hamza Siddiqui",
+      "last": "8 Nov",
+      "projects": [
+        {
+          "code": "P-1033",
+          "name": "Atlas stock sync",
+          "type": "Custom software",
+          "status": "Live"
+        }
+      ]
+    },
+    {
+      "name": "Aisha Malik",
+      "co": "Kestrel Dental Clinics",
+      "email": "aisha.malik@kestreldental.co.uk",
+      "phone": "+44 161 496 0754",
+      "country": "United Kingdom",
+      "status": "Active",
+      "since": "September 2026",
+      "by": "Emma Clarke",
+      "last": "7 Nov",
+      "projects": [
+        {
+          "code": "P-1049",
+          "name": "Kestrel reporting suite",
+          "type": "Custom software",
+          "status": "In development"
+        }
+      ]
+    },
+    {
+      "name": "Tom Becker",
+      "co": "Meridian Freight",
+      "email": "tom.becker@meridianfreight.de",
+      "phone": "+49 30 555 0177",
+      "country": "Germany",
+      "status": "Active",
+      "since": "October 2026",
+      "by": "Emma Clarke",
+      "last": "6 Nov",
+      "projects": [
+        {
+          "code": "P-1052",
+          "name": "Spring campaign site",
+          "type": "UI/UX design",
+          "status": "In design"
+        }
+      ]
+    },
+    {
+      "name": "Daniel Okafor",
+      "co": "Lagoon Travel Group",
+      "email": "daniel.okafor@lagoontravel.ng",
+      "phone": "",
+      "country": "Nigeria",
+      "status": "Invited",
+      "since": "Invited 8 Nov",
+      "by": "Emma Clarke",
+      "last": "Not signed in yet",
+      "from": {
+        "kind": "quote",
+        "id": "QUO-2026-039"
+      },
+      "projects": [
+        {
+          "code": "P-1055",
+          "name": "Lagoon Amadeus integration",
+          "type": "API integration",
+          "status": "Planning"
+        }
+      ]
+    }
+  ],
+  "supportRequests": [
+    {
+      "id": "TKT-2026-00124",
+      "title": "Payment page times out on mobile",
+      "svc": "Website",
+      "type": "Technical Issue",
+      "prio": "Urgent",
+      "status": "Submitted",
+      "created": "Today, 09:12",
+      "updated": "Today, 09:12",
+      "agent": "",
+      "cust": "James Carter",
+      "mine": false,
+      "project": "Northgate checkout rebuild",
+      "msgs": [
+        [
+          "c",
+          "James Carter",
+          "Today, 09:12",
+          "Customers on mobile see a timeout on the payment page right after entering their card details. Desktop works fine. It started after this morning's release.",
+          [
+            "payment-timeout.png",
+            "console-log.txt"
+          ]
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "Today, 09:12"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00123",
+      "title": "Overnight inventory sync failing",
+      "svc": "Custom software",
+      "type": "Technical Issue",
+      "prio": "High",
+      "status": "Under Review",
+      "created": "8 Nov 2026",
+      "updated": "8 Nov 2026",
+      "agent": "Daniyal Ahmed",
+      "cust": "Lina Haddad",
+      "mine": false,
+      "project": "Atlas stock sync",
+      "msgs": [
+        [
+          "c",
+          "Lina Haddad",
+          "8 Nov, 07:45",
+          "The 02:00 stock sync has failed three nights in a row. The log shows a timeout from the warehouse API.",
+          [
+            "sync-log.txt"
+          ]
+        ],
+        [
+          "s",
+          "",
+          "8 Nov, 08:20",
+          "Assigned to Daniyal Ahmed by Sofia Martins"
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "8 Nov, 07:45"
+        ],
+        [
+          "Under Review",
+          "8 Nov, 08:20"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00122",
+      "title": "Confirmation email missing passenger names",
+      "svc": "Travel booking platform",
+      "type": "Bug Report",
+      "prio": "Medium",
+      "status": "Waiting for Customer",
+      "created": "6 Nov 2026",
+      "updated": "8 Nov 2026",
+      "agent": "Priya Nair",
+      "cust": "Sarah Mitchell",
+      "mine": true,
+      "project": "Bluewave booking website",
+      "msgs": [
+        [
+          "c",
+          "Sarah Mitchell",
+          "6 Nov, 09:20",
+          "Confirmation emails for bookings with several passengers only list the lead passenger.",
+          [
+            "confirmation-email.pdf"
+          ]
+        ],
+        [
+          "s",
+          "",
+          "6 Nov, 11:05",
+          "Priya Nair started reviewing this request"
+        ],
+        [
+          "a",
+          "Priya Nair",
+          "8 Nov, 16:10",
+          "Could you send the booking reference of one affected booking? We will check the data the email template receives."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "6 Nov, 09:20"
+        ],
+        [
+          "Under Review",
+          "6 Nov, 11:05"
+        ],
+        [
+          "Waiting for Customer",
+          "8 Nov, 16:10"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00121",
+      "title": "Add Apple Pay to the checkout",
+      "svc": "Travel booking platform",
+      "type": "Feature Request",
+      "prio": "Medium",
+      "status": "Under Review",
+      "created": "5 Nov 2026",
+      "updated": "7 Nov 2026",
+      "agent": "Daniyal Ahmed",
+      "cust": "Sarah Mitchell",
+      "mine": true,
+      "project": "Bluewave booking website",
+      "msgs": [
+        [
+          "c",
+          "Sarah Mitchell",
+          "5 Nov, 14:02",
+          "Many of our customers book on iPhone. Could we add Apple Pay to the checkout?"
+        ],
+        [
+          "s",
+          "",
+          "7 Nov, 10:20",
+          "Assigned to Daniyal Ahmed by Emma Clarke"
+        ],
+        [
+          "a",
+          "Emma Clarke",
+          "7 Nov, 10:30",
+          "Good idea. Daniyal is checking it against your Stripe setup and will send a short proposal and estimate."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "5 Nov, 14:02"
+        ],
+        [
+          "Under Review",
+          "7 Nov, 10:30"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00120",
+      "title": "Export dashboard reports to Excel",
+      "svc": "Custom software",
+      "type": "Feature Request",
+      "prio": "Low",
+      "status": "In Progress",
+      "created": "4 Nov 2026",
+      "updated": "7 Nov 2026",
+      "agent": "Omar Farooq",
+      "cust": "Aisha Malik",
+      "mine": false,
+      "project": "Kestrel reporting suite",
+      "msgs": [
+        [
+          "c",
+          "Aisha Malik",
+          "4 Nov, 12:10",
+          "Our clinic managers would like to export the monthly appointments report to Excel."
+        ],
+        [
+          "a",
+          "Omar Farooq",
+          "7 Nov, 09:40",
+          "Export is in development. We will share a test build this week."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "4 Nov, 12:10"
+        ],
+        [
+          "In Progress",
+          "7 Nov, 09:40"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00119",
+      "title": "Spring campaign landing page design",
+      "svc": "UI/UX design",
+      "type": "Design Modification",
+      "prio": "Medium",
+      "status": "Waiting for Customer",
+      "created": "3 Nov 2026",
+      "updated": "6 Nov 2026",
+      "agent": "Omar Farooq",
+      "cust": "Tom Becker",
+      "mine": false,
+      "project": "Spring campaign site",
+      "msgs": [
+        [
+          "c",
+          "Tom Becker",
+          "3 Nov, 15:20",
+          "We need a landing page for our spring freight campaign."
+        ],
+        [
+          "a",
+          "Omar Farooq",
+          "6 Nov, 11:00",
+          "Two layout options are ready in Figma. Which one should we take forward?"
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "3 Nov, 15:20"
+        ],
+        [
+          "In Progress",
+          "4 Nov, 09:00"
+        ],
+        [
+          "Waiting for Customer",
+          "6 Nov, 11:00"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00118",
+      "title": "Multi-city flight search returns no results",
+      "svc": "Travel booking platform",
+      "type": "Integration Problem",
+      "prio": "High",
+      "status": "In Progress",
+      "created": "2 Nov 2026",
+      "updated": "Today, 08:50",
+      "agent": "Daniyal Ahmed",
+      "cust": "Sarah Mitchell",
+      "mine": true,
+      "project": "Bluewave booking website",
+      "msgs": [
+        [
+          "c",
+          "Sarah Mitchell",
+          "2 Nov, 10:14",
+          "Since Monday, searches with three or more legs (for example LHR → DXB → BKK → LHR) return no results on the live site. One-way and return searches work fine. Screenshot attached.",
+          [
+            "multicity-error.png"
+          ]
+        ],
+        [
+          "s",
+          "",
+          "2 Nov, 10:40",
+          "Assigned to Daniyal Ahmed by Emma Clarke"
+        ],
+        [
+          "a",
+          "Emma Clarke",
+          "2 Nov, 11:02",
+          "Thanks Sarah. I have assigned this to Daniyal, our integration engineer. You will hear from us today."
+        ],
+        [
+          "n",
+          "Daniyal Ahmed",
+          "2 Nov, 13:30",
+          "The supplier rejects searches with 3+ legs because our request builder drops the departure date on leg 3. Fix is on staging."
+        ],
+        [
+          "a",
+          "Daniyal Ahmed",
+          "3 Nov, 09:15",
+          "We found the cause: the third leg's date was not being sent. A fix is on staging. Could you try LHR → DXB → BKK → LHR there?"
+        ],
+        [
+          "c",
+          "Sarah Mitchell",
+          "3 Nov, 12:40",
+          "Tested on staging: three legs now work, but four legs still return nothing."
+        ],
+        [
+          "a",
+          "Daniyal Ahmed",
+          "Today, 08:50",
+          "Thanks for testing. We are patching the four-leg case now and plan to release it today."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "2 Nov, 10:14"
+        ],
+        [
+          "Under Review",
+          "2 Nov, 10:40"
+        ],
+        [
+          "In Progress",
+          "2 Nov, 13:30"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00114",
+      "title": "Baggage allowance missing on return flights",
+      "svc": "Travel booking platform",
+      "type": "Bug Report",
+      "prio": "Medium",
+      "status": "Resolved",
+      "created": "30 Oct 2026",
+      "updated": "1 Nov 2026",
+      "agent": "Daniyal Ahmed",
+      "cust": "Sarah Mitchell",
+      "mine": true,
+      "project": "Bluewave booking website",
+      "msgs": [
+        [
+          "c",
+          "Sarah Mitchell",
+          "30 Oct, 10:05",
+          "The baggage allowance shows on the outbound flight but not on the return flight."
+        ],
+        [
+          "a",
+          "Daniyal Ahmed",
+          "1 Nov, 11:30",
+          "Fixed: the return flight now shows its own baggage allowance. It is live on the site. Please take a look and confirm."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "30 Oct, 10:05"
+        ],
+        [
+          "In Progress",
+          "30 Oct, 14:20"
+        ],
+        [
+          "Resolved",
+          "1 Nov, 11:30"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00109",
+      "title": "Update homepage banner for the winter sale",
+      "svc": "Travel booking platform",
+      "type": "Design Modification",
+      "prio": "Low",
+      "status": "Resolved",
+      "created": "24 Oct 2026",
+      "updated": "28 Oct 2026",
+      "agent": "Omar Farooq",
+      "cust": "Sarah Mitchell",
+      "mine": true,
+      "project": "Bluewave booking website",
+      "msgs": [
+        [
+          "c",
+          "Sarah Mitchell",
+          "24 Oct, 10:00",
+          "Please replace the homepage banner with the attached winter sale artwork.",
+          [
+            "winter-sale-banner.png"
+          ]
+        ],
+        [
+          "a",
+          "Omar Farooq",
+          "28 Oct, 15:30",
+          "Done: the new banner is live on desktop and mobile. Please take a look and confirm."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "24 Oct, 10:00"
+        ],
+        [
+          "In Progress",
+          "25 Oct, 09:10"
+        ],
+        [
+          "Resolved",
+          "28 Oct, 15:30"
+        ]
+      ]
+    },
+    {
+      "id": "TKT-2026-00097",
+      "title": "SSL certificate renewal",
+      "svc": "Travel booking platform",
+      "type": "Maintenance Request",
+      "prio": "Low",
+      "status": "Closed",
+      "created": "12 Oct 2026",
+      "updated": "14 Oct 2026",
+      "agent": "Omar Farooq",
+      "cust": "Sarah Mitchell",
+      "mine": true,
+      "project": "Bluewave booking website",
+      "msgs": [
+        [
+          "c",
+          "Sarah Mitchell",
+          "12 Oct, 09:30",
+          "Our SSL certificate expires on 20 October. Can you renew it?"
+        ],
+        [
+          "a",
+          "Omar Farooq",
+          "13 Oct, 11:00",
+          "Renewed and installed. The new certificate is valid until October 2027."
+        ],
+        [
+          "s",
+          "",
+          "14 Oct, 09:00",
+          "Sarah Mitchell confirmed the fix. Request closed."
+        ]
+      ],
+      "hist": [
+        [
+          "Submitted",
+          "12 Oct, 09:30"
+        ],
+        [
+          "In Progress",
+          "12 Oct, 14:00"
+        ],
+        [
+          "Resolved",
+          "13 Oct, 11:00"
+        ],
+        [
+          "Closed",
+          "14 Oct, 09:00"
+        ]
+      ]
+    }
+  ],
+  "customerNotifications": [
+    {
+      "kind": "reply",
+      "text": "Daniyal Ahmed replied to TKT-2026-00118",
+      "time": "Today, 08:50",
+      "unread": true
+    },
+    {
+      "kind": "info",
+      "text": "TKT-2026-00122 needs more information from you",
+      "time": "8 Nov",
+      "unread": true
+    },
+    {
+      "kind": "status",
+      "text": "TKT-2026-00121 moved to Under Review",
+      "time": "7 Nov",
+      "unread": false
+    },
+    {
+      "kind": "ok",
+      "text": "TKT-2026-00114 was resolved. Please confirm the fix.",
+      "time": "1 Nov",
+      "unread": false
+    },
+    {
+      "kind": "ok",
+      "text": "TKT-2026-00109 was resolved. Please confirm the fix.",
+      "time": "28 Oct",
+      "unread": false
+    },
+    {
+      "kind": "closed",
+      "text": "TKT-2026-00097 was closed",
+      "time": "14 Oct",
+      "unread": false
+    }
+  ],
+  "teamNotifications": [
+    {
+      "kind": "lead",
+      "text": "New demo request DEM-2026-031 from Olivia Grant, Skyhaven Travel",
+      "time": "Today, 10:12",
+      "unread": true
+    },
+    {
+      "kind": "lead",
+      "text": "New quote request QUO-2026-044 from Rachel Foster, Brightpath Learning",
+      "time": "Today, 09:40",
+      "unread": true
+    },
+    {
+      "kind": "urgent",
+      "text": "Urgent request TKT-2026-00124 from Northgate Tours",
+      "time": "Today, 09:12",
+      "unread": true
+    },
+    {
+      "kind": "lead",
+      "text": "New message MSG-2026-019 from Laura Bennett · Partnership",
+      "time": "Today, 09:05",
+      "unread": true
+    },
+    {
+      "kind": "high",
+      "text": "High-priority request TKT-2026-00118 was updated",
+      "time": "Today, 08:50",
+      "unread": true
+    },
+    {
+      "kind": "review",
+      "text": "TKT-2026-00123 was assigned to Daniyal Ahmed",
+      "time": "8 Nov",
+      "unread": false
+    },
+    {
+      "kind": "invite",
+      "text": "Invitation sent to Daniel Okafor, Lagoon Travel Group",
+      "time": "8 Nov",
+      "unread": false
+    },
+    {
+      "kind": "reply",
+      "text": "Sarah Mitchell replied on TKT-2026-00118",
+      "time": "3 Nov",
+      "unread": false
+    }
+  ],
+  "demoRequests": [
+    {
+      "id": "DEM-2026-031",
+      "status": "New",
+      "topic": "Travel booking platform",
+      "day": "Tuesday 10 November",
+      "slot": "11:00",
+      "name": "Olivia Grant",
+      "email": "olivia.grant@skyhaventravel.co.uk",
+      "company": "Skyhaven Travel",
+      "phone": "+44 161 496 0812",
+      "notes": "We have three branches and want flight search and booking on our own website. Please also show us the agent dashboard.",
+      "page": "Travel Technology",
+      "received": "Today, 10:12",
+      "owner": "",
+      "link": "",
+      "log": [
+        [
+          "s",
+          "",
+          "Today, 10:12",
+          "Demo requested from the Travel Technology page"
+        ]
+      ]
+    },
+    {
+      "id": "DEM-2026-030",
+      "status": "New",
+      "topic": "Custom software and websites",
+      "day": "Thursday 12 November",
+      "slot": "15:30",
+      "name": "Marco Bellini",
+      "email": "marco.bellini@rivacharters.it",
+      "company": "Riva Charters",
+      "phone": "",
+      "notes": "",
+      "page": "Home",
+      "received": "Today, 08:47",
+      "owner": "",
+      "link": "",
+      "log": [
+        [
+          "s",
+          "",
+          "Today, 08:47",
+          "Demo requested from the Home page"
+        ]
+      ]
+    },
+    {
+      "id": "DEM-2026-029",
+      "status": "Scheduled",
+      "topic": "Agent and admin dashboards",
+      "day": "Wednesday 11 November",
+      "slot": "14:00",
+      "name": "Ahmed Raza",
+      "email": "ahmed.raza@indusholidays.pk",
+      "company": "Indus Holidays",
+      "phone": "",
+      "notes": "We work with about 40 sub-agents and need commission reports.",
+      "page": "Products & Solutions",
+      "received": "6 Nov 2026",
+      "owner": "Hamza Siddiqui",
+      "link": "",
+      "log": [
+        [
+          "s",
+          "",
+          "6 Nov, 16:20",
+          "Demo requested from the Products & Solutions page"
+        ],
+        [
+          "s",
+          "",
+          "6 Nov, 17:05",
+          "Confirmed for Wednesday 11 November, 14:00 UK time by Hamza Siddiqui"
+        ],
+        [
+          "e",
+          "Hamza Siddiqui",
+          "6 Nov, 17:05",
+          "Hi Ahmed, your demo is confirmed for Wednesday 11 November at 14:00 UK time. The calendar invite has the video call link. See you then."
+        ]
+      ]
+    },
+    {
+      "id": "DEM-2026-028",
+      "status": "Completed",
+      "topic": "API and integrations",
+      "day": "Thursday 5 November",
+      "slot": "12:30",
+      "name": "Grace Owusu",
+      "email": "grace.owusu@coastlinetours.com.gh",
+      "company": "Coastline Tours",
+      "phone": "",
+      "notes": "We want Amadeus flight search on our current website.",
+      "page": "API Integrations",
+      "received": "2 Nov 2026",
+      "owner": "Emma Clarke",
+      "link": "",
+      "proj": "Coastline Amadeus booking",
+      "log": [
+        [
+          "s",
+          "",
+          "2 Nov, 13:40",
+          "Demo requested from the API Integrations page"
+        ],
+        [
+          "s",
+          "",
+          "2 Nov, 15:10",
+          "Confirmed for Thursday 5 November, 12:30 UK time by Emma Clarke"
+        ],
+        [
+          "e",
+          "Emma Clarke",
+          "2 Nov, 15:10",
+          "Hi Grace, your demo is confirmed for Thursday 5 November at 12:30 UK time. The calendar invite has the video call link."
+        ],
+        [
+          "s",
+          "",
+          "5 Nov, 13:10",
+          "Demo completed · marked by Emma Clarke"
+        ],
+        [
+          "n",
+          "Emma Clarke",
+          "5 Nov, 13:15",
+          "Good fit. They want Amadeus search and booking on their current site. Grace is sending a quote request."
+        ]
+      ]
+    },
+    {
+      "id": "DEM-2026-027",
+      "status": "Cancelled",
+      "topic": "Travel booking platform",
+      "day": "Friday 6 November",
+      "slot": "09:30",
+      "name": "Lukas Novak",
+      "email": "lukas.novak@tatratrips.cz",
+      "company": "Tatra Trips",
+      "phone": "",
+      "notes": "",
+      "page": "Home",
+      "received": "2 Nov 2026",
+      "owner": "Sofia Martins",
+      "link": "",
+      "reason": "Asked to reschedule later",
+      "log": [
+        [
+          "s",
+          "",
+          "2 Nov, 09:05",
+          "Demo requested from the Home page"
+        ],
+        [
+          "e",
+          "Sofia Martins",
+          "4 Nov, 10:30",
+          "Hi Lukas, no problem. Book a new time on our website whenever it suits you."
+        ],
+        [
+          "s",
+          "",
+          "4 Nov, 10:30",
+          "Cancelled by Sofia Martins · Asked to reschedule later"
+        ]
+      ]
+    }
+  ],
+  "quoteRequests": [
+    {
+      "id": "QUO-2026-044",
+      "status": "New",
+      "type": "New website",
+      "budget": "$5k – $15k",
+      "time": "Within 1–3 months",
+      "name": "Rachel Foster",
+      "email": "rachel.foster@brightpathlearning.co.uk",
+      "company": "Brightpath Learning",
+      "phone": "+44 20 7946 0588",
+      "req": "We need a new website for our training courses, with course pages, online booking and card payments for course places.",
+      "page": "Contact & Quote",
+      "received": "Today, 09:40",
+      "owner": "",
+      "log": [
+        [
+          "s",
+          "",
+          "Today, 09:40",
+          "Quote requested from the Contact & Quote page"
+        ]
+      ]
+    },
+    {
+      "id": "QUO-2026-043",
+      "status": "New",
+      "type": "Travel booking platform",
+      "budget": "$15k – $50k",
+      "time": "",
+      "name": "Imran Sheikh",
+      "email": "imran.sheikh@skyroutes.pk",
+      "company": "",
+      "phone": "",
+      "req": "We are a travel agency in Lahore and want a flight booking website with Amadeus. Hotel search would come later.",
+      "page": "Home",
+      "received": "Today, 07:55",
+      "owner": "",
+      "log": [
+        [
+          "s",
+          "",
+          "Today, 07:55",
+          "Quote requested from the Home page"
+        ]
+      ]
+    },
+    {
+      "id": "QUO-2026-042",
+      "status": "Reviewing",
+      "type": "API integration",
+      "budget": "$15k – $50k",
+      "time": "Within 3–6 months",
+      "name": "Hannah Weber",
+      "email": "hannah.weber@alpenblick-hotels.de",
+      "company": "Alpenblick Hotels",
+      "phone": "",
+      "req": "Connect our booking engine to our channel manager and our accounting software, so bookings and invoices sync automatically.",
+      "page": "Contact & Quote",
+      "received": "5 Nov 2026",
+      "owner": "Sofia Martins",
+      "log": [
+        [
+          "s",
+          "",
+          "5 Nov, 11:25",
+          "Quote requested from the Contact & Quote page"
+        ],
+        [
+          "s",
+          "",
+          "6 Nov, 09:10",
+          "Review started by Sofia Martins"
+        ],
+        [
+          "n",
+          "Sofia Martins",
+          "6 Nov, 09:20",
+          "We need the channel manager API documentation before we can estimate."
+        ],
+        [
+          "e",
+          "Sofia Martins",
+          "6 Nov, 09:25",
+          "Hi Hannah, thanks for the details. Could you send the API documentation for your channel manager? Then we can prepare your estimate."
+        ]
+      ]
+    },
+    {
+      "id": "QUO-2026-041",
+      "status": "Estimate sent",
+      "type": "Website redesign",
+      "budget": "$5k – $15k",
+      "time": "Within 1–3 months",
+      "name": "Oliver Hayes",
+      "email": "oliver.hayes@hayescoachtours.co.uk",
+      "company": "Hayes Coach Tours",
+      "phone": "+44 20 7946 0634",
+      "req": "Redesign our website so customers can find tours and book seats on their phones.",
+      "page": "Website Development",
+      "received": "3 Nov 2026",
+      "owner": "Hamza Siddiqui",
+      "est": {
+        "amount": "$11,500",
+        "time": "6–8 weeks",
+        "valid": "20 November 2026",
+        "summary": "Mobile-first redesign of your tours website: tour pages, search and online seat booking with card payments."
+      },
+      "log": [
+        [
+          "s",
+          "",
+          "3 Nov, 14:00",
+          "Quote requested from the Website Development page"
+        ],
+        [
+          "s",
+          "",
+          "4 Nov, 10:00",
+          "Review started by Hamza Siddiqui"
+        ],
+        [
+          "s",
+          "",
+          "6 Nov, 16:45",
+          "Estimate of $11,500 sent by Hamza Siddiqui"
+        ],
+        [
+          "e",
+          "Hamza Siddiqui",
+          "6 Nov, 16:45",
+          "Hi Oliver, here is our estimate for your website redesign: $11,500, delivered in about 6–8 weeks. It covers a mobile-first redesign, tour pages, search and online seat booking with card payments. The estimate is valid until 20 November 2026."
+        ]
+      ]
+    },
+    {
+      "id": "QUO-2026-040",
+      "status": "Won",
+      "type": "Amadeus / Sabre integration",
+      "budget": "$15k – $50k",
+      "time": "As soon as possible",
+      "name": "Grace Owusu",
+      "email": "grace.owusu@coastlinetours.com.gh",
+      "company": "Coastline Tours",
+      "phone": "",
+      "req": "Add Amadeus flight search, booking and ticketing to our current website, with a simple bookings view for our agents.",
+      "page": "Contact & Quote",
+      "received": "5 Nov 2026",
+      "owner": "Emma Clarke",
+      "proj": "Coastline Amadeus booking",
+      "est": {
+        "amount": "$18,400",
+        "time": "8–10 weeks",
+        "valid": "19 November 2026",
+        "summary": "Amadeus flight search, booking and ticketing on your website, plus a bookings view for your agents."
+      },
+      "log": [
+        [
+          "s",
+          "",
+          "5 Nov, 15:30",
+          "Quote requested from the Contact & Quote page"
+        ],
+        [
+          "s",
+          "",
+          "6 Nov, 11:00",
+          "Estimate of $18,400 sent by Emma Clarke"
+        ],
+        [
+          "e",
+          "Emma Clarke",
+          "6 Nov, 11:00",
+          "Hi Grace, here is our estimate for the Amadeus integration: $18,400, delivered in about 8–10 weeks. The estimate is valid until 19 November 2026."
+        ],
+        [
+          "s",
+          "",
+          "8 Nov, 10:15",
+          "Marked as won by Emma Clarke · Grace accepted the estimate"
+        ]
+      ]
+    },
+    {
+      "id": "QUO-2026-039",
+      "status": "Won",
+      "type": "Amadeus / Sabre integration",
+      "budget": "$15k – $50k",
+      "time": "Within 1–3 months",
+      "name": "Daniel Okafor",
+      "email": "daniel.okafor@lagoontravel.ng",
+      "company": "Lagoon Travel Group",
+      "phone": "",
+      "req": "Connect our agency website to Amadeus for flight search and booking.",
+      "page": "Travel Technology",
+      "received": "28 Oct 2026",
+      "owner": "Emma Clarke",
+      "customer": "Daniel Okafor",
+      "est": {
+        "amount": "$24,000",
+        "time": "10–12 weeks",
+        "valid": "13 November 2026",
+        "summary": "Amadeus flight search and booking on your agency website, with payments and booking emails."
+      },
+      "log": [
+        [
+          "s",
+          "",
+          "28 Oct, 12:10",
+          "Quote requested from the Travel Technology page"
+        ],
+        [
+          "s",
+          "",
+          "30 Oct, 15:00",
+          "Estimate of $24,000 sent by Emma Clarke"
+        ],
+        [
+          "s",
+          "",
+          "7 Nov, 09:30",
+          "Marked as won by Emma Clarke"
+        ],
+        [
+          "s",
+          "",
+          "8 Nov, 11:00",
+          "Converted to customer by Emma Clarke. Portal invitation sent to daniel.okafor@lagoontravel.ng"
+        ]
+      ]
+    },
+    {
+      "id": "QUO-2026-038",
+      "status": "Lost",
+      "type": "UI/UX design",
+      "budget": "Under $5k",
+      "time": "Not sure yet",
+      "name": "Chen Wei",
+      "email": "chen.wei@harbourline.hk",
+      "company": "Harbour Line Logistics",
+      "phone": "",
+      "req": "Refresh the design of our shipment tracking dashboard.",
+      "page": "Contact & Quote",
+      "received": "27 Oct 2026",
+      "owner": "Sofia Martins",
+      "reason": "Budget",
+      "est": {
+        "amount": "$6,800",
+        "time": "4–5 weeks",
+        "valid": "12 November 2026",
+        "summary": "Design refresh of the tracking dashboard with a clickable Figma prototype."
+      },
+      "log": [
+        [
+          "s",
+          "",
+          "27 Oct, 10:00",
+          "Quote requested from the Contact & Quote page"
+        ],
+        [
+          "s",
+          "",
+          "29 Oct, 14:20",
+          "Estimate of $6,800 sent by Sofia Martins"
+        ],
+        [
+          "s",
+          "",
+          "3 Nov, 09:40",
+          "Marked as lost by Sofia Martins · Budget"
+        ]
+      ]
+    }
+  ],
+  "contactMessages": [
+    {
+      "id": "MSG-2026-019",
+      "status": "New",
+      "topic": "Partnership",
+      "name": "Laura Bennett",
+      "email": "laura.bennett@pennineux.co.uk",
+      "company": "",
+      "phone": "",
+      "text": "We are a small UX studio in Leeds and often need a development partner for travel projects. Could we arrange a short call?",
+      "page": "Contact & Quote",
+      "received": "Today, 09:05",
+      "owner": "",
+      "log": [
+        [
+          "s",
+          "",
+          "Today, 09:05",
+          "Message sent from the Contact & Quote page"
+        ]
+      ]
+    },
+    {
+      "id": "MSG-2026-018",
+      "status": "New",
+      "topic": "An existing project",
+      "name": "Sarah Mitchell",
+      "email": "sarah.mitchell@bluewaveholidays.co.uk",
+      "company": "",
+      "phone": "",
+      "text": "Could you add a page for our winter sale to the booking website? I can send the artwork.",
+      "page": "Contact & Quote",
+      "received": "Today, 08:20",
+      "owner": "",
+      "log": [
+        [
+          "s",
+          "",
+          "Today, 08:20",
+          "Message sent from the Contact & Quote page"
+        ]
+      ]
+    },
+    {
+      "id": "MSG-2026-017",
+      "status": "Replied",
+      "topic": "General question",
+      "name": "Yusuf Demir",
+      "email": "yusuf.demir@anatoliatours.com.tr",
+      "company": "",
+      "phone": "",
+      "text": "Do you work with travel agencies outside the UK? We are based in Izmir.",
+      "page": "Contact & Quote",
+      "received": "6 Nov 2026",
+      "owner": "Emma Clarke",
+      "log": [
+        [
+          "s",
+          "",
+          "6 Nov, 10:05",
+          "Message sent from the Contact & Quote page"
+        ],
+        [
+          "e",
+          "Emma Clarke",
+          "6 Nov, 11:20",
+          "Hi Yusuf, yes. We work with agencies in many countries and run projects remotely. Tell us a little about your project and we can send an estimate."
+        ]
+      ]
+    },
+    {
+      "id": "MSG-2026-016",
+      "status": "Closed",
+      "topic": "Something else",
+      "name": "Ben Hollis",
+      "email": "ben.hollis@hollisevents.co.uk",
+      "company": "",
+      "phone": "",
+      "text": "Do you also build ticketing websites for events, or only travel?",
+      "page": "Contact & Quote",
+      "received": "3 Nov 2026",
+      "owner": "Hamza Siddiqui",
+      "log": [
+        [
+          "s",
+          "",
+          "3 Nov, 16:40",
+          "Message sent from the Contact & Quote page"
+        ],
+        [
+          "e",
+          "Hamza Siddiqui",
+          "4 Nov, 09:15",
+          "Hi Ben, yes. We build custom websites and booking systems for any industry, including events. Use Get a quote on our website and we will send an estimate."
+        ],
+        [
+          "s",
+          "",
+          "4 Nov, 09:16",
+          "Closed by Hamza Siddiqui"
+        ]
+      ]
+    }
+  ],
+  "responseTargets": {
+    "Urgent": "1 hour",
+    "High": "4 hours",
+    "Medium": "1 business day",
+    "Low": "2 business days"
+  },
+  "newRequestDraftExample": {
+    "project": "Bluewave agent portal",
+    "type": "Bug Report",
+    "priority": "High",
+    "title": "Agent commission report shows wrong totals",
+    "description": "Since the October update, the commission report in the agent portal shows totals about 8% higher than the bookings listed. Sub-agent commissions look correct.",
+    "url": "agents.bluewaveholidays.co.uk/reports",
+    "files": [
+      "commission-report-oct.xlsx",
+      "report-totals.png"
+    ]
+  }
+}

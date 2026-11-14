@@ -1,0 +1,16 @@
+# packages and build output
+node_modules
+dist
+*.tsbuildinfo
+coverage
+
+# settings with passwords: never saved to git (.env.example is)
+.env
+.env.*
+!.env.example
+
+# made by "prisma generate"
+/src/generated
+
+# uploaded files
+/uploads

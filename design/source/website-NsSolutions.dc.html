@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Northstack · Products &amp; Solutions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.ns-lift{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
+.ns-lift:hover{transform:translateY(-2px); border-color:#C8D3E3 !important; box-shadow:0 22px 44px -26px rgba(2,26,84,0.38) !important}
+.ns-nav{transition:color .15s ease}
+.ns-nav:hover{color:#021A54 !important}
+.ns-dd:hover{background:#F6F9FF !important}
+.ns-foot:hover{color:#FFFFFF !important}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{outline:3px solid rgba(211,175,52,0.6); outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.ns-lift, .ns-nav{transition:none}.ns-lift:hover{transform:none}}
+</style>
+</helmet>
+<div data-ns-root="1" style="position: relative; background: #FFFFFF; color: #021A54; font-family: 'Inter', system-ui, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased">
+
+<div id="top" style="background: {{accent}}; color: {{onAccent}}; font-size: 14px; font-weight: 500">
+<div style="position: relative; max-width: 1240px; margin: 0 auto; padding: 10px clamp(20px, 4vw, 40px); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 12px; text-align: center">
+<span>Travel agencies: add Amadeus flight search and booking to your website.</span>
+<a href="{{L.travel}}" style="color: {{onAccent}}; font-weight: 700; text-decoration: underline; text-underline-offset: 3px">Learn more</a>
+<sc-if value="{{navFull}}" hint-placeholder-val="{{true}}"><span style="position: absolute; right: clamp(20px, 4vw, 40px); top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 20px"><a href="{{L.support}}" style="display: inline-flex; align-items: center; gap: 6px; min-height: 28px; color: {{onAccent}}; font-weight: 600; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path><circle cx="12" cy="12" r="4"></circle></svg>Support</a><a href="{{L.portal}}" style="display: inline-flex; align-items: center; gap: 6px; min-height: 28px; color: {{onAccent}}; font-weight: 600; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" x2="3" y1="12" y2="12"></line></svg>Client login</a></span></sc-if>
+</div>
+</div>
+
+<header style="position: relative; z-index: 20; border-bottom: 1px solid #E8EDF4; background: #FFFFFF">
+<div style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px); height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px">
+<a href="{{L.home}}" aria-label="Northstack home" style="display: flex; align-items: center; gap: 10px; color: #021A54; text-decoration: none; font-family: 'Inter Tight', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em">
+<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="3" width="20" height="5" rx="2.5" fill="{{accent}}"></rect><rect x="3" y="10.5" width="20" height="5" rx="2.5" fill="#021A54"></rect><rect x="3" y="18" width="13" height="5" rx="2.5" fill="#021A54"></rect></svg>
+Northstack
+</a>
+<sc-if value="{{navFull}}" hint-placeholder-val="{{true}}">
+<nav aria-label="Main" style="display: flex; align-items: center; gap: 30px; font-size: 15px; font-weight: 500">
+<a href="{{L.solutions}}" class="ns-nav" aria-current="page" style="display: inline-flex; align-items: center; gap: 4px; height: 76px; box-sizing: border-box; padding-top: 2px; text-decoration: none; color: #021A54; font-weight: 600; border-bottom: 2px solid {{accent}}">Solutions</a>
+<a href="{{L.travel}}" class="ns-nav" style="display: inline-flex; align-items: center; gap: 4px; height: 76px; box-sizing: border-box; padding-top: 2px; text-decoration: none; color: #23324F; border-bottom: 2px solid transparent">Travel Technology</a>
+<div onMouseEnter="{{h.ddOpen}}" onMouseLeave="{{h.ddClose}}" onFocus="{{h.ddOpen}}" onBlur="{{h.ddBlur}}" style="position: relative; display: flex; align-items: center">
+<a href="{{L.services}}" class="ns-nav" aria-haspopup="true" aria-expanded="{{dd}}" style="display: inline-flex; align-items: center; gap: 4px; height: 76px; box-sizing: border-box; padding-top: 2px; text-decoration: none; color: #23324F; border-bottom: 2px solid transparent">Services <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></a>
+<sc-if value="{{dd}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: -24px; top: 100%; z-index: 40">
+<div style="width: 360px; padding: 8px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; box-shadow: 0 28px 56px -24px rgba(2,26,84,0.35)"><a href="{{L.services}}" class="ns-dd" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; text-decoration: none; color: #021A54; background: #FFFFFF"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path></svg></span><span style="min-width: 0"><span style="display: block; font-size: 15px; font-weight: 600">All services</span><span style="display: block; margin-top: 2px; font-size: 13px; line-height: 1.45; font-weight: 400; color: #5A6882">Everything we design, build and connect</span></span></a><a href="{{L.website}}" class="ns-dd" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; text-decoration: none; color: #021A54; background: #FFFFFF"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg></span><span style="min-width: 0"><span style="display: block; font-size: 15px; font-weight: 600">Website development</span><span style="display: block; margin-top: 2px; font-size: 13px; line-height: 1.45; font-weight: 400; color: #5A6882">Websites, web apps and custom software</span></span></a><a href="{{L.design}}" class="ns-dd" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; text-decoration: none; color: #021A54; background: #FFFFFF"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"></path><path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"></path><path d="m2.3 2.3 7.286 7.286"></path><circle cx="11" cy="11" r="2"></circle></svg></span><span style="min-width: 0"><span style="display: block; font-size: 15px; font-weight: 600">UI/UX design</span><span style="display: block; margin-top: 2px; font-size: 13px; line-height: 1.45; font-weight: 400; color: #5A6882">Flows, Figma prototypes and design systems</span></span></a><a href="{{L.api}}" class="ns-dd" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; text-decoration: none; color: #021A54; background: #FFFFFF"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-5"></path><path d="M9 8V2"></path><path d="M15 8V2"></path><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"></path></svg></span><span style="min-width: 0"><span style="display: block; font-size: 15px; font-weight: 600">API integrations</span><span style="display: block; margin-top: 2px; font-size: 13px; line-height: 1.45; font-weight: 400; color: #5A6882">Payments, GDS, CRMs and custom APIs</span></span></a></div>
+</div>
+</sc-if>
+</div>
+<a href="{{L.work}}" class="ns-nav" style="display: inline-flex; align-items: center; gap: 4px; height: 76px; box-sizing: border-box; padding-top: 2px; text-decoration: none; color: #23324F; border-bottom: 2px solid transparent">Case Studies</a>
+<a href="{{L.about}}" class="ns-nav" style="display: inline-flex; align-items: center; gap: 4px; height: 76px; box-sizing: border-box; padding-top: 2px; text-decoration: none; color: #23324F; border-bottom: 2px solid transparent">About</a>
+</nav>
+</sc-if>
+<div style="display: flex; align-items: center; gap: 10px">
+<sc-if value="{{navFull}}" hint-placeholder-val="{{true}}">
+<a href="{{L.contact}}" class="ns-nav" style="display: inline-flex; align-items: center; height: 44px; padding: 0 16px; text-decoration: none; font-size: 15px; color: #23324F; font-weight: 500">Contact</a>
+</sc-if>
+<sc-if value="{{ctaInBar}}" hint-placeholder-val="{{true}}">
+<a href="{{L.contact}}" style="display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border-radius: 10px; background: #021A54; color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Get a quote</a>
+<button type="button" onClick="{{h.openDemo}}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border: none; border-radius: 10px; background: {{accent}}; color: {{onAccent}}; font: inherit; font-size: 15px; font-weight: 600; white-space: nowrap; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>Book a demo</button>
+</sc-if>
+<sc-if value="{{navMenu}}" hint-placeholder-val="{{false}}">
+<button type="button" aria-label="{{menuLabel}}" aria-expanded="{{menuOpen}}" onClick="{{h.toggleMenu}}" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 10px; color: #021A54; cursor: pointer"><sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></sc-if><sc-if value="{{menuClosed}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg></sc-if></button>
+</sc-if>
+</div>
+</div>
+<sc-if value="{{ctaRow}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; gap: 10px; padding: 0 20px 14px">
+<a href="{{L.contact}}" style="flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border-radius: 10px; background: #021A54; color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap">Get a quote</a>
+<button type="button" onClick="{{h.openDemo}}" style="flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border: none; border-radius: 10px; background: {{accent}}; color: {{onAccent}}; font: inherit; font-size: 15px; font-weight: 600; white-space: nowrap; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>Book a demo</button>
+</div>
+</sc-if>
+<sc-if value="{{menuShow}}" hint-placeholder-val="{{false}}">
+<nav aria-label="Menu" style="max-width: 1240px; margin: 0 auto; box-sizing: border-box; border-top: 1px solid #E8EDF4; padding: 4px clamp(20px, 4vw, 40px) 16px; display: flex; flex-direction: column"><a href="{{L.home}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Home</a><a href="{{L.solutions}}" onClick="{{h.closeMenu}}" aria-current="page" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 700">Solutions<span aria-hidden="true" style="width: 8px; height: 8px; flex: none; border-radius: 50%; background: {{accent}}"></span></a><a href="{{L.travel}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Travel Technology</a><a href="{{L.services}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Services</a><a href="{{L.website}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding-left: 16px; border-bottom: 1px solid #EEF2F7; text-decoration: none; font-size: 15px; color: #3E4C66; font-weight: 500">Website development</a><a href="{{L.design}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding-left: 16px; border-bottom: 1px solid #EEF2F7; text-decoration: none; font-size: 15px; color: #3E4C66; font-weight: 500">UI/UX design</a><a href="{{L.api}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding-left: 16px; border-bottom: 1px solid #EEF2F7; text-decoration: none; font-size: 15px; color: #3E4C66; font-weight: 500">API integrations</a><a href="{{L.work}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Case Studies</a><a href="{{L.about}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">About</a><a href="{{L.contact}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Contact</a><a href="{{L.support}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Support</a><a href="{{L.portal}}" onClick="{{h.closeMenu}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid #EEF2F7; color: #021A54; text-decoration: none; font-size: 16px; font-weight: 500">Client login</a></nav>
+</sc-if>
+</header>
+
+<section style="position: relative; overflow: hidden; background: radial-gradient(90% 120% at 88% 0%, #0C3584 0%, #021A54 52%, #01123D 100%)">
+<img src="/_blob/24437fb8c37f67956ce5db8d699025c3" alt="" aria-hidden="true" style="position: absolute; left: 50%; top: clamp(40px, 6vw, 90px); width: max(1400px, 130%); max-width: none; transform: translateX(-30%); opacity: 0.22; pointer-events: none">
+<div style="position: relative; max-width: 1240px; margin: 0 auto; padding: clamp(24px, 3vw, 36px) clamp(20px, 4vw, 40px) clamp(56px, 7vw, 96px)">
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px"><a href="{{L.home}}" style="color: #C5D0EA; text-decoration: none">Home</a><span aria-hidden="true" style="color: #6F82AE">/</span><span aria-current="page" style="color: #FFFFFF; font-weight: 500">Products &amp; Solutions</span></nav>
+<div style="margin-top: clamp(28px, 4vw, 52px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(40px, 6vw, 72px)">
+<div style="flex: 1 1 480px; min-width: 0">
+<p style="margin: 0; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: {{accentGlow}}; border: 1px solid {{accentEdge}}; color: {{hi}}; font-size: 13px; font-weight: 600">Products &amp; solutions</p>
+<h1 style="margin: 20px 0 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(38px, 4.8vw, 62px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 700; color: #FFFFFF">Everything you need to launch, run and <span style="color: {{hi}}">grow online.</span></h1>
+<p style="margin: 22px 0 0; max-width: 580px; font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6; color: #C5D0EA">Start from a ready-made product, build something custom, or connect the systems you already use. One team takes it from idea to launch.</p>
+<div style="margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px"><a href="{{L.contact}}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 24px; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; white-space: nowrap; background: {{accent}}; color: {{onAccent}}">Get a quote <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><button type="button" onClick="{{h.openDemo}}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 24px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.32); color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 600; white-space: nowrap; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>Book a demo</button></div>
+</div>
+<div style="flex: 1 1 460px; min-width: 0; position: relative">
+<div style="background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; box-shadow: 0 40px 80px -24px rgba(0,5,22,0.6), 0 10px 24px -10px rgba(0,5,22,0.4); overflow: hidden; color: #021A54"><div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #EEF2F7"><p style="margin: 0; font-size: 15px; font-weight: 600">Ready-made modules</p><span style="font-size: 12px; color: #5A6882">Proven on FlyConnect</span></div><div aria-hidden="true"><div style="display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: none"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg></span><span style="flex: 1 1 auto; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 600">Flight search &amp; booking</span><span style="display: block; font-size: 12px; color: #5A6882">Live Amadeus fares and ticketing</span></span><span style="width: 40px; height: 24px; flex: none; border-radius: 999px; background: {{accent}}; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: 1px solid #EEF2F7"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span style="flex: 1 1 auto; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 600">Agent &amp; sub-agent portal</span><span style="display: block; font-size: 12px; color: #5A6882">Own logins, roles and bookings</span></span><span style="width: 40px; height: 24px; flex: none; border-radius: 999px; background: {{accent}}; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: 1px solid #EEF2F7"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg></span><span style="flex: 1 1 auto; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 600">Payments &amp; payment links</span><span style="display: block; font-size: 12px; color: #5A6882">Stripe checkout and links from staff</span></span><span style="width: 40px; height: 24px; flex: none; border-radius: 999px; background: {{accent}}; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: 1px solid #EEF2F7"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg></span><span style="flex: 1 1 auto; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 600">Finance &amp; invoicing</span><span style="display: block; font-size: 12px; color: #5A6882">Refunds, invoices and ledger</span></span><span style="width: 40px; height: 24px; flex: none; border-radius: 999px; background: {{accent}}; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: 1px solid #EEF2F7"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg></span><span style="flex: 1 1 auto; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 600">Reports &amp; analytics</span><span style="display: block; font-size: 12px; color: #5A6882">14 report types</span></span><span style="width: 40px; height: 24px; flex: none; border-radius: 999px; background: {{accent}}; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: 1px solid #EEF2F7"><span style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="14" y="3" rx="1"></rect><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3"></path></svg></span><span style="flex: 1 1 auto; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 600">Your custom module</span><span style="display: block; font-size: 12px; color: #5A6882">Built around your process</span></span><span style="flex: none; padding: 5px 10px; border-radius: 8px; border: 1px dashed #B8C3D6; color: #3E4C66; font-size: 12px; font-weight: 600">+ Add</span></div></div></div>
+</div>
+</div>
+</div>
+</section>
+<section id="capabilities" style="padding: clamp(64px, 8vw, 112px) 0">
+<div style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px)">
+<div style="max-width: 720px; margin: 0 auto; text-align: center">
+<p style="margin: 0; font-size: 14px; font-weight: 600; color: {{accentText}}">Three ways we help</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700">Ready-made, custom, or connected.</h2>
+<p style="margin: 18px auto 0; max-width: 620px; font-size: 18px; line-height: 1.6; color: #3E4C66">Most projects combine all three: a proven base, the features only your business needs, and integrations with the tools you already run.</p>
+</div>
+<div style="margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+<div style="padding: 32px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 18px; display: flex; flex-direction: column"><span style="width: 48px; height: 48px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span><h3 style="margin: 22px 0 0; font-family: 'Inter Tight', sans-serif; font-size: 22px; letter-spacing: -0.02em; font-weight: 700">Ready-made digital products</h3><p style="margin: 10px 0 0; font-size: 16px; line-height: 1.6; color: #3E4C66">Booking engines, agency dashboards and business systems, configured to your brand and launched faster.</p><div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #23324F"><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Flight booking website</span><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Agent &amp; sub-agent portal</span><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Payments, invoices and reports</span></div><a href="{{L.travel}}" style="margin-top: auto; padding-top: 18px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; font-weight: 600; color: {{accentText}}; text-decoration: none">Explore travel products <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+<div style="padding: 32px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 18px; display: flex; flex-direction: column"><span style="width: 48px; height: 48px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span><h3 style="margin: 22px 0 0; font-family: 'Inter Tight', sans-serif; font-size: 22px; letter-spacing: -0.02em; font-weight: 700">Custom software &amp; websites</h3><p style="margin: 10px 0 0; font-size: 16px; line-height: 1.6; color: #3E4C66">Websites, SaaS platforms and web apps engineered around how your business actually works.</p><div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #23324F"><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Business and e-commerce websites</span><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>SaaS platforms and web apps</span><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Business management systems</span></div><a href="{{L.website}}" style="margin-top: auto; padding-top: 18px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; font-weight: 600; color: {{accentText}}; text-decoration: none">Explore website development <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+<div style="padding: 32px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 18px; display: flex; flex-direction: column"><span style="width: 48px; height: 48px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-5"></path><path d="M9 8V2"></path><path d="M15 8V2"></path><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"></path></svg></span><h3 style="margin: 22px 0 0; font-family: 'Inter Tight', sans-serif; font-size: 22px; letter-spacing: -0.02em; font-weight: 700">API integrations &amp; business solutions</h3><p style="margin: 10px 0 0; font-size: 16px; line-height: 1.6; color: #3E4C66">GDS, payments, CRMs and third-party tools connected into one reliable system.</p><div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #23324F"><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Amadeus and Sabre</span><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>Stripe and payment gateways</span><span style="display: flex; gap: 10px; align-items: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accentText}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M20 6 9 17l-5-5"></path></svg>CRMs and custom REST APIs</span></div><a href="{{L.api}}" style="margin-top: auto; padding-top: 18px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; font-weight: 600; color: {{accentText}}; text-decoration: none">Explore API integrations <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+</div>
+
+</div>
+</section>
+<section id="start" style="padding: clamp(64px, 8vw, 112px) 0; background: #F6F9FF; border-top: 1px solid #E8EDF4">
+<div style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px)">
+<div style="max-width: 720px; margin: 0 auto; text-align: center">
+<p style="margin: 0; font-size: 14px; font-weight: 600; color: {{accentText}}">Where to start</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700">Tell us where you are. We take it from there.</h2>
+</div>
+<div style="margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px">
+<a href="{{L.website}}" class="ns-lift" style="display: flex; flex-direction: column; padding: 26px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; color: #021A54; text-decoration: none"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg></span><p style="margin: 18px 0 0; font-size: 18px; font-weight: 700">A completely new website</p><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6; color: #3E4C66">A fast, modern site that explains what you sell and turns visitors into enquiries.</p><span style="margin-top: auto; padding-top: 18px; display: inline-flex; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span></a>
+<a href="{{L.design}}" class="ns-lift" style="display: flex; flex-direction: column; padding: 26px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; color: #021A54; text-decoration: none"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg></span><p style="margin: 18px 0 0; font-size: 18px; font-weight: 700">A redesign of your current website</p><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6; color: #3E4C66">We review what you have, redesign it in Figma, then rebuild it on a modern stack.</p><span style="margin-top: auto; padding-top: 18px; display: inline-flex; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span></a>
+<a href="{{L.travel}}" class="ns-lift" style="display: flex; flex-direction: column; padding: 26px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; color: #021A54; text-decoration: none"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg></span><p style="margin: 18px 0 0; font-size: 18px; font-weight: 700">Amadeus or Sabre in your travel website</p><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6; color: #3E4C66">Add flight search, pricing and booking to the website you already run.</p><span style="margin-top: auto; padding-top: 18px; display: inline-flex; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span></a>
+<a href="{{L.travel}}" class="ns-lift" style="display: flex; flex-direction: column; padding: 26px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; color: #021A54; text-decoration: none"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path><circle cx="18" cy="5" r="3"></circle></svg></span><p style="margin: 18px 0 0; font-size: 18px; font-weight: 700">A complete booking platform</p><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6; color: #3E4C66">A customer booking site, an agent dashboard, payments and reports, built from scratch.</p><span style="margin-top: auto; padding-top: 18px; display: inline-flex; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span></a>
+<a href="{{L.website}}" class="ns-lift" style="display: flex; flex-direction: column; padding: 26px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; color: #021A54; text-decoration: none"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg></span><p style="margin: 18px 0 0; font-size: 18px; font-weight: 700">Custom business software</p><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6; color: #3E4C66">Replace spreadsheets with a system built around your process, roles and data.</p><span style="margin-top: auto; padding-top: 18px; display: inline-flex; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span></a>
+<a href="{{L.design}}" class="ns-lift" style="display: flex; flex-direction: column; padding: 26px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; color: #021A54; text-decoration: none"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"></path><path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"></path><path d="m2.3 2.3 7.286 7.286"></path><circle cx="11" cy="11" r="2"></circle></svg></span><p style="margin: 18px 0 0; font-size: 18px; font-weight: 700">UI/UX design and development</p><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.6; color: #3E4C66">Flows and a clickable prototype first, then the build, by the same team.</p><span style="margin-top: auto; padding-top: 18px; display: inline-flex; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span></a>
+</div>
+
+</div>
+</section>
+<section id="catalogue" style="padding: clamp(64px, 8vw, 112px) 0; border-top: 1px solid #E8EDF4">
+<div style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px)">
+<div style="max-width: 720px; margin: 0 auto; text-align: center">
+<p style="margin: 0; font-size: 14px; font-weight: 600; color: {{accentText}}">Solution catalogue</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700">Every product and service, in one place.</h2>
+<p style="margin: 18px auto 0; max-width: 620px; font-size: 18px; line-height: 1.6; color: #3E4C66">Pick a single item, or combine several into one project.</p>
+</div>
+<div style="margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px">
+<div style="padding: 24px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; display: flex; flex-direction: column"><span style="width: 40px; height: 40px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg></span><p style="margin: 16px 0 0; font-size: 17px; font-weight: 700">Travel &amp; booking</p><ul style="margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #3E4C66; display: flex; flex-direction: column; gap: 8px"><li>Amadeus API integration</li><li>Sabre GDS integration</li><li>Flight booking websites</li><li>Travel agency management systems</li><li>B2B and B2C travel portals</li><li>Agent and sub-agent management</li><li>Flight search and booking engines</li><li>Hotel booking systems</li><li>Custom travel management software</li></ul><a href="{{L.travel}}" style="margin-top: auto; padding-top: 16px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: {{accentText}}; text-decoration: none">View details <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+<div style="padding: 24px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; display: flex; flex-direction: column"><span style="width: 40px; height: 40px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg></span><p style="margin: 16px 0 0; font-size: 17px; font-weight: 700">Website development</p><ul style="margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #3E4C66; display: flex; flex-direction: column; gap: 8px"><li>Business websites</li><li>E-commerce websites</li><li>SaaS platforms</li><li>Custom web applications</li><li>Landing pages</li><li>Admin dashboards</li><li>Customer portals</li></ul><a href="{{L.website}}" style="margin-top: auto; padding-top: 16px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: {{accentText}}; text-decoration: none">View details <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+<div style="padding: 24px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; display: flex; flex-direction: column"><span style="width: 40px; height: 40px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"></path><path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"></path><path d="m2.3 2.3 7.286 7.286"></path><circle cx="11" cy="11" r="2"></circle></svg></span><p style="margin: 16px 0 0; font-size: 17px; font-weight: 700">UI/UX design</p><ul style="margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #3E4C66; display: flex; flex-direction: column; gap: 8px"><li>Website UI/UX design</li><li>Figma prototypes</li><li>Dashboard design</li><li>Mobile app design</li><li>Responsive web design</li></ul><a href="{{L.design}}" style="margin-top: auto; padding-top: 16px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: {{accentText}}; text-decoration: none">View details <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+<div style="padding: 24px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; display: flex; flex-direction: column"><span style="width: 40px; height: 40px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-5"></path><path d="M9 8V2"></path><path d="M15 8V2"></path><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"></path></svg></span><p style="margin: 16px 0 0; font-size: 17px; font-weight: 700">API &amp; integrations</p><ul style="margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #3E4C66; display: flex; flex-direction: column; gap: 8px"><li>Amadeus API</li><li>Sabre API</li><li>Stripe payments</li><li>Payment gateway integrations</li><li>CRM integrations</li><li>Custom REST API development</li><li>Third-party software integrations</li></ul><a href="{{L.api}}" style="margin-top: auto; padding-top: 16px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: {{accentText}}; text-decoration: none">View details <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+<div style="padding: 24px; background: #FFFFFF; border: 1px solid #E1E8F2; border-radius: 16px; display: flex; flex-direction: column"><span style="width: 40px; height: 40px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path></svg></span><p style="margin: 16px 0 0; font-size: 17px; font-weight: 700">Custom software</p><ul style="margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #3E4C66; display: flex; flex-direction: column; gap: 8px"><li>Business management systems</li><li>Inventory management</li><li>Booking management</li><li>SaaS development</li><li>Enterprise dashboards</li><li>Automation solutions</li></ul><a href="{{L.website}}" style="margin-top: auto; padding-top: 16px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: {{accentText}}; text-decoration: none">View details <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div>
+</div>
+
+</div>
+</section>
+<section id="compare" style="padding: clamp(64px, 8vw, 112px) 0; background: #F6F9FF; border-top: 1px solid #E8EDF4">
+<div style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px)">
+<div style="max-width: 720px; margin: 0 auto; text-align: center">
+<p style="margin: 0; font-size: 14px; font-weight: 600; color: {{accentText}}">Ready-made or custom?</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700">Two starting points, one standard of quality.</h2>
+</div>
+<div style="margin-top: 48px; overflow-x: auto; border: 1px solid #E1E8F2; border-radius: 18px; background: #FFFFFF"><table style="width: 100%; min-width: 640px; border-collapse: collapse"><thead><tr><th scope="col" style="padding: 16px 20px; text-align: left; font-size: 14px; font-weight: 700; vertical-align: bottom; width: 22%; color: #5A6882; font-weight: 600">Compare</th><th scope="col" style="padding: 16px 20px; text-align: left; font-size: 14px; font-weight: 700; vertical-align: bottom"><span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 32px; height: 32px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>Ready-made product</span></th><th scope="col" style="padding: 16px 20px; text-align: left; font-size: 14px; font-weight: 700; vertical-align: bottom"><span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 32px; height: 32px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: {{accentSoft}}; color: {{accentText}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span>Custom build</span></th></tr></thead><tbody><tr><th scope="row" style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top; font-weight: 600; color: #021A54; text-align: left">Best for</th><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Travel agencies that want to sell online quickly</td><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Businesses with processes no product covers</td></tr><tr><th scope="row" style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top; font-weight: 600; color: #021A54; text-align: left">Starting point</th><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Proven booking, agent, payment and reporting modules</td><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Your requirements, mapped into flows and a prototype</td></tr><tr><th scope="row" style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top; font-weight: 600; color: #021A54; text-align: left">Branding</th><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Your logo, colours, domain and content</td><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Designed from scratch around your brand</td></tr><tr><th scope="row" style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top; font-weight: 600; color: #021A54; text-align: left">Features</th><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Configured, then extended with what you need</td><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Everything built to your specification</td></tr><tr><th scope="row" style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top; font-weight: 600; color: #021A54; text-align: left">Timeline</th><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">[X–Y weeks]</td><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">[X–Y months]</td></tr><tr><th scope="row" style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top; font-weight: 600; color: #021A54; text-align: left">Budget</th><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Lower upfront cost</td><td style="padding: 16px 20px; border-top: 1px solid #E8EDF4; font-size: 15px; line-height: 1.5; color: #23324F; vertical-align: top">Scoped to your requirements</td></tr></tbody></table></div>
+</div>
+</section>
+<section id="work" style="padding: clamp(40px, 6vw, 72px) 0">
+<div style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px)">
+<div style="border-radius: 28px; background: radial-gradient(80% 120% at 100% 0%, #0C3584 0%, #021A54 60%); color: #FFFFFF; overflow: hidden; padding: clamp(28px, 5vw, 56px); display: flex; flex-wrap: wrap; gap: clamp(28px, 5vw, 56px); align-items: center">
+<div style="flex: 1 1 460px; min-width: 0">
+<p style="margin: 0; font-size: 14px; font-weight: 600; color: {{hi}}">See it working · Travel technology</p>
+<p style="margin: 16px 0 0; font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">FlyConnect</p>
+<h2 style="margin: 8px 0 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.1; letter-spacing: -0.03em; font-weight: 700">A complete travel booking platform, built end to end.</h2>
+<p style="margin: 16px 0 0; font-size: 17px; line-height: 1.6; color: #C9D5EA">A customer booking website and a B2B dashboard for staff, agents and sub-agents, with live Amadeus flights, Stripe payments, finance tools and reporting.</p>
+<div style="margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px"><a href="{{L.work}}" style="display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 22px; border-radius: 10px; background: #FFFFFF; color: #021A54; font-size: 15px; font-weight: 600; text-decoration: none">Read the case study <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><a href="https://dev.flyconnect.co.uk" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 22px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.28); color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none">View live project <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h11"></path></svg></a></div>
+</div>
+<div style="flex: 1 1 340px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px"><div style="padding: 20px 22px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14)"><p style="margin: 0; font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.03em">46</p><p style="margin: 4px 0 0; font-size: 14px; color: #B4C3E6">Data models</p></div><div style="padding: 20px 22px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14)"><p style="margin: 0; font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.03em">14</p><p style="margin: 4px 0 0; font-size: 14px; color: #B4C3E6">Report types</p></div><div style="padding: 20px 22px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14)"><p style="margin: 0; font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.03em">4</p><p style="margin: 4px 0 0; font-size: 14px; color: #B4C3E6">User roles</p></div><div style="padding: 20px 22px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14)"><p style="margin: 0; font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.03em">2</p><p style="margin: 4px 0 0; font-size: 14px; color: #B4C3E6">Portals: B2C &amp; B2B</p></div></div>
+</div>
+</div>
+</section>
+<section id="faq" style="padding: clamp(64px, 8vw, 112px) 0; border-top: 1px solid #E8EDF4">
+<div style="max-width: 860px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px)">
+<h2 style="margin: 0; text-align: center; font-family: 'Inter Tight', sans-serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 700">Frequently asked questions</h2>
+<div style="margin-top: 44px; display: flex; flex-direction: column; gap: 12px">
+<div style="border: 1px solid #E1E8F2; border-radius: 14px; background: #FFFFFF"><button type="button" aria-expanded="{{fq.o0}}" onClick="{{fq.t0}}" style="width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 24px; border: none; border-radius: 14px; background: transparent; color: #021A54; font: inherit; font-size: 17px; font-weight: 600; line-height: 1.45; text-align: left; cursor: pointer"><span style="min-width: 0">What is the difference between a ready-made product and a custom build?</span><span aria-hidden="true" style="flex: none; width: 24px; text-align: center; font-size: 22px; line-height: 1.1; font-weight: 500; color: {{accentText}}">{{fq.s0}}</span></button><sc-if value="{{fq.o0}}" hint-placeholder-val="{{true}}"><p style="margin: 0; padding: 0 24px 22px; font-size: 16px; line-height: 1.6; color: #3E4C66">A ready-made product starts from proven modules, such as booking, agent management, payments and reports, configured to your brand. A custom build starts from your requirements and is designed and built around them.</p></sc-if></div>
+<div style="border: 1px solid #E1E8F2; border-radius: 14px; background: #FFFFFF"><button type="button" aria-expanded="{{fq.o1}}" onClick="{{fq.t1}}" style="width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 24px; border: none; border-radius: 14px; background: transparent; color: #021A54; font: inherit; font-size: 17px; font-weight: 600; line-height: 1.45; text-align: left; cursor: pointer"><span style="min-width: 0">Can you combine ready-made modules with custom features?</span><span aria-hidden="true" style="flex: none; width: 24px; text-align: center; font-size: 22px; line-height: 1.1; font-weight: 500; color: {{accentText}}">{{fq.s1}}</span></button><sc-if value="{{fq.o1}}" hint-placeholder-val="{{false}}"><p style="margin: 0; padding: 0 24px 22px; font-size: 16px; line-height: 1.6; color: #3E4C66">Yes. You can start from the modules you need and add the features only your business has.</p></sc-if></div>
+<div style="border: 1px solid #E1E8F2; border-radius: 14px; background: #FFFFFF"><button type="button" aria-expanded="{{fq.o2}}" onClick="{{fq.t2}}" style="width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 24px; border: none; border-radius: 14px; background: transparent; color: #021A54; font: inherit; font-size: 17px; font-weight: 600; line-height: 1.45; text-align: left; cursor: pointer"><span style="min-width: 0">Can you work with the website or software we already have?</span><span aria-hidden="true" style="flex: none; width: 24px; text-align: center; font-size: 22px; line-height: 1.1; font-weight: 500; color: {{accentText}}">{{fq.s2}}</span></button><sc-if value="{{fq.o2}}" hint-placeholder-val="{{false}}"><p style="margin: 0; padding: 0 24px 22px; font-size: 16px; line-height: 1.6; color: #3E4C66">Yes. We can redesign it, extend it, or connect it to new systems such as Amadeus, Sabre, Stripe or your CRM.</p></sc-if></div>
+<div style="border: 1px solid #E1E8F2; border-radius: 14px; background: #FFFFFF"><button type="button" aria-expanded="{{fq.o3}}" onClick="{{fq.t3}}" style="width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 24px; border: none; border-radius: 14px; background: transparent; color: #021A54; font: inherit; font-size: 17px; font-weight: 600; line-height: 1.45; text-align: left; cursor: pointer"><span style="min-width: 0">How do we get started?</span><span aria-hidden="true" style="flex: none; width: 24px; text-align: center; font-size: 22px; line-height: 1.1; font-weight: 500; color: {{accentText}}">{{fq.s3}}</span></button><sc-if value="{{fq.o3}}" hint-placeholder-val="{{false}}"><p style="margin: 0; padding: 0 24px 22px; font-size: 16px; line-height: 1.6; color: #3E4C66">Send a quote request or book a demo. We reply with next steps, a rough scope and an estimate.</p></sc-if></div>
+</div>
+
+</div>
+</section>
+<section style="background: radial-gradient(90% 120% at 0% 100%, #0C3584 0%, #021A54 55%); color: #FFFFFF">
+<div style="max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 96px) clamp(20px, 4vw, 40px); display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: center; justify-content: space-between">
+<div style="flex: 1 1 520px; min-width: 0">
+<h2 style="margin: 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.06; letter-spacing: -0.035em; font-weight: 700">Not sure which option fits?</h2>
+<p style="margin: 18px 0 0; max-width: 580px; font-size: 18px; line-height: 1.6; color: #C9D5EA">Tell us what you want to achieve. We will recommend the fastest route and give you a clear estimate.</p>
+</div>
+<div style="flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: 12px"><a href="{{L.contact}}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 24px; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; white-space: nowrap; background: {{accent}}; color: {{onAccent}}">Get a quote <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><button type="button" onClick="{{h.openDemo}}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 24px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.32); color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 600; white-space: nowrap; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>Book a demo</button></div>
+</div>
+</section>
+
+<footer style="background: #01123D; color: #FFFFFF; border-top: 1px solid rgba(255,255,255,0.08)">
+<div style="max-width: 1240px; margin: 0 auto; padding: 64px clamp(20px, 4vw, 40px) 40px">
+<div style="display: flex; flex-wrap: wrap; gap: 40px; justify-content: space-between">
+<div style="flex: 1 1 260px; max-width: 320px">
+<a href="{{L.home}}" style="display: flex; align-items: center; gap: 10px; color: #FFFFFF; text-decoration: none; font-family: 'Inter Tight', sans-serif; font-weight: 700; font-size: 20px"><svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="3" width="20" height="5" rx="2.5" fill="{{accent}}"></rect><rect x="3" y="10.5" width="20" height="5" rx="2.5" fill="#FFFFFF"></rect><rect x="3" y="18" width="13" height="5" rx="2.5" fill="#FFFFFF"></rect></svg>Northstack</a>
+<p style="margin: 16px 0 0; font-size: 15px; line-height: 1.6; color: #C5D0EA">We design, develop &amp; integrate digital solutions that grow your business.</p>
+<div style="margin-top: 20px; display: flex; gap: 8px"><a href="#top" aria-label="LinkedIn" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; color: #E6ECF7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="#top" aria-label="Instagram" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; color: #E6ECF7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><path d="M17.5 6.5h.01"></path></svg></a><a href="{{L.contact}}" aria-label="Email" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; color: #E6ECF7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></a></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 40px 64px"><div><p style="margin: 0; font-size: 14px; font-weight: 700">Solutions</p><div style="margin-top: 14px; display: flex; flex-direction: column; align-items: flex-start; font-size: 15px; line-height: 2.1"><a href="{{L.solutions}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Ready-made products</a><a href="{{L.website}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Custom software</a><a href="{{L.api}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">API integrations</a></div></div><div><p style="margin: 0; font-size: 14px; font-weight: 700">Services</p><div style="margin-top: 14px; display: flex; flex-direction: column; align-items: flex-start; font-size: 15px; line-height: 2.1"><a href="{{L.travel}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Travel technology</a><a href="{{L.website}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Website development</a><a href="{{L.design}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">UI/UX design</a><a href="{{L.services}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">All services</a></div></div><div><p style="margin: 0; font-size: 14px; font-weight: 700">Company</p><div style="margin-top: 14px; display: flex; flex-direction: column; align-items: flex-start; font-size: 15px; line-height: 2.1"><a href="{{L.about}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">About</a><a href="{{L.work}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Case studies</a><a href="{{L.contact}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Contact</a></div></div><div><p style="margin: 0; font-size: 14px; font-weight: 700">Clients</p><div style="margin-top: 14px; display: flex; flex-direction: column; align-items: flex-start; font-size: 15px; line-height: 2.1"><a href="{{L.support}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Support</a><a href="{{L.portal}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Client login</a><a href="{{L.invite}}" class="ns-foot" style="color: #C5D0EA; text-decoration: none">Open my invitation</a></div></div></div>
+</div>
+<div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.12); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: #9FB0D6">
+<p style="margin: 0">© 2026 Northstack. All rights reserved.</p>
+<p style="margin: 0">Privacy · Terms · Cookies</p>
+</div>
+</div>
+</footer>
+
+<sc-if value="{{demo.open}}" hint-placeholder-val="{{false}}">
+<div onClick="{{h.backdrop}}" style="{{demo.ov}}">
+<div onClick="{{h.backdrop}}" style="{{demo.wrap}}">
+<div role="dialog" aria-modal="true" aria-labelledby="demo-title" style="width: 100%; max-width: 620px; border-radius: 20px; background: #FFFFFF; color: #021A54; text-align: left; box-shadow: 0 40px 90px -24px rgba(0,5,22,0.65); overflow: hidden">
+<div style="padding: 20px 22px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid #E8EDF4"><div style="display: flex; align-items: center; gap: 12px; min-width: 0"><span style="width: 44px; height: 44px; flex: none; border-radius: 12px; background: {{accentSoft}}; color: {{accentText}}; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg></span><div style="min-width: 0"><p id="demo-title" style="margin: 0; font-family: 'Inter Tight', sans-serif; font-size: 21px; font-weight: 700; letter-spacing: -0.02em">Book a demo</p><p style="margin: 2px 0 0; font-size: 14px; color: #5A6882">30-minute video call with our team</p></div></div><button type="button" aria-label="Close" onClick="{{h.closeDemo}}" style="width: 40px; height: 40px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #DCE3EE; border-radius: 10px; background: #FFFFFF; color: #021A54; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
+<sc-if value="{{demo.showSteps}}" hint-placeholder-val="{{true}}">
+<div style="padding: 16px 22px 0; display: flex; gap: 8px"><sc-for list="{{demo.steps}}" as="p" hint-placeholder-count="3"><div style="flex: 1 1 0; min-width: 0"><div style="height: 4px; border-radius: 2px; background: {{p.bar}}"></div><p style="margin: 8px 0 0; font-size: 12px; font-weight: 600; color: {{p.col}}">{{p.label}}</p></div></sc-for></div>
+</sc-if>
+<div style="padding: 18px 22px 4px">
+<sc-if value="{{demo.s1}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0 0 12px; font-size: 15px; font-weight: 600">What would you like to see?</p><div role="radiogroup" aria-label="Demo topic" style="display: grid; grid-template-columns: {{demo.cols}}; gap: 10px"><sc-for list="{{demo.topics}}" as="o" hint-placeholder-count="4"><button type="button" role="radio" aria-checked="{{o.sel}}" onClick="{{o.pick}}" style="{{o.style}}"><span style="{{o.dot}}"></span><span style="min-width: 0"><span style="display: block; font-size: 15px; font-weight: 600; color: #021A54">{{o.name}}</span><span style="display: block; margin-top: 3px; font-size: 13px; line-height: 1.45; color: #5A6882">{{o.sub}}</span></span></button></sc-for></div>
+</sc-if>
+<sc-if value="{{demo.s2}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0 0 12px; font-size: 15px; font-weight: 600">Pick a day</p><div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px"><sc-for list="{{demo.days}}" as="d" hint-placeholder-count="10"><button type="button" aria-pressed="{{d.sel}}" aria-label="{{d.long}}" onClick="{{d.pick}}" style="{{d.style}}"><span style="font-size: 12px; font-weight: 600; opacity: 0.8">{{d.wd}}</span><span style="font-family: 'Inter Tight', sans-serif; font-size: 19px; font-weight: 700">{{d.num}}</span><span style="font-size: 12px; opacity: 0.8">{{d.mon}}</span></button></sc-for></div><p style="margin: 16px 0 12px; font-size: 15px; font-weight: 600">Available times · {{demo.dayLong}}</p><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{demo.slots}}" as="t" hint-placeholder-count="6"><button type="button" aria-pressed="{{t.sel}}" aria-label="{{t.aria}}" disabled="{{t.busy}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button></sc-for></div><p style="margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: #5A6882">Times are UK time (GMT). Crossed-out times are already taken.</p>
+</sc-if>
+<sc-if value="{{demo.s3}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: #F6F9FF; border: 1px solid #E1E8F2; font-size: 14px"><span style="display: inline-flex; flex: none; color: {{accentText}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg></span><span style="flex: 1 1 auto; min-width: 0"><b>{{demo.whenShort}}</b> · {{demo.topicName}}</span><button type="button" onClick="{{h.toTime}}" style="flex: none; min-height: 36px; padding: 0 6px; border: none; background: transparent; color: #021A54; font: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Change</button></div><div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 12px"><label style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #23324F">Full name *<input type="text" autocomplete="name" placeholder="Your name" value="{{demo.name}}" onChange="{{h.onName}}" style="{{demo.inName}}"><sc-if value="{{demo.eName}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 500; color: #B42318">Enter your name</span></sc-if></label><label style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #23324F">Work email *<input type="email" autocomplete="email" placeholder="you@company.com" value="{{demo.email}}" onChange="{{h.onEmail}}" style="{{demo.inEmail}}"><sc-if value="{{demo.eEmail}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 500; color: #B42318">Enter a valid work email</span></sc-if></label></div><div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px"><label style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #23324F">Company *<input type="text" autocomplete="organization" placeholder="Company name" value="{{demo.company}}" onChange="{{h.onCompany}}" style="{{demo.inCompany}}"><sc-if value="{{demo.eCompany}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 500; color: #B42318">Enter your company name</span></sc-if></label><label style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #23324F">Phone (optional)<input type="tel" autocomplete="tel" placeholder="+44 20 0000 0000" value="{{demo.phone}}" onChange="{{h.onPhone}}" style="{{demo.inPlain}}"></label></div><label style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #23324F">Anything we should prepare? (optional)<textarea rows="3" placeholder="For example your current booking flow, or the features you want to see" value="{{demo.notes}}" onChange="{{h.onNotes}}" style="padding: 12px 14px; border: 1px solid #CBD5E4; border-radius: 10px; font: inherit; font-weight: 400; font-size: 15px; color: #021A54; resize: vertical"></textarea></label>
+</sc-if>
+<sc-if value="{{demo.s4}}" hint-placeholder-val="{{false}}">
+<div style="text-align: center; padding: 4px 0 0"><span style="width: 60px; height: 60px; border-radius: 50%; background: {{accentSoft}}; color: {{accentText}}; display: inline-flex; align-items: center; justify-content: center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><p style="margin: 14px 0 0; font-family: 'Inter Tight', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.02em">Demo requested</p><p style="margin: 8px auto 0; max-width: 430px; font-size: 15px; line-height: 1.6; color: #3E4C66">Thanks, {{demo.first}}. We will send a calendar invite to <b style="color: #021A54">{{demo.email}}</b> within [1 business day].</p></div><div style="margin-top: 18px; border: 1px solid #E1E8F2; border-radius: 14px; overflow: hidden"><sc-for list="{{demo.summary}}" as="r" hint-placeholder-count="4"><div style="display: flex; gap: 12px; padding: 12px 16px; border-top: {{r.bt}}; font-size: 14px"><span style="width: 84px; flex: none; color: #5A6882">{{r.k}}</span><span style="min-width: 0; font-weight: 600">{{r.v}}</span></div></sc-for></div>
+</sc-if>
+<sc-if value="{{demo.hasErr}}" hint-placeholder-val="{{false}}"><p role="alert" style="margin: 12px 0 0; font-size: 14px; font-weight: 500; color: #B42318">{{demo.err}}</p></sc-if>
+</div>
+<div style="padding: 16px 22px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px"><sc-if value="{{demo.canBack}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{h.back}}" style="height: 46px; padding: 0 18px; border: 1px solid #CBD5E4; border-radius: 10px; background: #FFFFFF; color: #021A54; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer">Back</button></sc-if><sc-if value="{{demo.noBack}}" hint-placeholder-val="{{true}}"><span style="font-size: 13px; color: #5A6882">{{demo.hint}}</span></sc-if><button type="button" onClick="{{demo.primaryAct}}" style="{{demo.primaryStyle}}">{{demo.primaryLabel}}</button></div>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#D3AF34","options":["#D3AF34","#FFD700","#4F8CFF","#22B8A6"]},"mobile":{"editor":null,"default":false},"$preview":{"width":1440,"height":6343}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._onResize = () => this.forceUpdate();
+    window.addEventListener('resize', this._onResize);
+    this._onKey = (e) => {
+      if (e.key !== 'Escape') { return; }
+      var s = this.st();
+      if (s.demo) { this.closeDemo(); } else if (s.menu || s.dd) { this.set({ menu: false, dd: false }); }
+    };
+    window.addEventListener('keydown', this._onKey);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('keydown', this._onKey);
+  }
+  demoFresh() {
+    return { demo: false, step: 1, topic: null, day: 0, slot: -1, name: '', email: '', company: '', phone: '', notes: '', tried: false, err: '', top: 110 };
+  }
+  quoteFresh() {
+    return { qType: 'Travel booking platform', qBudget: 'Not sure yet', qTime: 'Not sure yet', qName: '', qEmail: '', qCompany: '', qPhone: '', qReq: '', qTried: false, qSent: false };
+  }
+  msgFresh() {
+    return { mTopic: 'General question', mName: '', mEmail: '', mMsg: '', mTried: false, mSent: false };
+  }
+  fresh() {
+    return Object.assign(this.demoFresh(), this.quoteFresh(), this.msgFresh(), { menu: false, dd: false, faq: 0, tab: 'quote' });
+  }
+  st() { return Object.assign(this.fresh(), this.state || {}); }
+  set(p) { this.setState(Object.assign({}, this.st(), p)); }
+  rgb(hex) {
+    var h = String(hex || '#D3AF34').replace('#', '');
+    if (h.length === 3) { h = h.split('').map(function (c) { return c + c; }).join(''); }
+    var n = parseInt(h, 16);
+    if (isNaN(n)) { n = 0xD3AF34; }
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  lum(c) {
+    var f = function (v) { v = v / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+  }
+  topics() {
+    return [
+      { id: 'travel', name: 'Travel booking platform', sub: 'Amadeus flight search, booking and ticketing' },
+      { id: 'portal', name: 'Agent and admin dashboards', sub: 'Agent portals, bookings, payments and reports' },
+      { id: 'custom', name: 'Custom software and websites', sub: 'Talk through your idea and see similar builds' },
+      { id: 'api', name: 'API and integrations', sub: 'Payments, GDS and third-party systems' }
+    ];
+  }
+  days() {
+    var W = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var M = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var out = [], d = new Date();
+    d.setHours(12, 0, 0, 0);
+    while (out.length < 10) {
+      d.setDate(d.getDate() + 1);
+      var wd = d.getDay();
+      if (wd === 0 || wd === 6) { continue; }
+      out.push({ wd: W[wd].slice(0, 3), num: String(d.getDate()), mon: M[d.getMonth()].slice(0, 3), long: W[wd] + ' ' + d.getDate() + ' ' + M[d.getMonth()] });
+    }
+    return out;
+  }
+  slots() { return ['09:30', '11:00', '12:30', '14:00', '15:30', '17:00']; }
+  busy(day, i) { return (day * 7 + i * 3) % 5 === 0; }
+  validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || '').trim()); }
+  pageName() { return 'Products & Solutions'; }
+  pushLead(d) {
+    try {
+      var k = 'ns-web-leads', L = JSON.parse(window.sessionStorage.getItem(k) || '[]');
+      if (!Array.isArray(L)) { L = []; }
+      d.key = Date.now() + '-' + Math.random().toString(36).slice(2, 8); d.at = Date.now(); d.page = this.pageName();
+      L.push(d); window.sessionStorage.setItem(k, JSON.stringify(L.slice(-30)));
+      window.dispatchEvent(new CustomEvent('ns-web-leads'));
+    } catch (x) {}
+  }
+  openDemo(e) {
+    var top = 110;
+    try {
+      var el = e && e.currentTarget;
+      var root = el && el.closest ? el.closest('[data-ns-root]') : null;
+      if (el && !root) {
+        // fallback: the page root is the first ancestor that is both relative and clipped
+        for (var p = el.parentElement; p && p.tagName !== 'BODY'; p = p.parentElement) {
+          if (p.style && p.style.position === 'relative' && p.style.overflow === 'hidden') { root = p; break; }
+        }
+      }
+      if (el && root) {
+        var r = el.getBoundingClientRect(), rr = root.getBoundingClientRect();
+        var y = r.top - rr.top;
+        top = y < 320 ? Math.round(y + r.height + 14) : Math.max(16, Math.round(y - 260));
+      }
+    } catch (x) {}
+    this.set({ demo: true, top: top, menu: false, dd: false, err: '' });
+  }
+  closeDemo() {
+    var s = this.st();
+    if (s.step === 4) { this.set(this.demoFresh()); } else { this.set({ demo: false, err: '' }); }
+  }
+  next() {
+    var s = this.st();
+    if (s.step === 1) {
+      if (!s.topic) { this.set({ err: 'Choose what you’d like to see.' }); return; }
+      this.set({ step: 2, err: '' }); return;
+    }
+    if (s.step === 2) {
+      if (s.slot < 0 || this.busy(s.day, s.slot)) { this.set({ err: 'Pick an available time to continue.' }); return; }
+      this.set({ step: 3, err: '' }); return;
+    }
+    if (s.step === 3) {
+      var ok = s.name.trim() && this.validEmail(s.email) && s.company.trim();
+      if (!ok) { this.set({ tried: true, err: 'Please fix the highlighted fields.' }); return; }
+      var tp = this.topics().filter(function (x) { return x.id === s.topic; })[0], dd = this.days()[Math.min(s.day, 9)];
+      this.pushLead({ kind: 'demo', topic: tp ? tp.name : '', day: dd ? dd.long : '', slot: this.slots()[s.slot] || '', name: s.name.trim(), email: s.email.trim(), company: s.company.trim(), phone: s.phone.trim(), notes: s.notes.trim() });
+      this.set({ step: 4, tried: false, err: '' });
+    }
+  }
+  sendQuote() {
+    var s = this.st();
+    if (!(s.qName.trim() && this.validEmail(s.qEmail) && s.qReq.trim())) { this.set({ qTried: true }); return; }
+    var full = this.pageName() === 'Contact & Quote';
+    this.pushLead({ kind: 'quote', type: s.qType, budget: s.qBudget, time: full ? s.qTime : '', name: s.qName.trim(), email: s.qEmail.trim(), company: full ? s.qCompany.trim() : '', phone: full ? s.qPhone.trim() : '', req: s.qReq.trim() });
+    this.set({ qSent: true, qTried: false });
+  }
+  sendMsg() {
+    var s = this.st();
+    if (!(s.mName.trim() && this.validEmail(s.mEmail) && s.mMsg.trim())) { this.set({ mTried: true }); return; }
+    this.pushLead({ kind: 'msg', topic: s.mTopic, name: s.mName.trim(), email: s.mEmail.trim(), text: s.mMsg.trim() });
+    this.set({ mSent: true, mTried: false });
+  }
+  renderVals() {
+    var PAGE = 'solutions', NFAQ = 4;
+    var accent = this.props.accent ?? '#D3AF34';
+    var c = this.rgb(accent);
+    var self = this;
+    // darkest shade of the accent that still reads as text on white (4.6:1)
+    var t = c.slice();
+    for (var i = 0; i < 40 && (1.05 / (self.lum(t) + 0.05)) < 4.6; i++) { t = t.map(function (v) { return Math.round(v * 0.94); }); }
+    var light = this.lum(c) > 0.18;
+    var onAccent = light ? '#021A54' : '#FFFFFF';
+    var w = typeof window !== 'undefined' ? window.innerWidth : 1440;
+    var mob = this.props.mobile === true;
+    var narrow = mob || w < 860;
+    var navFull = !narrow && w >= 1180;
+    var s = this.st();
+
+    // every page is its own artboard; the phone artboards link to each other
+    var art = function (n) { return n + (mob ? 'Mobile' : '') + '.dc.html'; };
+    var L = {
+      home: mob ? 'LightMobile.dc.html' : 'Light.dc.html',
+      solutions: art('NsSolutions'), travel: art('NsTravel'), services: art('NsServices'),
+      website: art('NsWebsite'), design: art('NsDesign'), api: art('NsApi'),
+      work: art('NsWork'), about: art('NsAbout'), contact: art('NsContact'), support: art('NsSupport'),
+      portal: mob ? 'S1-M1.dc.html' : 'S1-01.dc.html', invite: mob ? 'S1-M1.dc.html' : 'S1-02.dc.html', team: mob ? 'S1-M1.dc.html' : 'S1-16.dc.html'
+    };
+
+    // demo dialog: in the tall canvas frame it opens beside the button that was used,
+    // in a normal browser window it is centred on screen
+    var tall = typeof window !== 'undefined' && (window.innerHeight || 0) > 1400;
+    var ov = tall
+      ? 'position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 80; background: rgba(1,18,61,0.62)'
+      : 'position: fixed; inset: 0; z-index: 80; background: rgba(1,18,61,0.62); overflow-y: auto';
+    var wrap = tall
+      ? 'position: absolute; left: 0; right: 0; top: ' + s.top + 'px; display: flex; justify-content: center; padding: 0 ' + (narrow ? 12 : 24) + 'px'
+      : 'min-height: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 24px ' + (narrow ? 12 : 24) + 'px';
+    var topics = this.topics(), days = this.days(), slots = this.slots();
+    var topic = topics.filter(function (x) { return x.id === s.topic; })[0] || null;
+    var day = days[Math.min(s.day, days.length - 1)];
+    var slotLabel = s.slot >= 0 ? slots[s.slot] : '';
+    var input = 'height: 46px; padding: 0 14px; border-radius: 10px; font: inherit; font-weight: 400; font-size: 15px; color: #021A54; background: #FFFFFF; ';
+    var okIn = input + 'border: 1px solid #CBD5E4';
+    var badIn = input + 'border: 1px solid #D92D20; box-shadow: 0 0 0 3px rgba(217,45,32,0.12)';
+    var eName = s.tried && !s.name.trim(), eEmail = s.tried && !this.validEmail(s.email), eCompany = s.tried && !s.company.trim();
+    var labels = ['What to see', 'Date and time', 'Your details'];
+    var primary = 'margin-left: auto; height: 46px; padding: 0 22px; border: none; border-radius: 10px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; ';
+    var demo = {
+      open: s.demo,
+      ov: ov,
+      wrap: wrap,
+      s1: s.step === 1, s2: s.step === 2, s3: s.step === 3, s4: s.step === 4,
+      showSteps: s.step < 4,
+      steps: labels.map(function (l, k) {
+        var n = k + 1;
+        return { label: l, bar: n <= s.step ? accent : '#E1E8F2', col: n === s.step ? '#021A54' : (n < s.step ? '#5A6882' : '#A3AEC2') };
+      }),
+      cols: narrow ? 'minmax(0, 1fr)' : 'repeat(2, minmax(0, 1fr))',
+      topics: topics.map(function (x) {
+        var sel = s.topic === x.id;
+        return {
+          name: x.name, sub: x.sub, sel: sel,
+          style: 'display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 14px; border-radius: 14px; font: inherit; text-align: left; cursor: pointer; background: ' + (sel ? '#F6F9FF' : '#FFFFFF') + '; border: ' + (sel ? '2px solid #021A54' : '1px solid #DCE3EE') + '; margin: ' + (sel ? '0' : '1px'),
+          dot: 'width: 20px; height: 20px; flex: none; margin-top: 1px; border-radius: 50%; box-sizing: border-box; border: 2px solid ' + (sel ? '#021A54' : '#B8C3D6') + '; background: ' + (sel ? accent : '#FFFFFF') + '; box-shadow: inset 0 0 0 3px #FFFFFF',
+          pick: function () { self.set({ topic: x.id, err: '' }); }
+        };
+      }),
+      days: days.map(function (d, k) {
+        var sel = k === s.day;
+        return {
+          wd: d.wd, num: d.num, mon: d.mon, long: d.long, sel: sel,
+          style: 'flex: none; width: 64px; padding: 9px 0; display: flex; flex-direction: column; align-items: center; gap: 1px; border-radius: 12px; font: inherit; cursor: pointer; border: 1px solid ' + (sel ? '#021A54' : '#DCE3EE') + '; background: ' + (sel ? '#021A54' : '#FFFFFF') + '; color: ' + (sel ? '#FFFFFF' : '#021A54'),
+          pick: function () { self.set({ day: k, slot: -1, err: '' }); }
+        };
+      }),
+      dayLong: day.long,
+      slots: slots.map(function (lab, k) {
+        var busy = self.busy(s.day, k), sel = !busy && k === s.slot;
+        var st = 'height: 44px; border-radius: 10px; font: inherit; font-size: 15px; font-weight: 600; ';
+        st += busy ? 'border: 1px solid #EEF1F6; background: #F3F5F9; color: #A3AEC2; text-decoration: line-through; cursor: not-allowed'
+          : (sel ? 'border: 1px solid ' + accent + '; background: ' + accent + '; color: ' + onAccent + '; cursor: pointer'
+            : 'border: 1px solid #DCE3EE; background: #FFFFFF; color: #021A54; cursor: pointer');
+        return { label: lab, busy: busy, sel: sel, style: st, aria: lab + (busy ? ', taken' : ''), pick: function () { if (!busy) { self.set({ slot: k, err: '' }); } } };
+      }),
+      whenShort: day.wd + ' ' + day.num + ' ' + day.mon + (slotLabel ? ' · ' + slotLabel + ' UK time' : ''),
+      topicName: topic ? topic.name : '',
+      name: s.name, email: s.email, company: s.company, phone: s.phone, notes: s.notes,
+      inName: eName ? badIn : okIn, inEmail: eEmail ? badIn : okIn, inCompany: eCompany ? badIn : okIn, inPlain: okIn,
+      eName: eName, eEmail: eEmail, eCompany: eCompany,
+      first: (s.name.trim().split(/\s+/)[0]) || 'there',
+      summary: [
+        ['Demo', topic ? topic.name : ''],
+        ['When', day.long + ', ' + slotLabel + ' UK time'],
+        ['Where', 'Video call · 30 minutes'],
+        ['Company', s.company.trim()]
+      ].map(function (r, k) { return { k: r[0], v: r[1], bt: k ? '1px solid #E8EDF4' : 'none' }; }),
+      hasErr: !!s.err, err: s.err,
+      canBack: s.step === 2 || s.step === 3,
+      noBack: s.step === 1 || s.step === 4,
+      hint: s.step === 1 ? 'Takes less than a minute' : '',
+      primaryLabel: s.step === 3 ? 'Request demo' : (s.step === 4 ? 'Done' : 'Continue'),
+      primaryStyle: primary + (s.step === 3 ? 'background: ' + accent + '; color: ' + onAccent : 'background: #021A54; color: #FFFFFF'),
+      primaryAct: s.step === 4 ? function () { self.set(self.demoFresh()); } : function () { self.next(); }
+    };
+
+    // quote and message forms
+    var fin = 'height: 48px; padding: 0 14px; border-radius: 10px; font: inherit; font-weight: 400; font-size: 15px; color: #021A54; background: #FFFFFF; ';
+    var fok = fin + 'border: 1px solid #CBD5E4';
+    var fbad = fin + 'border: 1px solid #D92D20; box-shadow: 0 0 0 3px rgba(217,45,32,0.12)';
+    var ta = 'padding: 12px 14px; border-radius: 10px; font: inherit; font-weight: 400; font-size: 15px; color: #021A54; background: #FFFFFF; resize: vertical; ';
+    var taOk = ta + 'border: 1px solid #CBD5E4', taBad = ta + 'border: 1px solid #D92D20; box-shadow: 0 0 0 3px rgba(217,45,32,0.12)';
+    var qn = s.qTried && !s.qName.trim(), qm = s.qTried && !this.validEmail(s.qEmail), qr = s.qTried && !s.qReq.trim();
+    var qrows = [['Project', s.qType], ['Budget', s.qBudget]];
+    if (PAGE === 'contact') { qrows.push(['Timeline', s.qTime]); }
+    if (s.qCompany.trim()) { qrows.push(['Company', s.qCompany.trim()]); }
+    var q = {
+      form: !s.qSent, sent: s.qSent,
+      type: s.qType, budget: s.qBudget, time: s.qTime, name: s.qName, email: s.qEmail, company: s.qCompany, phone: s.qPhone, req: s.qReq,
+      eName: qn, eEmail: qm, eReq: qr, hasErr: !!(qn || qm || qr),
+      inName: qn ? fbad : fok, inEmail: qm ? fbad : fok, inPlain: fok, taReq: qr ? taBad : taOk,
+      first: (s.qName.trim().split(/\s+/)[0]) || 'there',
+      summary: qrows.map(function (r, k) { return { k: r[0], v: r[1], bt: k ? '1px solid #E8EDF4' : 'none' }; })
+    };
+    var mn = s.mTried && !s.mName.trim(), mm = s.mTried && !this.validEmail(s.mEmail), mg = s.mTried && !s.mMsg.trim();
+    var m = {
+      form: !s.mSent, sent: s.mSent,
+      topic: s.mTopic, name: s.mName, email: s.mEmail, msg: s.mMsg,
+      eName: mn, eEmail: mm, eMsg: mg, hasErr: !!(mn || mm || mg),
+      inName: mn ? fbad : fok, inEmail: mm ? fbad : fok, taMsg: mg ? taBad : taOk,
+      first: (s.mName.trim().split(/\s+/)[0]) || 'there'
+    };
+    var tabOn = 'flex: 1 1 0; min-width: 0; height: 44px; border: none; border-radius: 9px; background: #FFFFFF; color: #021A54; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgba(2,26,84,0.12), 0 0 0 1px #E1E8F2';
+    var tabOff = 'flex: 1 1 0; min-width: 0; height: 44px; border: none; border-radius: 9px; background: transparent; color: #5A6882; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer';
+    var tabs = { quote: s.tab === 'quote', msg: s.tab === 'msg', qStyle: s.tab === 'quote' ? tabOn : tabOff, mStyle: s.tab === 'msg' ? tabOn : tabOff };
+
+    // FAQ accordion: one item open at a time
+    var fq = {};
+    for (var k = 0; k < NFAQ; k++) {
+      (function (n) {
+        var o = s.faq === n;
+        fq['o' + n] = o;
+        fq['s' + n] = o ? '−' : '+';
+        fq['t' + n] = function () { self.set({ faq: o ? -1 : n }); };
+      })(k);
+    }
+
+    return {
+      accent: accent,
+      onAccent: onAccent,
+      hi: light ? accent : 'rgb(' + c.map(function (v) { return Math.round(v + (255 - v) * 0.55); }).join(',') + ')',
+      accentText: 'rgb(' + t.join(',') + ')',
+      accentSoft: 'rgba(' + c.join(',') + ',0.13)',
+      accentGlow: 'rgba(' + c.join(',') + ',0.14)',
+      accentEdge: 'rgba(' + c.join(',') + ',0.4)',
+      L: L,
+      narrow: narrow,
+      wide: !narrow,
+      navFull: navFull,
+      navMenu: !navFull,
+      ctaInBar: !narrow,
+      ctaRow: narrow,
+      dd: !!s.dd && navFull,
+      menuOpen: !!s.menu,
+      menuClosed: !s.menu,
+      menuShow: !!s.menu && !navFull,
+      menuLabel: s.menu ? 'Close menu' : 'Open menu',
+      demo: demo,
+      q: q,
+      m: m,
+      tabs: tabs,
+      fq: fq,
+      h: {
+        openDemo: function (e) { self.openDemo(e); },
+        closeDemo: function () { self.closeDemo(); },
+        backdrop: function (e) { if (e && e.target === e.currentTarget) { self.closeDemo(); } },
+        back: function () { self.set({ step: Math.max(1, s.step - 1), err: '' }); },
+        toTime: function () { self.set({ step: 2, err: '' }); },
+        toggleMenu: function () { self.set({ menu: !s.menu }); },
+        closeMenu: function () { self.set({ menu: false }); },
+        ddOpen: function () { if (!s.dd) { self.set({ dd: true }); } },
+        ddClose: function () { if (s.dd) { self.set({ dd: false }); } },
+        ddBlur: function (e) { var to = e && e.relatedTarget, box = e && e.currentTarget; if (!(box && to && box.contains(to))) { self.set({ dd: false }); } },
+        onName: function (e) { self.set({ name: e.target.value }); },
+        onEmail: function (e) { self.set({ email: e.target.value }); },
+        onCompany: function (e) { self.set({ company: e.target.value }); },
+        onPhone: function (e) { self.set({ phone: e.target.value }); },
+        onNotes: function (e) { self.set({ notes: e.target.value }); },
+        qType: function (e) { self.set({ qType: e.target.value }); },
+        qBudget: function (e) { self.set({ qBudget: e.target.value }); },
+        qTime: function (e) { self.set({ qTime: e.target.value }); },
+        qName: function (e) { self.set({ qName: e.target.value }); },
+        qEmail: function (e) { self.set({ qEmail: e.target.value }); },
+        qCompany: function (e) { self.set({ qCompany: e.target.value }); },
+        qPhone: function (e) { self.set({ qPhone: e.target.value }); },
+        qReq: function (e) { self.set({ qReq: e.target.value }); },
+        qSubmit: function (e) { if (e && e.preventDefault) { e.preventDefault(); } self.sendQuote(); },
+        qReset: function () { self.set(self.quoteFresh()); },
+        tabQuote: function () { self.set({ tab: 'quote' }); },
+        tabMsg: function () { self.set({ tab: 'msg' }); },
+        mTopic: function (e) { self.set({ mTopic: e.target.value }); },
+        mName: function (e) { self.set({ mName: e.target.value }); },
+        mEmail: function (e) { self.set({ mEmail: e.target.value }); },
+        mMsg: function (e) { self.set({ mMsg: e.target.value }); },
+        mSubmit: function (e) { if (e && e.preventDefault) { e.preventDefault(); } self.sendMsg(); },
+        mReset: function () { self.set(self.msgFresh()); }
+      },
+      stack: [
+        { label: 'Next.js' }, { label: 'TypeScript' }, { label: 'React' }, { label: 'Node.js' },
+        { label: 'PostgreSQL' }, { label: 'Stripe' }, { label: 'Amadeus' }, { label: 'Tailwind' }, { label: 'Figma' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
