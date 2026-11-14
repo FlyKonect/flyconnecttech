@@ -1,25 +1,22 @@
-import Link from "next/link";
+"use client";
+
 import { Calendar } from "lucide-react";
 
-import { Button, type ButtonProps } from "@/components/ui/button";
-import { routes } from "@/lib/routes";
+import { DemoButton } from "@/components/site/demo/demo-button";
+import { buttonVariants, type ButtonProps } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-/**
- * The gold "Book a demo" button, used all over the website.
- *
- * TEMPORARY: until Phase 2 builds the Book a demo dialog, this goes to the
- * Contact page. Phase 2 changes this one file to open the dialog instead.
- */
+/** The gold "Book a demo" button in the website header. Opens the demo dialog. */
 export function BookDemoButton({
   size = "siteSm",
   className,
 }: Pick<ButtonProps, "size" | "className">) {
   return (
-    <Button asChild variant="gold" size={size} className={className}>
-      <Link href={routes.contact}>
-        <Calendar aria-hidden="true" className="size-[18px]" />
-        Book a demo
-      </Link>
-    </Button>
+    <DemoButton
+      className={cn(buttonVariants({ variant: "gold", size }), className)}
+    >
+      <Calendar aria-hidden="true" className="size-[18px]" />
+      Book a demo
+    </DemoButton>
   );
 }

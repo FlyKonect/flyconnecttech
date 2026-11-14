@@ -10,6 +10,9 @@ const baseURL = external ?? "http://localhost:3001";
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
+  // A few browsers at a time: more runs out of memory on an ordinary PC
+  // while the dev server is also building pages.
+  workers: process.env.CI ? 2 : 3,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: [["list"], ["html", { open: "never" }]],

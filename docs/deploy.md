@@ -182,7 +182,7 @@ On GitHub, open the repository > **Settings** > **Secrets and variables** > **Ac
 3. Wait for it to finish. A green tick means it is live.
 4. Check:
    - `https://api.yourdomain.com/health` shows `{"status":"ok","database":"up"}`.
-   - `https://yourdomain.com` shows the FlyConnect Tech page with "Backend connected".
+   - `https://yourdomain.com` shows the FlyConnect Tech home page.
 5. The private key file on your PC (`flyconnect-deploy`) is no longer needed there. Delete it, or keep it somewhere safe. Never share it and never add it to the project.
 
 From now on, every push to `main` deploys by itself.

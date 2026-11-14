@@ -44,7 +44,7 @@ test.describe("website layout", () => {
       header.getByRole("link", { name: "Get a quote" }),
     ).toBeVisible();
     await expect(
-      header.getByRole("link", { name: "Book a demo" }),
+      header.getByRole("button", { name: "Book a demo" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Open menu" })).toBeHidden();
 
@@ -107,7 +107,7 @@ test.describe("website layout", () => {
       header.getByRole("link", { name: "Get a quote" }),
     ).toBeVisible();
     await expect(
-      header.getByRole("link", { name: "Book a demo" }),
+      header.getByRole("button", { name: "Book a demo" }),
     ).toBeVisible();
 
     const open = page.getByRole("button", { name: "Open menu" });

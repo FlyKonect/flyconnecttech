@@ -7,7 +7,7 @@ test("the home page shows the FlyConnect Tech name and logo", async ({
 
   await expect(page).toHaveTitle("FlyConnect Tech");
   await expect(
-    page.getByRole("heading", { level: 1, name: "FlyConnect Tech" }),
+    page.getByRole("heading", { level: 1, name: /Your Business Idea/ }),
   ).toBeVisible();
 
   // The logo image really loads (it is not a broken image).

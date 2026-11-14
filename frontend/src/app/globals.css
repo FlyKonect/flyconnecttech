@@ -138,3 +138,41 @@
     outline-offset: 2px;
   }
 }
+
+/* Website cards that lift a little on hover (the design's "ns-lift"). */
+@layer components {
+  .ns-lift {
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
+  }
+  .ns-lift:hover {
+    transform: translateY(-2px);
+    border-color: #c8d3e3 !important;
+    box-shadow: 0 22px 44px -26px rgba(2, 26, 84, 0.38) !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ns-lift {
+      transition: none;
+    }
+    .ns-lift:hover {
+      transform: none;
+    }
+  }
+}
+
+/*
+ * The website pages were converted from the design files, which measure
+ * boxes the browser's default way: padding is added outside the stated width.
+ * Keep that inside converted page content (".design-page"), only for the
+ * elements styled straight from the design (the ones with a style attribute),
+ * so the hand-built components inside keep the app's usual box sizing.
+ * Form boxes are left out: browser add-ons and test tools put a style
+ * attribute on them, which must not change their size.
+ */
+@layer components {
+  .design-page [style]:not(input, textarea, select) {
+    box-sizing: content-box;
+  }
+}

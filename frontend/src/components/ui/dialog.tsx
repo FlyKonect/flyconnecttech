@@ -39,12 +39,12 @@ function DialogContent({
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
         data-slot="dialog-overlay"
-        className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-[rgba(2,26,84,0.55)] p-5"
+        className="fixed inset-0 z-[60] flex overflow-y-auto bg-[rgba(2,26,84,0.55)] p-5"
       >
         <DialogPrimitive.Content
           data-slot="dialog-content"
           className={cn(
-            "relative w-full rounded-[26px] bg-white p-[clamp(20px,3vw,30px)] text-navy shadow-[0_40px_80px_-30px_rgba(0,0,0,0.5)]",
+            "relative m-auto w-full rounded-[26px] bg-white p-[clamp(20px,3vw,30px)] text-navy shadow-[0_40px_80px_-30px_rgba(0,0,0,0.5)]",
             size === "wide" ? "max-w-[720px]" : "max-w-[520px]",
             className,
           )}

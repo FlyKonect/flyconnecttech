@@ -124,7 +124,10 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Use the shared components.** Check `/dev/components` (run the frontend, open http://localhost:3001/dev/components) before building a new piece. Add new shared components to that page.
 - **Pills:** `<LabelPill group="requestStatus" value="IN_PROGRESS" />`. Labels and colours come from `labels.ts`.
 - **Screen sizes** (Tailwind variants, set in `globals.css`): `site:` 860px and `nav:` 1240px for the website, `app:` 900px for the portal and team panel. Use `max-app:` and so on for "below". The design's full-menu width is 1180px; it is 1240px here because the FlyConnect Tech logo is wider.
-- **Book a demo** buttons all use `components/site/book-demo-button.tsx`. It links to Contact until Phase 2 builds the dialog.
+- **Website pages** (`components/site/pages/*.tsx`) were converted once from `design/source/website-*.dc.html` and keep the design's inline styles, so they match it exactly. Edit them by hand like any other component. Their root has the class `design-page`, which makes styled elements measure boxes the design's way (padding outside the width, see `globals.css`). Keep both.
+- **Book a demo:** any button opens the one dialog through `<DemoButton>` (`components/site/demo/`). The header button is `book-demo-button.tsx`.
+- **Website forms** (demo, quote, message) use react-hook-form with the Zod rules in `lib/forms/schemas.ts` and the website field style in `components/site/forms/site-field.tsx`. They call `submitLead()` in `lib/forms/submit.ts`, which only logs to the browser console until Phase 8 connects the backend. **Nothing is saved or emailed yet.**
+- **Demo times:** `lib/forms/demo-slots.ts` (next 10 weekdays, six slots, UK time, stored as UTC). Taken slots are always empty until Phase 8.
 - **Team role preview** (development only): add `?role=developer`, `admin`, `manager` or `super-admin` to a `/team` address. Ignored on the live site. Goes away with real sign-in in Phase 4.
 - **Pages whose address has a changing part** (like `[code]`) sit under a layout that reads the address, so the shells are wrapped in `Suspense` in their layout files. Keep that.
 - **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright uses or starts the dev server on port 3001.
