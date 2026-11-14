@@ -7,12 +7,11 @@ import { PrismaService } from './../src/prisma/prisma.service.js';
 
 // Smoke test: the whole app starts and /health answers.
 // The database is replaced by a stand-in, so this runs without Docker.
+// The test settings come from test/setup-env.ts.
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    process.env.DATABASE_URL ??= 'mysql://test:test@localhost:3306/test';
-
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -25,7 +24,7 @@ describe('App (e2e)', () => {
   });
 
   afterEach(async () => {
-    await app.close();
+    await app?.close();
   });
 
   it('GET /health answers ok', () => {

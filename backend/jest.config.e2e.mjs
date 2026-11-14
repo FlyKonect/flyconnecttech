@@ -7,4 +7,6 @@ import base from './jest.config.mjs';
 export default {
   ...base,
   testRegex: 'test/.*\\.e2e-spec\\.ts$',
+  // Sets the test settings before the app is loaded.
+  setupFiles: ['<rootDir>/test/setup-env.ts'],
 };
