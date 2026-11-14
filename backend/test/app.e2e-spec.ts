@@ -1,15 +1,15 @@
-import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import request from 'supertest';
-import { App } from 'supertest/types.js';
 import { AppModule } from './../src/app.module.js';
+import { configureApp } from './../src/app.setup.js';
 import { PrismaService } from './../src/prisma/prisma.service.js';
 
-// Smoke test: the whole app starts and /health answers.
+// Smoke test: the whole app starts, set up exactly as the live server.
 // The database is replaced by a stand-in, so this runs without Docker.
 // The test settings come from test/setup-env.ts.
 describe('App (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: NestExpressApplication;
 
   beforeEach(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -19,7 +19,10 @@ describe('App (e2e)', () => {
       .useValue({ isUp: () => Promise.resolve(true) })
       .compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication<NestExpressApplication>({
+      bodyParser: false,
+    });
+    configureApp(app);
     await app.init();
   });
 
@@ -27,10 +30,35 @@ describe('App (e2e)', () => {
     await app?.close();
   });
 
-  it('GET /health answers ok', () => {
+  it('GET /health answers ok without signing in', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
       .expect({ status: 'ok', database: 'up' });
+  });
+
+  it('every other route needs a signed-in person', () => {
+    return request(app.getHttpServer())
+      .get('/me')
+      .expect(401)
+      .expect((response) => {
+        expect(response.body.code).toBe('SIGNED_OUT');
+      });
+  });
+
+  it('there is no sign-up route', () => {
+    return request(app.getHttpServer())
+      .post('/api/auth/sign-up/email')
+      .send({ email: 'a@example.com', password: 'Skyline-2027', name: 'A' })
+      .expect((response) => {
+        expect([403, 404]).toContain(response.status);
+      });
+  });
+
+  it('checks the input of public account routes', () => {
+    return request(app.getHttpServer())
+      .post('/accounts/password/forgot')
+      .send({ email: 'not-an-email' })
+      .expect(400);
   });
 });

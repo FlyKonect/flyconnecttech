@@ -27,7 +27,9 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "auth:schema": "auth generate --config src/auth/auth.schema.ts --adapter prisma --dialect mysql --output prisma/auth-schema.generated.prisma --yes"
+    "auth:schema": "auth generate --config src/auth/auth.schema.ts --adapter prisma --dialect mysql --output prisma/auth-schema.generated.prisma --yes",
+    "user:invite": "nest build && node dist/cli/invite-user.js",
+    "e2e:serve": "node scripts/prepare-database.mjs && nest build && node dist/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -37,9 +39,14 @@
     "@nestjs/swagger": "^12.1.2",
     "@prisma/adapter-mariadb": "7.10.1",
     "@prisma/client": "7.10.1",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.3.1",
     "better-auth": "^1.7.24",
     "dotenv": "^18.0.10",
+    "nodemailer": "^10.5.0",
     "prisma": "7.10.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "^4.6.7"
@@ -51,6 +58,9 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@types/supertest": "^7.0.0",
     "auth": "1.7.24",
     "jest": "^30.5.2",

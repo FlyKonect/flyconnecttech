@@ -7,3 +7,5 @@
 // No real database is needed: each test replaces the database with a stand-in.
 process.env.NODE_ENV ??= 'test';
 process.env.DATABASE_URL ??= 'mysql://test:test@localhost:3306/test';
+process.env.AUTH_SECRET ??= 'test-secret-that-is-at-least-32-characters-long';
+process.env.RATE_LIMITS ??= 'false';

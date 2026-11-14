@@ -11,14 +11,14 @@ export default {
   rootDir: '.',
   testEnvironment: 'node',
   testRegex: 'src/.*\\.spec\\.ts$',
-  moduleFileExtensions: ['ts', 'js', 'mjs', 'cjs', 'json'],
-  extensionsToTreatAsEsm: ['.ts'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'mjs', 'cjs', 'json'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   // The code imports "./file.js" (the ES-module rule). The real file is "./file.ts".
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {
-    '^.+\\.ts$': ['ts-jest', { useESM: true, tsconfig: 'tsconfig.json' }],
+    '^.+\\.tsx?$': ['ts-jest', { useESM: true, tsconfig: 'tsconfig.json' }],
   },
   collectCoverageFrom: [
     'src/**/*.ts',

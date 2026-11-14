@@ -8,5 +8,6 @@ export default {
   ...base,
   testRegex: 'test/db/.*\\.db-spec\\.ts$',
   globalSetup: '<rootDir>/test/db/global-setup.ts',
+  setupFiles: ['<rootDir>/test/db/setup-env-db.ts'],
   testTimeout: 60_000,
 };
