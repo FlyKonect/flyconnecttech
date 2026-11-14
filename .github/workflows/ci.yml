@@ -22,7 +22,29 @@ jobs:
   frontend:
     name: Frontend (Next.js)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    # The browser tests start the backend too, with its own database, and read
+    # the invitation and reset emails from Mailpit.
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+      mailpit:
+        image: axllent/mailpit:latest
+        env:
+          MP_SMTP_AUTH_ACCEPT_ANY: 1
+          MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        ports:
+          - 1025:1025
+          - 8025:8025
     defaults:
       run:
         working-directory: frontend
@@ -34,9 +56,15 @@ jobs:
           # Keep the same as the Node.js version chosen in cPanel.
           node-version: ${{ vars.NODE_VERSION || '22' }}
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
 
       - name: Install packages
+        run: npm ci
+
+      - name: Install the backend's packages (the browser tests start it)
+        working-directory: backend
         run: npm ci
 
       - name: Typecheck
@@ -58,6 +86,10 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Browser tests
+        env:
+          E2E_DATABASE_URL: mysql://root:root@127.0.0.1:3306/flyconnect_tech_e2e
+          E2E_SMTP_HOST: 127.0.0.1
+          E2E_MAILPIT_URL: http://127.0.0.1:8025
         run: npm run test:e2e
 
       - name: Keep the browser test report if a test failed
@@ -113,7 +145,7 @@ jobs:
       - name: Whole-app tests
         run: npm run test:e2e
 
-      - name: Database tests (migrations, readable codes, time zone)
+      - name: Database tests (migrations, codes, time zone, accounts)
         env:
           TEST_DATABASE_URL: mysql://root:root@127.0.0.1:3306/flyconnect_tech_test
         run: npm run test:db

@@ -138,15 +138,37 @@ Passwords live only in this file on the hosting. They are never saved to GitHub.
    ```ini
    NODE_ENV=production
    FRONTEND_URL=https://yourdomain.com
+   BACKEND_URL=https://api.yourdomain.com
    DATABASE_URL=mysql://CPANELUSER_fcapp:THE-PASSWORD@localhost:3306/CPANELUSER_fctech
    UPLOAD_DIR=/home/CPANELUSER/flyconnect-tech/uploads
+
+   AUTH_SECRET=A-LONG-RANDOM-TEXT
+   COOKIE_DOMAIN=yourdomain.com
+   TRUST_PROXY=true
+
+   SMTP_HOST=THE-OUTGOING-SERVER
+   SMTP_PORT=465
+   SMTP_SECURE=true
+   SMTP_USER=hello@yourdomain.com
+   SMTP_PASS=THE-MAILBOX-PASSWORD
+   EMAIL_FROM="FlyConnect Tech Support <hello@yourdomain.com>"
    ```
 
 5. Save. Then right-click `.env` > **Change Permissions** and set it to `600` (only the owner can read and write).
 
 Notes:
-- `FRONTEND_URL` must be exactly the address visitors use. If the site opens as `https://www.yourdomain.com`, write it with `www`. No slash at the end.
-- Email settings are not needed yet. No emails are sent until a later phase.
+- `FRONTEND_URL` must be exactly the address visitors use. If the site opens as `https://www.yourdomain.com`, write it with `www`. No slash at the end. The same goes for `BACKEND_URL`.
+- `AUTH_SECRET` protects everyone's sign-in. Make a new one on your PC with
+  `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
+  and paste the result. Never reuse the one from your PC's `.env`, and never share it. Changing it later signs everybody out.
+- `COOKIE_DOMAIN` is your main domain without `www` or `https://`. It lets one sign-in work on both `yourdomain.com` and `api.yourdomain.com`.
+- `TRUST_PROXY=true` because the hosting's web server sits in front of the app. Without it, the limits on sign-in attempts would count every visitor as one person.
+- **Email** (invitations and password resets need it):
+  1. cPanel > **Email Accounts** > **Create**: make the mailbox that sends the emails, for example `hello@yourdomain.com`, with a strong password.
+  2. Click **Connect Devices** next to it. Under "Secure SSL/TLS Settings" it shows the **Outgoing Server** and its port (usually 465). Put them in `SMTP_HOST` and `SMTP_PORT`, the mailbox address in `SMTP_USER` and its password in `SMTP_PASS`.
+  3. Port 465 needs `SMTP_SECURE=true`. If you use port 587 instead, write `SMTP_SECURE=false` (587 switches to encryption by itself).
+  4. `EMAIL_FROM` is the sender people see. Use the same mailbox address.
+- If a password has symbols such as `#` or spaces, put the whole value in double quotes.
 - The website needs no settings file on the hosting.
 
 ## Step 7. GitHub: secrets and variables
@@ -187,6 +209,26 @@ On GitHub, open the repository > **Settings** > **Secrets and variables** > **Ac
 
 From now on, every push to `main` deploys by itself.
 
+## Step 9. Create the first super admin
+
+Nobody can sign up on the website. Every account is made by someone in the team, so the very first one (yours) is made with a command on the hosting.
+
+1. cPanel > **Setup Node.js App** > click the pencil next to the **backend** app. At the top it shows a command that starts with `source` and ends with `activate`. Copy it.
+2. cPanel > **Terminal** (or log in over SSH). Paste that command and press Enter.
+3. Then run these two lines, with your own name and email:
+
+   ```bash
+   cd ~/flyconnect-tech/backend
+   node dist/cli/invite-user.js --role super-admin --name "Your Name" --email you@yourdomain.com
+   ```
+
+4. It sends you the invitation email and also prints the link, in case the email is slow. Open the link, choose your password, then sign in at `https://yourdomain.com/team/sign-in`. You will be asked to set up two-factor sign-in with an authenticator app (Google Authenticator, Microsoft Authenticator or similar).
+
+Notes:
+- The link works once, for 48 hours. If it runs out, run the same command with a different email, or ask for a new link once you have another admin.
+- Anyone who has the link can take over the account, so do not forward it.
+- Until the "Users" screen arrives in a later phase, the same command invites other people too. `--role` can be `super-admin`, `admin`, `manager`, `developer` or `customer`. A customer also needs `--company "Company name"`.
+
 ---
 
 ## Everyday use
@@ -218,6 +260,8 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | "The settings file … .env is missing" | Do Step 6 |
 | Error while "Updating the database", with "Access denied" | Wrong database name, user or password in `DATABASE_URL`, or the user was not added to the database with ALL PRIVILEGES (Step 3) |
 | "… did not answer" at the end, or the site shows a 503 error | In File Manager open the app's folder and read `stderr.log`. The usual causes: the Node.js version is below 22, a mistake in `.env`, or a database password with symbols in it |
+| No invitation or reset email arrives | Check the `SMTP_` settings in `.env` (Step 6), restart the backend app, and look in `stderr.log` for "email". The invite command prints the link anyway |
+| Signing in seems to work but you land back on the sign-in page | `COOKIE_DOMAIN` is missing or wrong, or `BACKEND_URL` / `FRONTEND_URL` do not match the real addresses (Step 6) |
 | The site opens but says "Backend not running" | `API_URL` is wrong, `FRONTEND_URL` in `.env` does not match the site's address exactly (check `www`), or `api.yourdomain.com` has no padlock yet |
 | "rsync: command not found" | Ask your hosting's support to enable `rsync` for SSH on your account |
 | The Checks part is red | A test failed. Nothing was deployed. Open the red step to see which test |

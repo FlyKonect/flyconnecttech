@@ -42,10 +42,10 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - MariaDB 10.11 with Prisma 7 (`@prisma/adapter-mariadb`). Keep `prisma`, `@prisma/client` and the adapter on the same exact version.
 - Zod for every input and for the settings in `.env` (`src/config/env.ts`).
 - Swagger API docs at `/api-docs` (not in production).
-- Email: Mailpit in development. Templates and the production sender are set in Phase 9.
+- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. The other templates and the final sender come in Phase 9.
 - File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check.
 - Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
-- Sign-in: decided in Phase 4. It must be email and password, sessions in the database, TOTP two-factor for team accounts, invite-only.
+- Sign-in: Better Auth (email and password, sessions in the database, TOTP two-factor required for team accounts, sign-up switched off). Invitations and password resets are our own code in `backend/src/accounts/`. See "Sign-in and permissions" below.
 
 **Both:** npm (not pnpm). Docker Compose runs MariaDB and Mailpit in development.
 
@@ -80,7 +80,7 @@ In `frontend/` (http://localhost:3001):
 - `npm run lint`
 - `npm run format` (`format:check` to only check)
 - `npm test`: unit tests
-- `npm run test:e2e`: browser tests (starts the website itself)
+- `npm run test:e2e`: browser tests. They start their own backend (port 4100, database `flyconnect_tech_e2e`) and website (port 3101, built into `.next-e2e`) and read emails from Mailpit, so `docker compose up -d` must be running. Your own dev servers and database are not touched.
 
 In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `/health`):
 - `npm run dev`: start the backend
@@ -90,7 +90,8 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, and the account journeys
+- `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
 - `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
@@ -114,8 +115,15 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/labels.ts`: every display label and pill colour. Never write one anywhere else.
 - `frontend/src/lib/routes.ts`: every address in the app. Link to these.
 - `frontend/src/lib/team-nav.ts`: the team sidebar menu per role
-- `frontend/src/lib/preview-data.ts`: TEMPORARY sample people and counts for the layouts. Delete when Phases 4 to 6 supply real ones.
+- `frontend/src/lib/auth/`: the sign-in client, `getMe()` and the page gates (`requireCustomer()`, `requireTeamMember()`)
+- `frontend/src/lib/api.ts`: `apiFetch()` and error messages for calls to the backend
+- `frontend/src/components/auth/`: sign-in, invitation, password reset and two-factor forms
+- `frontend/src/proxy.ts`: sends visitors with no session cookie to the right sign-in page
 - `frontend/e2e/`: Playwright tests
+- `backend/src/auth/`: Better Auth setup, the global `SessionGuard` and its decorators
+- `backend/src/policies/policies.ts`: who may do what, for every role
+- `backend/src/accounts/`: invitations, password reset, `/me`
+- `backend/src/cli/`: command-line tools (`invite-user.ts`)
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
@@ -130,9 +138,11 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Book a demo:** any button opens the one dialog through `<DemoButton>` (`components/site/demo/`). The header button is `book-demo-button.tsx`.
 - **Website forms** (demo, quote, message) use react-hook-form with the Zod rules in `lib/forms/schemas.ts` and the website field style in `components/site/forms/site-field.tsx`. They call `submitLead()` in `lib/forms/submit.ts`, which only logs to the browser console until Phase 8 connects the backend. **Nothing is saved or emailed yet.**
 - **Demo times:** `lib/forms/demo-slots.ts` (next 10 weekdays, six slots, UK time, stored as UTC). Taken slots are always empty until Phase 8.
-- **Team role preview** (development only): add `?role=developer`, `admin`, `manager` or `super-admin` to a `/team` address. Ignored on the live site. Goes away with real sign-in in Phase 4.
+- **Signed-in pages:** the `(app)` layouts call `requireCustomer()` or `requireTeamMember()` from `lib/auth/server.ts`, which ask the backend who is signed in (`/me`) and send everyone else to the right page. `proxy.ts` only checks that a cookie exists; the backend makes the real decision.
 - **Pages whose address has a changing part** (like `[code]`) sit under a layout that reads the address, so the shells are wrapped in `Suspense` in their layout files. Keep that.
-- **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright uses or starts the dev server on port 3001.
+- **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright starts (or reuses) its own backend and website on ports 4100 and 3101.
+  - Make test people with `createPerson(role)` and `signInBrowser()` from `e2e/support/accounts.ts`; read emails with `waitForEmail()` from `e2e/support/mailpit.ts`.
+  - Next.js keeps pages you left in the page, hidden. Pick fields with the visible-only `field()` helper and form errors by `[data-slot=form-error]`, as in `e2e/accounts.spec.ts`, or a test finds two matches.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
 ## Database
@@ -144,6 +154,16 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Customer contact:** stored once, on the user (`users.customerId`, unique), not on the customer.
 - **UTC:** every connection runs `SET time_zone = '+00:00'` (`backend/src/prisma/connection.ts`). Scripts and tests use `createPrismaClient()` from there; the app uses `PrismaService`.
 - **Better Auth** knows only role, status, customerId, jobTitle and timezone (`backend/src/auth/auth-options.ts`). Our services manage the other user fields.
+- **Account changes** (invitations, password resets) run their transactions with `ACCOUNT_TX` (read committed). With MariaDB's default locking, people asking for links at the same moment blocked each other.
+
+## Sign-in and permissions (backend)
+- **Every route needs a signed-in person** (global `SessionGuard`) unless it has `@Public()`. Add `@Area('portal')` or `@Area('team')` and `@Can('requests.view')` (and so on) to narrow it. Team members without two-factor reach only routes with `@AllowWithoutTwoFactor()`.
+- **Who may do what** lives only in `policies.ts`. Lists filter with `requestScope()` and `customerScope()`, so developers and customers never get other people's records.
+- **Better Auth** answers at `/api/auth`, mounted before the body parsers (`app.setup.ts`). Its sign-up, social sign-in, its own reset and email checks are switched off (`DISABLED_PATHS` in `auth.ts`). A session is refused unless the user is ACTIVE.
+- **Invitation and reset links:** `accounts/tokens.ts`. Only the hash is stored; 48 hours; once. A failed email still returns the link to the invite command.
+- **Rate limits:** Better Auth's own for sign-in and two-factor; `RateLimitGuard` (`rate-limit/`) for our public routes. `RATE_LIMITS=false` only in tests.
+- **Audit:** `AuditService.record()` for account, role and permission changes, inside the same transaction when there is one.
+- **Cookies** are named `fct.*` (`__Secure-fct.*` live). Live, `COOKIE_DOMAIN` makes one sign-in work on both the website and the `api.` address.
 
 ## Logo
 - The logo is "Crew Wings": gold wings around a navy node, "FlyConnect" in navy and "Tech" in gold.
