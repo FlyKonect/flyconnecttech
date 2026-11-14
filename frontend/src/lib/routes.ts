@@ -20,6 +20,9 @@ export const routes = {
   portalSignIn: "/portal/sign-in",
   portalInvitation: "/portal/invitation",
   teamSignIn: "/team/sign-in",
+  teamTwoFactor: "/team/two-factor",
+  portalForgotPassword: "/portal/forgot-password",
+  teamForgotPassword: "/team/forgot-password",
 
   // Client portal
   portal: "/portal",

@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { createPerson, signInBrowser, type Role } from "./support/accounts";
+
 const desktop = { width: 1440, height: 900 };
 const phone = { width: 390, height: 844 };
 
@@ -145,10 +147,18 @@ test.describe("website layout", () => {
   });
 });
 
+/** Opens a page signed in as a fresh person of this role. */
+async function signedInAs(page: Page, role: Role) {
+  const person = await createPerson(role);
+  await signInBrowser(page.context(), person);
+  return person;
+}
+
 test.describe("client portal layout", () => {
   test("desktop: sidebar, header and the active menu item", async ({
     page,
   }) => {
+    const customer = await signedInAs(page, "customer");
     await page.setViewportSize(desktop);
     await page.goto("/portal");
 
@@ -169,6 +179,9 @@ test.describe("client portal layout", () => {
       name: "Client portal menu",
     });
     await expect(sidebar).toContainText("Client portal");
+    // The real signed-in customer and company, not sample names.
+    await expect(sidebar).toContainText(customer.name);
+    await expect(sidebar).toContainText("E2E Travel Ltd");
     await expect(
       sidebar.getByRole("link", { name: "Create support request" }),
     ).toHaveAttribute("href", "/portal/requests/new");
@@ -187,6 +200,7 @@ test.describe("client portal layout", () => {
   test("phone: the sidebar slides in and Escape closes it", async ({
     page,
   }) => {
+    await signedInAs(page, "customer");
     await page.setViewportSize(phone);
     await page.goto("/portal");
 
@@ -218,6 +232,7 @@ test.describe("team panel layout", () => {
   test("super admin sees every section, including Settings", async ({
     page,
   }) => {
+    const superAdmin = await signedInAs(page, "super-admin");
     await page.setViewportSize(desktop);
     await page.goto("/team");
 
@@ -241,14 +256,15 @@ test.describe("team panel layout", () => {
     }
 
     const header = page.getByRole("banner");
-    await expect(header).toContainText("Hamza Siddiqui");
-    await expect(header).toContainText("Super admin · Founder");
+    await expect(header).toContainText(superAdmin.name);
+    await expect(header).toContainText("Super admin · Tester");
     await expectNoSidewaysScroll(page);
   });
 
   test("developer sees only their own requests", async ({ page }) => {
+    await signedInAs(page, "developer");
     await page.setViewportSize(desktop);
-    await page.goto("/team?role=developer");
+    await page.goto("/team");
 
     const nav = page.getByRole("navigation", { name: "Team" });
     await expect(nav.getByText("MY REQUESTS", { exact: true })).toBeVisible();
@@ -270,14 +286,13 @@ test.describe("team panel layout", () => {
       await expect(nav.getByRole("link", { name })).toHaveCount(0);
     }
 
-    await expect(page.getByRole("banner")).toContainText(
-      "Developer · Integration engineer",
-    );
+    await expect(page.getByRole("banner")).toContainText("Developer · Tester");
   });
 
   test("phone: the navy sidebar slides in and Escape closes it", async ({
     page,
   }) => {
+    await signedInAs(page, "manager");
     await page.setViewportSize(phone);
     await page.goto("/team");
 

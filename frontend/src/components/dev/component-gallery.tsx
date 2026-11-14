@@ -121,9 +121,6 @@ export function ComponentGallery() {
             <TextLink href={routes.home}>Website layout</TextLink>
             <TextLink href={routes.portal}>Client portal layout</TextLink>
             <TextLink href={routes.team}>Team panel layout</TextLink>
-            <TextLink href={`${routes.team}?role=developer`}>
-              Team panel as a developer
-            </TextLink>
           </p>
         </header>
 

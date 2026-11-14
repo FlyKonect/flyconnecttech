@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
+import { useSignOut } from "@/components/auth/use-sign-out";
 import { Avatar } from "@/components/ui/avatar";
 import { roles, type TeamRole } from "@/lib/labels";
 import { routes } from "@/lib/routes";
@@ -20,7 +21,7 @@ import { cn } from "@/lib/utils";
 /** The team member shown in the sidebar and header. */
 export type TeamUser = {
   name: string;
-  jobTitle: string;
+  jobTitle: string | null;
   role: TeamRole;
   counts: TeamNavCounts;
 };
@@ -45,72 +46,18 @@ export function teamTitle(pathname: string): string {
   return match ? match[1] : "Dashboard";
 }
 
-const previewRoles: Record<string, TeamRole> = {
-  "super-admin": "SUPER_ADMIN",
-  admin: "ADMIN",
-  manager: "MANAGER",
-  developer: "DEVELOPER",
-};
-
-type ShellProps = {
-  /**
-   * TEMPORARY, until sign-in exists (Phase 4): one sample person per role.
-   * On a developer's PC, adding ?role=developer (or admin, manager,
-   * super-admin) to the address previews that role. On the live site the
-   * address is ignored and `defaultRole` is always used.
-   */
-  users: Record<TeamRole, Omit<TeamUser, "role">>;
-  defaultRole: TeamRole;
-  children: React.ReactNode;
-};
-
-/** The team panel layout. Reads the address to mark the active menu item. */
-export function TeamShell({ users, defaultRole, children }: ShellProps) {
-  const pathname = usePathname();
-  const params = useSearchParams();
-
-  const preview =
-    process.env.NODE_ENV === "development"
-      ? previewRoles[params.get("role") ?? ""]
-      : undefined;
-  const role = preview ?? defaultRole;
-
-  return (
-    <TeamShellView
-      pathname={pathname}
-      status={params.get("status")}
-      user={{ ...users[role], role }}
-      // Keep the previewed role while clicking around.
-      previewQuery={preview ? `role=${params.get("role")}` : undefined}
-    >
-      {children}
-    </TeamShellView>
-  );
-}
-
-/**
- * The same layout without reading the address. The layout file shows this
- * for an instant while the address is being read.
- */
-export function TeamShellView({
-  pathname,
-  status,
+/** The team panel layout for the signed-in team member. */
+export function TeamShell({
   user,
-  previewQuery,
   children,
 }: {
-  pathname: string;
-  status: string | null;
   user: TeamUser;
-  previewQuery?: string;
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const status = useSearchParams().get("status");
+  const { signOut, signingOut } = useSignOut("team");
   const roleLabel = roles[user.role].label;
-  const withPreview = (href: string) =>
-    previewQuery
-      ? `${href}${href.includes("?") ? "&" : "?"}${previewQuery}`
-      : href;
-
   return (
     <AppShell
       tone="team"
@@ -122,10 +69,13 @@ export function TeamShellView({
         placeholder: "Search requests, customers",
       }}
       bell={{
-        href: withPreview(routes.teamNotifications),
+        href: routes.teamNotifications,
         unread: (user.counts.notifications ?? 0) > 0,
       }}
-      user={{ name: user.name, detail: `${roleLabel} · ${user.jobTitle}` }}
+      user={{
+        name: user.name,
+        detail: user.jobTitle ? `${roleLabel} · ${user.jobTitle}` : roleLabel,
+      }}
       sidebar={(closeMenu) => (
         <>
           <div className="px-2.5 pt-1 pb-1.5">
@@ -152,7 +102,7 @@ export function TeamShellView({
                 {section.items.map((item) => (
                   <Link
                     key={item.key}
-                    href={withPreview(item.href)}
+                    href={item.href}
                     onClick={closeMenu}
                     aria-current={
                       isTeamNavItemActive(item, pathname, status)
@@ -167,9 +117,13 @@ export function TeamShellView({
                 ))}
               </React.Fragment>
             ))}
-            {/* Signing out is connected in Phase 4 (accounts). */}
-            <button type="button" className={cn(navItem, "cursor-pointer")}>
-              Logout
+            <button
+              type="button"
+              onClick={signOut}
+              disabled={signingOut}
+              className={cn(navItem, "cursor-pointer disabled:opacity-60")}
+            >
+              {signingOut ? "Signing out…" : "Logout"}
             </button>
           </nav>
 

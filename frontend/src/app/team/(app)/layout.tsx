@@ -1,8 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { TeamShell, TeamShellView } from "@/components/team/team-shell";
-import { previewDefaultRole, previewTeam } from "@/lib/preview-data";
+import { ShellLoading } from "@/components/shell/shell-loading";
+import { TeamShell } from "@/components/team/team-shell";
+import { requireTeamMember } from "@/lib/auth/server";
+import type { TeamRole } from "@/lib/labels";
 
 export const metadata: Metadata = {
   title: { default: "Team panel", template: "%s · FlyConnect Tech" },
@@ -12,31 +14,30 @@ export const metadata: Metadata = {
 
 /**
  * The signed-in part of the team panel: navy sidebar, header and the page.
- * The team sign-in screen lives outside this folder, so it does not get
- * the sidebar.
- *
- * TEMPORARY: `previewTeam` is sample data. Phase 4 replaces it with the
- * signed-in team member and Phase 6 with real numbers.
+ * Only team members who have set up two-factor get in; anyone else is sent
+ * to sign in, to the two-factor setup, or to their own area.
  */
 export default function TeamLayout({ children }: LayoutProps<"/team">) {
   return (
-    <Suspense
-      fallback={
-        <TeamShellView
-          pathname=""
-          status={null}
-          user={{
-            ...previewTeam[previewDefaultRole],
-            role: previewDefaultRole,
-          }}
-        >
-          {children}
-        </TeamShellView>
-      }
-    >
-      <TeamShell users={previewTeam} defaultRole={previewDefaultRole}>
-        {children}
-      </TeamShell>
+    <Suspense fallback={<ShellLoading tone="team" />}>
+      <SignedInTeam>{children}</SignedInTeam>
     </Suspense>
+  );
+}
+
+async function SignedInTeam({ children }: { children: React.ReactNode }) {
+  const me = await requireTeamMember();
+  return (
+    <TeamShell
+      user={{
+        name: me.name,
+        jobTitle: me.jobTitle,
+        role: me.role as TeamRole,
+        // Real numbers arrive with the requests and leads (Phases 6 and 8).
+        counts: {},
+      }}
+    >
+      {children}
+    </TeamShell>
   );
 }

@@ -16,6 +16,7 @@ import {
 
 import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
+import { useSignOut } from "@/components/auth/use-sign-out";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/lib/routes";
@@ -47,20 +48,10 @@ export function portalTitle(pathname: string): string {
   return match ? match[1] : "Overview";
 }
 
-/** The client portal layout. Reads the current address to mark the active menu item. */
-export function PortalShell(props: ShellProps) {
-  return <PortalShellView pathname={usePathname()} {...props} />;
-}
-
-/**
- * The same layout without reading the address. The layout file shows this
- * for an instant on pages whose address is only known when they are opened.
- */
-export function PortalShellView({
-  pathname,
-  user,
-  children,
-}: ShellProps & { pathname: string }) {
+/** The client portal layout for the signed-in customer. */
+export function PortalShell({ user, children }: ShellProps) {
+  const pathname = usePathname();
+  const { signOut, signingOut } = useSignOut("portal");
   const onOverview = pathname === routes.portal;
   const under = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
@@ -156,10 +147,14 @@ export function PortalShellView({
             <NavItem href={routes.home} icon={Globe} onClick={closeMenu}>
               Visit website
             </NavItem>
-            {/* Signing out is connected in Phase 4 (accounts). */}
-            <button type="button" className={cn(navItem, "cursor-pointer")}>
+            <button
+              type="button"
+              onClick={signOut}
+              disabled={signingOut}
+              className={cn(navItem, "cursor-pointer disabled:opacity-60")}
+            >
               <LogOut aria-hidden="true" className="size-[18px] shrink-0" />
-              Logout
+              {signingOut ? "Signing out…" : "Logout"}
             </button>
           </div>
         </>
