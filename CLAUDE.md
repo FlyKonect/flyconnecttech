@@ -136,14 +136,14 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
 ## Database
-- **Schema:** , built from docs/02. 21 tables with plain plural names (). Change it with , which writes a new migration under . Never edit a migration that is already committed.
-- **No sample data.** The owner decided against loading . Data comes from real use; the seed only adds the default settings.
-- **Settings:** defaults live in . The live hosting does not run the seed, so code that reads a setting must fall back to these defaults when its row is missing.
-- **Readable codes:** always  from , inside the same transaction that creates the record. Numbers start at 1 (TKT-2026-00001, P-0001).
-- **One demo per slot:**  equals  while a demo is SCHEDULED and is empty otherwise. It is unique. Set and clear it together with the status.
-- **Customer contact:** stored once, on the user (, unique), not on the customer.
-- **UTC:** every connection runs  (). Scripts and tests use  from there; the app uses .
-- **Better Auth** knows only role, status, customerId, jobTitle and timezone (). Our services manage the other user fields.
+- **Schema:** `backend/prisma/schema.prisma`, built from docs/02. 21 tables with plain plural names (`support_requests`). Change it with `npm run db:migrate`, which writes a new migration under `backend/prisma/migrations/`. Never edit a migration that is already committed.
+- **No sample data.** The owner decided against loading `design/sample-data.json`. Data comes from real use; the seed only adds the default settings.
+- **Settings:** defaults live in `backend/src/settings/defaults.ts`. The live hosting does not run the seed, so code that reads a setting must fall back to these defaults when its row is missing.
+- **Readable codes:** always `nextCode(tx, kind)` from `backend/src/codes/readable-codes.ts`, inside the same transaction that creates the record. Numbers start at 1 (TKT-2026-00001, P-0001).
+- **One demo per slot:** `demo_requests.scheduledSlot` equals `scheduledStart` while a demo is SCHEDULED and is empty otherwise. It is unique. Set and clear it together with the status.
+- **Customer contact:** stored once, on the user (`users.customerId`, unique), not on the customer.
+- **UTC:** every connection runs `SET time_zone = '+00:00'` (`backend/src/prisma/connection.ts`). Scripts and tests use `createPrismaClient()` from there; the app uses `PrismaService`.
+- **Better Auth** knows only role, status, customerId, jobTitle and timezone (`backend/src/auth/auth-options.ts`). Our services manage the other user fields.
 
 ## Logo
 - The logo is "Crew Wings": gold wings around a navy node, "FlyConnect" in navy and "Tech" in gold.
