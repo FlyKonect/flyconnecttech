@@ -1,5 +1,14 @@
 // FlyConnect Tech database (MariaDB 10.11, the same as the hosting).
-// The tables are added in Phase 3 from docs/02-data-model.md.
+// Built from docs/02-data-model.md.
+//
+// - Every id is a UUID. Readable codes (TKT-2026-00001, P-0001...) sit next
+//   to them and come from src/codes/readable-codes.ts.
+// - Times are stored in UTC (DATETIME(3)); src/prisma/connection.ts makes
+//   every database session use UTC.
+// - The sign-in tables (users, sessions, accounts, verifications,
+//   two_factors) follow Better Auth's own schema tool
+//   (src/auth/auth.schema.ts). Our extra fields are added to users.
+// - Tables have plain plural names; columns keep the field names.
 
 generator client {
   provider            = "prisma-client"
@@ -10,4 +19,615 @@ generator client {
 
 datasource db {
   provider = "mysql"
+}
+
+// ===================================================================== enums
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  DEVELOPER
+  CUSTOMER
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum ProjectType {
+  WEBSITE
+  WEB_APPLICATION
+  TRAVEL_BOOKING_PLATFORM
+  AGENT_PORTAL
+  API_INTEGRATION
+  CUSTOM_SOFTWARE
+  UI_UX_DESIGN
+  MAINTENANCE_PLAN
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_DESIGN
+  IN_DEVELOPMENT
+  LIVE
+  COMPLETED
+}
+
+enum RequestType {
+  TECHNICAL_ISSUE
+  BUG_REPORT
+  FEATURE_REQUEST
+  INTEGRATION_PROBLEM
+  DESIGN_MODIFICATION
+  GENERAL_INQUIRY
+  MAINTENANCE_REQUEST
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum RequestStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  IN_PROGRESS
+  WAITING_FOR_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum MessageKind {
+  CUSTOMER_REPLY
+  STAFF_REPLY
+  INTERNAL_NOTE
+  SYSTEM
+}
+
+enum DemoTopic {
+  TRAVEL_BOOKING_PLATFORM
+  AGENT_ADMIN_DASHBOARDS
+  CUSTOM_SOFTWARE_WEBSITES
+  API_INTEGRATIONS
+}
+
+enum DemoStatus {
+  NEW
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum QuoteProjectType {
+  TRAVEL_BOOKING_PLATFORM
+  AMADEUS_SABRE_INTEGRATION
+  NEW_WEBSITE
+  WEBSITE_REDESIGN
+  CUSTOM_SOFTWARE
+  UI_UX_DESIGN
+  API_INTEGRATION
+  OTHER
+}
+
+enum Budget {
+  UNDER_5K
+  FROM_5K_TO_15K
+  FROM_15K_TO_50K
+  OVER_50K
+  NOT_SURE
+}
+
+enum Timeline {
+  ASAP
+  WITHIN_1_3_MONTHS
+  WITHIN_3_6_MONTHS
+  NOT_SURE
+}
+
+enum QuoteStatus {
+  NEW
+  REVIEWING
+  ESTIMATE_SENT
+  WON
+  LOST
+}
+
+enum MessageTopic {
+  GENERAL_QUESTION
+  PARTNERSHIP
+  EXISTING_PROJECT
+  SOMETHING_ELSE
+}
+
+enum ContactStatus {
+  NEW
+  REPLIED
+  CLOSED
+}
+
+enum LeadType {
+  DEMO
+  QUOTE
+  MESSAGE
+}
+
+enum LeadActivityKind {
+  SYSTEM
+  EMAIL
+  NOTE
+}
+
+/// The dot colour of a notification row (docs/03, "Notification dot colours").
+enum NotificationKind {
+  reply
+  info
+  status
+  ok
+  closed
+  urgent
+  new
+  high
+  review
+  invite
+  lead
+}
+
+// ============================================================ people & sign-in
+
+/// Team members and customer contacts. Better Auth's user, plus our fields.
+model User {
+  id               String  @id @default(uuid()) @db.Char(36)
+  name             String  @db.VarChar(120)
+  email            String  @unique @db.VarChar(191)
+  emailVerified    Boolean @default(false)
+  image            String? @db.Text
+  /// Better Auth's two-factor plugin. Team members must turn it on.
+  twoFactorEnabled Boolean @default(false)
+
+  role         Role
+  status       UserStatus @default(INVITED)
+  phone        String?    @db.VarChar(40)
+  /// Team members only, for example "Support lead".
+  jobTitle     String?    @db.VarChar(120)
+  country      String?    @db.VarChar(80)
+  timezone     String     @default("Europe/London") @db.VarChar(64)
+  /// Set only for role CUSTOMER: the customer this person is the contact for.
+  customerId   String?    @unique @db.Char(36)
+  customer     Customer?  @relation("CustomerContact", fields: [customerId], references: [id], onDelete: Restrict)
+  /// Which emails a customer wants: replies, status changes, weekly summary.
+  emailPrefs   Json?
+  lastActiveAt DateTime?
+  invitedAt    DateTime?
+  activatedAt  DateTime?
+  createdById  String?    @db.Char(36)
+  createdBy    User?      @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions         Session[]
+  accounts         Account[]
+  twoFactors       TwoFactor[]
+  usersCreated     User[]                @relation("UserCreatedBy")
+  invitations      Invitation[]          @relation("InvitationFor")
+  invitationsSent  Invitation[]          @relation("InvitationSentBy")
+  customersCreated Customer[]            @relation("CustomerCreatedBy")
+  assignedRequests SupportRequest[]      @relation("RequestAssignee")
+  requestMessages  RequestMessage[]
+  statusChanges    RequestStatusChange[]
+  attachments      Attachment[]
+  demosHosted      DemoRequest[]         @relation("DemoHost")
+  demosOwned       DemoRequest[]         @relation("DemoOwner")
+  quotesOwned      QuoteRequest[]        @relation("QuoteOwner")
+  messagesOwned    ContactMessage[]      @relation("ContactOwner")
+  estimatesSent    Estimate[]
+  leadActivities   LeadActivity[]
+  notifications    Notification[]
+  settingsUpdated  Setting[]
+  auditLogs        AuditLog[]
+
+  @@index([role, status])
+  @@map("users")
+}
+
+/// Better Auth: signed-in sessions, stored in the database.
+model Session {
+  id        String   @id @default(uuid()) @db.Char(36)
+  expiresAt DateTime
+  token     String   @unique @db.VarChar(191)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?  @db.VarChar(64)
+  userAgent String?  @db.Text
+  userId    String   @db.Char(36)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+/// Better Auth: how a person signs in. For us, email and a hashed password.
+model Account {
+  id                    String    @id @default(uuid()) @db.Char(36)
+  accountId             String    @db.Text
+  providerId            String    @db.VarChar(64)
+  userId                String    @db.Char(36)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  /// A hash, never the password itself.
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+/// Better Auth: short-lived codes it uses itself.
+model Verification {
+  id         String   @id @default(uuid()) @db.Char(36)
+  identifier String   @db.VarChar(191)
+  value      String   @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verifications")
+}
+
+/// Better Auth's two-factor plugin: the authenticator secret and backup codes.
+model TwoFactor {
+  id                      String    @id @default(uuid()) @db.Char(36)
+  secret                  String    @db.VarChar(191)
+  backupCodes             String    @db.Text
+  userId                  String    @db.Char(36)
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean?  @default(true)
+  failedVerificationCount Int?      @default(0)
+  lockedUntil             DateTime?
+
+  @@index([secret])
+  @@index([userId])
+  @@map("two_factors")
+}
+
+/// The emailed link that activates an account. Single use, 48 hours.
+model Invitation {
+  id        String    @id @default(uuid()) @db.Char(36)
+  userId    String    @db.Char(36)
+  user      User      @relation("InvitationFor", fields: [userId], references: [id], onDelete: Cascade)
+  /// SHA-256 of the token in the link. The token itself is never stored.
+  tokenHash String    @unique @db.Char(64)
+  expiresAt DateTime
+  usedAt    DateTime?
+  /// Sending a new invitation revokes the open ones.
+  revokedAt DateTime?
+  /// Empty only for the very first super admin, created from the command line.
+  sentById  String?   @db.Char(36)
+  sentBy    User?     @relation("InvitationSentBy", fields: [sentById], references: [id], onDelete: SetNull)
+  sentAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@map("invitations")
+}
+
+// ================================================================== clients
+
+/// A client company. Its contact person is the user whose customerId points here.
+model Customer {
+  id             String    @id @default(uuid()) @db.Char(36)
+  company        String    @db.VarChar(160)
+  country        String?   @db.VarChar(80)
+  contactUser    User?     @relation("CustomerContact")
+  createdById    String?   @db.Char(36)
+  createdBy      User?     @relation("CustomerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  /// Set when the customer was converted from a website lead.
+  sourceLeadType LeadType?
+  sourceLeadId   String?   @db.Char(36)
+  createdAt      DateTime  @default(now())
+
+  projects        Project[]
+  requests        SupportRequest[]
+  demoRequests    DemoRequest[]
+  quoteRequests   QuoteRequest[]
+  contactMessages ContactMessage[]
+
+  @@map("customers")
+}
+
+/// A project belongs to exactly one customer.
+model Project {
+  id         String        @id @default(uuid()) @db.Char(36)
+  /// P-0001
+  code       String        @unique @db.VarChar(16)
+  name       String        @db.VarChar(160)
+  type       ProjectType
+  status     ProjectStatus @default(PLANNING)
+  customerId String        @db.Char(36)
+  customer   Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  createdAt  DateTime      @default(now())
+
+  requests SupportRequest[]
+
+  @@index([customerId])
+  @@map("projects")
+}
+
+// ========================================================= support requests
+
+model SupportRequest {
+  id              String        @id @default(uuid()) @db.Char(36)
+  /// TKT-2026-00001
+  code            String        @unique @db.VarChar(20)
+  title           String        @db.VarChar(200)
+  description     String        @db.Text
+  url             String?       @db.VarChar(500)
+  type            RequestType
+  priority        Priority
+  status          RequestStatus @default(SUBMITTED)
+  /// The project must belong to the same customer (checked when saving).
+  projectId       String        @db.Char(36)
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  customerId      String        @db.Char(36)
+  customer        Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  /// Must be a DEVELOPER (checked when saving).
+  assigneeId      String?       @db.Char(36)
+  assignee        User?         @relation("RequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  /// SLA due time, from the response target of the priority.
+  dueAt           DateTime?
+  slaPausedAt     DateTime?
+  firstResponseAt DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  messages      RequestMessage[]
+  statusChanges RequestStatusChange[]
+  attachments   Attachment[]
+
+  @@index([status])
+  @@index([assigneeId])
+  @@index([customerId])
+  @@index([projectId])
+  @@index([priority])
+  @@map("support_requests")
+}
+
+/// The conversation on a request. Customers never see INTERNAL_NOTE.
+model RequestMessage {
+  id        String         @id @default(uuid()) @db.Char(36)
+  requestId String         @db.Char(36)
+  request   SupportRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  /// Empty for SYSTEM messages.
+  authorId  String?        @db.Char(36)
+  author    User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  kind      MessageKind
+  body      String         @db.Text
+  createdAt DateTime       @default(now())
+
+  attachments Attachment[]
+
+  @@index([requestId, createdAt])
+  @@map("request_messages")
+}
+
+/// Status history: every change, with who and when.
+model RequestStatusChange {
+  id        String         @id @default(uuid()) @db.Char(36)
+  requestId String         @db.Char(36)
+  request   SupportRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  from      RequestStatus?
+  to        RequestStatus
+  byId      String?        @db.Char(36)
+  by        User?          @relation(fields: [byId], references: [id], onDelete: SetNull)
+  createdAt DateTime       @default(now())
+
+  @@index([requestId, createdAt])
+  @@map("request_status_changes")
+}
+
+/// A file attached to a request. The file is on the server disk (storageKey).
+model Attachment {
+  id           String          @id @default(uuid()) @db.Char(36)
+  requestId    String          @db.Char(36)
+  request      SupportRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  messageId    String?         @db.Char(36)
+  message      RequestMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  fileName     String          @db.VarChar(255)
+  contentType  String          @db.VarChar(127)
+  /// Bytes.
+  size         Int
+  storageKey   String          @unique @db.VarChar(255)
+  uploadedById String          @db.Char(36)
+  uploadedBy   User            @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  createdAt    DateTime        @default(now())
+
+  @@index([requestId])
+  @@map("attachments")
+}
+
+// ============================================================ website leads
+
+model DemoRequest {
+  id             String     @id @default(uuid()) @db.Char(36)
+  /// DEM-2026-001
+  code           String     @unique @db.VarChar(20)
+  status         DemoStatus @default(NEW)
+  topic          DemoTopic
+  /// The slot the visitor picked.
+  preferredStart DateTime
+  scheduledStart DateTime?
+  /// Equals scheduledStart while the demo is SCHEDULED, otherwise empty.
+  /// Unique, so two scheduled demos can never share a slot.
+  scheduledSlot  DateTime?  @unique
+  hostId         String?    @db.Char(36)
+  host           User?      @relation("DemoHost", fields: [hostId], references: [id], onDelete: SetNull)
+  videoLink      String?    @db.VarChar(500)
+  name           String     @db.VarChar(120)
+  email          String     @db.VarChar(191)
+  company        String     @db.VarChar(160)
+  phone          String?    @db.VarChar(40)
+  notes          String?    @db.Text
+  /// The website page the visitor booked from.
+  sourcePage     String     @db.VarChar(120)
+  ownerId        String?    @db.Char(36)
+  owner          User?      @relation("DemoOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  cancelReason   String?    @db.Text
+  /// Set after conversion to a customer.
+  customerId     String?    @db.Char(36)
+  customer       Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([status, createdAt])
+  @@map("demo_requests")
+}
+
+model QuoteRequest {
+  id           String           @id @default(uuid()) @db.Char(36)
+  /// QUO-2026-001
+  code         String           @unique @db.VarChar(20)
+  status       QuoteStatus      @default(NEW)
+  projectType  QuoteProjectType
+  budget       Budget
+  /// Only from the full form on the Contact page.
+  timeline     Timeline?
+  name         String           @db.VarChar(120)
+  email        String           @db.VarChar(191)
+  company      String?          @db.VarChar(160)
+  phone        String?          @db.VarChar(40)
+  requirements String           @db.Text
+  sourcePage   String           @db.VarChar(120)
+  ownerId      String?          @db.Char(36)
+  owner        User?            @relation("QuoteOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  lostReason   String?          @db.Text
+  customerId   String?          @db.Char(36)
+  customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  estimates Estimate[]
+
+  @@index([status, createdAt])
+  @@map("quote_requests")
+}
+
+/// An estimate sent for a quote. The newest is the current one.
+model Estimate {
+  id             String       @id @default(uuid()) @db.Char(36)
+  quoteRequestId String       @db.Char(36)
+  quoteRequest   QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  /// Money in whole cents.
+  amountCents    Int
+  currency       String       @default("USD") @db.Char(3)
+  deliveryTime   String       @db.VarChar(120)
+  validUntil     DateTime     @db.Date
+  summary        String       @db.Text
+  sentById       String       @db.Char(36)
+  sentBy         User         @relation(fields: [sentById], references: [id], onDelete: Restrict)
+  sentAt         DateTime     @default(now())
+
+  @@index([quoteRequestId, sentAt])
+  @@map("estimates")
+}
+
+model ContactMessage {
+  id         String        @id @default(uuid()) @db.Char(36)
+  /// MSG-2026-001
+  code       String        @unique @db.VarChar(20)
+  status     ContactStatus @default(NEW)
+  topic      MessageTopic
+  name       String        @db.VarChar(120)
+  email      String        @db.VarChar(191)
+  message    String        @db.Text
+  sourcePage String        @db.VarChar(120)
+  ownerId    String?       @db.Char(36)
+  owner      User?         @relation("ContactOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  /// Matched by email to an existing customer.
+  customerId String?       @db.Char(36)
+  customer   Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@map("contact_messages")
+}
+
+/// The activity on any lead (demo, quote or message).
+model LeadActivity {
+  id        String           @id @default(uuid()) @db.Char(36)
+  leadType  LeadType
+  leadId    String           @db.Char(36)
+  kind      LeadActivityKind
+  authorId  String?          @db.Char(36)
+  author    User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body      String           @db.Text
+  createdAt DateTime         @default(now())
+
+  @@index([leadType, leadId, createdAt])
+  @@map("lead_activities")
+}
+
+// ============================================================ everything else
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Char(36)
+  userId    String           @db.Char(36)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      NotificationKind
+  text      String           @db.VarChar(500)
+  href      String           @db.VarChar(500)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+/// App settings, one row per key: responseTargets, teamNotifications.
+model Setting {
+  key         String   @id @db.VarChar(64)
+  value       Json
+  /// Empty for the defaults created by the seed.
+  updatedById String?  @db.Char(36)
+  updatedBy   User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedAt   DateTime @updatedAt
+
+  @@map("settings")
+}
+
+/// Who changed accounts, roles, customers and settings, and when.
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Char(36)
+  actorId    String?  @db.Char(36)
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String   @db.VarChar(64)
+  entityType String   @db.VarChar(64)
+  entityId   String   @db.VarChar(64)
+  data       Json
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+/// The last number used for each readable code, for example "TKT-2026" -> 124.
+model Counter {
+  name  String @id @db.VarChar(32)
+  value Int
+
+  @@map("counters")
 }

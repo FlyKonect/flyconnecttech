@@ -90,11 +90,13 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`)
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
-- `npm run db:seed`
+- `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
 - `npm run db:studio`: browse the data
 - `npm run db:generate`: rebuild the Prisma client (also runs after `npm install`)
+- `npm run auth:schema`: Better Auth's own version of its tables, into `prisma/auth-schema.generated.prisma` (not committed). Run it after upgrading Better Auth and copy any changes into `schema.prisma` by hand.
 
 Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 and 8000).
 
@@ -132,6 +134,16 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Pages whose address has a changing part** (like `[code]`) sit under a layout that reads the address, so the shells are wrapped in `Suspense` in their layout files. Keep that.
 - **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright uses or starts the dev server on port 3001.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
+
+## Database
+- **Schema:** , built from docs/02. 21 tables with plain plural names (). Change it with , which writes a new migration under . Never edit a migration that is already committed.
+- **No sample data.** The owner decided against loading . Data comes from real use; the seed only adds the default settings.
+- **Settings:** defaults live in . The live hosting does not run the seed, so code that reads a setting must fall back to these defaults when its row is missing.
+- **Readable codes:** always  from , inside the same transaction that creates the record. Numbers start at 1 (TKT-2026-00001, P-0001).
+- **One demo per slot:**  equals  while a demo is SCHEDULED and is empty otherwise. It is unique. Set and clear it together with the status.
+- **Customer contact:** stored once, on the user (, unique), not on the customer.
+- **UTC:** every connection runs  (). Scripts and tests use  from there; the app uses .
+- **Better Auth** knows only role, status, customerId, jobTitle and timezone (). Our services manage the other user fields.
 
 ## Logo
 - The logo is "Crew Wings": gold wings around a navy node, "FlyConnect" in navy and "Tech" in gold.

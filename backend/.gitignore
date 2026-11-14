@@ -14,3 +14,6 @@ coverage
 
 # uploaded files
 /uploads
+
+# Better Auth schema tool output, only for comparing (npm run auth:schema)
+/prisma/auth-schema.generated.prisma
