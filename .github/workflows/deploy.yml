@@ -1,0 +1,226 @@
+# Deploy: puts the website and the backend on the live hosting.
+#
+# When it runs:
+#   - on every push to main
+#   - by hand: GitHub > Actions > Deploy > Run workflow (main only)
+#
+# What it does:
+#   1. Runs all the checks (ci.yml). If one fails, nothing is deployed.
+#   2. Builds both apps here on GitHub, not on the hosting.
+#   3. Copies the built files to the hosting over SSH.
+#   4. On the hosting: installs the backend's packages, updates the database,
+#      restarts both apps.
+#   5. Opens the live site and the backend to confirm they answer.
+#
+# Setup (secrets, variables, cPanel): docs/deploy.md
+# The deploy job is skipped until the variable DEPLOY_ENABLED is "true".
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Checks
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to live hosting
+    needs: checks
+    if: vars.DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # One deploy at a time. A second push waits for the first to finish.
+    concurrency:
+      group: deploy-live
+      cancel-in-progress: false
+    env:
+      SITE_URL: ${{ vars.SITE_URL }}
+      API_URL: ${{ vars.API_URL }}
+      FRONTEND_PATH: ${{ vars.FRONTEND_PATH }}
+      BACKEND_PATH: ${{ vars.BACKEND_PATH }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ vars.SSH_PORT }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Stops early, with a clear message, if a setting is missing or unsafe.
+      # The folder rules matter: files are copied into these folders, so a
+      # wrong value must never point at the home folder or at public_html.
+      - name: Check the settings
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          problems=0
+          for name in SITE_URL API_URL FRONTEND_PATH BACKEND_PATH SSH_HOST SSH_PORT SSH_USER SSH_PRIVATE_KEY SSH_KNOWN_HOSTS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not set. See docs/deploy.md, step 7."
+              problems=1
+            fi
+          done
+
+          for name in FRONTEND_PATH BACKEND_PATH; do
+            value="${!name}"
+            [ -z "$value" ] && continue
+            if ! [[ "$value" =~ ^[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)+$ ]]; then
+              echo "::error::$name must be a folder inside a folder, written from the home folder, like flyconnect-tech/backend. No leading slash, no spaces, no dots at the start of a name."
+              problems=1
+            fi
+            case "$value" in
+              public_html/*|www/*|mail/*|etc/*|ssl/*|logs/*|tmp/*|nodevenv/*)
+                echo "::error::$name must not be inside ${value%%/*}. Use a folder of its own, like flyconnect-tech/backend."
+                problems=1
+                ;;
+            esac
+          done
+
+          if [ -n "$FRONTEND_PATH" ] && [ "$FRONTEND_PATH" = "$BACKEND_PATH" ]; then
+            echo "::error::FRONTEND_PATH and BACKEND_PATH must be two different folders."
+            problems=1
+          fi
+
+          for name in SITE_URL API_URL; do
+            value="${!name}"
+            [ -z "$value" ] && continue
+            if ! [[ "$value" =~ ^https://[A-Za-z0-9.-]+$ ]]; then
+              echo "::error::$name must look like https://yourdomain.com with no slash at the end."
+              problems=1
+            fi
+          done
+
+          if ! [[ "$SSH_PORT" =~ ^[0-9]+$ ]]; then
+            echo "::error::SSH_PORT must be a number, for example 22."
+            problems=1
+          fi
+
+          exit "$problems"
+
+      - uses: actions/setup-node@v7
+        with:
+          # Keep the same as the Node.js version chosen in cPanel.
+          node-version: ${{ vars.NODE_VERSION || '22' }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      - name: Build the backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm run build
+
+      # The two addresses are built into the website, so they are set here.
+      - name: Build the website
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
+        run: |
+          npm ci
+          npm run build
+          # The ready-to-run copy needs the images and the page assets beside it.
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+          test -f .next/standalone/server.js
+
+      - name: Connect to the hosting
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts
+          {
+            echo "Host live"
+            echo "  HostName $SSH_HOST"
+            echo "  Port $SSH_PORT"
+            echo "  User $SSH_USER"
+            echo "  IdentityFile ~/.ssh/deploy_key"
+            echo "  IdentitiesOnly yes"
+            echo "  StrictHostKeyChecking yes"
+            echo "  BatchMode yes"
+            echo "  ConnectTimeout 20"
+            echo "  ServerAliveInterval 30"
+            echo "  ControlMaster auto"
+            echo "  ControlPath ~/.ssh/control-%C"
+            echo "  ControlPersist 120"
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+          if ! ssh live true; then
+            echo "::error::Could not log in to the hosting. Check SSH_HOST, SSH_PORT, SSH_USER, SSH_PRIVATE_KEY and SSH_KNOWN_HOSTS (docs/deploy.md, steps 5 and 7)."
+            exit 1
+          fi
+
+          for name in FRONTEND_PATH BACKEND_PATH; do
+            if ! ssh live "test -d \"\$HOME/${!name}\""; then
+              echo "::error::The folder ${!name} does not exist on the hosting. Create the Node.js app in cPanel first (docs/deploy.md, step 4)."
+              exit 1
+            fi
+          done
+
+      # Only dist/ and prisma/ are replaced. The settings file (.env), the
+      # installed packages and everything else on the hosting stay as they are.
+      - name: Upload the backend
+        run: |
+          rsync -az --delete backend/dist/ "live:$BACKEND_PATH/dist/"
+          rsync -az --delete backend/prisma/ "live:$BACKEND_PATH/prisma/"
+          rsync -az \
+            backend/package.json \
+            backend/package-lock.json \
+            backend/prisma7.config.ts \
+            backend/app.cjs \
+            "live:$BACKEND_PATH/"
+
+      - name: Install packages, update the database, restart the backend
+        run: ssh live "APP_PATH='$BACKEND_PATH' bash -se" < .github/scripts/remote-backend.sh
+
+      # Only .next/, node_modules/ and public/ are replaced.
+      - name: Upload the website
+        run: |
+          rsync -az --delete frontend/.next/standalone/.next/ "live:$FRONTEND_PATH/.next/"
+          rsync -az --delete frontend/.next/standalone/node_modules/ "live:$FRONTEND_PATH/node_modules/"
+          rsync -az --delete frontend/.next/standalone/public/ "live:$FRONTEND_PATH/public/"
+          rsync -az \
+            frontend/.next/standalone/server.js \
+            frontend/.next/standalone/package.json \
+            "live:$FRONTEND_PATH/"
+
+      - name: Restart the website
+        run: ssh live "mkdir -p \"\$HOME/$FRONTEND_PATH/tmp\" && touch \"\$HOME/$FRONTEND_PATH/tmp/restart.txt\""
+
+      - name: Check the live site answers
+        run: |
+          check() {
+            for attempt in $(seq 1 12); do
+              if curl --fail --silent --show-error --location --max-time 20 --output /dev/null "$1"; then
+                echo "OK: $1"
+                return 0
+              fi
+              echo "No answer yet from $1 (try $attempt of 12)"
+              sleep 5
+            done
+            echo "::error::$1 did not answer. Open the stderr.log file in the app's folder on the hosting to see why (docs/deploy.md, \"If something goes wrong\")."
+            return 1
+          }
+
+          check "$API_URL/health"
+          check "$SITE_URL/"
+
+      - name: Remove the login key from this machine
+        if: always()
+        run: |
+          ssh -O exit live 2>/dev/null || true
+          rm -f ~/.ssh/deploy_key
