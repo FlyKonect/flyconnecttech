@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -9,7 +10,9 @@ async function controllerWith(databaseUp: boolean): Promise<HealthController> {
     providers: [
       {
         provide: PrismaService,
-        useValue: { isUp: vi.fn().mockResolvedValue(databaseUp) },
+        useValue: {
+          isUp: jest.fn<() => Promise<boolean>>().mockResolvedValue(databaseUp),
+        },
       },
     ],
   }).compile();

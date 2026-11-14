@@ -44,7 +44,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - Swagger API docs at `/api-docs` (not in production).
 - Email: Mailpit in development. Templates and the production sender are set in Phase 9.
 - File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check.
-- Vitest for unit and end-to-end tests (NestJS 12 default). Oxlint, Prettier.
+- Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
 - Sign-in: decided in Phase 4. It must be email and password, sessions in the database, TOTP two-factor for team accounts, invite-only.
 
 **Both:** npm (not pnpm). Docker Compose runs MariaDB and Mailpit in development.
