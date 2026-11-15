@@ -29,6 +29,7 @@
     "postinstall": "prisma generate",
     "auth:schema": "auth generate --config src/auth/auth.schema.ts --adapter prisma --dialect mysql --output prisma/auth-schema.generated.prisma --yes",
     "user:invite": "nest build && node dist/cli/invite-user.js",
+    "project:add": "nest build && node dist/cli/add-project.js",
     "e2e:serve": "node scripts/prepare-database.mjs && nest build && node dist/main.js"
   },
   "dependencies": {

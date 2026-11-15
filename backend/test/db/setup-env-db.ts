@@ -1,6 +1,11 @@
 // Runs before every database test file, before the app is loaded:
 // points the app at the test database and gives it test settings.
+import os from 'node:os';
+import path from 'node:path';
 import { testDatabaseUrl } from './test-database.js';
+
+// Uploaded files go to a folder of their own, not the real uploads/.
+process.env.UPLOAD_DIR = path.join(os.tmpdir(), 'flyconnect-tech-test-uploads');
 
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = testDatabaseUrl;

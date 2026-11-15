@@ -32,6 +32,8 @@ const DISABLED_PATHS = [
   '/send-verification-email',
   '/verify-email',
   '/change-email',
+  // Our own POST /me/password applies the password rules (profile.service.ts).
+  '/change-password',
   '/update-user',
   '/delete-user',
   '/delete-user/callback',
