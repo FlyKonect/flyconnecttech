@@ -5,13 +5,14 @@ import { AuthModule } from './auth/auth.module.js';
 import { envSchema } from './config/env.js';
 import { CustomersModule } from './customers/customers.module.js';
 import { LeadsModule } from './leads/leads.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 import { EmailModule } from './email/email.module.js';
 import { HealthModule } from './health/health.module.js';
 import { JobsModule } from './jobs/jobs.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { RequestsModule } from './requests/requests.module.js';
-import { SettingsModule } from './settings/settings.service.js';
+import { SettingsModule } from './settings/settings.module.js';
 import { UploadsModule } from './uploads/uploads.module.js';
 
 @Module({
@@ -29,6 +30,7 @@ import { UploadsModule } from './uploads/uploads.module.js';
     CustomersModule,
     LeadsModule,
     JobsModule,
+    ReportsModule,
     HealthModule,
   ],
 })
