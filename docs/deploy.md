@@ -30,7 +30,7 @@ Keep this table open: the steps tell you when to use each value.
 |---|---|---|
 | Website address | `https://flyconnecttech.co.uk` | your domain |
 | Backend address | `https://api.flyconnecttech.co.uk` | made in Step 8 |
-| `CPANELUSER` | your cPanel username | cPanel home page, right-hand column **General Information** > **Current User**. It is also in Krystal's welcome email |
+| `CPANELUSER` | the hosting account's username (for this account: `flyconne`) | cPanel home page, right-hand column **General Information**: the last part of **Home Directory** (`/home/flyconne`). If you log in to cPanel as a team member, **Current User** is your own name, not the account's: use the **Team Owner** name instead |
 | `HOST` | the server's name | cPanel right-hand column > **Server Information** > **Hostname** (it looks like `something.krystal.uk`). Once your domain points to Krystal, `flyconnecttech.co.uk` works too |
 | `PORT` | `722` | Krystal uses port **722** for SSH, not the usual 22. If 722 does not connect in Step 3, search Krystal's help pages for "SSH" |
 | Database name, user and password | you make them | Step 9 |
@@ -134,7 +134,7 @@ On GitHub, open the repository > **Settings** > **Secrets and variables** > **Ac
 
 - **Do not click "Run NPM Install".** The deploy puts everything in place. Clicking it can break the website.
 - Until the first deploy, the address shows an error page. That is normal.
-- If `flyconnecttech.co.uk` already shows another site, this app replaces it.
+- If `flyconnecttech.co.uk` already shows another site, this app replaces it. Your main site on `flyconnect.co.uk` (in `public_html`) is not touched: the new apps live in their own `flyconnect-tech` folder.
 - cPanel > **SSL/TLS Status**: `flyconnecttech.co.uk` should have a green padlock. If not, click **Run AutoSSL** and wait (up to an hour).
 
 ## Step 6. GitHub: the website's variables
@@ -244,7 +244,7 @@ Where each value comes from:
 | `FRONTEND_URL` | `https://flyconnecttech.co.uk` | the website address, exactly as visitors use it, no slash at the end |
 | `BACKEND_URL` | `https://api.flyconnecttech.co.uk` | Step 8 |
 | `DATABASE_URL` | replace `CPANELUSER_fcapp`, `DATABASE-PASSWORD` and `CPANELUSER_fctech` | the full user name, its password and the full database name from Step 9. Keep `localhost:3306` |
-| `UPLOAD_DIR` | replace `CPANELUSER` | "Your values". cPanel's right-hand column also shows it as **Home Directory** (`/home/CPANELUSER`) |
+| `UPLOAD_DIR` | replace `CPANELUSER` | "Your values": the **Home Directory** in cPanel's right-hand column (`/home/flyconne`) followed by `/flyconnect-tech/uploads` |
 | `AUTH_SECRET` | a new random text | run `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` in Git Bash on your PC and paste the result. Never reuse the one from your PC's `.env`. Changing it later signs everybody out |
 | `COOKIE_DOMAIN` | `flyconnecttech.co.uk` | your domain without `www` or `https://`. It lets one sign-in work on both addresses |
 | `TRUST_PROXY` | `true` | always this on Krystal: its web server sits in front of the app, and without it the limits on sign-in attempts would count every visitor as one person |
@@ -405,7 +405,7 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | Emails arrive, but in spam | Do Step 16, and check `EMAIL_FROM` uses the same mailbox as `SMTP_USER` |
 | Signing in seems to work but you land back on the sign-in page | `COOKIE_DOMAIN` is missing or wrong, or `BACKEND_URL` / `FRONTEND_URL` do not match the real addresses (Step 12). Open the site as `https://flyconnecttech.co.uk`, without `www` |
 | Git Bash says `$'\302\226ssh': command not found` (or similar strange characters before a command) | An invisible character came along when the line was copied. Type the command by hand instead of pasting it |
-| The test login in Step 3 asks for a password | The key was not accepted, so do not type a password: press Ctrl+C. In cPanel > SSH Access > Manage SSH Keys, the key must be listed and **authorized**; the username must be exactly cPanel's **Current User**; and `ls ~/flyconnect-deploy*` in Git Bash must show the two key files. Run the login again with `-v` after `ssh` to see why the key was refused |
+| The test login in Step 3 asks for a password | The key was not accepted, so do not type a password: press Ctrl+C. In cPanel > SSH Access > Manage SSH Keys, the key must be listed and **authorized**; the username must be the account's (the **Team Owner**, or the last part of **Home Directory**, not a team member's **Current User**); and `ls ~/flyconnect-deploy*` in Git Bash must show the two key files. Run the login again with `-v` after `ssh` to see why the key was refused |
 | A warning about "post-quantum key exchange" | Harmless: the server uses an older SSH version. The login still works |
 | PowerShell says "Corrupted MAC on input" when you test the login | A known fault in the SSH program that comes with Windows. Use **Git Bash** instead (Step 3), or add `-m hmac-sha2-512` after `ssh`. It does not affect GitHub's deploys |
 | "rsync: command not found" | Ask Krystal support to enable `rsync` for SSH on your account |
