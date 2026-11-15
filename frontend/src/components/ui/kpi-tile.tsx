@@ -50,12 +50,15 @@ type KpiTileProps = Omit<React.ComponentProps<"div">, "children"> &
     label: string;
     value: React.ReactNode;
     hint?: string;
+    /** Colours the hint: green for better, red for worse (Reports). */
+    hintTone?: "good" | "bad";
   };
 
 function KpiTile({
   label,
   value,
   hint,
+  hintTone,
   tone = "default",
   className,
   ...props
@@ -81,7 +84,13 @@ function KpiTile({
         <p
           className={cn(
             "mt-2 text-[13px]",
-            key === "navy" ? "text-on-navy" : "text-muted-foreground",
+            hintTone === "good"
+              ? "font-semibold text-[#15803D]"
+              : hintTone === "bad"
+                ? "font-semibold text-danger"
+                : key === "navy"
+                  ? "text-on-navy"
+                  : "text-muted-foreground",
           )}
         >
           {hint}

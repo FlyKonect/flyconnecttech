@@ -407,3 +407,37 @@ export type ConvertPrefill = {
   phone: string;
   project: { name: string; type: ProjectType };
 };
+
+// ------------------------------------------------------- reports, settings
+
+/** GET /team/reports (screen 31). The words come from the backend. */
+export type Report = {
+  cards: {
+    label: string;
+    value: string;
+    change: { text: string; tone: "better" | "worse" | "same" } | null;
+    /** Shown instead when there is no data yet. */
+    note: string | null;
+  }[];
+  week: { day: string; count: number }[];
+  projects: { id: string; name: string; count: number }[];
+  developers: {
+    id: string;
+    name: string;
+    jobTitle: string | null;
+    assigned: number;
+    resolved: number;
+    firstResponse: string | null;
+  }[];
+};
+
+/** GET /team/settings (screen 33). Targets are short: "4h", "1bd". */
+export type AppSettings = {
+  responseTargets: Record<"URGENT" | "HIGH" | "MEDIUM" | "LOW", string>;
+  teamNotifications: {
+    urgentAlert: boolean;
+    notifyAssigneeOnReply: boolean;
+    dailyDigest: boolean;
+    autoCloseResolvedAfter7Days: boolean;
+  };
+};

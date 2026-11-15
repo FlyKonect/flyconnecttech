@@ -183,6 +183,7 @@ export class ReportsService {
       select: { id: true, name: true },
     });
     return groups.map((group) => ({
+      id: group.projectId,
       name: names.find((p) => p.id === group.projectId)?.name ?? 'A project',
       count: group._count._all,
     }));

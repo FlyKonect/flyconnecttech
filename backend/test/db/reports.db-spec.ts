@@ -278,8 +278,8 @@ describe('Reports & Analytics', () => {
       { day: 'Sun', count: 0 },
     ]);
     expect(report.projects).toEqual([
-      { name: 'Bluewave booking website', count: 11 },
-      { name: 'Bluewave agent portal', count: 1 },
+      { id: busyProject, name: 'Bluewave booking website', count: 11 },
+      { id: quietProject, name: 'Bluewave agent portal', count: 1 },
     ]);
     expect(report.developers).toEqual([
       expect.objectContaining({
