@@ -7,7 +7,13 @@ import { e2e } from "./e2e-env";
 
 type Summary = { ID: string; Subject: string; To: { Address: string }[] };
 
-export type Email = { subject: string; text: string; html: string };
+export type Email = {
+  subject: string;
+  text: string;
+  html: string;
+  /** File names of the attachments, for example "invite.ics". */
+  attachments: string[];
+};
 
 /** Waits for the newest email to this address (up to 20 seconds). */
 export async function waitForEmail(
@@ -32,8 +38,14 @@ export async function waitForEmail(
           Subject: string;
           Text: string;
           HTML: string;
+          Attachments?: { FileName: string }[];
         };
-        return { subject: body.Subject, text: body.Text, html: body.HTML };
+        return {
+          subject: body.Subject,
+          text: body.Text,
+          html: body.HTML,
+          attachments: (body.Attachments ?? []).map((file) => file.FileName),
+        };
       }
     }
     await new Promise((resolve) => setTimeout(resolve, 500));

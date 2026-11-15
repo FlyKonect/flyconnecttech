@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { nextCode } from '../codes/readable-codes.js';
 import type {
@@ -64,10 +65,24 @@ const blankToNull = (value: string | undefined) => value?.trim() || null;
  */
 @Injectable()
 export class PublicLeadsService {
+  private readonly logger = new Logger(PublicLeadsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly events: LeadEventsService,
   ) {}
+
+  /**
+   * The visitor's copy and the team alerts go out after the answer, so the
+   * visitor never waits for the team's emails. They never throw.
+   */
+  private afterAnswer(emails: Promise<void>) {
+    emails.catch((error: unknown) =>
+      this.logger.error(
+        `Lead emails could not be sent: ${(error as Error).message}`,
+      ),
+    );
+  }
 
   /** Times a scheduled demo already holds, for the Book a demo calendar. */
   async takenSlots(now = new Date()): Promise<string[]> {
@@ -123,7 +138,7 @@ export class PublicLeadsService {
       await this.events.created(tx, 'demo', created);
       return created;
     }, TX);
-    await this.events.emailNewDemo(demo);
+    this.afterAnswer(this.events.emailNewDemo(demo));
   }
 
   async createQuote(input: NewQuote, now = new Date()) {
@@ -151,7 +166,7 @@ export class PublicLeadsService {
       await this.events.created(tx, 'quote', created);
       return created;
     }, TX);
-    await this.events.emailNewQuote(quote);
+    this.afterAnswer(this.events.emailNewQuote(quote));
   }
 
   async createMessage(input: NewMessage, now = new Date()) {
@@ -187,6 +202,6 @@ export class PublicLeadsService {
       );
       return created;
     }, TX);
-    await this.events.emailNewMessage(message);
+    this.afterAnswer(this.events.emailNewMessage(message));
   }
 }

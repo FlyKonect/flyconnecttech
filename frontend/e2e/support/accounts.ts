@@ -43,19 +43,31 @@ export function inviteWithCommand(options: {
   if (options.company) args.push("--company", options.company);
   if (options.jobTitle) args.push("--job-title", options.jobTitle);
 
-  let output: string;
-  try {
-    output = execFileSync("node", args, {
-      cwd: backendDir,
-      env: { ...process.env, ...e2e.backendEnv } as NodeJS.ProcessEnv,
-      encoding: "utf8",
-    });
-  } catch (error) {
-    // Show what the command said, not only that it failed.
-    const { stdout, stderr } = error as { stdout?: string; stderr?: string };
-    throw new Error(
-      `The invite command failed:\n${stdout ?? ""}${stderr ?? ""}`,
-    );
+  let output = "";
+  for (let attempt = 1; ; attempt++) {
+    try {
+      output = execFileSync("node", args, {
+        cwd: backendDir,
+        env: { ...process.env, ...e2e.backendEnv } as NodeJS.ProcessEnv,
+        encoding: "utf8",
+      });
+      break;
+    } catch (error) {
+      const failed = error as {
+        stdout?: string;
+        stderr?: string;
+        status?: number | null;
+        signal?: string | null;
+      };
+      const said = `${failed.stdout ?? ""}${failed.stderr ?? ""}`.trim();
+      // With many test windows open, Windows now and then fails to start
+      // the process at all: it then says nothing. Try once more.
+      if (!said && attempt < 2) continue;
+      // Show what the command said, not only that it failed.
+      throw new Error(
+        `The invite command failed (exit ${failed.status ?? failed.signal}):\n${said}`,
+      );
+    }
   }
   const link = output.match(/https?:\/\/\S+\/invite\/[A-Za-z0-9_-]+/);
   if (!link) throw new Error(`The invite command printed no link:\n${output}`);

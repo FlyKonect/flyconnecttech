@@ -163,11 +163,12 @@ Notes:
   and paste the result. Never reuse the one from your PC's `.env`, and never share it. Changing it later signs everybody out.
 - `COOKIE_DOMAIN` is your main domain without `www` or `https://`. It lets one sign-in work on both `yourdomain.com` and `api.yourdomain.com`.
 - `TRUST_PROXY=true` because the hosting's web server sits in front of the app. Without it, the limits on sign-in attempts would count every visitor as one person.
-- **Email** (invitations and password resets need it):
+- **Email** (invitations, password resets, support request updates and the website's forms all need it):
   1. cPanel > **Email Accounts** > **Create**: make the mailbox that sends the emails, for example `hello@yourdomain.com`, with a strong password.
   2. Click **Connect Devices** next to it. Under "Secure SSL/TLS Settings" it shows the **Outgoing Server** and its port (usually 465). Put them in `SMTP_HOST` and `SMTP_PORT`, the mailbox address in `SMTP_USER` and its password in `SMTP_PASS`.
   3. Port 465 needs `SMTP_SECURE=true`. If you use port 587 instead, write `SMTP_SECURE=false` (587 switches to encryption by itself).
   4. `EMAIL_FROM` is the sender people see. Use the same mailbox address.
+  5. The website's Book a demo, Get a quote and Send a message forms use these same settings: visitors get their copy, every super admin, admin and manager gets an alert, and demo invites go out with a calendar file. Visitors who reply to these emails reach this mailbox, so someone should read it.
 - If a password has symbols such as `#` or spaces, put the whole value in double quotes.
 - The website needs no settings file on the hosting.
 

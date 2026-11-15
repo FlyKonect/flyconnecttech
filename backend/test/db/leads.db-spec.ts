@@ -92,6 +92,20 @@ let nextSlot = 0;
 
 const emailsTo = (to: string) => sent.filter((email) => email.to === to);
 
+/** The website forms' emails go out just after the answer: wait a moment. */
+async function eventually(check: () => void, ms = 5000) {
+  const deadline = Date.now() + ms;
+  for (;;) {
+    try {
+      check();
+      return;
+    } catch (error) {
+      if (Date.now() > deadline) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+}
+
 async function bookDemo(changes: Record<string, unknown> = {}) {
   const email = uniqueEmail('olivia');
   await http()
@@ -231,7 +245,11 @@ describe('the website forms', () => {
       });
       expect(notes).toHaveLength(1);
       expect(notes[0].href).toBe(`/team/leads/demos/${demo.code}`);
-      expect(emailsTo(who.email).map((email) => email.subject)).toContain(text);
+      await eventually(() =>
+        expect(emailsTo(who.email).map((email) => email.subject)).toContain(
+          text,
+        ),
+      );
     }
     expect(
       await prisma.notification.count({
@@ -239,9 +257,11 @@ describe('the website forms', () => {
       }),
     ).toBe(0);
     expect(emailsTo(developer.email).map((e) => e.subject)).not.toContain(text);
-    expect(emailsTo(demo.email).map((e) => e.subject)).toEqual([
-      'Your FlyConnect Tech demo request',
-    ]);
+    await eventually(() =>
+      expect(emailsTo(demo.email).map((e) => e.subject)).toEqual([
+        'Your FlyConnect Tech demo request',
+      ]),
+    );
   });
 
   it('a bot filling the hidden field gets "sent" and nothing is saved', async () => {
@@ -288,9 +308,11 @@ describe('the website forms', () => {
       timeline: null,
       company: null,
     });
-    expect(emailsTo(quote.email).map((e) => e.subject)).toEqual([
-      'We received your quote request',
-    ]);
+    await eventually(() =>
+      expect(emailsTo(quote.email).map((e) => e.subject)).toEqual([
+        'We received your quote request',
+      ]),
+    );
   });
 
   it('a message from a customer is linked to them; messages get no copy', async () => {

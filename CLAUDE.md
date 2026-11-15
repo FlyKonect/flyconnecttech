@@ -42,7 +42,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - MariaDB 10.11 with Prisma 7 (`@prisma/adapter-mariadb`). Keep `prisma`, `@prisma/client` and the adapter on the same exact version.
 - Zod for every input and for the settings in `.env` (`src/config/env.ts`).
 - Swagger API docs at `/api-docs` (not in production).
-- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Account and support request emails exist; the lead emails come in Phase 8 and the rest, with the final sender, in Phase 9.
+- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Account, support request and website lead emails exist (the demo invite carries an `.ics` file, `src/leads/ics.ts`); the rest, with the final sender, come in Phase 9.
 - File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check. multer (part of `@nestjs/platform-express`) writes them to `UPLOAD_DIR/tmp` first. See "Support requests" below.
 - Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
 - Sign-in: Better Auth (email and password, sessions in the database, TOTP two-factor required for team accounts, sign-up switched off). Invitations and password resets are our own code in `backend/src/accounts/`. See "Sign-in and permissions" below.
@@ -90,7 +90,7 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards) and customers and users (adding them with their projects, resend, reset links, disable, last active)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active) and website leads (the public forms, demos, quotes, messages, owners, convert)
 - `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
 - `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
 - `npm run db:migrate`: apply schema changes in development
@@ -110,8 +110,9 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/app/invite/[token]`, `frontend/src/app/reset-password/[token]`: account activation and password reset
 - `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row, file-chip, status-history, row-menu)
 - `frontend/src/components/portal/`: the client portal's pieces (shell, my requests, new request steps, conversation, reply box, profile forms)
-- `frontend/src/components/team/`: the team panel's pieces (shell, dashboard parts, requests list, conversation with notes, composer, status panel and buttons, assign, resolve and request-info dialogs, customers list, Add customer, customer page buttons, users table with its "⋯" menu, Add user, "What each role can do")
+- `frontend/src/components/team/`: the team panel's pieces (shell, dashboard parts, requests list, conversation with notes, composer, status panel and buttons, assign, resolve and request-info dialogs, customers list, Add customer, customer page buttons, users table with its "⋯" menu, Add user, "What each role can do", the website leads lists, a lead's page, its buttons, owner and composer, and the Confirm demo, Cancel demo, Estimate and Lost dialogs)
 - `frontend/src/lib/team/forms.ts`: the Add customer, Add project and Add user rules, with the design's error wording
+- `frontend/src/lib/team/leads.ts`: a lead page's words and rules from the design: banners, fact tiles, suggested emails, "How this works" and the buttons for each status
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
@@ -134,6 +135,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `backend/src/policies/policies.ts`: who may do what, for every role
 - `backend/src/accounts/`: invitations, password reset, `/me`, profile and password change, and the team's Users routes (`team-users.*`: list, add, disable, resend, reset link, the roles for Add user)
 - `backend/src/customers/`: the team's customer routes (list, add with projects, the customer page, add project, project status)
+- `backend/src/leads/`: website leads: the public forms (`public-leads.*`), the team routes (`team-leads.*`), the status actions (`lead-actions.service.ts`), who hears about what (`lead-events.service.tsx`), the shared rules and words (`lead-rules.ts`), convert (`lead-convert.ts`) and the calendar invite (`ics.ts`)
 - `backend/src/requests/`: support requests: the portal and team routes, status rules, SLA, shared writes (`request-writes.ts`), the dashboards, labels for emails, and `RequestEventsService` (who gets which notification and email)
 - `backend/src/uploads/`: file rules and storage on disk
 - `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
@@ -152,8 +154,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Screen sizes** (Tailwind variants, set in `globals.css`): `site:` 860px and `nav:` 1240px for the website, `app:` 900px for the portal and team panel. Use `max-app:` and so on for "below". The design's full-menu width is 1180px; it is 1240px here because the FlyConnect Tech logo is wider.
 - **Website pages** (`components/site/pages/*.tsx`) were converted once from `design/source/website-*.dc.html` and keep the design's inline styles, so they match it exactly. Edit them by hand like any other component. Their root has the class `design-page`, which makes styled elements measure boxes the design's way (padding outside the width, see `globals.css`). Keep both.
 - **Book a demo:** any button opens the one dialog through `<DemoButton>` (`components/site/demo/`). The header button is `book-demo-button.tsx`.
-- **Website forms** (demo, quote, message) use react-hook-form with the Zod rules in `lib/forms/schemas.ts` and the website field style in `components/site/forms/site-field.tsx`. They call `submitLead()` in `lib/forms/submit.ts`, which only logs to the browser console until Phase 8 connects the backend. **Nothing is saved or emailed yet.**
-- **Demo times:** `lib/forms/demo-slots.ts` (next 10 weekdays, six slots, UK time, stored as UTC). Taken slots are always empty until Phase 8.
+- **Website forms** (demo, quote, message) use react-hook-form with the Zod rules in `lib/forms/schemas.ts` and the website field style in `components/site/forms/site-field.tsx`. They call `submitLead()` in `lib/forms/submit.ts`, which posts to the backend's `/leads/…` routes with the page it was sent from and the hidden honeypot field (`<Honeypot>`).
+- **Demo times:** `lib/forms/demo-slots.ts` (next 10 weekdays, six slots, UK time, stored as UTC). Book a demo asks `/leads/demo-slots` which times a scheduled demo holds and crosses them out.
 - **Signed-in pages:** the `(app)` layouts call `requireCustomer()` or `requireTeamMember()` from `lib/auth/server.ts`, which ask the backend who is signed in (`/me`) and send everyone else to the right page. `proxy.ts` only checks that a cookie exists; the backend makes the real decision.
 - **Pages whose address has a changing part** (like `[code]`) sit under a layout that reads the address, so the shells are wrapped in `Suspense` in their layout files. Keep that.
 - **Signed-in pages read their data inside their own `<Suspense fallback={<PageLoading />}>`** (see any page in `portal/(app)/`): a server component calls `serverApi()`, and the page's default export wraps it. Without it Next.js reports that moving between pages is not instant (a boundary higher up does not cover a move between two sibling pages).
@@ -162,6 +164,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright starts (or reuses) its own backend and website on ports 4100 and 3101.
   - Make test people with `createPerson(role)` and `signInBrowser()` from `e2e/support/accounts.ts`; read emails with `waitForEmail()` from `e2e/support/mailpit.ts`.
   - Request helpers in `e2e/support/portal.ts`: `addProject()` (the `project:add` command), `sendRequest()`, `postAs(person, path, body)` for a team action through the backend (assign, request-info, resolve…), and `idOf(person)`.
+  - `waitForEmail()` also lists an email's attachments (the demo invite's `invite.ics`).
+  - A test that books a demo and confirms it takes that time in the test database until it is completed: pick a time no other test uses (the website test uses the first day at 14:00; the leads test the last day).
   - The test database keeps every run's data, and every test person has the same name ("Test developer"): pick by role or code, not by position in a list.
   - Next.js keeps pages you left in the page, hidden. Pick fields with the visible-only `field()` helper and form errors by `[data-slot=form-error]`, as in `e2e/accounts.spec.ts`, or a test finds two matches.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
@@ -187,6 +191,17 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Last active:** `SessionGuard` saves `users.lastActiveAt` at most every 5 minutes per person (`LAST_ACTIVE_EVERY_MS`). The Users list and the customer page show it.
 - **Cookies** are named `fct.*` (`__Secure-fct.*` live). Live, `COOKIE_DOMAIN` makes one sign-in work on both the website and the `api.` address.
 - **Change password** is our own `POST /me/password` (`accounts/profile.service.ts`): it applies the password rules and signs out other devices. Better Auth's `/change-password` is switched off.
+
+## Website leads (backend)
+- **Public forms** (`/leads/demo`, `/leads/quote`, `/leads/message`, `@Public`, rate-limited per address): the same Zod rules as the website; a filled honeypot field answers "sent" and saves nothing; the page is stored by name ("Travel Technology", `pageName()`); a message from a customer's email is linked to that customer. The answer never says whether an email exists.
+- **A new lead** gets its code (`nextCode`), an activity line, and an in-app notification for every active super admin, admin and manager. **Emails go after the answer** (the visitor never waits): the visitor's copy (demo, quote) and the team alert to every active super admin, admin and manager.
+- **Team routes** (`/team/leads/…`) need `leads.manage` (super admins, admins, managers); converting needs `leads.convert`. Owners and hosts are active super admins, admins and managers. **The first action on an unowned lead makes the actor its owner** (`claimOwner()`). Status changes use `moveStatus()` with the old status, so two clicks can't both win.
+- **Demo:** confirm/reschedule sets Scheduled and `scheduledSlot` (unique: two demos never share a time) and emails the `.ics` invite (fixed UID per demo, growing SEQUENCE, so a reschedule or cancel updates the same calendar entry). Complete and cancel clear `scheduledSlot`. Cancel can email the visitor (with a CANCEL invite if it was scheduled).
+- **Quote:** every estimate is a new `estimates` row (the history is kept); the newest is current. Lost saves the reason; its optional note is an internal note.
+- **Message:** the first email reply sets Replied; reopen goes back to Replied if there was a reply, otherwise New.
+- **Composer:** "Email {first}" is sent first and saved only if it went; an internal note is only saved. Other actions save first, and say if their email failed.
+- **Convert** (Completed demo or Won quote, once): Add customer with `from` = the lead's code. In the same save (`InvitationsService.inviteUser`'s `onCustomer` step) the customer gets `sourceLeadType`/`sourceLeadId`, the lead its `customerId`, an activity line "Converted to customer by …", and an audit entry `lead.converted`.
+- **Counts:** `/team/summary` has the three new-lead badges; the dashboard's leads card has new demos, quotes and messages, estimates awaiting a reply, demos booked and the next one.
 
 ## Customers and users (backend)
 - **Customers:** managers may look (`customers.view`); only super admins and admins add customers and projects, change a project's status, resend invitations and send reset links (`customers.manage`). Developers get nothing ("not found" in the website).
