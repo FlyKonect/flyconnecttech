@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { PageLoading } from "@/components/portal/page-loading";
+import { PageLoading } from "@/components/shell/page-loading";
 import { Button, TextLink } from "@/components/ui/button";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { LabelPill } from "@/components/ui/pill";

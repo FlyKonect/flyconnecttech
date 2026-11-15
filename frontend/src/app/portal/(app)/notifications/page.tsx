@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { PageLoading } from "@/components/portal/page-loading";
-import { NotificationList } from "@/components/portal/notification-list";
+import { PageLoading } from "@/components/shell/page-loading";
+import { NotificationList } from "@/components/shell/notification-list";
 import { serverApi } from "@/lib/api-server";
 import { requireCustomer } from "@/lib/auth/server";
 import type { NotificationList as Notifications } from "@/lib/portal/types";

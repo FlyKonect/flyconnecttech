@@ -31,6 +31,7 @@ import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill } from "@/components/ui/pill";
+import { SlaPill } from "@/components/ui/sla-pill";
 import { StatusHistory } from "@/components/ui/status-history";
 import { Stepper } from "@/components/ui/stepper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -356,9 +357,56 @@ export function ComponentGallery() {
             <KpiTile label="Open requests" value={7} hint="1 new" tone="navy" />
             <KpiTile label="In progress" value={1} tone="info" />
             <KpiTile label="Waiting for you" value={1} tone="warning" />
+            <KpiTile
+              label="Unassigned"
+              value={1}
+              hint="Need a developer"
+              tone="attention"
+            />
             <KpiTile label="At risk of SLA" value={1} tone="danger" />
             <KpiTile label="Resolved" value={3} tone="success" />
           </div>
+        </Section>
+
+        <Section title="SLA pills">
+          <Row label="From the due time">
+            <SlaPill
+              timeZone="Europe/London"
+              now={new Date("2026-11-09T09:22:00Z")}
+              request={{
+                status: "SUBMITTED",
+                dueAt: "2026-11-09T10:00:00Z",
+                resolvedAt: null,
+              }}
+            />
+            <SlaPill
+              timeZone="Europe/London"
+              now={new Date("2026-11-09T09:22:00Z")}
+              request={{
+                status: "IN_PROGRESS",
+                dueAt: "2026-11-09T11:32:00Z",
+                resolvedAt: null,
+              }}
+            />
+            <SlaPill
+              timeZone="Europe/London"
+              now={new Date("2026-11-09T09:22:00Z")}
+              request={{
+                status: "UNDER_REVIEW",
+                dueAt: "2026-11-10T09:00:00Z",
+                resolvedAt: null,
+              }}
+            />
+            <SlaPill
+              timeZone="Europe/London"
+              now={new Date("2026-11-09T09:22:00Z")}
+              request={{
+                status: "WAITING_FOR_CUSTOMER",
+                dueAt: null,
+                resolvedAt: null,
+              }}
+            />
+          </Row>
         </Section>
 
         <Section title="Cards">

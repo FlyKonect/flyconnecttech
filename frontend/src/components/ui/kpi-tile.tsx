@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 /**
  * A number tile on a dashboard: a small label, a big number, an optional hint.
  *
- * Tones: default (white), navy (the filled tile), and four that only colour
- * the label: info, warning (also tints the tile), danger and success.
+ * Tones: default (white), navy (the filled tile), and five that only colour
+ * the label: info, warning (also tints the tile), attention (orange, the
+ * team's "Unassigned"), danger and success.
  */
 const tileVariants = cva("min-w-0 rounded-[20px] border p-5", {
   variants: {
@@ -16,6 +17,7 @@ const tileVariants = cva("min-w-0 rounded-[20px] border p-5", {
       navy: "border-navy bg-navy text-white",
       info: "border-line-2 bg-white",
       warning: "border-[#FED7AA] bg-[#FFF7ED]",
+      attention: "border-line-2 bg-white",
       danger: "border-line-2 bg-white",
       success: "border-line-2 bg-white",
     },
@@ -28,6 +30,7 @@ const labelColour = {
   navy: "text-on-navy",
   info: "text-navy-700",
   warning: "text-[#C2410C]",
+  attention: "text-[#C2410C]",
   danger: "text-danger",
   success: "text-[#15803D]",
 } as const;
@@ -37,6 +40,7 @@ const valueColour = {
   navy: "text-white",
   info: "text-navy",
   warning: "text-[#9A3412]",
+  attention: "text-navy",
   danger: "text-navy",
   success: "text-navy",
 } as const;

@@ -37,6 +37,11 @@ export const routes = {
   // Team panel
   team: "/team",
   teamRequests: "/team/requests",
+  teamRequest: (code: string) => `/team/requests/${code}`,
+  /** A filter of the requests list, as the sidebar links to it. */
+  teamRequestsWithStatus: (status: string) => `/team/requests?status=${status}`,
+  teamNewCustomer: "/team/customers/new",
+  teamNewUser: "/team/users/new",
   teamDemos: "/team/leads/demos",
   teamQuotes: "/team/leads/quotes",
   teamMessages: "/team/leads/messages",

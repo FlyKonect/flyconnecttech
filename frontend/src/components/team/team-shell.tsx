@@ -40,6 +40,9 @@ const titles: [prefix: string, title: string][] = [
 ];
 
 export function teamTitle(pathname: string): string {
+  // One request: "Request TKT-2026-00124".
+  const request = /^\/team\/requests\/([^/]+)\/?$/.exec(pathname);
+  if (request) return `Request ${decodeURIComponent(request[1])}`;
   const match = titles.find(
     ([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

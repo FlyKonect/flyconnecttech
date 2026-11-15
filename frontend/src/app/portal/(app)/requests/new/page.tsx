@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { PageLoading } from "@/components/portal/page-loading";
+import { PageLoading } from "@/components/shell/page-loading";
 import { NewRequestWizard } from "@/components/portal/new-request-wizard";
 import { serverApi } from "@/lib/api-server";
 import type { PortalProject } from "@/lib/portal/types";

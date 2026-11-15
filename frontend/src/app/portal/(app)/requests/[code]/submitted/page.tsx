@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
 
-import { PageLoading } from "@/components/portal/page-loading";
+import { PageLoading } from "@/components/shell/page-loading";
 import { Button } from "@/components/ui/button";
 import { LabelPill } from "@/components/ui/pill";
 import { serverApi } from "@/lib/api-server";

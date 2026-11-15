@@ -142,3 +142,32 @@ export function greeting(when: When, timeZone: string) {
   if (hour < 18) return "Good afternoon";
   return "Good evening";
 }
+
+/** How many calendar days from `from` to `to`, in this time zone (0 = same day). */
+export function calendarDaysBetween(from: When, to: When, timeZone: string) {
+  const day = (when: When) => {
+    const p = parts(when, timeZone);
+    return Date.UTC(p.year, p.month - 1, p.day) / 86_400_000;
+  };
+  return day(to) - day(from);
+}
+
+/** The full name of the month before this one, for example "October". */
+export function lastMonthName(when: When, timeZone: string) {
+  const month = parts(when, timeZone).month;
+  return MONTHS[(month + 10) % 12];
+}
+
+/** A length of time: "45m", "1h 42m", "3h", "2d 4h". */
+export function formatDuration(minutes: number) {
+  const total = Math.max(0, Math.round(minutes));
+  if (total < 60) return `${total}m`;
+  if (total < 24 * 60) {
+    const hours = Math.floor(total / 60);
+    const rest = total % 60;
+    return rest ? `${hours}h ${rest}m` : `${hours}h`;
+  }
+  const days = Math.floor(total / (24 * 60));
+  const hours = Math.floor((total % (24 * 60)) / 60);
+  return hours ? `${days}d ${hours}h` : `${days}d`;
+}

@@ -10,17 +10,20 @@ import { notificationHeadings } from "@/lib/labels";
 import type { NotificationItem } from "@/lib/portal/types";
 
 /**
- * Notifications (screen 14): "{n} unread", Mark all as read, and rows that
- * open their request and are marked read on the way.
+ * Notifications (portal screen 14, team screen 32): "{n} unread", Mark all
+ * as read, and rows that open their page and are marked read on the way.
  */
 export function NotificationList({
   items,
   unread,
   timeZone,
+  unreadLabel = "unread",
 }: {
   items: NotificationItem[];
   unread: number;
   timeZone: string;
+  /** The words after the number: "unread" (portal), "unread alerts" (team). */
+  unreadLabel?: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
@@ -49,7 +52,9 @@ export function NotificationList({
   return (
     <section className="overflow-hidden rounded-[22px] border border-line-2 bg-white">
       <div className="flex items-center justify-between gap-3 border-b border-line-3 px-5 py-4">
-        <h2 className="text-[15px] font-bold">{unread} unread</h2>
+        <h2 className="text-[15px] font-bold">
+          {unread} {unreadLabel}
+        </h2>
         <button
           type="button"
           onClick={markAll}

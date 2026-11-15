@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { PageLoading } from "@/components/portal/page-loading";
+import { PageLoading } from "@/components/shell/page-loading";
 import { MyRequests } from "@/components/portal/my-requests";
 import { serverApi } from "@/lib/api-server";
 import { requireCustomer } from "@/lib/auth/server";
