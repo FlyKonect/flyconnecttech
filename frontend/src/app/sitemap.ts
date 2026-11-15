@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { env } from "@/env";
 import { routes } from "@/lib/routes";
 
-/** The 11 public website pages. The portal and team panel are left out. */
+/** The public website pages. The portal and team panel are left out. */
 const pages = [
   routes.home,
   routes.solutions,
@@ -16,6 +16,9 @@ const pages = [
   routes.about,
   routes.contact,
   routes.support,
+  routes.privacy,
+  routes.terms,
+  routes.cookies,
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

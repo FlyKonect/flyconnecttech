@@ -320,12 +320,30 @@ test.describe("Book a demo", () => {
   });
 });
 
-test("sitemap.xml lists the 11 pages and robots.txt keeps out private areas", async ({
+test("the footer's Privacy, Terms and Cookies links open their pages", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const legal = page.getByRole("navigation", { name: "Legal" });
+  for (const [link, heading] of [
+    ["Privacy", "Privacy policy"],
+    ["Terms", "Terms of use"],
+    ["Cookies", "Cookie policy"],
+  ]) {
+    await legal.getByRole("link", { name: link }).click();
+    await expect(
+      page.getByRole("heading", { level: 1, name: heading }),
+    ).toBeVisible();
+  }
+});
+
+test("sitemap.xml lists the 14 pages and robots.txt keeps out private areas", async ({
   request,
 }) => {
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  expect(sitemap.match(/<loc>/g)).toHaveLength(11);
+  expect(sitemap.match(/<loc>/g)).toHaveLength(14);
   expect(sitemap).toContain("/services/ui-ux-design</loc>");
+  expect(sitemap).toContain("/privacy</loc>");
   expect(sitemap).not.toContain("/portal");
 
   const robots = await (await request.get("/robots.txt")).text();

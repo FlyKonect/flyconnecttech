@@ -15,6 +15,9 @@ export const routes = {
   about: "/about",
   contact: "/contact",
   support: "/support",
+  privacy: "/privacy",
+  terms: "/terms",
+  cookies: "/cookies",
 
   // Accounts
   portalSignIn: "/portal/sign-in",

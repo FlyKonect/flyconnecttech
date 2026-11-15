@@ -121,9 +121,12 @@ const WEBSITE = [
   "/about",
   "/contact",
   "/support",
+  "/privacy",
+  "/terms",
+  "/cookies",
 ];
 
-test("the 11 website pages, on a computer and a phone", async ({ page }) => {
+test("the website pages, on a computer and a phone", async ({ page }) => {
   test.slow();
   for (const size of [null, phone]) {
     if (size) await page.setViewportSize(size);

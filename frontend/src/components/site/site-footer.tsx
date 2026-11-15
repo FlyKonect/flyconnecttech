@@ -6,6 +6,12 @@ import { footerColumns } from "@/components/site/site-nav";
 import { contactEmail, contactEmailHref, socialLinks } from "@/lib/contact";
 import { routes } from "@/lib/routes";
 
+const legalLinks = [
+  { label: "Privacy", href: routes.privacy },
+  { label: "Terms", href: routes.terms },
+  { label: "Cookies", href: routes.cookies },
+];
+
 const socialButton =
   "inline-flex size-11 items-center justify-center rounded-[10px] border border-white/18 text-[#E6ECF7] hover:bg-white/8";
 
@@ -112,8 +118,21 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-wrap justify-between gap-3 border-t border-white/12 pt-6 text-sm text-on-navy-muted">
           <p>© 2026 FlyConnect Tech. All rights reserved.</p>
-          {/* Plain text until the client provides these three pages. */}
-          <p>Privacy · Terms · Cookies</p>
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap items-center gap-x-1.5">
+              {legalLinks.map((link, index) => (
+                <li key={link.href} className="flex items-center gap-x-1.5">
+                  {index > 0 && <span aria-hidden="true">·</span>}
+                  <Link
+                    href={link.href}
+                    className="inline-flex min-h-6 items-center transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>
