@@ -90,7 +90,7 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active), website leads (the public forms, demos, quotes, messages, owners, convert) and the scheduled jobs (daily digest, auto-close, weekly summary)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active), website leads (the public forms, demos, quotes, messages, owners, convert), the scheduled jobs (daily digest, auto-close, weekly summary), and reports and settings (every number from known requests; saving targets changes the next due time)
 - `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
 - `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
 - `npm run job -- daily-digest` (or `auto-close`, `weekly-summary`): run a scheduled job now, against your own database and Mailpit. Live, cPanel Cron runs `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 10). Each run prints one line with the time and what it did.
@@ -114,6 +114,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/components/team/`: the team panel's pieces (shell, dashboard parts, requests list, conversation with notes, composer, status panel and buttons, assign, resolve and request-info dialogs, customers list, Add customer, customer page buttons, users table with its "⋯" menu, Add user, "What each role can do", the website leads lists, a lead's page, its buttons, owner and composer, and the Confirm demo, Cancel demo, Estimate and Lost dialogs)
 - `frontend/src/lib/team/forms.ts`: the Add customer, Add project and Add user rules, with the design's error wording
 - `frontend/src/lib/team/leads.ts`: a lead page's words and rules from the design: banners, fact tiles, suggested emails, "How this works" and the buttons for each status
+- `frontend/src/lib/team/targets.ts`: response targets in words ("4 hours", "1 business day") and their saved short form ("4h", "1bd")
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
@@ -140,7 +141,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `backend/src/requests/`: support requests: the portal and team routes, status rules, SLA, shared writes (`request-writes.ts`), the dashboards, labels for emails, and `RequestEventsService` (who gets which notification and email)
 - `backend/src/uploads/`: file rules and storage on disk
 - `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
-- `backend/src/settings/settings.service.ts`: reads a setting, falling back to `defaults.ts`
+- `backend/src/settings/`: `settings.service.ts` reads a setting (falling back to `defaults.ts`) and saves them; `settings.controller.ts` is the Settings screen's `/team/settings`; `settings.module.ts` makes it global
+- `backend/src/reports/`: Reports & Analytics (`/team/reports`); the sums and their words are in `report-math.ts`
 - `backend/src/time/uk-time.ts`: UK wall-clock time (business days, demo slots)
 - `backend/src/jobs/`: the scheduled jobs (`jobs.service.tsx`: daily digest, auto-close, weekly summary) and their wording (`job-words.ts`)
 - `backend/src/email/previews.tsx`: every email with sample content, grouped by the docs/01 §7 rows; served by `dev-emails.controller.ts` at `/dev/emails` outside production. Add a new email here too (a unit test checks every row has one).
@@ -177,7 +179,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 ## Database
 - **Schema:** `backend/prisma/schema.prisma`, built from docs/02. 21 tables with plain plural names (`support_requests`). Change it with `npm run db:migrate`, which writes a new migration under `backend/prisma/migrations/`. Never edit a migration that is already committed.
 - **No sample data.** The owner decided against loading `design/sample-data.json`. Data comes from real use; the seed only adds the default settings.
-- **Settings:** defaults live in `backend/src/settings/defaults.ts`. The live hosting does not run the seed, so code that reads a setting must fall back to these defaults when its row is missing.
+- **Settings:** defaults live in `backend/src/settings/defaults.ts`. The live hosting does not run the seed, so code that reads a setting must fall back to these defaults when its row is missing. Super admins change them on the Settings screen.
 - **Readable codes:** always `nextCode(tx, kind)` from `backend/src/codes/readable-codes.ts`, inside the same transaction that creates the record. Numbers start at 1 (TKT-2026-00001, P-0001).
 - **One demo per slot:** `demo_requests.scheduledSlot` equals `scheduledStart` while a demo is SCHEDULED and is empty otherwise. It is unique. Set and clear it together with the status.
 - **Customer contact:** stored once, on the user (`users.customerId`, unique), not on the customer.
@@ -195,6 +197,15 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Last active:** `SessionGuard` saves `users.lastActiveAt` at most every 5 minutes per person (`LAST_ACTIVE_EVERY_MS`). The Users list and the customer page show it.
 - **Cookies** are named `fct.*` (`__Secure-fct.*` live). Live, `COOKIE_DOMAIN` makes one sign-in work on both the website and the `api.` address.
 - **Change password** is our own `POST /me/password` (`accounts/profile.service.ts`): it applies the password rules and signs out other devices. Better Auth's `/change-password` is switched off.
+
+## Reports and settings (backend)
+- **Reports** (`/team/reports`, `reports.view`: super admins, admins, managers) are worked out from the data, in UK months and weeks:
+  - **Avg. first response:** arriving to the first team reply, for first replies this month (the dashboard's rule), against last month ("18% faster than October").
+  - **Avg. resolution time:** arriving to Resolved, for requests resolved this month ("2.6 days", hours under a day), against last month ("0.4 days faster").
+  - **Resolved this month** ("+6 vs last month"); **Reopened requests:** requests moved from Resolved or Closed back to In Progress this month (status history), shown as a share of resolved ("5% of resolved"), as in the design.
+  - **Requests this week:** sent each day, Monday to Sunday (UK). **Requests by project:** the six projects with the most requests, all time. **Developer performance:** each active developer's requests sent this month, resolved this month and average first response this month.
+  - The backend sends the words; a change for the better shows green, for the worse red.
+- **Settings** (`/team/settings`, `settings.manage`: super admins only): the four response targets and the four switches, saved together. Targets are checked with the SLA's own `parseTarget()`, up to 30 business days. Each setting that changed gets a `settings.changed` audit entry with the old and new value. **New targets apply to new requests and to priority changes; requests already open keep their due time.**
 
 ## Notifications and emails (backend)
 Every row of docs/01 §7, where it is sent from, what it follows, and where it is tested. In-app notifications are written inside the change's transaction; emails go after it and a failed email never undoes the change. SA, A, M = active super admins, admins, managers.

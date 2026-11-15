@@ -279,6 +279,7 @@ Notes:
 - **Deploy again without a change:** Actions > Deploy > **Run workflow**.
 - **Pause deploys:** set the variable `DEPLOY_ENABLED` to `false`. Checks still run.
 - **Change a backend setting:** edit `.env` on the hosting, then cPanel > Setup Node.js App > **Restart** on the backend app.
+- **Change response times or team notifications:** sign in as a super admin, team panel > **Settings**. These live in the database, not in `.env`: a deploy never changes them, and a new site starts with the defaults (Urgent 1 hour, High 4 hours, Medium 1 business day, Low 2 business days; auto-close off).
 - **Change the site or API address:** change `SITE_URL` / `API_URL` on GitHub (and `FRONTEND_URL` in `.env`), then run the deploy again. The addresses are built into the website, so a restart alone is not enough.
 
 ## Going back to an earlier version
