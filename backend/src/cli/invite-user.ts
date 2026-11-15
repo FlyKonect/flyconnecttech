@@ -11,6 +11,8 @@
 // It sends the normal invitation email and also prints the link, in case
 // email is not set up yet. Anyone holding the link can activate the account,
 // so share it only with that person.
+// First: settings from .env, before React loads (see load-env.ts).
+import '../config/load-env.js';
 import { parseArgs } from 'node:util';
 import { NestFactory } from '@nestjs/core';
 import { InvitationsService } from '../accounts/invitations.service.js';

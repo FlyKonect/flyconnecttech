@@ -8,6 +8,8 @@
 //
 // Live (in the backend folder, over SSH):
 //   node dist/cli/add-project.js --email "..." --name "..." --type website
+// First: settings from .env, before React loads (see load-env.ts).
+import '../config/load-env.js';
 import { parseArgs } from 'node:util';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module.js';

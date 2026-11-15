@@ -9,6 +9,8 @@
 //   node dist/cli/run-job.js daily-digest
 //
 // Each run prints one line, with the time, for the cron log.
+// First: settings from .env, before React loads (see load-env.ts).
+import '../config/load-env.js';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module.js';
 import { JobsService, type JobResult } from '../jobs/jobs.service.js';

@@ -404,6 +404,8 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | No invitation or reset email arrives | Check the `SMTP_` settings in `.env` (Step 12), restart the backend app, and look in `stderr.log` for "email". The invite command prints the link anyway |
 | Emails arrive, but in spam | Do Step 16, and check `EMAIL_FROM` uses the same mailbox as `SMTP_USER` |
 | Signing in seems to work but you land back on the sign-in page | `COOKIE_DOMAIN` is missing or wrong, or `BACKEND_URL` / `FRONTEND_URL` do not match the real addresses (Step 12). Open the site as `https://flyconnecttech.co.uk`, without `www` |
+| Git Bash says `$'\302\226ssh': command not found` (or similar strange characters before a command) | An invisible character came along when the line was copied. Type the command by hand instead of pasting it |
+| PowerShell says "Corrupted MAC on input" when you test the login | A known fault in the SSH program that comes with Windows. Use **Git Bash** instead (Step 3), or add `-m hmac-sha2-512` after `ssh`. It does not affect GitHub's deploys |
 | "rsync: command not found" | Ask Krystal support to enable `rsync` for SSH on your account |
 | The Checks part is red | A test failed. Nothing was deployed. Open the red step to see which test |
 

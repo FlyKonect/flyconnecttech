@@ -1,3 +1,5 @@
+// First: settings from .env, before React loads (see load-env.ts).
+import './config/load-env.js';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';

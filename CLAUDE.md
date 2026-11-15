@@ -151,6 +151,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
+- `backend/src/config/load-env.ts`: reads `.env` first. Import it as the first line of every entry point (`main.ts`, each `cli/` command): live, `NODE_ENV=production` comes from `.env`, and React must see it before it loads, or every email fails with "dispatcher.getOwner is not a function"
 - `backend/prisma/`: `schema.prisma`, `migrations/`, `seed.ts`
 - `backend/test/`: whole-app tests
 
