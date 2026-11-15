@@ -42,6 +42,14 @@ export const roles: Record<Role, WithTone> = {
   CUSTOMER: { label: "Customer", tone: tone("#EEF2FA", "#0C3584") },
 };
 
+/** One line per team role: the Users tiles and the Add user cards. */
+export const roleDescriptions: Record<TeamRole, string> = {
+  SUPER_ADMIN: "Full access, including settings",
+  ADMIN: "Customers, users and all requests",
+  MANAGER: "All requests, assignment and reports",
+  DEVELOPER: "Only requests assigned to them",
+};
+
 export type UserStatus = "INVITED" | "ACTIVE" | "DISABLED";
 
 export const userStatuses: Record<UserStatus, WithTone> = {

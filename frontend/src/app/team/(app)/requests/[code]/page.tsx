@@ -156,7 +156,7 @@ async function TeamRequestContent({
             </dl>
             {me.actions.includes("customers.view") ? (
               <Link
-                href={`${routes.teamCustomers}/${customer.id}`}
+                href={routes.teamCustomer(customer.id)}
                 className="inline-flex min-h-9 items-center self-start text-sm font-bold text-gold-text hover:underline"
               >
                 View customer and projects →

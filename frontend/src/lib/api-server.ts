@@ -11,7 +11,8 @@ import { routes } from "@/lib/routes";
  *
  *   const summary = await serverApi<PortalSummary>("/portal/summary");
  *
- * "Not found" shows the not-found page; "signed out" goes to sign in.
+ * "Not found" and "not allowed" show the not-found page; "signed out" goes
+ * to sign in.
  * Reads cookies, so call it inside a <Suspense> boundary.
  */
 export async function serverApi<T>(
@@ -23,7 +24,9 @@ export async function serverApi<T>(
     headers: { cookie: cookieHeader },
     cache: "no-store",
   });
-  if (response.status === 404) notFound();
+  // "Not allowed" looks the same as "not found", so pages a role can't use
+  // (and records it can't see) give nothing away.
+  if (response.status === 404 || response.status === 403) notFound();
   if (response.status === 401) redirect(options.signIn ?? routes.portalSignIn);
   return readResponse<T>(response);
 }

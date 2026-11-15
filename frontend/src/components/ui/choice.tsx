@@ -79,9 +79,18 @@ function RadioCard({
 }: Omit<React.ComponentProps<typeof RadioGroup.Item>, "title"> & {
   title: React.ReactNode;
   description?: React.ReactNode;
-  /** Shows a round radio mark at the left (roles, lost reasons). */
-  showDot?: boolean;
+  /**
+   * Shows a round radio mark: at the left (lost reasons), or "end" for the
+   * right of the title (roles).
+   */
+  showDot?: boolean | "end";
 }) {
+  const dot = (
+    <span
+      aria-hidden="true"
+      className="mt-0.5 size-5 shrink-0 rounded-full border-2 border-[#B8C3D6] bg-white shadow-[inset_0_0_0_3px_#fff] group-data-[state=checked]:border-navy group-data-[state=checked]:bg-navy"
+    />
+  );
   return (
     <RadioGroup.Item
       data-slot="radio-card"
@@ -91,14 +100,16 @@ function RadioCard({
       )}
       {...props}
     >
-      {showDot ? (
-        <span
-          aria-hidden="true"
-          className="mt-0.5 size-5 shrink-0 rounded-full border-2 border-[#B8C3D6] bg-white shadow-[inset_0_0_0_3px_#fff] group-data-[state=checked]:border-navy group-data-[state=checked]:bg-navy"
-        />
-      ) : null}
-      <span className="flex min-w-0 flex-col gap-1.5">
-        <span className="text-base font-bold">{title}</span>
+      {showDot === true ? dot : null}
+      <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+        {showDot === "end" ? (
+          <span className="flex items-start justify-between gap-2.5">
+            <span className="text-base font-bold">{title}</span>
+            {dot}
+          </span>
+        ) : (
+          <span className="text-base font-bold">{title}</span>
+        )}
         {description ? (
           <span className="text-[13px] leading-snug font-normal text-muted-foreground">
             {description}

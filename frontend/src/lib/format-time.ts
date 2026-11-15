@@ -131,6 +131,17 @@ export function formatDate(when: When, timeZone: string) {
   return `${dayMonth(p)} ${p.year}`;
 }
 
+/** "August 2026" */
+export function formatMonthYear(when: When, timeZone: string) {
+  const p = parts(when, timeZone);
+  return `${MONTHS[p.month - 1]} ${p.year}`;
+}
+
+/** "7 Nov" */
+export function formatDayMonth(when: When, timeZone: string) {
+  return dayMonth(parts(when, timeZone));
+}
+
 export function formatLongDate(when: When, timeZone: string) {
   const p = parts(when, timeZone);
   return `${p.weekday}, ${p.day} ${MONTHS[p.month - 1]}`;

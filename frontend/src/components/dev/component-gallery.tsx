@@ -31,6 +31,7 @@ import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill } from "@/components/ui/pill";
+import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
 import { SlaPill } from "@/components/ui/sla-pill";
 import { StatusHistory } from "@/components/ui/status-history";
 import { Stepper } from "@/components/ui/stepper";
@@ -40,6 +41,7 @@ import {
   pillGroups,
   priorities,
   requestTypes,
+  roleDescriptions,
   roles,
   type PillGroup,
   type Priority,
@@ -308,7 +310,7 @@ export function ComponentGallery() {
             ))}
           </RadioCards>
           <RadioCards
-            aria-label="Role"
+            aria-label="Lost reason"
             value={role}
             onValueChange={setRole}
             className="grid-cols-1 sm:grid-cols-3"
@@ -319,9 +321,34 @@ export function ComponentGallery() {
                 value={value}
                 showDot
                 title={roles[value].label}
-                description="With the round mark, for roles and lost reasons"
+                description="With the round mark at the left, for lost reasons"
               />
             ))}
+          </RadioCards>
+          <RadioCards
+            aria-label="Role"
+            value={role}
+            onValueChange={setRole}
+            className="grid-cols-1 sm:grid-cols-2"
+          >
+            {(["SUPER_ADMIN", "ADMIN", "MANAGER", "DEVELOPER"] as const).map(
+              (value) => (
+                <RadioCard
+                  key={value}
+                  value={value}
+                  showDot="end"
+                  disabled={value === "SUPER_ADMIN"}
+                  title={roles[value].label}
+                  description={roleDescriptions[value]}
+                >
+                  {value === "SUPER_ADMIN" ? (
+                    <span className="text-xs font-semibold text-body">
+                      Only a super admin can add another super admin
+                    </span>
+                  ) : null}
+                </RadioCard>
+              ),
+            )}
           </RadioCards>
         </Section>
 
@@ -555,6 +582,19 @@ export function ComponentGallery() {
               ]}
             />
           </Card>
+        </Section>
+
+        <Section title="Row menu">
+          <Row label="The ⋯ button at the end of a table row">
+            <RowMenu label="Actions for Bilal Khan">
+              <RowMenuItem onSelect={() => toast("Invitation sent again")}>
+                Resend invitation
+              </RowMenuItem>
+              <RowMenuItem danger onSelect={() => toast("Bilal is disabled")}>
+                Disable user
+              </RowMenuItem>
+            </RowMenu>
+          </Row>
         </Section>
 
         <Section title="Dialog and toast">

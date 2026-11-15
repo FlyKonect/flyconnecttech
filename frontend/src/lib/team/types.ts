@@ -1,9 +1,11 @@
 import type {
   Priority,
+  ProjectStatus,
   ProjectType,
   RequestStatus,
   RequestType,
   TeamRole,
+  UserStatus,
 } from "@/lib/labels";
 import type { NotificationItem } from "@/lib/portal/types";
 
@@ -158,4 +160,97 @@ export type TeamRequestDetail = {
   };
   /** The starting text of the "Request more info" dialog. */
   requestInfoText: string;
+};
+
+// ------------------------------------------------- customers and projects
+
+/** GET /team/customers (screen 26). */
+export type CustomerList = {
+  summary: { customers: number; projects: number; invited: number };
+  /** Super admins and admins; managers only look. */
+  canManage: boolean;
+  /** How many match the search; rows holds the newest of them. */
+  total: number;
+  rows: CustomerRow[];
+};
+
+export type CustomerRow = {
+  id: string;
+  company: string;
+  name: string;
+  email: string;
+  status: UserStatus;
+  /** Project names, oldest first. */
+  projects: string[];
+  openRequests: number;
+};
+
+/** GET /team/customers/:id (screen 28). */
+export type CustomerDetail = {
+  id: string;
+  company: string;
+  createdAt: string;
+  addedBy: string | null;
+  /** The website lead this customer was converted from (Phase 8). */
+  cameFrom: { type: "DEMO" | "QUOTE" | "MESSAGE"; code: string } | null;
+  contact: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+    country: string | null;
+    status: UserStatus;
+    invitedAt: string | null;
+    activatedAt: string | null;
+    lastActiveAt: string | null;
+  };
+  projects: CustomerProject[];
+  requests: {
+    code: string;
+    title: string;
+    status: RequestStatus;
+    project: { name: string };
+    assignee: { name: string } | null;
+  }[];
+  canManage: boolean;
+};
+
+export type CustomerProject = {
+  id: string;
+  code: string;
+  name: string;
+  type: ProjectType;
+  status: ProjectStatus;
+  openRequests: number;
+};
+
+// ------------------------------------------------------------------ users
+
+/** GET /team/users (screen 29). */
+export type TeamUserList = {
+  /** Active and invited people; disabled ones are left out. */
+  summary: { active: number; invited: number };
+  byRole: Record<TeamRole, { active: number; invited: number }>;
+  rows: TeamUserRow[];
+};
+
+export type TeamUserRow = {
+  id: string;
+  name: string;
+  email: string;
+  role: TeamRole;
+  jobTitle: string | null;
+  status: UserStatus;
+  lastActiveAt: string | null;
+  invitedAt: string | null;
+  /** Developers only: their open requests. */
+  openAssigned: number | null;
+  /** Whether the "⋯" menu has anything for this person. */
+  canManage: boolean;
+};
+
+/** GET /team/users/roles (screen 30): from the backend's policies.ts. */
+export type RolesInfo = {
+  canInvite: TeamRole[];
+  permissions: Record<string, TeamRole[]>;
 };
