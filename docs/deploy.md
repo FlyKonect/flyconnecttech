@@ -46,6 +46,7 @@ Write the values somewhere safe (a password manager). Never put passwords in Git
 
 - [ ] You can log in to cPanel (Krystal client area > **Services** > your hosting > **Login to cPanel**).
 - [ ] cPanel has **Setup Node.js App** (under Software) and **SSH Access** (under Security).
+- [ ] **SSH shell access is switched on.** Krystal switches it off by default. Open a ticket (Krystal client area > **Support** > **Open Ticket**) asking them to "enable SSH shell access (a jailed shell is fine) for my cPanel account, to deploy a Node.js app with rsync over SSH", and to confirm `rsync` is available. Until then the test in Step 3 says "Shell access is not enabled on your account".
 - [ ] In **Setup Node.js App** > **Create Application**, the **Node.js version** list offers **22 or newer** (22.12 at the least). If the newest is below 22, stop and ask Krystal support to add it. The apps do not start on an older version.
 - [ ] `flyconnecttech.co.uk` points to your Krystal hosting: it is listed in cPanel > **Domains**.
 - [ ] You have a GitHub account.
@@ -406,6 +407,7 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | Signing in seems to work but you land back on the sign-in page | `COOKIE_DOMAIN` is missing or wrong, or `BACKEND_URL` / `FRONTEND_URL` do not match the real addresses (Step 12). Open the site as `https://flyconnecttech.co.uk`, without `www` |
 | Git Bash says `$'\302\226ssh': command not found` (or similar strange characters before a command) | An invisible character came along when the line was copied. Type the command by hand instead of pasting it |
 | The test login in Step 3 asks for a password | The key was not accepted, so do not type a password: press Ctrl+C. In cPanel > SSH Access > Manage SSH Keys, the key must be listed and **authorized**; the username must be the account's (the **Team Owner**, or the last part of **Home Directory**, not a team member's **Current User**); and `ls ~/flyconnect-deploy*` in Git Bash must show the two key files. Run the login again with `-v` after `ssh` to see why the key was refused |
+| "Shell access is not enabled on your account! If you need shell access please contact support." | The key worked, but Krystal has SSH shell access switched off. Ask Krystal support to enable it (Step 1) |
 | A warning about "post-quantum key exchange" | Harmless: the server uses an older SSH version. The login still works |
 | PowerShell says "Corrupted MAC on input" when you test the login | A known fault in the SSH program that comes with Windows. Use **Git Bash** instead (Step 3), or add `-m hmac-sha2-512` after `ssh`. It does not affect GitHub's deploys |
 | "rsync: command not found" | Ask Krystal support to enable `rsync` for SSH on your account |
