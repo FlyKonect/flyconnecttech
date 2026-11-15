@@ -59,7 +59,9 @@ export type Action =
   /** Reports and analytics. */
   | 'reports.view'
   /** The settings screen. */
-  | 'settings.manage';
+  | 'settings.manage'
+  /** Website content: testimonials and the live-project link. */
+  | 'website.manage';
 
 const ALL_TEAM: TeamRole[] = ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'DEVELOPER'];
 const NOT_DEVELOPER: TeamRole[] = ['SUPER_ADMIN', 'ADMIN', 'MANAGER'];
@@ -81,6 +83,7 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'leads.convert': ADMINS,
   'reports.view': NOT_DEVELOPER,
   'settings.manage': ['SUPER_ADMIN'],
+  'website.manage': ADMINS,
 };
 
 export function isTeamRole(role: Role): role is TeamRole {

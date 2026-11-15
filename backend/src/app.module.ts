@@ -14,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { RequestsModule } from './requests/requests.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 import { UploadsModule } from './uploads/uploads.module.js';
+import { WebsiteModule } from './website/website.module.js';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UploadsModule } from './uploads/uploads.module.js';
     LeadsModule,
     JobsModule,
     ReportsModule,
+    WebsiteModule,
     HealthModule,
   ],
 })

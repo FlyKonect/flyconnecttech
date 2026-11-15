@@ -13,12 +13,16 @@ export type AuditAction =
   | 'project.added'
   | 'project.statusChanged'
   | 'settings.changed'
-  | 'lead.converted';
+  | 'lead.converted'
+  | 'testimonial.added'
+  | 'testimonial.changed'
+  | 'testimonial.removed';
 
 export type AuditEntry = {
   actorId: string | null;
   action: AuditAction;
-  entityType: 'user' | 'customer' | 'project' | 'setting' | 'lead';
+  entityType:
+    'user' | 'customer' | 'project' | 'setting' | 'lead' | 'testimonial';
   entityId: string;
   data?: Prisma.InputJsonValue;
 };

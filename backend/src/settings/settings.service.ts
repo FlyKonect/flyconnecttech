@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { defaultSettings, type Settings } from './defaults.js';
+import {
+  defaultSettings,
+  defaultWebsite,
+  type Settings,
+  type WebsiteSettings,
+} from './defaults.js';
+
+const WEBSITE_KEY = 'website';
 
 /**
  * Reads and saves the app's settings. The live site never runs the seed,
@@ -22,6 +29,45 @@ export class SettingsService {
         ? row.value
         : {};
     return { ...defaultSettings[key], ...saved } as Settings[K];
+  }
+
+  /** The website's live-project link (Website content screen). */
+  async getWebsite(): Promise<WebsiteSettings> {
+    const row = await this.prisma.setting.findUnique({
+      where: { key: WEBSITE_KEY },
+    });
+    const saved =
+      row?.value && typeof row.value === 'object' && !Array.isArray(row.value)
+        ? row.value
+        : {};
+    return { ...defaultWebsite, ...saved } as WebsiteSettings;
+  }
+
+  /** Saves the website settings, with a settings.changed audit entry. */
+  async saveWebsite(
+    actorId: string,
+    next: WebsiteSettings,
+  ): Promise<WebsiteSettings> {
+    const before = await this.getWebsite();
+    if (JSON.stringify(before) === JSON.stringify(next)) return before;
+    await this.prisma.$transaction(async (tx) => {
+      await tx.setting.upsert({
+        where: { key: WEBSITE_KEY },
+        create: { key: WEBSITE_KEY, value: next, updatedById: actorId },
+        update: { value: next, updatedById: actorId },
+      });
+      await this.audit.record(
+        {
+          actorId,
+          action: 'settings.changed',
+          entityType: 'setting',
+          entityId: WEBSITE_KEY,
+          data: { from: before, to: next },
+        },
+        tx,
+      );
+    });
+    return this.getWebsite();
   }
 
   async all(): Promise<Settings> {

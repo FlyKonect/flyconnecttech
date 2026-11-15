@@ -230,6 +230,7 @@ model User {
   notifications    Notification[]
   settingsUpdated  Setting[]
   auditLogs        AuditLog[]
+  testimonials     Testimonial[]
 
   @@index([role, status])
   @@map("users")
@@ -606,6 +607,28 @@ model Setting {
   updatedAt   DateTime @updatedAt
 
   @@map("settings")
+}
+
+/// A client's quote shown on the website, added by super admins and admins
+/// on the Website content screen. Home shows the 3 newest with showOnHome;
+/// Case Studies shows the newest with showOnCaseStudy.
+model Testimonial {
+  id              String   @id @default(uuid()) @db.Char(36)
+  quote           String   @db.VarChar(500)
+  name            String   @db.VarChar(120)
+  /// Their job title, for example "Managing director". Optional.
+  role            String?  @db.VarChar(120)
+  company         String?  @db.VarChar(160)
+  showOnHome      Boolean  @default(true)
+  showOnCaseStudy Boolean  @default(false)
+  createdById     String?  @db.Char(36)
+  createdBy       User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([showOnHome, createdAt])
+  @@index([showOnCaseStudy, createdAt])
+  @@map("testimonials")
 }
 
 /// Who changed accounts, roles, customers and settings, and when.
