@@ -467,6 +467,22 @@ describe('the Users list and Add user', () => {
     await as(manager).get('/team/users').expect(403);
   });
 
+  it('tells the Add user screen which roles each person may give', async () => {
+    const forAdmin = await as(admin).get('/team/users/roles').expect(200);
+    expect(forAdmin.body.canInvite).toEqual(['ADMIN', 'MANAGER', 'DEVELOPER']);
+    expect(forAdmin.body.permissions['settings.manage']).toEqual([
+      'SUPER_ADMIN',
+    ]);
+    const forOwner = await as(superAdmin).get('/team/users/roles').expect(200);
+    expect(forOwner.body.canInvite).toEqual([
+      'SUPER_ADMIN',
+      'ADMIN',
+      'MANAGER',
+      'DEVELOPER',
+    ]);
+    await as(manager).get('/team/users/roles').expect(403);
+  });
+
   it('an admin adds a developer but not a super admin; a super admin can', async () => {
     const refused = await as(admin)
       .post('/team/users', {

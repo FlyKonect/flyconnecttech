@@ -9,6 +9,7 @@ import type { SignedIn } from '../auth/signed-in.js';
 import type { UserStatus } from '../generated/prisma/client.js';
 import {
   canInviteRole,
+  PERMISSIONS,
   TEAM_ROLES,
   type TeamRole,
 } from '../policies/policies.js';
@@ -106,6 +107,17 @@ export class TeamUsersService {
         ]),
       ) as Record<TeamRole, { active: number; invited: number }>,
       rows,
+    };
+  }
+
+  /**
+   * For the Add user screen: the roles this person may give, and the
+   * permission table ("What each role can do"), straight from policies.ts.
+   */
+  roles(actor: SignedIn) {
+    return {
+      canInvite: TEAM_ROLES.filter((role) => canInviteRole(actor, role)),
+      permissions: PERMISSIONS,
     };
   }
 

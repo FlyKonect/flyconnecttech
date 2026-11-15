@@ -45,6 +45,12 @@ export class TeamUsersController {
     return this.users.list(actor);
   }
 
+  @Can('users.invite')
+  @Get('roles')
+  roles(@CurrentUser() actor: SignedIn) {
+    return this.users.roles(actor);
+  }
+
   /** Add user. Admins can't add a super admin (canInviteRole). */
   @Can('users.invite')
   @Post()
