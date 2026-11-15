@@ -240,7 +240,7 @@ function StaffView({
 
       <Tiles>{tiles}</Tiles>
 
-      <WebsiteLeadsCard />
+      <WebsiteLeadsCard leads={data.leads} />
 
       <div className="flex flex-wrap items-start gap-5">
         <DashboardCard

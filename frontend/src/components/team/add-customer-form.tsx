@@ -7,12 +7,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-message";
+import { Banner } from "@/components/ui/banner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { ApiError, apiErrorMessage, apiFetch } from "@/lib/api";
 import { projectTypes, type ProjectType } from "@/lib/labels";
 import { routes } from "@/lib/routes";
+import { leadHref } from "@/lib/team/leads";
+import type { ConvertPrefill } from "@/lib/team/types";
 import {
   firstName,
   MAX_NEW_PROJECTS,
@@ -30,20 +33,43 @@ const newProject = { name: "", type: "WEBSITE" as ProjectType };
  * "What happens next" panel. Saving creates everything and sends the
  * invitation, then opens the new customer's page.
  */
-export function AddCustomerForm() {
+export function AddCustomerForm({
+  from,
+}: {
+  /** Converting a website lead (screen 42): the details to start with. */
+  from?: ConvertPrefill;
+}) {
   const router = useRouter();
   const toast = useToast();
   const [error, setError] = React.useState("");
   const form = useForm<NewCustomerInput>({
     resolver: zodResolver(newCustomerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      company: "",
-      phone: "",
-      projects: [newProject],
-    },
+    defaultValues: from
+      ? {
+          name: from.name,
+          email: from.email,
+          company: from.company,
+          phone: from.phone,
+          projects: [from.project],
+        }
+      : {
+          name: "",
+          email: "",
+          company: "",
+          phone: "",
+          projects: [newProject],
+        },
   });
+  // Back and Cancel return to the lead when converting.
+  const back = from
+    ? {
+        href: leadHref(
+          from.lead.type === "DEMO" ? "demo" : "quote",
+          from.lead.code,
+        ),
+        label: `← Back to ${from.lead.label}`,
+      }
+    : { href: routes.teamCustomers, label: "← Customers" };
   const projects = useFieldArray({ control: form.control, name: "projects" });
   const errors = form.formState.errors;
   const name = useWatch({ control: form.control, name: "name" });
@@ -57,7 +83,11 @@ export function AddCustomerForm() {
         "/team/customers",
         {
           method: "POST",
-          body: { ...values, phone: values.phone || undefined },
+          body: {
+            ...values,
+            phone: values.phone || undefined,
+            from: from?.lead.code,
+          },
         },
       );
       toast(
@@ -83,16 +113,22 @@ export function AddCustomerForm() {
     <>
       <div>
         <Link
-          href={routes.teamCustomers}
+          href={back.href}
           className="inline-flex min-h-9 items-center text-sm font-bold text-gold-text hover:underline"
         >
-          ← Customers
+          {back.label}
         </Link>
         <p className="mt-1.5 text-[15px] text-muted-foreground">
           Only the details needed to set up the account. The customer adds the
           rest when they activate it.
         </p>
       </div>
+      {from ? (
+        <Banner variant="ok" className="font-semibold">
+          Details copied from {from.lead.label} {from.lead.code}. Check them,
+          then send the client portal invitation.
+        </Banner>
+      ) : null}
 
       <div className="flex flex-wrap items-start gap-5">
         <form
@@ -197,7 +233,7 @@ export function AddCustomerForm() {
 
           <div className="flex flex-wrap justify-end gap-2.5">
             <Link
-              href={routes.teamCustomers}
+              href={back.href}
               className={buttonVariants({ variant: "outline" })}
             >
               Cancel

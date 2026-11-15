@@ -7,9 +7,11 @@ import { useForm } from "react-hook-form";
 
 import {
   FormAlert,
+  Honeypot,
   SiteField,
   SuccessTick,
 } from "@/components/site/forms/site-field";
+import { apiErrorMessage } from "@/lib/api";
 import {
   firstName,
   messageDefaults,
@@ -24,6 +26,8 @@ import { messageTopics, type MessageTopic } from "@/lib/labels";
 export function MessageForm() {
   const pathname = usePathname();
   const [sent, setSent] = React.useState<Message | null>(null);
+  const [failed, setFailed] = React.useState("");
+  const [honeypot, setHoneypot] = React.useState("");
 
   const form = useForm<MessageInput>({
     resolver: zodResolver(messageSchema),
@@ -34,8 +38,13 @@ export function MessageForm() {
 
   const onSubmit = form.handleSubmit(async (values) => {
     const message = messageSchema.parse(values);
-    await submitLead({ kind: "message", data: message }, pathname);
-    setSent(message);
+    setFailed("");
+    try {
+      await submitLead({ kind: "message", data: message }, pathname, honeypot);
+      setSent(message);
+    } catch (error) {
+      setFailed(apiErrorMessage(error));
+    }
   });
 
   if (sent) {
@@ -72,6 +81,7 @@ export function MessageForm() {
       onSubmit={onSubmit}
       className="flex flex-col gap-3.5"
     >
+      <Honeypot value={honeypot} onChange={setHoneypot} />
       <SiteField label="Topic" kind="select">
         {(props) => (
           <select {...props} {...form.register("topic")}>
@@ -134,6 +144,8 @@ export function MessageForm() {
 
       {hasErrors ? (
         <FormAlert>Please fix the highlighted fields.</FormAlert>
+      ) : failed ? (
+        <FormAlert>{failed}</FormAlert>
       ) : null}
 
       <button

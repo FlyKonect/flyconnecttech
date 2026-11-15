@@ -9,10 +9,12 @@ import { useForm } from "react-hook-form";
 
 import {
   FormAlert,
+  Honeypot,
   SiteField,
   SuccessTick,
   SummaryRows,
 } from "@/components/site/forms/site-field";
+import { ApiError, apiErrorMessage } from "@/lib/api";
 import { upcomingDemoDays, type DemoDay } from "@/lib/forms/demo-slots";
 import {
   demoDetailsDefaults,
@@ -20,7 +22,7 @@ import {
   firstName,
   type DemoDetailsInput,
 } from "@/lib/forms/schemas";
-import { submitLead } from "@/lib/forms/submit";
+import { submitLead, takenDemoSlots } from "@/lib/forms/submit";
 import { demoTopics, type DemoTopic } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 
@@ -43,12 +45,6 @@ const TOPIC_DETAILS: Record<DemoTopic, string> = {
 const STEP_LABELS = ["What to see", "Date and time", "Your details"];
 
 type Step = 1 | 2 | 3 | 4;
-
-/**
- * Slots already taken by a scheduled demo, as UTC instants. Always empty for
- * now: Phase 8 fills it from the backend.
- */
-const takenSlots = new Set<string>();
 
 export function DemoDialog({
   open,
@@ -73,6 +69,26 @@ export function DemoDialog({
   const [dayIndex, setDayIndex] = React.useState(0);
   const [slotStart, setSlotStart] = React.useState<string | null>(null);
   const [stepError, setStepError] = React.useState("");
+  /** Slots a scheduled demo already holds (UTC instants), crossed out. */
+  const [takenSlots, setTakenSlots] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [honeypot, setHoneypot] = React.useState("");
+
+  // Each time the dialog opens, ask which times are already booked. If
+  // that fails, every time is shown; the backend still refuses a taken one.
+  React.useEffect(() => {
+    if (openedAt === null) return;
+    let current = true;
+    takenDemoSlots()
+      .then((taken) => {
+        if (current) setTakenSlots(taken);
+      })
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [openedAt]);
 
   const form = useForm<DemoDetailsInput>({
     resolver: zodResolver(demoDetailsSchema),
@@ -105,17 +121,29 @@ export function DemoDialog({
 
   const submitDetails = form.handleSubmit(async (details) => {
     if (!topic || !slotStart) return;
-    await submitLead(
-      {
-        kind: "demo",
-        data: {
-          ...demoDetailsSchema.parse(details),
-          topic,
-          preferredStart: slotStart,
+    try {
+      await submitLead(
+        {
+          kind: "demo",
+          data: {
+            ...demoDetailsSchema.parse(details),
+            topic,
+            preferredStart: slotStart,
+          },
         },
-      },
-      pathname,
-    );
+        pathname,
+        honeypot,
+      );
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "SLOT_TAKEN") {
+        // Someone booked it a moment ago: back to the times.
+        setTakenSlots((taken) => new Set(taken).add(slotStart));
+        setSlotStart(null);
+        setStep(2);
+      }
+      setStepError(apiErrorMessage(error));
+      return;
+    }
     setStepError("");
     setStep(4);
   });
@@ -346,6 +374,7 @@ export function DemoDialog({
                     void next();
                   }}
                 >
+                  <Honeypot value={honeypot} onChange={setHoneypot} />
                   <div className="flex items-center gap-3 rounded-xl border border-line bg-soft px-3.5 py-3 text-sm">
                     <Calendar
                       aria-hidden="true"

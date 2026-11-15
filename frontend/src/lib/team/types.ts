@@ -1,10 +1,18 @@
 import type {
+  Budget,
+  ContactStatus,
+  DemoStatus,
+  DemoTopic,
+  MessageTopic,
   Priority,
   ProjectStatus,
   ProjectType,
+  QuoteProjectType,
+  QuoteStatus,
   RequestStatus,
   RequestType,
   TeamRole,
+  Timeline,
   UserStatus,
 } from "@/lib/labels";
 import type { NotificationItem } from "@/lib/portal/types";
@@ -27,6 +35,8 @@ export type TeamCounts = {
 export type TeamSummary = {
   requests: TeamCounts;
   unreadNotifications: number;
+  /** New website leads (the sidebar badges). Null for developers. */
+  leads: { demos: number; quotes: number; messages: number } | null;
 };
 
 /** A request in a dashboard list. */
@@ -77,7 +87,18 @@ export type StaffDashboard = {
     invited: number;
     byRole: Record<TeamRole, { active: number; invited: number }>;
   } | null;
+  /** The Website leads card. */
+  leads: LeadsCard | null;
   alerts: NotificationItem[];
+};
+
+export type LeadsCard = {
+  demos: number;
+  quotes: number;
+  messages: number;
+  estimatesAwaiting: number;
+  demosBooked: number;
+  nextDemo: string | null;
 };
 
 export type TeamDashboard = DeveloperDashboard | StaffDashboard;
@@ -253,4 +274,136 @@ export type TeamUserRow = {
 export type RolesInfo = {
   canInvite: TeamRole[];
   permissions: Record<string, TeamRole[]>;
+};
+
+// ------------------------------------------------------------ website leads
+
+export type LeadKind = "demo" | "quote" | "message";
+
+export type LeadPerson = { id: string; name: string };
+
+/** GET /team/leads/{demos,quotes,messages}. */
+export type LeadList<Row> = {
+  /** Every lead of this kind. */
+  all: number;
+  /** Per status, for the tabs. A missing status has none. */
+  tabs: Partial<Record<string, number>>;
+  /** How many match the tab and search; rows holds the newest of them. */
+  matching: number;
+  rows: Row[];
+};
+
+type LeadRowBase = {
+  code: string;
+  createdAt: string;
+  name: string;
+  customerId: string | null;
+  owner: LeadPerson | null;
+};
+
+export type DemoRow = LeadRowBase & {
+  company: string;
+  topic: DemoTopic;
+  preferredStart: string;
+  scheduledStart: string | null;
+  status: DemoStatus;
+};
+
+export type QuoteRow = LeadRowBase & {
+  company: string | null;
+  projectType: QuoteProjectType;
+  budget: Budget;
+  timeline: Timeline | null;
+  status: QuoteStatus;
+};
+
+export type MessageRow = LeadRowBase & {
+  email: string;
+  topic: MessageTopic;
+  /** A preview. */
+  message: string;
+  status: ContactStatus;
+};
+
+export type LeadActivityItem = {
+  id: string;
+  kind: "SYSTEM" | "EMAIL" | "NOTE";
+  body: string;
+  createdAt: string;
+  author: { name: string } | null;
+};
+
+export type Estimate = {
+  id: string;
+  amountCents: number;
+  currency: string;
+  deliveryTime: string;
+  /** A date, "2026-11-23T00:00:00.000Z". */
+  validUntil: string;
+  summary: string;
+  sentAt: string;
+  sentBy: { name: string };
+};
+
+type LeadDetailBase = {
+  id: string;
+  code: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  sourcePage: string;
+  createdAt: string;
+  owner: LeadPerson | null;
+  activity: LeadActivityItem[];
+  /** The customer this lead belongs to: converted, linked or same email. */
+  customer: { id: string; company: string; phone: string | null } | null;
+  /** A demo or quote that was converted to a customer. */
+  converted: boolean;
+  /** Super admins and admins may convert. */
+  canConvert: boolean;
+};
+
+export type DemoDetail = LeadDetailBase & {
+  kind: "demo";
+  status: DemoStatus;
+  topic: DemoTopic;
+  company: string;
+  notes: string | null;
+  preferredStart: string;
+  scheduledStart: string | null;
+  host: LeadPerson | null;
+  videoLink: string | null;
+  cancelReason: string | null;
+};
+
+export type QuoteDetail = LeadDetailBase & {
+  kind: "quote";
+  status: QuoteStatus;
+  projectType: QuoteProjectType;
+  budget: Budget;
+  timeline: Timeline | null;
+  company: string | null;
+  requirements: string;
+  lostReason: string | null;
+  /** Newest first. */
+  estimates: Estimate[];
+};
+
+export type MessageDetail = LeadDetailBase & {
+  kind: "message";
+  status: ContactStatus;
+  topic: MessageTopic;
+  message: string;
+};
+
+export type LeadDetail = DemoDetail | QuoteDetail | MessageDetail;
+
+/** GET /team/leads/convert/:code: what Add customer starts with. */
+export type ConvertPrefill = {
+  lead: { type: "DEMO" | "QUOTE"; code: string; label: string };
+  name: string;
+  email: string;
+  company: string;
+  phone: string;
+  project: { name: string; type: ProjectType };
 };

@@ -7,7 +7,8 @@ import { formatLongDate, formatShortWhen, greeting } from "@/lib/format-time";
 import { roles, type TeamRole } from "@/lib/labels";
 import type { NotificationItem } from "@/lib/portal/types";
 import { routes } from "@/lib/routes";
-import type { DashboardRow, Developer } from "@/lib/team/types";
+import { demoShort } from "@/lib/team/leads";
+import type { DashboardRow, Developer, LeadsCard } from "@/lib/team/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -253,27 +254,34 @@ export function DueSoon({
   );
 }
 
-/** Website leads: the four tiles. Real numbers arrive with Phase 8. */
-export function WebsiteLeadsCard() {
+/** Website leads: the four tiles (new demos, quotes, messages; booked demos). */
+export function WebsiteLeadsCard({ leads }: { leads: LeadsCard | null }) {
+  const estimates = leads?.estimatesAwaiting ?? 0;
   const tiles = [
     {
       label: "New demo requests",
+      value: leads?.demos ?? 0,
       hint: "From Book a demo",
-      href: routes.teamDemos,
+      href: `${routes.teamDemos}?status=new`,
     },
     {
       label: "New quote requests",
-      hint: "From Get a quote",
-      href: routes.teamQuotes,
+      value: leads?.quotes ?? 0,
+      hint: `${estimates} ${estimates === 1 ? "estimate is" : "estimates are"} awaiting a reply`,
+      href: `${routes.teamQuotes}?status=new`,
     },
     {
       label: "New messages",
+      value: leads?.messages ?? 0,
       hint: "From the contact form",
-      href: routes.teamMessages,
+      href: `${routes.teamMessages}?status=new`,
     },
     {
       label: "Demos booked",
-      hint: "None booked yet",
+      value: leads?.demosBooked ?? 0,
+      hint: leads?.nextDemo
+        ? `Next: ${demoShort(leads.nextDemo)}`
+        : "Nothing booked yet",
       href: `${routes.teamDemos}?status=scheduled`,
     },
   ];
@@ -301,7 +309,7 @@ export function WebsiteLeadsCard() {
                 {tile.label}
               </span>
               <span className="font-heading text-[28px] leading-tight font-bold tracking-[-0.03em]">
-                0
+                {tile.value}
               </span>
               <span className="text-xs text-muted-foreground">{tile.hint}</span>
             </Link>

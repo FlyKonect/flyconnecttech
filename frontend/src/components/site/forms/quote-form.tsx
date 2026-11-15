@@ -9,10 +9,12 @@ import { useForm } from "react-hook-form";
 import { DemoButton } from "@/components/site/demo/demo-button";
 import {
   FormAlert,
+  Honeypot,
   SiteField,
   SuccessTick,
   SummaryRows,
 } from "@/components/site/forms/site-field";
+import { apiErrorMessage } from "@/lib/api";
 import {
   firstName,
   quoteDefaults,
@@ -39,6 +41,8 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
   const pathname = usePathname();
   const full = variant === "full";
   const [sent, setSent] = React.useState<Quote | null>(null);
+  const [failed, setFailed] = React.useState("");
+  const [honeypot, setHoneypot] = React.useState("");
 
   const form = useForm<QuoteInput>({
     resolver: zodResolver(quoteSchema),
@@ -58,8 +62,13 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
             phone: undefined,
           },
     );
-    await submitLead({ kind: "quote", data: quote }, pathname);
-    setSent(quote);
+    setFailed("");
+    try {
+      await submitLead({ kind: "quote", data: quote }, pathname, honeypot);
+      setSent(quote);
+    } catch (error) {
+      setFailed(apiErrorMessage(error));
+    }
   });
 
   if (sent) {
@@ -109,6 +118,7 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
       onSubmit={onSubmit}
       className="flex flex-col gap-3.5"
     >
+      <Honeypot value={honeypot} onChange={setHoneypot} />
       {full ? null : (
         <p className="m-0 font-heading text-[22px] font-bold">Get a quote</p>
       )}
@@ -242,6 +252,8 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
 
       {hasErrors ? (
         <FormAlert>Please fix the highlighted fields.</FormAlert>
+      ) : failed ? (
+        <FormAlert>{failed}</FormAlert>
       ) : null}
 
       <button

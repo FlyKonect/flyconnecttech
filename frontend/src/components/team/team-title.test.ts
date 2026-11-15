@@ -9,6 +9,19 @@ describe("the title in the team panel header", () => {
     expect(teamTitle("/team/notifications")).toBe("Notifications");
   });
 
+  test("website leads show the kind and code", () => {
+    expect(teamTitle("/team/leads/demos")).toBe("Demo requests");
+    expect(teamTitle("/team/leads/demos/DEM-2026-031")).toBe(
+      "Demo request · DEM-2026-031",
+    );
+    expect(teamTitle("/team/leads/quotes/QUO-2026-042")).toBe(
+      "Quote request · QUO-2026-042",
+    );
+    expect(teamTitle("/team/leads/messages/MSG-2026-018")).toBe(
+      "Message · MSG-2026-018",
+    );
+  });
+
   test("customers and users have their own titles", () => {
     expect(teamTitle("/team/customers")).toBe("Customers");
     expect(teamTitle("/team/customers/new")).toBe("Add customer");

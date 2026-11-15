@@ -29,8 +29,8 @@ export type TeamUser = {
 /** The title in the header, from the address. */
 const titles: [prefix: string, title: string][] = [
   [routes.teamRequests, "Support Requests"],
-  [routes.teamDemos, "Demo Requests"],
-  [routes.teamQuotes, "Quote Requests"],
+  [routes.teamDemos, "Demo requests"],
+  [routes.teamQuotes, "Quote requests"],
   [routes.teamMessages, "Messages"],
   [routes.teamCustomers, "Customers"],
   [routes.teamUsers, "Users"],
@@ -43,6 +43,18 @@ export function teamTitle(pathname: string): string {
   // One request: "Request TKT-2026-00124".
   const request = /^\/team\/requests\/([^/]+)\/?$/.exec(pathname);
   if (request) return `Request ${decodeURIComponent(request[1])}`;
+  // One lead: "Demo request · DEM-2026-031".
+  const lead = /^\/team\/leads\/(demos|quotes|messages)\/([^/]+)\/?$/.exec(
+    pathname,
+  );
+  if (lead) {
+    const kind = {
+      demos: "Demo request",
+      quotes: "Quote request",
+      messages: "Message",
+    }[lead[1] as "demos" | "quotes" | "messages"];
+    return `${kind} · ${decodeURIComponent(lead[2])}`;
+  }
   const path = pathname.replace(/\/$/, "");
   if (path === routes.teamNewCustomer) return "Add customer";
   if (path === routes.teamNewUser) return "Add user";

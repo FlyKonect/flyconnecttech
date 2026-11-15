@@ -1,11 +1,12 @@
+import { apiFetch } from "@/lib/api";
 import type { DemoRequest, Message, Quote } from "@/lib/forms/schemas";
 
 /**
- * TEMPORARY stand-in for sending the website forms (build plan, Phase 2).
+ * Sends a website form to the backend, which saves the lead, emails the
+ * visitor's copy and alerts the team (docs/01, section 2).
  *
- * Nothing is saved and nothing is emailed yet: on a developer's PC the data is
- * only written to the browser console. Phase 8 replaces these three functions
- * with calls to the backend, which saves the lead and emails the team.
+ * A failure throws ApiError (lib/api.ts). The backend answers "sent" even
+ * to bots caught by the hidden field, so nothing is given away.
  */
 
 export type LeadSubmission =
@@ -16,11 +17,17 @@ export type LeadSubmission =
 export async function submitLead(
   submission: LeadSubmission,
   sourcePage: string,
+  /** The hidden "website" field: people leave it empty, bots fill it in. */
+  honeypot = "",
 ): Promise<void> {
-  if (process.env.NODE_ENV === "development") {
-    console.info("[website form, not sent yet]", {
-      ...submission,
-      sourcePage,
-    });
-  }
+  await apiFetch<{ ok: true }>(`/leads/${submission.kind}`, {
+    method: "POST",
+    body: { ...submission.data, sourcePage, website: honeypot },
+  });
+}
+
+/** Demo times a scheduled demo already holds, as UTC instants. */
+export async function takenDemoSlots(): Promise<Set<string>> {
+  const { taken } = await apiFetch<{ taken: string[] }>("/leads/demo-slots");
+  return new Set(taken);
 }

@@ -96,6 +96,34 @@ export function SiteField({
   );
 }
 
+/**
+ * A field people never see or reach with the keyboard. Bots fill in every
+ * field, so a filled one means a bot (the backend then saves nothing).
+ */
+export function Honeypot({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div aria-hidden="true" className="sr-only">
+      <label>
+        Website
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    </div>
+  );
+}
+
 /** The red line above the submit button when the form has errors. */
 export function FormAlert({ children }: { children: React.ReactNode }) {
   return (

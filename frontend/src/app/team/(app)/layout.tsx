@@ -40,8 +40,10 @@ async function SignedInTeam({ children }: { children: React.ReactNode }) {
         name: me.name,
         jobTitle: me.jobTitle,
         role: me.role as TeamRole,
-        // The website leads' badges arrive with Phase 8.
         counts: {
+          demos: summary.leads?.demos ?? 0,
+          quotes: summary.leads?.quotes ?? 0,
+          messages: summary.leads?.messages ?? 0,
           all: requests.all,
           new: requests.new,
           underReview: requests.underReview,
