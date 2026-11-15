@@ -8,14 +8,17 @@ export type AuditAction =
   | 'invitation.resent'
   | 'user.roleChanged'
   | 'user.disabled'
+  | 'passwordReset.sent'
   | 'customer.created'
+  | 'project.added'
+  | 'project.statusChanged'
   | 'settings.changed'
   | 'lead.converted';
 
 export type AuditEntry = {
   actorId: string | null;
   action: AuditAction;
-  entityType: 'user' | 'customer' | 'setting' | 'lead';
+  entityType: 'user' | 'customer' | 'project' | 'setting' | 'lead';
   entityId: string;
   data?: Prisma.InputJsonValue;
 };

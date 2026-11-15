@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AccountsModule } from './accounts/accounts.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { envSchema } from './config/env.js';
+import { CustomersModule } from './customers/customers.module.js';
 import { EmailModule } from './email/email.module.js';
 import { HealthModule } from './health/health.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
@@ -23,6 +24,7 @@ import { UploadsModule } from './uploads/uploads.module.js';
     NotificationsModule,
     AccountsModule,
     RequestsModule,
+    CustomersModule,
     HealthModule,
   ],
 })

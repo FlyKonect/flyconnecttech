@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
   type CanActivate,
   type ExecutionContext,
@@ -16,6 +17,9 @@ import type { Auth } from './auth.js';
 import { ACTION, AREA, NO_TWO_FACTOR, PUBLIC } from './decorators.js';
 import type { SignedIn } from './signed-in.js';
 
+/** "Last active" is saved at most this often per person. */
+export const LAST_ACTIVE_EVERY_MS = 5 * 60 * 1000;
+
 /**
  * Runs before every backend route.
  *
@@ -28,6 +32,8 @@ import type { SignedIn } from './signed-in.js';
  */
 @Injectable()
 export class SessionGuard implements CanActivate {
+  private readonly logger = new Logger(SessionGuard.name);
+
   constructor(
     private readonly reflector: Reflector,
     @Inject(AUTH) private readonly auth: Auth,
@@ -66,13 +72,16 @@ export class SessionGuard implements CanActivate {
         jobTitle: true,
         timezone: true,
         twoFactorEnabled: true,
+        lastActiveAt: true,
       },
     });
     if (!user || user.status !== 'ACTIVE') {
       throw new UnauthorizedException({ code: 'SIGNED_OUT' });
     }
 
-    const signedIn: SignedIn = { ...user, sessionId: session.session.id };
+    const { lastActiveAt, ...account } = user;
+    await this.markActive(account.id, lastActiveAt);
+    const signedIn: SignedIn = { ...account, sessionId: session.session.id };
     request.user = signedIn;
 
     const team = isTeamRole(user.role);
@@ -93,5 +102,26 @@ export class SessionGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  /**
+   * Saves "last active" (the Users list, the customer page), at most once
+   * every few minutes. A failure here never blocks the person.
+   */
+  private async markActive(userId: string, lastActiveAt: Date | null) {
+    const now = Date.now();
+    if (lastActiveAt && now - lastActiveAt.getTime() < LAST_ACTIVE_EVERY_MS) {
+      return;
+    }
+    try {
+      await this.prisma.user.updateMany({
+        where: { id: userId },
+        data: { lastActiveAt: new Date(now) },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Could not save last active: ${(error as Error).message}`,
+      );
+    }
   }
 }

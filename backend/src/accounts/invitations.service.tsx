@@ -10,12 +10,14 @@ import { ConfigService } from '@nestjs/config';
 import { hashPassword } from 'better-auth/crypto';
 import type { Env } from '../config/env.js';
 import { AuditService } from '../audit/audit.service.js';
+import { nextCode } from '../codes/readable-codes.js';
 import { EmailService } from '../email/email.service.js';
 import {
   InvitationEmail,
   invitationSubject,
 } from '../email/templates/invitation.js';
-import type { Role } from '../generated/prisma/client.js';
+import { Prisma } from '../generated/prisma/client.js';
+import type { ProjectType, Role } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   LINK_LIFETIME_HOURS,
@@ -50,6 +52,8 @@ export type InviteUserInput = {
   company?: string;
   country?: string;
   phone?: string;
+  /** Customers only: their first projects, listed in the invitation email. */
+  projects?: { name: string; type: ProjectType }[];
 };
 
 export type InvitationDetails = {
@@ -88,15 +92,15 @@ export class InvitationsService {
   async inviteUser(
     input: InviteUserInput,
     invitedById: string | null,
-  ): Promise<{ userId: string; link: string; emailSent: boolean }> {
+  ): Promise<{
+    userId: string;
+    customerId: string | null;
+    link: string;
+    emailSent: boolean;
+  }> {
     const email = input.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      throw new ConflictException({
-        code: 'EMAIL_TAKEN',
-        message: 'There is already an account with this email.',
-      });
-    }
+    if (existing) throw emailTaken();
     if (input.role === 'CUSTOMER' && !input.company?.trim()) {
       throw new ConflictException({
         code: 'COMPANY_REQUIRED',
@@ -104,7 +108,7 @@ export class InvitationsService {
       });
     }
 
-    const userId = await this.prisma.$transaction(async (tx) => {
+    const created = this.prisma.$transaction(async (tx) => {
       let customerId: string | null = null;
       if (input.role === 'CUSTOMER') {
         const customer = await tx.customer.create({
@@ -115,13 +119,26 @@ export class InvitationsService {
           },
         });
         customerId = customer.id;
+        const codes: string[] = [];
+        for (const project of input.projects ?? []) {
+          const code = await nextCode(tx, 'project');
+          await tx.project.create({
+            data: {
+              code,
+              name: project.name.trim(),
+              type: project.type,
+              customerId,
+            },
+          });
+          codes.push(code);
+        }
         await this.audit.record(
           {
             actorId: invitedById,
             action: 'customer.created',
             entityType: 'customer',
             entityId: customer.id,
-            data: { company: customer.company },
+            data: { company: customer.company, projects: codes },
           },
           tx,
         );
@@ -152,13 +169,24 @@ export class InvitationsService {
         },
         tx,
       );
-      return user.id;
+      return { userId: user.id, customerId };
     }, ACCOUNT_TX);
+    // Two people adding the same email at the same moment: the second one
+    // hits the unique email and gets the same answer as above.
+    const { userId, customerId } = await created.catch((error: unknown) => {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw emailTaken();
+      }
+      throw error;
+    });
 
     // The account exists now, so a broken email server must not hide the
     // link: the command line prints it (the very first super admin).
     const { link, emailSent } = await this.sendInvitation(userId, invitedById);
-    return { userId, link, emailSent };
+    return { userId, customerId, link, emailSent };
   }
 
   /**
@@ -351,6 +379,13 @@ export class InvitationsService {
     }
     return invitation;
   }
+}
+
+function emailTaken() {
+  return new ConflictException({
+    code: 'EMAIL_TAKEN',
+    message: 'There is already an account with this email.',
+  });
 }
 
 /** One answer for every unusable link, so a link's history is never revealed. */

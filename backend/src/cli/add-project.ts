@@ -1,6 +1,7 @@
-// Adds a project to a customer from the command line, until the "Add
-// customer / Add project" screens exist (Phase 7). A customer needs at least
-// one project to send a support request.
+// Adds a project to a customer from the command line. The normal way is the
+// team panel (Add customer, or Add project on the customer page); this stays
+// for setting up and for the browser tests. A customer needs at least one
+// project to send a support request.
 //
 //   npm run project:add -- --email sarah@bluewave.co.uk \
 //     --name "Bluewave booking website" --type travel-booking-platform --status live

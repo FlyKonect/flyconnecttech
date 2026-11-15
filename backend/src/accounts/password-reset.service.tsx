@@ -1,6 +1,7 @@
 import { GoneException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hashPassword } from 'better-auth/crypto';
+import { AuditService } from '../audit/audit.service.js';
 import type { Env } from '../config/env.js';
 import { EmailService } from '../email/email.service.js';
 import {
@@ -28,7 +29,7 @@ const ACCOUNT_TX = { isolationLevel: 'ReadCommitted' } as const;
  * own way: only a hash of the link is stored, each link works once, a new
  * link replaces the old one, and links last 48 hours.
  */
-const PREFIX = 'password-reset:';
+export const RESET_LINK_PREFIX = 'password-reset:';
 
 /** A person gets at most one reset email per minute, however often they ask. */
 const MIN_SECONDS_BETWEEN_EMAILS = 60;
@@ -40,6 +41,7 @@ export class PasswordResetService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly audit: AuditService,
     config: ConfigService<Env, true>,
   ) {
     this.siteUrl = config.get('FRONTEND_URL').replace(/\/$/, '');
@@ -57,7 +59,7 @@ export class PasswordResetService {
     const recent = await this.prisma.verification.findFirst({
       where: {
         value: user.id,
-        identifier: { startsWith: PREFIX },
+        identifier: { startsWith: RESET_LINK_PREFIX },
         createdAt: {
           gt: new Date(Date.now() - MIN_SECONDS_BETWEEN_EMAILS * 1000),
         },
@@ -68,8 +70,8 @@ export class PasswordResetService {
     await this.send(user.id, false);
   }
 
-  /** An admin sends a reset link from the customer page (Phase 7 adds the button). */
-  async sendByTeam(userId: string): Promise<void> {
+  /** An admin sends a reset link from the customer page. */
+  async sendByTeam(userId: string, sentById: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException();
     if (user.status !== 'ACTIVE') {
@@ -79,6 +81,12 @@ export class PasswordResetService {
       });
     }
     await this.send(user.id, true);
+    await this.audit.record({
+      actorId: sentById,
+      action: 'passwordReset.sent',
+      entityType: 'user',
+      entityId: user.id,
+    });
   }
 
   /** What the "Reset password" page shows. */
@@ -129,11 +137,11 @@ export class PasswordResetService {
     const { token, hash } = newToken();
     const user = await this.prisma.$transaction(async (tx) => {
       await tx.verification.deleteMany({
-        where: { value: userId, identifier: { startsWith: PREFIX } },
+        where: { value: userId, identifier: { startsWith: RESET_LINK_PREFIX } },
       });
       await tx.verification.create({
         data: {
-          identifier: PREFIX + hash,
+          identifier: RESET_LINK_PREFIX + hash,
           value: userId,
           expiresAt: linkExpiry(),
         },
@@ -160,7 +168,7 @@ export class PasswordResetService {
   private async findUsable(token: string) {
     if (!looksLikeToken(token)) throw linkGone();
     const row = await this.prisma.verification.findFirst({
-      where: { identifier: PREFIX + hashToken(token) },
+      where: { identifier: RESET_LINK_PREFIX + hashToken(token) },
     });
     if (!row || row.expiresAt <= new Date()) throw linkGone();
     return row;
