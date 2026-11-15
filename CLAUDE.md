@@ -42,8 +42,8 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - MariaDB 10.11 with Prisma 7 (`@prisma/adapter-mariadb`). Keep `prisma`, `@prisma/client` and the adapter on the same exact version.
 - Zod for every input and for the settings in `.env` (`src/config/env.ts`).
 - Swagger API docs at `/api-docs` (not in production).
-- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. The other templates and the final sender come in Phase 9.
-- File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check.
+- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Account and support request emails exist; the lead emails come in Phase 8 and the rest, with the final sender, in Phase 9.
+- File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check. multer (part of `@nestjs/platform-express`) writes them to `UPLOAD_DIR/tmp` first. See "Support requests" below.
 - Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
 - Sign-in: Better Auth (email and password, sessions in the database, TOTP two-factor required for team accounts, sign-up switched off). Invitations and password resets are our own code in `backend/src/accounts/`. See "Sign-in and permissions" below.
 
@@ -90,8 +90,9 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, and the account journeys
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, and the client portal (requests, files, statuses, notifications, profile)
 - `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
+- `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project (a customer needs one to send a request) until the Add customer screen exists (Phase 7). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
 - `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
@@ -107,7 +108,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/app/team/(app)/`: team panel pages that have the sidebar. Team sign-in goes outside `(app)`.
 - `frontend/src/app/dev/components/`: every shared component on one page. Development only (404 on the live site).
 - `frontend/src/app/invite/[token]`, `frontend/src/app/reset-password/[token]`: account activation and password reset
-- `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row)
+- `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row, file-chip, status-history)
+- `frontend/src/components/portal/`: the client portal's pieces (shell, my requests, new request steps, conversation, reply box, notifications, profile forms, page loading)
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
 - `frontend/src/components/site/`, `portal/`, `team/`
@@ -116,14 +118,24 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/routes.ts`: every address in the app. Link to these.
 - `frontend/src/lib/team-nav.ts`: the team sidebar menu per role
 - `frontend/src/lib/auth/`: the sign-in client, `getMe()` and the page gates (`requireCustomer()`, `requireTeamMember()`)
-- `frontend/src/lib/api.ts`: `apiFetch()` and error messages for calls to the backend
+- `frontend/src/lib/api.ts`: `apiFetch()` (JSON or FormData) and error messages for calls from the browser to the backend
+- `frontend/src/lib/api-server.ts`: `serverApi()` for server components: reads from the backend with the visitor's cookie; "not found" shows the not-found page
+- `frontend/src/lib/portal/types.ts`: what the backend's portal routes return
+- `frontend/src/lib/format-time.ts`: dates and times as the design writes them ("Today, 08:50", "8 Nov 2026"), in the person's time zone
+- `frontend/src/lib/uploads.ts`: which files can be attached (kept in step with the backend's `upload-rules.ts`)
 - `frontend/src/components/auth/`: sign-in, invitation, password reset and two-factor forms
 - `frontend/src/proxy.ts`: sends visitors with no session cookie to the right sign-in page
 - `frontend/e2e/`: Playwright tests
 - `backend/src/auth/`: Better Auth setup, the global `SessionGuard` and its decorators
 - `backend/src/policies/policies.ts`: who may do what, for every role
-- `backend/src/accounts/`: invitations, password reset, `/me`
-- `backend/src/cli/`: command-line tools (`invite-user.ts`)
+- `backend/src/accounts/`: invitations, password reset, `/me`, profile and password change
+- `backend/src/requests/`: support requests: the portal routes, status rules, SLA, labels for emails, and `RequestEventsService` (who gets which notification and email)
+- `backend/src/uploads/`: file rules and storage on disk
+- `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
+- `backend/src/settings/settings.service.ts`: reads a setting, falling back to `defaults.ts`
+- `backend/src/time/uk-time.ts`: UK wall-clock time (business days, demo slots)
+- `backend/src/cli/`: command-line tools (`invite-user.ts`, `add-project.ts`)
+- `backend/test/e2e-tools/`: helpers the browser tests run on their own database (never live)
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
@@ -140,8 +152,12 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Demo times:** `lib/forms/demo-slots.ts` (next 10 weekdays, six slots, UK time, stored as UTC). Taken slots are always empty until Phase 8.
 - **Signed-in pages:** the `(app)` layouts call `requireCustomer()` or `requireTeamMember()` from `lib/auth/server.ts`, which ask the backend who is signed in (`/me`) and send everyone else to the right page. `proxy.ts` only checks that a cookie exists; the backend makes the real decision.
 - **Pages whose address has a changing part** (like `[code]`) sit under a layout that reads the address, so the shells are wrapped in `Suspense` in their layout files. Keep that.
+- **Signed-in pages read their data inside their own `<Suspense fallback={<PageLoading />}>`** (see any page in `portal/(app)/`): a server component calls `serverApi()`, and the page's default export wraps it. Without it Next.js reports that moving between pages is not instant (a boundary higher up does not cover a move between two sibling pages).
+- **Buttons and forms on signed-in pages** call the backend from the browser with `apiFetch()`, show a toast, then `router.refresh()` so the page and the sidebar numbers update.
+- **Times** shown to signed-in people use `lib/format-time.ts` with their profile's time zone (`me.timezone`).
 - **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright starts (or reuses) its own backend and website on ports 4100 and 3101.
   - Make test people with `createPerson(role)` and `signInBrowser()` from `e2e/support/accounts.ts`; read emails with `waitForEmail()` from `e2e/support/mailpit.ts`.
+  - Portal helpers in `e2e/support/portal.ts`: `addProject()` (the `project:add` command), `sendRequest()`, and `teamUpdate()`, which sets a status or adds a team reply straight in the test database until the team screens exist (Phase 6; then use them instead).
   - Next.js keeps pages you left in the page, hidden. Pick fields with the visible-only `field()` helper and form errors by `[data-slot=form-error]`, as in `e2e/accounts.spec.ts`, or a test finds two matches.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
@@ -164,6 +180,16 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Rate limits:** Better Auth's own for sign-in and two-factor; `RateLimitGuard` (`rate-limit/`) for our public routes. `RATE_LIMITS=false` only in tests.
 - **Audit:** `AuditService.record()` for account, role and permission changes, inside the same transaction when there is one.
 - **Cookies** are named `fct.*` (`__Secure-fct.*` live). Live, `COOKIE_DOMAIN` makes one sign-in work on both the website and the `api.` address.
+- **Change password** is our own `POST /me/password` (`accounts/profile.service.ts`): it applies the password rules and signs out other devices. Better Auth's `/change-password` is switched off.
+
+## Support requests (backend)
+- **Customers reach only their own records:** every portal query includes `customerScope()`. Someone else's request, project or file answers 404, never 403, so codes can't be guessed.
+- **Internal notes never reach customers:** customer queries ask only for `CUSTOMER_REPLY`, `STAFF_REPLY` and `SYSTEM` messages, and only files on those messages (or on the request itself). Tests check it.
+- **Status changes** go through `statusChangeFields()` (`requests/status-rules.ts`), which also sets `resolvedAt`, `closedAt` and the SLA fields. Each change writes a status history row and, for customer actions, a line in the conversation. Changes use `updateMany` with the old status, so two clicks at once can't both win.
+- **SLA:** `requests/sla.ts`. The due time comes from the `responseTargets` setting ("4h", "1bd"; business days are Monday to Friday in UK time). Paused while Waiting for Customer: the due time moves later by the time spent waiting. A reopened request gets a fresh due time.
+- **Who hears about what:** `RequestEventsService`. In-app notifications are written inside the change's transaction; emails go after it, follow the customer's "Email me when" choices (`accounts/email-prefs.ts`), and a failed email never undoes the change. Phase 6's team actions call the same service (`teamReplied`, `statusChanged`, `emailTeamReply`, `emailStatusChanged`).
+- **Files:** up to 5 per request or reply, 10 MB each, checked by name, browser type and first bytes (`uploads/upload-rules.ts`). Kept as `UPLOAD_DIR/requests/<request id>/<random id>`; the name and type are in the `attachments` table. Routes that take files use `FilesInterceptor` then `CleanUploadsInterceptor`, which deletes whatever is left in `tmp/`. Downloads are always "attachment" with `nosniff`.
+- **Request transactions** use read committed (`REQUEST_TX`), like the account ones.
 
 ## Logo
 - The logo is "Crew Wings": gold wings around a navy node, "FlyConnect" in navy and "Tech" in gold.

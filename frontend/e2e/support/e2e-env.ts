@@ -1,3 +1,6 @@
+import os from "node:os";
+import path from "node:path";
+
 /**
  * Where the browser tests' own copy of the app runs (see playwright.config.ts).
  * Kept in one place so the config and the test helpers agree.
@@ -29,5 +32,7 @@ export const e2e = {
     SMTP_HOST: process.env.E2E_SMTP_HOST ?? "localhost",
     SMTP_PORT: "1025",
     EMAIL_FROM: "FlyConnect Tech Support <hello@yourdomain.com>",
+    // Uploaded files go to a folder of their own, not the real uploads/.
+    UPLOAD_DIR: path.join(os.tmpdir(), "flyconnect-tech-e2e-uploads"),
   },
 };

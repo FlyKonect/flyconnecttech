@@ -229,6 +229,19 @@ Notes:
 - Anyone who has the link can take over the account, so do not forward it.
 - Until the "Users" screen arrives in a later phase, the same command invites other people too. `--role` can be `super-admin`, `admin`, `manager`, `developer` or `customer`. A customer also needs `--company "Company name"`.
 
+### Give a customer a project
+
+A customer can only send a support request about one of their own projects. Until the "Add customer" screen arrives in a later phase, add projects with a command, in the same place as above (after the `source … activate` line and `cd ~/flyconnect-tech/backend`):
+
+```bash
+node dist/cli/add-project.js --email customer@theircompany.com --name "Bluewave booking website" --type travel-booking-platform --status live
+```
+
+- `--email` is the customer's email, the one their invitation went to.
+- `--type` can be `website`, `web-application`, `travel-booking-platform`, `agent-portal`, `api-integration`, `custom-software`, `ui-ux-design` or `maintenance-plan`.
+- `--status` can be `planning` (if you leave it out), `in-design`, `in-development`, `live` or `completed`.
+- It prints the project's code, for example `P-0001`. Run it once for each project.
+
 ---
 
 ## Everyday use
@@ -275,6 +288,6 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | The backend's start file for cPanel | `backend/app.cjs` |
 | Passwords | only in `flyconnect-tech/backend/.env` on the hosting |
 | The login key | only in the GitHub secret `SSH_PRIVATE_KEY` |
-| Uploaded files | `flyconnect-tech/uploads` on the hosting. A deploy never touches it |
+| Uploaded files | `flyconnect-tech/uploads` on the hosting: the files customers and the team attach to support requests. A deploy never touches it. Back it up together with the database |
 
 A deploy replaces only these folders on the hosting: the backend's `dist` and `prisma`, and the website's `.next`, `node_modules` and `public`. It leaves `.env`, `uploads` and everything else alone.
