@@ -90,9 +90,9 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile) and the team panel (who sees what, assigning, notes, statuses, emails, dashboards)
-- `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
-- `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project (a customer needs one to send a request) until the Add customer screen exists (Phase 7). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards) and customers and users (adding them with their projects, resend, reset links, disable, last active)
+- `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
+- `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
 - `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
@@ -108,9 +108,10 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/app/team/(app)/`: team panel pages that have the sidebar. Team sign-in goes outside `(app)`.
 - `frontend/src/app/dev/components/`: every shared component on one page. Development only (404 on the live site).
 - `frontend/src/app/invite/[token]`, `frontend/src/app/reset-password/[token]`: account activation and password reset
-- `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row, file-chip, status-history)
+- `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row, file-chip, status-history, row-menu)
 - `frontend/src/components/portal/`: the client portal's pieces (shell, my requests, new request steps, conversation, reply box, profile forms)
-- `frontend/src/components/team/`: the team panel's pieces (shell, dashboard parts, requests list, conversation with notes, composer, status panel and buttons, assign, resolve and request-info dialogs)
+- `frontend/src/components/team/`: the team panel's pieces (shell, dashboard parts, requests list, conversation with notes, composer, status panel and buttons, assign, resolve and request-info dialogs, customers list, Add customer, customer page buttons, users table with its "⋯" menu, Add user, "What each role can do")
+- `frontend/src/lib/team/forms.ts`: the Add customer, Add project and Add user rules, with the design's error wording
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
@@ -121,7 +122,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/team-nav.ts`: the team sidebar menu per role
 - `frontend/src/lib/auth/`: the sign-in client, `getMe()` and the page gates (`requireCustomer()`, `requireTeamMember()`)
 - `frontend/src/lib/api.ts`: `apiFetch()` (JSON or FormData) and error messages for calls from the browser to the backend
-- `frontend/src/lib/api-server.ts`: `serverApi()` for server components: reads from the backend with the visitor's cookie; "not found" shows the not-found page
+- `frontend/src/lib/api-server.ts`: `serverApi()` for server components: reads from the backend with the visitor's cookie; "not found" and "not allowed" show the not-found page
 - `frontend/src/lib/portal/types.ts`, `frontend/src/lib/team/types.ts`: what the backend's portal and team routes return
 - `frontend/src/lib/sla.ts`: the SLA badge words ("Due in 38m", "Due tomorrow", "Paused", "Met", "Overdue"), shown with `<SlaPill>`
 - `frontend/src/lib/format-time.ts`: dates and times as the design writes them ("Today, 08:50", "8 Nov 2026"), in the person's time zone
@@ -131,7 +132,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/e2e/`: Playwright tests
 - `backend/src/auth/`: Better Auth setup, the global `SessionGuard` and its decorators
 - `backend/src/policies/policies.ts`: who may do what, for every role
-- `backend/src/accounts/`: invitations, password reset, `/me`, profile and password change
+- `backend/src/accounts/`: invitations, password reset, `/me`, profile and password change, and the team's Users routes (`team-users.*`: list, add, disable, resend, reset link, the roles for Add user)
+- `backend/src/customers/`: the team's customer routes (list, add with projects, the customer page, add project, project status)
 - `backend/src/requests/`: support requests: the portal and team routes, status rules, SLA, shared writes (`request-writes.ts`), the dashboards, labels for emails, and `RequestEventsService` (who gets which notification and email)
 - `backend/src/uploads/`: file rules and storage on disk
 - `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
@@ -181,9 +183,17 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Better Auth** answers at `/api/auth`, mounted before the body parsers (`app.setup.ts`). Its sign-up, social sign-in, its own reset and email checks are switched off (`DISABLED_PATHS` in `auth.ts`). A session is refused unless the user is ACTIVE.
 - **Invitation and reset links:** `accounts/tokens.ts`. Only the hash is stored; 48 hours; once. A failed email still returns the link to the invite command.
 - **Rate limits:** Better Auth's own for sign-in and two-factor; `RateLimitGuard` (`rate-limit/`) for our public routes. `RATE_LIMITS=false` only in tests.
-- **Audit:** `AuditService.record()` for account, role and permission changes, inside the same transaction when there is one.
+- **Audit:** `AuditService.record()` for account, role and permission changes, inside the same transaction when there is one. Recorded so far: user invited, invitation resent, password reset link sent by the team, user disabled, customer created (with its project codes), project added, project status changed.
+- **Last active:** `SessionGuard` saves `users.lastActiveAt` at most every 5 minutes per person (`LAST_ACTIVE_EVERY_MS`). The Users list and the customer page show it.
 - **Cookies** are named `fct.*` (`__Secure-fct.*` live). Live, `COOKIE_DOMAIN` makes one sign-in work on both the website and the `api.` address.
 - **Change password** is our own `POST /me/password` (`accounts/profile.service.ts`): it applies the password rules and signs out other devices. Better Auth's `/change-password` is switched off.
+
+## Customers and users (backend)
+- **Customers:** managers may look (`customers.view`); only super admins and admins add customers and projects, change a project's status, resend invitations and send reset links (`customers.manage`). Developers get nothing ("not found" in the website).
+- **Add customer** goes through `InvitationsService.inviteUser()` with the projects: the customer, its contact (Invited) and the projects (codes from `nextCode`) are saved in one transaction, then the invitation email lists the projects. A failed email keeps the customer; the page says to use Resend invitation. An email already in use answers `EMAIL_TAKEN`.
+- **A customer's status** is its contact person's (Invited, Active, Disabled).
+- **Users:** super admins and admins only. Who may add, resend to or disable whom follows `canInviteRole()`: admins never act on a super admin. `GET /team/users/roles` gives the Add user screen the roles this person may give and the permission table from `policies.ts`.
+- **Disable user:** status Disabled, every session deleted, open invitations and reset links stop working, audit entry. Not yourself. A developer's open requests stay assigned until someone transfers them. There is no re-enable.
 
 ## Support requests (backend)
 - **Customers reach only their own records:** every portal query includes `customerScope()`. Someone else's request, project or file answers 404, never 403, so codes can't be guessed.

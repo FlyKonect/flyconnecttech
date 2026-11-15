@@ -43,11 +43,20 @@ export function inviteWithCommand(options: {
   if (options.company) args.push("--company", options.company);
   if (options.jobTitle) args.push("--job-title", options.jobTitle);
 
-  const output = execFileSync("node", args, {
-    cwd: backendDir,
-    env: { ...process.env, ...e2e.backendEnv } as NodeJS.ProcessEnv,
-    encoding: "utf8",
-  });
+  let output: string;
+  try {
+    output = execFileSync("node", args, {
+      cwd: backendDir,
+      env: { ...process.env, ...e2e.backendEnv } as NodeJS.ProcessEnv,
+      encoding: "utf8",
+    });
+  } catch (error) {
+    // Show what the command said, not only that it failed.
+    const { stdout, stderr } = error as { stdout?: string; stderr?: string };
+    throw new Error(
+      `The invite command failed:\n${stdout ?? ""}${stderr ?? ""}`,
+    );
+  }
   const link = output.match(/https?:\/\/\S+\/invite\/[A-Za-z0-9_-]+/);
   if (!link) throw new Error(`The invite command printed no link:\n${output}`);
   return link[0];

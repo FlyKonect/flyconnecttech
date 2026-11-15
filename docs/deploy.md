@@ -227,11 +227,12 @@ Nobody can sign up on the website. Every account is made by someone in the team,
 Notes:
 - The link works once, for 48 hours. If it runs out, run the same command with a different email, or ask for a new link once you have another admin.
 - Anyone who has the link can take over the account, so do not forward it.
-- Until the "Users" screen arrives in a later phase, the same command invites other people too. `--role` can be `super-admin`, `admin`, `manager`, `developer` or `customer`. A customer also needs `--company "Company name"`.
+- After that, add everyone else from the team panel: **Users > + Add user** for team members, and **Customers > + Add customer** for customers and their projects. Both send the invitation email. Resend invitation, Disable user and Send password reset link are there too.
+- The command still works if you ever need it: `--role` can be `super-admin`, `admin`, `manager`, `developer` or `customer`. A customer also needs `--company "Company name"`.
 
 ### Give a customer a project
 
-A customer can only send a support request about one of their own projects. Until the "Add customer" screen arrives in a later phase, add projects with a command, in the same place as above (after the `source … activate` line and `cd ~/flyconnect-tech/backend`):
+A customer can only send a support request about one of their own projects. The normal way is the team panel: projects are added with **+ Add customer**, and later with **Add project** on the customer's page, where admins can also change a project's status. If you ever need it, there is also a command, in the same place as above (after the `source … activate` line and `cd ~/flyconnect-tech/backend`):
 
 ```bash
 node dist/cli/add-project.js --email customer@theircompany.com --name "Bluewave booking website" --type travel-booking-platform --status live
