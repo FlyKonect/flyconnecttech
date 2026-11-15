@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { DemoButton } from "@/components/site/demo/demo-button";
+import { LiveProjectLink } from "@/components/site/live-project-link";
 import { techStack } from "@/components/site/tech-stack";
 import { routes } from "@/lib/routes";
 
@@ -1513,10 +1514,7 @@ function ACompleteTravelBookingSection() {
                   <path d="m12 5 7 7-7 7" />
                 </svg>
               </Link>
-              <a
-                href="https://dev.flyconnect.co.uk"
-                target="_blank"
-                rel="noopener"
+              <LiveProjectLink
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -1547,7 +1545,7 @@ function ACompleteTravelBookingSection() {
                   <path d="M10 14 21 3" />
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h11" />
                 </svg>
-              </a>
+              </LiveProjectLink>
             </div>
           </div>
           <div

@@ -32,6 +32,7 @@ const titles: [prefix: string, title: string][] = [
   [routes.teamDemos, "Demo requests"],
   [routes.teamQuotes, "Quote requests"],
   [routes.teamMessages, "Messages"],
+  [routes.teamWebsiteContent, "Website content"],
   [routes.teamCustomers, "Customers"],
   [routes.teamUsers, "Users"],
   [routes.teamReports, "Reports & Analytics"],

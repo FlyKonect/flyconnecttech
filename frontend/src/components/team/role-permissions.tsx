@@ -32,6 +32,10 @@ export const PERMISSION_ROWS: {
     actions: ["leads.manage"],
   },
   { label: "Convert a lead to a customer", actions: ["leads.convert"] },
+  {
+    label: "Website content: testimonials and live project link",
+    actions: ["website.manage"],
+  },
   { label: "Reports and analytics", actions: ["reports.view"] },
   { label: "Settings", actions: ["settings.manage"] },
 ];

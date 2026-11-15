@@ -476,10 +476,21 @@ test("team: customers, users and website leads, with their dialogs", async ({
     "/team/leads/demos",
     "/team/leads/quotes",
     "/team/leads/messages",
+    "/team/website-content",
   ]) {
     await page.goto(path);
     await expectAccessible(page, path);
   }
+
+  // Website content: the Add testimonial dialog, with its errors showing.
+  await page.goto("/team/website-content");
+  await page.getByRole("button", { name: "Add testimonial" }).click();
+  const addTestimonial = page.getByRole("dialog", { name: "Add testimonial" });
+  await addTestimonial.getByRole("button", { name: "Add testimonial" }).click();
+  await expect(addTestimonial.getByText("Write the quote")).toBeVisible();
+  await expectAccessible(page, "Add testimonial dialog with errors");
+  await page.keyboard.press("Escape");
+  await expect(addTestimonial).toBeHidden();
 
   // Add customer with its errors showing.
   await page.goto("/team/customers/new");

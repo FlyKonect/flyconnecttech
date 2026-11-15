@@ -240,6 +240,8 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
 });
 
 test("notifications: open one, then mark all as read", async ({ page }) => {
+  // Two people, two requests and two replies before the screen opens.
+  test.slow();
   const customer = await customerWithProject(page);
   const first = await sendRequest(customer, { title: "First request" });
   const second = await sendRequest(customer, { title: "Second request" });
@@ -316,6 +318,9 @@ test("profile: save changes and change the password", async ({ page }) => {
 });
 
 test("another customer's request and files are not found", async ({ page }) => {
+  // Two people, a project and a request with a file before the page opens:
+  // close to 30 seconds on a busy machine.
+  test.slow();
   const owner = await createPerson("customer");
   addProject(owner.email, "Private project");
   const code = await sendRequest(owner, { file: "private.png" });

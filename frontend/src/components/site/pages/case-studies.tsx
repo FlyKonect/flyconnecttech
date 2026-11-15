@@ -8,7 +8,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { DemoButton } from "@/components/site/demo/demo-button";
+import {
+  LiveProjectHost,
+  LiveProjectLink,
+} from "@/components/site/live-project-link";
 import { routes } from "@/lib/routes";
+import { initialsOf, testimonialByline } from "@/lib/site-content";
+import { getSiteContent } from "@/lib/site-content-cache";
 
 export function CaseStudiesPage() {
   return (
@@ -153,10 +159,7 @@ function HeroSection() {
                 gap: "12px",
               }}
             >
-              <a
-                href="https://dev.flyconnect.co.uk"
-                target="_blank"
-                rel="noopener"
+              <LiveProjectLink
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -187,7 +190,7 @@ function HeroSection() {
                   <path d="M10 14 21 3" />
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h11" />
                 </svg>
-              </a>
+              </LiveProjectLink>
               <Link
                 href={routes.contact}
                 style={{
@@ -467,10 +470,7 @@ function OverviewSection() {
                 color: "#021A54",
               }}
             >
-              <a
-                href="https://dev.flyconnect.co.uk"
-                target="_blank"
-                rel="noopener"
+              <LiveProjectLink
                 style={{
                   color: "#021A54",
                   fontWeight: "600",
@@ -478,8 +478,8 @@ function OverviewSection() {
                   textUnderlineOffset: "3px",
                 }}
               >
-                dev.flyconnect.co.uk
-              </a>
+                <LiveProjectHost />
+              </LiveProjectLink>
             </p>
           </div>
         </div>
@@ -2510,7 +2510,11 @@ function TheStackBehindFlyconnectSection() {
   );
 }
 
-function TestimonialSection() {
+/** Shown only when the team has picked a testimonial for Case Studies. */
+async function TestimonialSection() {
+  const { caseStudy } = await getSiteContent();
+  if (!caseStudy) return null;
+  const byline = testimonialByline(caseStudy);
   return (
     <section
       id="testimonial"
@@ -2531,7 +2535,7 @@ function TestimonialSection() {
             margin: "0 auto",
             maxWidth: "860px",
             padding: "clamp(28px, 4vw, 44px)",
-            border: "1px dashed #C8D3E3",
+            border: "1px solid #E8EDF4",
             borderRadius: "18px",
             background: "#FFFFFF",
             textAlign: "center",
@@ -2548,7 +2552,7 @@ function TestimonialSection() {
               color: "#23324F",
             }}
           >
-            “[Client testimonial about the FlyConnect project.]”
+            “{caseStudy.quote}”
           </blockquote>
           <figcaption
             style={{
@@ -2560,31 +2564,41 @@ function TestimonialSection() {
             }}
           >
             <span
+              aria-hidden="true"
               style={{
                 width: "44px",
                 height: "44px",
+                flex: "none",
                 borderRadius: "50%",
-                background: "#E8EDF4",
+                background: "#E3E9F5",
+                color: "#0C3584",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "14px",
+                fontWeight: "700",
               }}
-            />
-            <span style={{ fontSize: "14px", color: "#3E4C66" }}>
-              [Client name]
-              <br />
-              [Role, FlyConnect]
+            >
+              {initialsOf(caseStudy.name)}
+            </span>
+            <span
+              style={{ fontSize: "14px", lineHeight: "1.45", color: "#3E4C66" }}
+            >
+              <span
+                style={{
+                  display: "block",
+                  fontWeight: "700",
+                  color: "#021A54",
+                }}
+              >
+                {caseStudy.name}
+              </span>
+              {byline ? (
+                <span style={{ display: "block" }}>{byline}</span>
+              ) : null}
             </span>
           </figcaption>
         </figure>
-        <p
-          style={{
-            margin: "16px 0 0",
-            textAlign: "center",
-            fontSize: "14px",
-            color: "#5A6882",
-          }}
-        >
-          Placeholder content. Real quotes are added with the client’s
-          permission.
-        </p>
       </div>
     </section>
   );

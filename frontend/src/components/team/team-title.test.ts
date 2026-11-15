@@ -7,6 +7,7 @@ describe("the title in the team panel header", () => {
     expect(teamTitle("/team")).toBe("Dashboard");
     expect(teamTitle("/team/requests")).toBe("Support Requests");
     expect(teamTitle("/team/notifications")).toBe("Notifications");
+    expect(teamTitle("/team/website-content")).toBe("Website content");
   });
 
   test("website leads show the kind and code", () => {

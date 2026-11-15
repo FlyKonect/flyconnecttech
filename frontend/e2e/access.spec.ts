@@ -24,6 +24,7 @@ const PAGES = [
   "/team/leads/demos",
   "/team/leads/quotes",
   "/team/leads/messages",
+  "/team/website-content",
   "/team/reports",
   "/team/settings",
 ] as const;
@@ -93,6 +94,7 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
       "/team/leads/demos": "not found",
       "/team/leads/quotes": "not found",
       "/team/leads/messages": "not found",
+      "/team/website-content": "not found",
       "/team/reports": "not found",
       "/team/settings": "not found",
     },
@@ -104,6 +106,7 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
       "/team/customers/new": "not found",
       "/team/users": "not found",
       "/team/users/new": "not found",
+      "/team/website-content": "not found",
       "/team/settings": "not found",
     },
   ],

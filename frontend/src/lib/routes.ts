@@ -48,6 +48,7 @@ export const routes = {
   teamDemos: "/team/leads/demos",
   teamQuotes: "/team/leads/quotes",
   teamMessages: "/team/leads/messages",
+  teamWebsiteContent: "/team/website-content",
   teamCustomers: "/team/customers",
   teamCustomer: (id: string) => `/team/customers/${id}`,
   teamUsers: "/team/users",

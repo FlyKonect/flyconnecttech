@@ -8,10 +8,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { DemoButton } from "@/components/site/demo/demo-button";
+import { LiveProjectLink } from "@/components/site/live-project-link";
+import { TestimonialCard } from "@/components/site/testimonial-card";
 import { Faq } from "@/components/site/faq";
 import { QuoteForm } from "@/components/site/forms/quote-form";
 import { techStack } from "@/components/site/tech-stack";
 import { contactEmail, contactEmailHref } from "@/lib/contact";
+import { getSiteContent } from "@/lib/site-content-cache";
 import { routes } from "@/lib/routes";
 
 export function HomePage() {
@@ -2729,10 +2732,7 @@ function ACompleteTravelBookingSection() {
                   gap: "12px",
                 }}
               >
-                <a
-                  href="https://dev.flyconnect.co.uk"
-                  target="_blank"
-                  rel="noopener"
+                <LiveProjectLink
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -2763,7 +2763,7 @@ function ACompleteTravelBookingSection() {
                     <path d="M10 14 21 3" />
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                   </svg>
-                </a>
+                </LiveProjectLink>
                 <Link
                   href={routes.caseStudies}
                   style={{
@@ -3624,7 +3624,10 @@ function ATechnologyPartnerNotSection() {
   );
 }
 
-function WhatOurClientsSaySection() {
+/** Shown only when the team has added testimonials for Home (up to 3). */
+async function WhatOurClientsSaySection() {
+  const { home } = await getSiteContent();
+  if (home.length === 0) return null;
   return (
     <section id="testimonials" style={{ padding: "clamp(72px, 9vw, 120px) 0" }}>
       <div
@@ -3657,146 +3660,25 @@ function WhatOurClientsSaySection() {
           >
             What our clients say
           </h2>
-          <p style={{ margin: "14px 0 0", fontSize: "14px", color: "#5A6882" }}>
-            {
-              "Placeholder content. Real quotes are added with each client's permission."
-            }
-          </p>
         </div>
         <div
           style={{
-            marginTop: "48px",
+            // One or two quotes stay a comfortable width, centred.
+            maxWidth:
+              home.length === 1
+                ? "640px"
+                : home.length === 2
+                  ? "900px"
+                  : "none",
+            margin: "48px auto 0",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))",
             gap: "16px",
           }}
         >
-          <figure
-            style={{
-              margin: "0",
-              padding: "28px",
-              border: "1px dashed #C8D3E3",
-              borderRadius: "16px",
-              background: "#FFFFFF",
-            }}
-          >
-            <blockquote
-              style={{
-                margin: "0",
-                fontSize: "17px",
-                lineHeight: "1.6",
-                color: "#23324F",
-              }}
-            >
-              “[Client testimonial about the project and results.]”
-            </blockquote>
-            <figcaption
-              style={{
-                marginTop: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
-              <span
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "#E8EDF4",
-                }}
-              />
-              <span style={{ fontSize: "14px", color: "#3E4C66" }}>
-                [Client name]
-                <br />
-                [Role, Company]
-              </span>
-            </figcaption>
-          </figure>
-          <figure
-            style={{
-              margin: "0",
-              padding: "28px",
-              border: "1px dashed #C8D3E3",
-              borderRadius: "16px",
-              background: "#FFFFFF",
-            }}
-          >
-            <blockquote
-              style={{
-                margin: "0",
-                fontSize: "17px",
-                lineHeight: "1.6",
-                color: "#23324F",
-              }}
-            >
-              “[Client testimonial about the project and results.]”
-            </blockquote>
-            <figcaption
-              style={{
-                marginTop: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
-              <span
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "#E8EDF4",
-                }}
-              />
-              <span style={{ fontSize: "14px", color: "#3E4C66" }}>
-                [Client name]
-                <br />
-                [Role, Company]
-              </span>
-            </figcaption>
-          </figure>
-          <figure
-            style={{
-              margin: "0",
-              padding: "28px",
-              border: "1px dashed #C8D3E3",
-              borderRadius: "16px",
-              background: "#FFFFFF",
-            }}
-          >
-            <blockquote
-              style={{
-                margin: "0",
-                fontSize: "17px",
-                lineHeight: "1.6",
-                color: "#23324F",
-              }}
-            >
-              “[Client testimonial about the project and results.]”
-            </blockquote>
-            <figcaption
-              style={{
-                marginTop: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
-              <span
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "#E8EDF4",
-                }}
-              />
-              <span style={{ fontSize: "14px", color: "#3E4C66" }}>
-                [Client name]
-                <br />
-                [Role, Company]
-              </span>
-            </figcaption>
-          </figure>
+          {home.map((testimonial) => (
+            <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+          ))}
         </div>
       </div>
     </section>

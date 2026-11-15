@@ -441,3 +441,22 @@ export type AppSettings = {
     autoCloseResolvedAfter7Days: boolean;
   };
 };
+
+/** One testimonial on the Website content screen (GET /team/website). */
+export type TeamTestimonial = {
+  id: string;
+  quote: string;
+  name: string;
+  role: string | null;
+  company: string | null;
+  showOnHome: boolean;
+  showOnCaseStudy: boolean;
+  createdAt: string;
+  addedBy: string | null;
+};
+
+/** GET /team/website: the Website content screen. */
+export type WebsiteContentView = {
+  liveProjectUrl: string;
+  testimonials: TeamTestimonial[];
+};

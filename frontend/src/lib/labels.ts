@@ -315,6 +315,16 @@ export const notificationHeadings: Record<NotificationKind, string> = {
   lead: "Website",
 };
 
+// ---------------------------------------------------------- Website content
+
+/** Where a testimonial shows on the website (the Website content screen). */
+export type TestimonialPlace = "HOME" | "CASE_STUDY";
+
+export const testimonialPlaces: Record<TestimonialPlace, WithTone> = {
+  HOME: { label: "Home", tone: BLUE },
+  CASE_STUDY: { label: "Case Studies", tone: VIOLET },
+};
+
 // ------------------------------------------------------------- Pill lookup
 
 /** Every group that is shown as a coloured pill. */
@@ -328,6 +338,7 @@ export const pillGroups = {
   demoStatus: demoStatuses,
   quoteStatus: quoteStatuses,
   contactStatus: contactStatuses,
+  testimonialPlace: testimonialPlaces,
 } as const;
 
 export type PillGroup = keyof typeof pillGroups;

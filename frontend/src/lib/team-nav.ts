@@ -20,6 +20,7 @@ export type TeamNavKey =
   | "demos"
   | "quotes"
   | "messages"
+  | "websiteContent"
   | "customers"
   | "users"
   | "reports"
@@ -119,6 +120,16 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
           href: routes.teamMessages,
           number: "badge",
         },
+        // Testimonials and the live-project link: super admins and admins.
+        ...(canSeeUsers
+          ? [
+              {
+                key: "websiteContent",
+                label: "Website content",
+                href: routes.teamWebsiteContent,
+              } satisfies TeamNavItem,
+            ]
+          : []),
       ],
     });
   }

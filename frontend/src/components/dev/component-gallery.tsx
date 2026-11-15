@@ -101,6 +101,7 @@ const pillGroupTitles: Record<PillGroup, string> = {
   quoteStatus: "Quote requests",
   contactStatus: "Messages",
   sla: "SLA",
+  testimonialPlace: "Testimonial shows on",
 };
 
 export function ComponentGallery() {
