@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,30 +16,32 @@ import type {
 import { NotificationsService } from '../notifications/notifications.service.js';
 import { customerScope } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import type { ResponseTargets } from '../settings/defaults.js';
 import { SettingsService } from '../settings/settings.service.js';
 import {
   FileStorageService,
-  type CheckedFile,
   type UploadedFile,
 } from '../uploads/file-storage.service.js';
 import { RequestEventsService } from './request-events.service.js';
+import {
+  ALL_STATUSES,
+  changedMeanwhile,
+  countOf,
+  moveStatus,
+  REQUEST_TX,
+  requestNotFound,
+  saveFiles,
+  stateSelect,
+  type RequestState,
+} from './request-writes.js';
 import { dueTime } from './sla.js';
 import {
   CUSTOMER_ACTIONS,
   CUSTOMER_REPLIED_LINE,
   customerActionsFor,
   PORTAL_TABS,
-  statusChangeFields,
   type CustomerAction,
   type PortalTab,
 } from './status-rules.js';
-
-/**
- * Two people can create requests at the same moment; the lighter locking
- * keeps them from blocking each other (see ACCOUNT_TX in accounts/).
- */
-const REQUEST_TX = { isolationLevel: 'ReadCommitted' } as const;
 
 /** The only messages a customer ever sees. Internal notes never. */
 const CUSTOMER_VISIBLE: MessageKind[] = [
@@ -64,18 +65,6 @@ const rowSelect = {
   updatedAt: true,
   project: { select: { code: true, name: true } },
   assignee: { select: { name: true } },
-} satisfies Prisma.SupportRequestSelect;
-
-const eventSelect = {
-  id: true,
-  code: true,
-  title: true,
-  priority: true,
-  status: true,
-  assigneeId: true,
-  customerId: true,
-  dueAt: true,
-  slaPausedAt: true,
 } satisfies Prisma.SupportRequestSelect;
 
 export type NewRequest = {
@@ -113,17 +102,13 @@ export class RequestsService {
       }),
       this.notifications.unreadCount(actor.id),
     ]);
-    const count = (...statuses: RequestStatus[]) =>
-      groups
-        .filter((group) => statuses.includes(group.status))
-        .reduce((sum, group) => sum + group._count._all, 0);
     return {
       requests: {
-        total: count(...Object.values(STATUSES)),
-        open: count('SUBMITTED', 'UNDER_REVIEW'),
-        inProgress: count('IN_PROGRESS'),
-        waiting: count('WAITING_FOR_CUSTOMER'),
-        resolved: count('RESOLVED', 'CLOSED'),
+        total: countOf(groups, ...ALL_STATUSES),
+        open: countOf(groups, 'SUBMITTED', 'UNDER_REVIEW'),
+        inProgress: countOf(groups, 'IN_PROGRESS'),
+        waiting: countOf(groups, 'WAITING_FOR_CUSTOMER'),
+        resolved: countOf(groups, 'RESOLVED', 'CLOSED'),
       },
       unreadNotifications,
     };
@@ -174,10 +159,7 @@ export class RequestsService {
     const tabs = Object.fromEntries(
       (Object.keys(PORTAL_TABS) as PortalTab[]).map((tab) => {
         const inTab = PORTAL_TABS[tab] as readonly RequestStatus[] | null;
-        const total = groups
-          .filter((group) => !inTab || inTab.includes(group.status))
-          .reduce((sum, group) => sum + group._count._all, 0);
-        return [tab, total];
+        return [tab, countOf(groups, ...(inTab ?? ALL_STATUSES))];
       }),
     ) as Record<PortalTab, number>;
     return { tabs, rows };
@@ -187,7 +169,7 @@ export class RequestsService {
   async create(actor: SignedIn, input: NewRequest, files: UploadedFile[]) {
     const project = await this.prisma.project.findFirst({
       where: { id: input.projectId, ...customerScope(actor) },
-      select: { id: true, name: true },
+      select: { id: true, name: true, customer: { select: { company: true } } },
     });
     if (!project) {
       throw new NotFoundException({
@@ -200,10 +182,9 @@ export class RequestsService {
     const id = randomUUID();
     const keys = await this.storage.keep(checked, id);
     const targets = await this.settings.get('responseTargets');
+    const company = project.customer.company;
 
-    let request: Prisma.SupportRequestGetPayload<{
-      select: typeof eventSelect;
-    }>;
+    let request: RequestState;
     try {
       request = await this.prisma.$transaction(async (tx) => {
         const now = new Date();
@@ -222,7 +203,7 @@ export class RequestsService {
             dueAt: dueTime(now, input.priority, targets),
             createdAt: now,
           },
-          select: eventSelect,
+          select: stateSelect,
         });
         await tx.requestStatusChange.create({
           data: {
@@ -233,8 +214,8 @@ export class RequestsService {
             createdAt: now,
           },
         });
-        await this.saveFiles(tx, checked, keys, id, actor.id, null);
-        await this.events.created(tx, created, actor.id);
+        await saveFiles(tx, checked, keys, id, actor.id, null);
+        await this.events.created(tx, created, actor.id, company);
         return created;
       }, REQUEST_TX);
     } catch (error) {
@@ -242,13 +223,16 @@ export class RequestsService {
       throw error;
     }
 
-    await this.events.emailRequestReceived({
+    const details = {
       ...request,
       description: input.description,
       type: input.type,
       projectName: project.name,
+      company,
       fileCount: checked.length,
-    });
+    };
+    await this.events.emailRequestReceived(details);
+    if (request.priority === 'URGENT') await this.events.emailUrgent(details);
     return { code: request.code };
   }
 
@@ -296,7 +280,7 @@ export class RequestsService {
         },
       },
     });
-    if (!request) throw notFound();
+    if (!request) throw requestNotFound();
 
     const { messages, attachments, statusChanges, ...rest } = request;
     return {
@@ -342,8 +326,9 @@ export class RequestsService {
     const keys = await this.storage.keep(checked, request.id);
     const targets = await this.settings.get('responseTargets');
 
+    let current: RequestState;
     try {
-      await this.prisma.$transaction(async (tx) => {
+      current = await this.prisma.$transaction(async (tx) => {
         const now = new Date();
         const message = await tx.requestMessage.create({
           data: {
@@ -354,22 +339,15 @@ export class RequestsService {
             createdAt: now,
           },
         });
-        await this.saveFiles(
-          tx,
-          checked,
-          keys,
-          request.id,
-          actor.id,
-          message.id,
-        );
+        await saveFiles(tx, checked, keys, request.id, actor.id, message.id);
 
-        const current = await tx.supportRequest.findUniqueOrThrow({
+        const fresh = await tx.supportRequest.findUniqueOrThrow({
           where: { id: request.id },
-          select: eventSelect,
+          select: stateSelect,
         });
         const woken =
-          current.status === 'WAITING_FOR_CUSTOMER' &&
-          (await this.changeStatus(tx, current, 'IN_PROGRESS', {
+          fresh.status === 'WAITING_FOR_CUSTOMER' &&
+          (await moveStatus(tx, fresh, 'IN_PROGRESS', {
             actorId: actor.id,
             line: CUSTOMER_REPLIED_LINE,
             now: new Date(now.getTime() + 1),
@@ -383,14 +361,16 @@ export class RequestsService {
         }
         await this.events.customerActivity(
           tx,
-          current,
-          `${actor.name} replied on ${current.code}`,
+          fresh,
+          `${actor.name} replied on ${fresh.code}`,
         );
+        return fresh;
       }, REQUEST_TX);
     } catch (error) {
       await this.storage.remove(keys);
       throw error;
     }
+    await this.events.emailCustomerReplied(current, actor.name, text);
     return { ok: true };
   }
 
@@ -402,7 +382,7 @@ export class RequestsService {
     const targets = await this.settings.get('responseTargets');
 
     await this.prisma.$transaction(async (tx) => {
-      const changed = await this.changeStatus(tx, request, rule.to, {
+      const changed = await moveStatus(tx, request, rule.to, {
         actorId: actor.id,
         line: rule.line(actor.name),
         now: new Date(),
@@ -430,114 +410,16 @@ export class RequestsService {
         storageKey: true,
       },
     });
-    if (!file) throw notFound();
+    if (!file) throw requestNotFound();
     return { ...file, stream: this.storage.read(file.storageKey) };
   }
-
-  // ------------------------------------------------------------ helpers
 
   private async findOwn(actor: SignedIn, code: string) {
     const request = await this.prisma.supportRequest.findFirst({
       where: { code, ...customerScope(actor) },
-      select: eventSelect,
+      select: stateSelect,
     });
-    if (!request) throw notFound();
+    if (!request) throw requestNotFound();
     return request;
   }
-
-  /**
-   * Moves the request to a new status if nobody changed it meanwhile, with
-   * its status history row and the line in the conversation.
-   * Returns false if the status had already changed.
-   */
-  private async changeStatus(
-    tx: Prisma.TransactionClient,
-    request: Prisma.SupportRequestGetPayload<{ select: typeof eventSelect }>,
-    to: RequestStatus,
-    options: {
-      actorId: string;
-      line: string;
-      now: Date;
-      targets: ResponseTargets;
-    },
-  ): Promise<boolean> {
-    const fields = statusChangeFields({
-      from: request.status,
-      to,
-      now: options.now,
-      priority: request.priority,
-      dueAt: request.dueAt,
-      slaPausedAt: request.slaPausedAt,
-      targets: options.targets,
-    });
-    const moved = await tx.supportRequest.updateMany({
-      where: { id: request.id, status: request.status },
-      data: { ...fields, updatedAt: options.now },
-    });
-    if (moved.count !== 1) return false;
-    await tx.requestStatusChange.create({
-      data: {
-        requestId: request.id,
-        from: request.status,
-        to,
-        byId: options.actorId,
-        createdAt: options.now,
-      },
-    });
-    await tx.requestMessage.create({
-      data: {
-        requestId: request.id,
-        authorId: null,
-        kind: 'SYSTEM',
-        body: options.line,
-        createdAt: options.now,
-      },
-    });
-    return true;
-  }
-
-  private async saveFiles(
-    tx: Prisma.TransactionClient,
-    files: CheckedFile[],
-    keys: string[],
-    requestId: string,
-    uploadedById: string,
-    messageId: string | null,
-  ) {
-    if (!files.length) return;
-    await tx.attachment.createMany({
-      data: files.map((file, i) => ({
-        requestId,
-        messageId,
-        fileName: file.fileName,
-        contentType: file.contentType,
-        size: file.size,
-        storageKey: keys[i],
-        uploadedById,
-      })),
-    });
-  }
-}
-
-const STATUSES: Record<RequestStatus, RequestStatus> = {
-  SUBMITTED: 'SUBMITTED',
-  UNDER_REVIEW: 'UNDER_REVIEW',
-  IN_PROGRESS: 'IN_PROGRESS',
-  WAITING_FOR_CUSTOMER: 'WAITING_FOR_CUSTOMER',
-  RESOLVED: 'RESOLVED',
-  CLOSED: 'CLOSED',
-};
-
-function notFound() {
-  return new NotFoundException({
-    code: 'NOT_FOUND',
-    message: 'We could not find that request.',
-  });
-}
-
-function changedMeanwhile() {
-  return new ConflictException({
-    code: 'STATUS_CHANGED',
-    message: 'This request has changed. Refresh the page and try again.',
-  });
 }

@@ -10,6 +10,9 @@ import { MAX_FILE_BYTES, MAX_FILES } from '../uploads/upload-rules.js';
 import { PortalRequestsController } from './portal-requests.controller.js';
 import { RequestEventsService } from './request-events.service.js';
 import { RequestsService } from './requests.service.js';
+import { TeamDashboardService } from './team-dashboard.service.js';
+import { TeamRequestsController } from './team-requests.controller.js';
+import { TeamRequestsService } from './team-requests.service.js';
 
 @Module({
   imports: [
@@ -33,8 +36,13 @@ import { RequestsService } from './requests.service.js';
       },
     }),
   ],
-  controllers: [PortalRequestsController],
-  providers: [RequestsService, RequestEventsService],
+  controllers: [PortalRequestsController, TeamRequestsController],
+  providers: [
+    RequestsService,
+    RequestEventsService,
+    TeamRequestsService,
+    TeamDashboardService,
+  ],
   exports: [RequestEventsService],
 })
 export class RequestsModule {}

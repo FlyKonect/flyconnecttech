@@ -13,6 +13,14 @@ import {
   statusChangedSubject,
 } from '../email/templates/status-changed.js';
 import {
+  assignedSubject,
+  CustomerRepliedEmail,
+  customerRepliedSubject,
+  RequestAssignedEmail,
+  UrgentRequestEmail,
+  urgentSubject,
+} from '../email/templates/team-request.js';
+import {
   TeamReplyEmail,
   teamReplySubject,
 } from '../email/templates/team-reply.js';
@@ -25,6 +33,7 @@ import type {
 } from '../generated/prisma/client.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { SettingsService } from '../settings/settings.service.js';
 import { PRIORITY_LABELS, TYPE_LABELS } from './labels.js';
 
 /** What the events need to know about a request. */
@@ -63,6 +72,7 @@ export class RequestEventsService {
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
     private readonly email: EmailService,
+    private readonly settings: SettingsService,
     config: ConfigService<Env, true>,
   ) {
     this.siteUrl = config.get('FRONTEND_URL').replace(/\/$/, '');
@@ -75,6 +85,7 @@ export class RequestEventsService {
     tx: Prisma.TransactionClient,
     request: EventRequest,
     customerUserId: string,
+    company: string,
   ): Promise<void> {
     await this.notifications.notify(
       [customerUserId],
@@ -94,9 +105,32 @@ export class RequestEventsService {
     });
     await this.notifications.notify(
       team.map((person) => person.id),
+      request.priority === 'URGENT'
+        ? {
+            kind: 'urgent',
+            text: urgentSubject(request.code, company),
+            href: teamRequestHref(request.code),
+          }
+        : {
+            kind: 'new',
+            text: `New support request ${request.code} · ${PRIORITY_LABELS[request.priority]}`,
+            href: teamRequestHref(request.code),
+          },
+      tx,
+    );
+  }
+
+  /** A request was assigned (or transferred) to a developer. */
+  async assigned(
+    tx: Prisma.TransactionClient,
+    request: EventRequest,
+    developer: { id: string; name: string },
+  ): Promise<void> {
+    await this.notifications.notify(
+      [developer.id],
       {
-        kind: request.priority === 'URGENT' ? 'urgent' : 'new',
-        text: `New support request ${request.code} · ${PRIORITY_LABELS[request.priority]}`,
+        kind: 'review',
+        text: `${request.code} was assigned to ${developer.name}`,
         href: teamRequestHref(request.code),
       },
       tx,
@@ -247,7 +281,111 @@ export class RequestEventsService {
     );
   }
 
+  /** The developer a request was assigned or transferred to. Always sent. */
+  async emailAssigned(
+    request: EventRequest,
+    developer: { name: string; email: string },
+    assignedBy: string,
+  ): Promise<boolean> {
+    const context = await this.teamContext(request);
+    if (!context) return false;
+    return this.send(
+      developer.email,
+      assignedSubject(request.code),
+      <RequestAssignedEmail
+        {...context}
+        firstName={firstName(developer.name)}
+        assignedBy={assignedBy}
+      />,
+    );
+  }
+
+  /**
+   * The customer replied: the assigned developer gets an email, if the
+   * setting "Notify the assigned developer when a customer replies" is on.
+   */
+  async emailCustomerReplied(
+    request: EventRequest,
+    customerName: string,
+    body: string,
+  ): Promise<boolean> {
+    if (!request.assigneeId) return false;
+    const { notifyAssigneeOnReply } =
+      await this.settings.get('teamNotifications');
+    if (!notifyAssigneeOnReply) return false;
+    const developer = await this.prisma.user.findFirst({
+      where: { id: request.assigneeId, status: 'ACTIVE' },
+      select: { name: true, email: true },
+    });
+    const context = await this.teamContext(request);
+    if (!developer || !context) return false;
+    return this.send(
+      developer.email,
+      customerRepliedSubject(customerName, request.code),
+      <CustomerRepliedEmail
+        {...context}
+        firstName={firstName(developer.name)}
+        customerName={customerName}
+        body={body}
+      />,
+    );
+  }
+
+  /**
+   * A new Urgent request: super admins and admins get an email, if the
+   * setting "Alert all admins about new Urgent requests" is on.
+   */
+  async emailUrgent(
+    request: EventRequest & { description: string },
+  ): Promise<number> {
+    const { urgentAlert } = await this.settings.get('teamNotifications');
+    if (!urgentAlert) return 0;
+    const [admins, context] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { role: { in: ['SUPER_ADMIN', 'ADMIN'] }, status: 'ACTIVE' },
+        select: { name: true, email: true },
+      }),
+      this.teamContext(request),
+    ]);
+    if (!context) return 0;
+    let sent = 0;
+    for (const admin of admins) {
+      const ok = await this.send(
+        admin.email,
+        urgentSubject(request.code, context.company),
+        <UrgentRequestEmail
+          {...context}
+          firstName={firstName(admin.name)}
+          description={request.description}
+        />,
+      );
+      if (ok) sent += 1;
+    }
+    return sent;
+  }
+
   // ------------------------------------------------------------ helpers
+
+  /** What the team's emails show about a request. */
+  private async teamContext(request: EventRequest) {
+    const found = await this.prisma.supportRequest.findUnique({
+      where: { id: request.id },
+      select: {
+        project: { select: { name: true } },
+        customer: { select: { company: true } },
+      },
+    });
+    if (!found) return null;
+    return {
+      siteUrl: this.siteUrl,
+      code: request.code,
+      title: request.title,
+      company: found.customer.company,
+      projectName: found.project.name,
+      priorityLabel: PRIORITY_LABELS[request.priority],
+      link: `${this.siteUrl}${teamRequestHref(request.code)}`,
+    };
+  }
 
   /** The customer's contact person, if their account is active. */
   private async contact(
