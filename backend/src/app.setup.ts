@@ -5,6 +5,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { AUTH } from './auth/auth.constants.js';
 import { AUTH_BASE_PATH, type Auth } from './auth/auth.js';
 import type { Env } from './config/env.js';
+import { securityHeaders } from './security/security-headers.js';
 
 /**
  * Settings shared by the real server and the whole-app tests, so the tests
@@ -18,16 +19,20 @@ export function configureApp(app: NestExpressApplication): void {
   // the visitor's real address (used by the request limits).
   if (config.get('TRUST_PROXY')) app.set('trust proxy', 1);
 
+  // Security headers on every answer, and no "X-Powered-By: Express".
+  const express = app.getHttpAdapter().getInstance();
+  express.disable('x-powered-by');
+  app.use(
+    securityHeaders({ production: config.get('NODE_ENV') === 'production' }),
+  );
+
   // Only the website may call the backend from a browser, with its cookies.
   app.enableCors({ origin: config.get('FRONTEND_URL'), credentials: true });
 
   // Better Auth reads the raw request itself, so its routes are mounted
   // before the body readers that every other route uses.
   const auth = app.get<Auth>(AUTH);
-  app
-    .getHttpAdapter()
-    .getInstance()
-    .all(`${AUTH_BASE_PATH}/{*path}`, toNodeHandler(auth));
+  express.all(`${AUTH_BASE_PATH}/{*path}`, toNodeHandler(auth));
   app.useBodyParser('json', { limit: '1mb' });
   app.useBodyParser('urlencoded', { extended: false, limit: '1mb' });
 
