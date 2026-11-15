@@ -57,7 +57,9 @@ test("a customer sends a request in four steps, with a file", async ({
   // A new customer's Overview.
   await page.goto("/portal");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(", Test");
-  await expect(page.getByText("No requests need your response.")).toBeVisible();
+  await expect(
+    page.getByText("No requests need your response.").filter({ visible: true }),
+  ).toBeVisible();
   await page
     .getByRole("main")
     .getByRole("link", { name: "Create support request" })
