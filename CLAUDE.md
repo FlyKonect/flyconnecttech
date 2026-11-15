@@ -91,7 +91,7 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed), including `test/security.e2e-spec.ts`: the security headers, and that every route needs a sign-in except the listed public ones (a new `@Public()` route must be added to that list)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active), website leads (the public forms, demos, quotes, messages, owners, convert), the scheduled jobs (daily digest, auto-close, weekly summary), and reports and settings (every number from known requests; saving targets changes the next due time)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active), website leads (the public forms, demos, quotes, messages, owners, convert), the scheduled jobs (daily digest, auto-close, weekly summary), reports and settings (every number from known requests; saving targets changes the next due time), and website content (testimonials and the live-project link: who may change them, what the website gets, audits)
 - `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 14)
 - `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 14)
 - `npm run job -- daily-digest` (or `auto-close`, `weekly-summary`): run a scheduled job now, against your own database and Mailpit. Live, cPanel Cron runs `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 15). Each run prints one line with the time and what it did.
@@ -116,6 +116,11 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/team/forms.ts`: the Add customer, Add project and Add user rules, with the design's error wording
 - `frontend/src/lib/team/leads.ts`: a lead page's words and rules from the design: banners, fact tiles, suggested emails, "How this works" and the buttons for each status
 - `frontend/src/lib/team/targets.ts`: response targets in words ("4 hours", "1 business day") and their saved short form ("4h", "1bd")
+- `frontend/src/lib/team/website-content.ts`: the Website content screen's rules and words (kept in step with the backend's `website-rules.ts`); the screen is `components/team/website-content.tsx`, its page `app/team/(app)/website-content/` with the `refreshWebsite()` server action
+- `frontend/src/lib/site-content.ts`: what the public website shows from Website content (types, checks, fallback); `site-content-cache.ts` has `getSiteContent()`, the cached copy the pages read
+- `frontend/src/lib/contact.ts`: the public email (hello@flyconnecttech.co.uk) and the LinkedIn and Instagram addresses
+- `frontend/src/components/site/live-project-link.tsx`: every "View live project" link (the saved address); `testimonial-card.tsx`: one Home testimonial
+- `frontend/src/components/site/pages/legal.tsx`: the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`)
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
@@ -144,6 +149,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
 - `backend/src/settings/`: `settings.service.ts` reads a setting (falling back to `defaults.ts`) and saves them; `settings.controller.ts` is the Settings screen's `/team/settings`; `settings.module.ts` makes it global
 - `backend/src/reports/`: Reports & Analytics (`/team/reports`); the sums and their words are in `report-math.ts`
+- `backend/src/website/`: Website content: the team routes (`/team/website`, `team-website.controller.ts`), the public `GET /website` (`website.controller.ts`), the rules (`website-rules.ts`) and `website.service.ts`
 - `backend/src/time/uk-time.ts`: UK wall-clock time (business days, demo slots)
 - `backend/src/jobs/`: the scheduled jobs (`jobs.service.tsx`: daily digest, auto-close, weekly summary) and their wording (`job-words.ts`)
 - `backend/src/email/previews.tsx`: every email with sample content, grouped by the docs/01 §7 rows; served by `dev-emails.controller.ts` at `/dev/emails` outside production. Add a new email here too (a unit test checks every row has one).
@@ -175,12 +181,12 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
   - `waitForEmail()` also lists an email's attachments (the demo invite's `invite.ics`).
   - A test that books a demo and confirms it takes that time in the test database until it is completed: pick a time no other test uses (the website test uses the first day at 14:00; the leads test the last day).
   - The test database keeps every run's data, and every test person has the same name ("Test developer"): pick by role or code, not by position in a list.
-  - `journey.spec.ts` is the main journey (demo → customer → request → assigned → resolved → confirmed); `access.spec.ts` checks which pages each role reaches; `a11y.spec.ts` runs axe on every screen (serious and critical findings fail) and the keyboard checks of dialogs and menus. `createPerson(role, name)` takes a name when a test must pick that person out of a list.
+  - `journey.spec.ts` is the main journey (demo → customer → request → assigned → resolved → confirmed); `access.spec.ts` checks which pages each role reaches; `website-content.spec.ts` goes from the team screen to the website; `a11y.spec.ts` runs axe on every screen (serious and critical findings fail) and the keyboard checks of dialogs and menus. `createPerson(role, name)` takes a name when a test must pick that person out of a list.
   - Next.js keeps pages you left in the page, hidden. Pick fields with the visible-only `field()` helper and form errors by `[data-slot=form-error]`, as in `e2e/accounts.spec.ts`, or a test finds two matches.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
 ## Database
-- **Schema:** `backend/prisma/schema.prisma`, built from docs/02. 21 tables with plain plural names (`support_requests`). Change it with `npm run db:migrate`, which writes a new migration under `backend/prisma/migrations/`. Never edit a migration that is already committed.
+- **Schema:** `backend/prisma/schema.prisma`, built from docs/02. 22 tables with plain plural names (`support_requests`). Change it with `npm run db:migrate`, which writes a new migration under `backend/prisma/migrations/`. Never edit a migration that is already committed.
 - **No sample data.** The owner decided against loading `design/sample-data.json`. Data comes from real use; the seed only adds the default settings.
 - **Settings:** defaults live in `backend/src/settings/defaults.ts`. The live hosting does not run the seed, so code that reads a setting must fall back to these defaults when its row is missing. Super admins change them on the Settings screen.
 - **Readable codes:** always `nextCode(tx, kind)` from `backend/src/codes/readable-codes.ts`, inside the same transaction that creates the record. Numbers start at 1 (TKT-2026-00001, P-0001).
@@ -209,6 +215,12 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
   - **Requests this week:** sent each day, Monday to Sunday (UK). **Requests by project:** the six projects with the most requests, all time. **Developer performance:** each active developer's requests sent this month, resolved this month and average first response this month.
   - The backend sends the words; a change for the better shows green, for the worse red.
 - **Settings** (`/team/settings`, `settings.manage`: super admins only): the four response targets and the four switches, saved together. Targets are checked with the SLA's own `parseTarget()`, up to 30 business days. Each setting that changed gets a `settings.changed` audit entry with the old and new value. **New targets apply to new requests and to priority changes; requests already open keep their due time.**
+
+## Website content (backend and website)
+- **Who:** `website.manage`: super admins and admins (the Website content screen, `/team/website-content`).
+- **Testimonials:** the `testimonials` table. Home shows the 3 newest with `showOnHome`; Case Studies the newest with `showOnCaseStudy`. Each section is hidden while it has none. Add, change and remove each get an audit entry (`testimonial.*`).
+- **Live-project link:** the `website` setting (default `https://dev.flyconnect.co.uk`, `defaultWebsite` in `settings/defaults.ts`), saved with `SettingsService.saveWebsite()` and a `settings.changed` audit entry. Only full `https://`/`http://` addresses.
+- **The website reads** `GET /website` (public) through `getSiteContent()`: `'use cache'` with the tag `site-content` and `cacheLife('minutes')`, so pages stay pre-built and refresh at least every minute. After a save the screen calls `refreshWebsite()` (`updateTag`), so the change shows at once. If the backend can't be reached (for example the GitHub build), pages use the default link and no testimonials.
 
 ## Notifications and emails (backend)
 Every row of docs/01 §7, where it is sent from, what it follows, and where it is tested. In-app notifications are written inside the change's transaction; emails go after it and a failed email never undoes the change. SA, A, M = active super admins, admins, managers.
@@ -283,7 +295,7 @@ Every row of docs/01 §7, where it is sent from, what it follows, and where it i
   - Customers see only their own requests and projects.
   - Internal notes never reach customers: not in pages, not in emails, not in API responses.
 - **Invite-only.** Invitation and reset links are single-use, stored hashed, and expire after 48 hours.
-- **Placeholders stay placeholders** until the client provides them: `[X business days]`, the WhatsApp number, `hello@yourdomain.com`, testimonials, team photos, screenshots.
+- **No placeholder text on the website.** The client supplied: reply time "1 business day", hello@flyconnecttech.co.uk, LinkedIn and Instagram (flyconnecttech), and no WhatsApp number. Testimonials come from the Website content screen. Parts still waiting for content (team members and photos, screenshots, further case studies) are hidden, not shown as "[…]"; add them back when the client provides them.
 - **Content facts.** Amadeus and Stripe are in production on FlyConnect. Sabre is only a service we offer. No fake testimonials, no lorem ipsum.
 - **Time.** Store UTC. Show demo times in UK time (Europe/London), as the website shows them to visitors.
 - **Readable codes** next to UUIDs: `TKT-YYYY-NNNNN` (requests), `DEM-YYYY-NNN`, `QUO-YYYY-NNN`, `MSG-YYYY-NNN` (leads), `P-NNNN` (projects).

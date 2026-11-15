@@ -17,6 +17,7 @@ Screenshots are in `design/screens/`. Codes like `TKT-2026-00118` appear in URLs
 | 09 | About Us | `/about` | `09-about-us-*` |
 | 10 | Contact & Quote | `/contact` (`#form` opens the quote tab) | `10-contact-quote-*` |
 | 11 | Support | `/support` | `11-support-*` |
+| — | Privacy policy, Terms of use, Cookie policy | `/privacy`, `/terms`, `/cookies` | none (in the Support page's style) |
 
 Dialogs and form states (there is no separate route for these):
 
@@ -79,6 +80,7 @@ Dialogs and form states (there is no separate route for these):
 | 40 | Messages | `/team/leads/messages` | `40-messages.jpg` |
 | 41 | Message details | `/team/leads/messages/[code]` | `41-message-details.jpg` |
 | 42 | Convert lead to customer | `/team/customers/new?from=QUO-2026-040` | `42-convert-lead-to-customer.jpg` |
+| — | Website content (Super admin, Admin): testimonials and the live-project link | `/team/website-content` | none (built from the Settings and Users screens' parts) |
 
 ## Not part of the product
 - **The design's "VIEW AS" switcher** (Customer / Super admin / Admin / Manager / Developer) is a prototype control and is hidden in these screenshots. Don't build it. For development, a seeded user per role is enough. If you want a dev-only role switcher, keep it behind `NODE_ENV=development`.

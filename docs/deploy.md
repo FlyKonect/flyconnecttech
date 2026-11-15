@@ -382,11 +382,10 @@ Three settings on your domain tell other mail servers that Krystal may send emai
 - [ ] Add one test customer (Customers > + Add customer), open their invitation, send a support request from the portal, and reply from the team panel. Then disable that test customer on the customer's page.
 - [ ] The scheduled jobs are in cPanel Cron, and `jobs.log` gets new lines each day (Step 15).
 - [ ] Settings (team panel) has the response times and notifications you want.
-- [ ] These placeholders on the website are replaced with your real details. They are in the website's pages, so they need a code change: ask Claude.
-  - the email address `hello@yourdomain.com` shown on the website;
-  - the WhatsApp number;
-  - `[X business days]`;
-  - the testimonials, team photos and product screenshots.
+- [ ] The mailbox `hello@flyconnecttech.co.uk` exists (cPanel > Email Accounts): the website shows it to visitors.
+- [ ] Team panel > **Website content**: the live-project link is right, and you have added any client testimonials you have permission to show (Home and Case Studies hide that part until you do).
+- [ ] Someone has checked the texts of the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`).
+- [ ] Still hidden until you have them (ask Claude to add them): team members and photos (About), product screenshots, further case studies.
 
 ## Everyday use
 

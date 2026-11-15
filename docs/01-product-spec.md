@@ -2,7 +2,7 @@
 
 Northstack designs, develops and integrates digital products, with travel technology as its specialty. This app is its public website, a client portal for support, and a team panel for staff. Screenshots for everything below are in `design/screens/`; see `05-screens-and-routes.md` for the mapping.
 
-Copy rule: use the wording from the design files (`design/source/`). Bracketed text such as `[X business days]` is a placeholder for the client to fill. Keep it visible until it is replaced.
+Copy rule: use the wording from the design files (`design/source/`). Bracketed text such as `[X business days]` was a placeholder for the client to fill. The client has supplied the reply time, the email address and the social links. Parts still waiting for real content are hidden from visitors (see §9), never shown as placeholders.
 
 ---
 
@@ -35,6 +35,7 @@ Each project belongs to exactly one customer.
 | Convert a lead to a customer | Yes | Yes | No | No |
 | Reports and analytics | Yes | Yes | Yes | No |
 | Settings | Yes | No | No | No |
+| Website content (testimonials, live-project link) | Yes | Yes | No | No |
 
 Customers see only their own projects, requests, notifications and profile. Internal notes are never shown or sent to customers.
 
@@ -55,13 +56,14 @@ Customers see only their own projects, requests, notifications and profile. Inte
   - A row of two buttons under the header: Get a quote and Book a demo.
 - **Footer (navy):**
   - Logo and the line "We design, develop & integrate digital solutions that grow your business."
-  - Social buttons, as placeholders.
+  - Social buttons: LinkedIn (linkedin.com/company/flyconnecttech) and Instagram (instagram.com/flyconnecttech), opening in a new tab, and Email (hello@flyconnecttech.co.uk).
   - Columns:
     - Solutions: Ready-made products, Custom software, API integrations.
     - Services: Travel technology, Website development, UI/UX design, All services.
     - Company: About, Case studies, Contact.
     - Clients: Support, Client login, Open my invitation.
-  - Bottom line: "© 2026 Northstack. All rights reserved." and "Privacy · Terms · Cookies". These pages aren't designed yet, so leave them as text until the client provides the content.
+  - Bottom line: "© 2026 Northstack. All rights reserved." and the links Privacy · Terms · Cookies.
+- **Privacy, Terms and Cookies** (`/privacy`, `/terms`, `/cookies`): not in the design, so they follow the Support page's style (navy top band with breadcrumb, then text). Written from what the site really does: the three forms, client portal accounts, and only the sign-in cookies (no analytics or advertising, so no cookie banner). "FlyConnect Tech" and hello@flyconnecttech.co.uk as the contact. The client should have the texts checked.
 - **Inner pages:** breadcrumbs, a navy hero with the route-map art (`design/assets/route-map.svg`), a closing navy call-to-action band (Get a quote and Book a demo), and accordion FAQs (one open at a time, the first open at start).
 
 ### Pages
@@ -81,7 +83,7 @@ Build the content from `design/source/website-*.dc.html`; the screenshots are in
 
 Notes:
 - **Contact & Quote:**
-  - Contact options: WhatsApp, Email, Book a demo, Response time, and "Already a client?" linking to Client login.
+  - Contact options: Email (hello@flyconnecttech.co.uk), Book a demo, Response time ("Within 1 business day, Monday to Friday"), and "Already a client?" linking to Client login. No WhatsApp: the client decided against showing a number.
   - A card with two tabs, **Get a quote** (full form) and **Send a message**.
   - What happens next, and FAQs.
 - **Support:**
@@ -108,12 +110,12 @@ On submit, create a **Demo request**: status New, page of origin recorded. Email
 
 ### Get a quote
 - **Short form** (Home): Project type, Budget range, Full name*, Work email*, Requirements*.
-- **Full form** (Contact): the same fields plus Timeline, Company (optional), Phone or WhatsApp (optional).
+- **Full form** (Contact): the same fields plus Timeline, Company (optional), Phone (optional).
 - **Options:**
   - Project type: Travel booking platform, Amadeus / Sabre integration, New website, Website redesign, Custom software, UI/UX design, API integration, Other.
   - Budget: Under $5k, $5k – $15k, $15k – $50k, $50k+, Not sure yet.
   - Timeline: As soon as possible, Within 1–3 months, Within 3–6 months, Not sure yet.
-- **Success state:** "Thanks, {first}. Your request is in. We will reply to {email} within [X business days] with next steps, a rough scope and an estimate." Then a summary, "Send another request" and "Book a demo".
+- **Success state:** "Thanks, {first}. Your request is in. We will reply to {email} within 1 business day with next steps, a rough scope and an estimate." Then a summary, "Send another request" and "Book a demo".
 - **On submit:** create a **Quote request** with status New, email the visitor a confirmation, and notify the team.
 
 ### Send a message (Contact page)
@@ -227,6 +229,7 @@ There is no sign-up anywhere. Staff create accounts; people activate them from a
 - **Side panels:** Request details (Assigned to, Project, Created, Last updated, Attachments) and Status history.
 
 ### Notifications (screen 14)
+- What the team did: replies, status changes, requests for more information, resolved and closed. Not the customer's own new request (they see the "Request submitted" page and get an email copy).
 - List with a label, text and time. Unread items are highlighted.
 - **Mark all as read**.
 - Clicking a notification opens its request.
@@ -249,7 +252,7 @@ There is no sign-up anywhere. Staff create accounts; people activate them from a
   - Logo, then "Team panel · **View website**".
   - **Dashboard**.
   - **SUPPORT REQUESTS** (labelled **MY REQUESTS** for developers): All requests (count), New requests (gold badge; not shown to developers), Under review, In progress, Waiting for customer, Resolved, Closed (counts).
-  - **WEBSITE** (Super admin, Admin, Manager): Demo requests, Quote requests, Messages, each with a gold badge for new items.
+  - **WEBSITE** (Super admin, Admin, Manager): Demo requests, Quote requests, Messages, each with a gold badge for new items; then Website content (Super admin, Admin).
   - **MANAGE:** Customers (Super admin, Admin, Manager), Users (Super admin, Admin), Reports & Analytics (Super admin, Admin, Manager).
   - Notifications (badge), Settings (Super admin), Logout.
   - User card (gold avatar, name, role).
@@ -364,6 +367,13 @@ Each tile opens its list, filtered.
   - Daily digest of requests waiting for review (on).
   - Auto-close resolved requests after 7 days (off).
 - **Save settings**.
+
+### Website content (Super admin, Admin)
+Not in the design; built from the Settings and Users screens' parts. Address `/team/website-content`.
+- **Live project link:** where the website's "View live project" buttons go (10 places) and the address shown on Case Studies. Default `https://dev.flyconnect.co.uk`. Only full web addresses (`https://…`).
+- **Testimonials:** Add testimonial (Quote up to 400 characters, Client name, Role and Company optional, "Show on" Home and/or Case Studies), Edit and Remove (asks first) from each row's "⋯" menu. The note: "Only add quotes with the client's permission."
+- **The website:** Home's "What our clients say" shows the 3 newest marked for Home; Case Studies shows the newest marked for Case Studies. Each section is hidden while it has none. A change shows on the website straight away.
+- Every change is in the audit log.
 
 ### Support request statuses
 
@@ -501,7 +511,10 @@ In-app notifications go to the people listed; emails respect each person's prefe
 - **Time zones:** store UTC. Show demo slots in UK time, and other times in the user's time zone (from their profile, defaulting to Europe/London).
 
 ## 9. Placeholders the client still has to supply
-- Reply times `[X business days]` and `[1 business day]`, and project timelines.
-- WhatsApp number and contact email (`hello@yourdomain.com`), and the staff email domain (the design uses `yourdomain.com`).
-- Testimonials, team members and photos, FlyConnect screenshots, further case studies, and social links.
-- Privacy, Terms and Cookies pages.
+Supplied: reply time (1 business day), contact email (hello@flyconnecttech.co.uk), LinkedIn and Instagram, no WhatsApp. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
+
+Still to come, and hidden from visitors until then:
+- Team members and photos (About's "The people behind your product").
+- FlyConnect screenshots (the Case Studies top box and "Inside the platform"; Home's featured project shows the route map instead).
+- Further case studies (Case Studies' "More projects coming soon").
+- The staff email domain (the design uses `yourdomain.com`).

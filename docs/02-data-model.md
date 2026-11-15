@@ -149,10 +149,20 @@ Keep the display labels (for example "Waiting for Customer", "$5k – $15k") in 
 - **Keys:**
   - `responseTargets`: `{ URGENT: '1h', HIGH: '4h', MEDIUM: '1bd', LOW: '2bd' }`
   - `teamNotifications`: `{ urgentAlert: true, notifyAssigneeOnReply: true, dailyDigest: true, autoCloseResolvedAfter7Days: false }`
+  - `website`: `{ liveProjectUrl: 'https://dev.flyconnect.co.uk' }`: where the website's "View live project" buttons go (Website content screen).
+
+### Testimonial
+A client's quote shown on the public website, managed on the Website content screen.
+- **Fields:**
+  - `id`
+  - `quote` (up to 400 characters), `name`, `role?`, `company?`
+  - `showOnHome` (default true), `showOnCaseStudy` (default false)
+  - `createdById?`, `createdAt`, `updatedAt`
+- **Shown:** Home takes the 3 newest with `showOnHome`; Case Studies the newest with `showOnCaseStudy`.
 
 ### AuditLog
 - **Fields:** `id`, `actorId?`, `action`, `entityType`, `entityId`, `data Json`, `createdAt`.
-- **Actions to record:** user invited, role changed, user disabled, customer created, invitation resent, settings changed, lead converted.
+- **Actions to record:** user invited, role changed, user disabled, customer created, invitation resent, settings changed, lead converted, testimonial added, changed or removed.
 
 ### Counter
 - **Fields:** `name` (for example `TKT-2026`), `value`. Increment it in the same transaction that creates the record, to produce the readable codes.
@@ -162,6 +172,7 @@ Keep the display labels (for example "Waiting for Customer", "$5k – $15k") in 
 - Each support request has messages, status changes and attachments. Its assignee is a DEVELOPER user.
 - Demo requests, quote requests and contact messages are leads. They can each have an owner (a non-developer staff user), activity entries, and a customer once converted. A quote request has many estimates.
 - Users have notifications.
+- Testimonials stand alone; each remembers who added it.
 
 ## Seed (`prisma/seed.ts`)
 - Load `design/sample-data.json` so the app opens with the same people, projects, requests and leads as the design.

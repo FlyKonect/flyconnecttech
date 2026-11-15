@@ -48,4 +48,4 @@ Everything Claude Code needs to build the Northstack website, client portal and 
   - Emails sent in development appear in Mailpit at http://localhost:8025.
   - The MinIO console (uploaded files) is at http://localhost:9001.
 - **Secrets** go in `.env.local` only. Never paste real passwords or API keys into the chat or the docs.
-- **Before launch**, fill in the client's placeholders: reply times, WhatsApp number, contact email and the staff email domain (`yourdomain.com`), testimonials, team photos, and the Privacy, Terms and Cookies pages.
+- **Before launch**, see "Before you launch" in `docs/deploy.md`: the mailbox hello@flyconnecttech.co.uk, testimonials (team panel > Website content), and a check of the Privacy, Terms and Cookies texts. Team photos, screenshots and further case studies stay hidden until the client supplies them.
