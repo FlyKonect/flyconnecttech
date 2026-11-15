@@ -78,3 +78,57 @@ export function fromUkWallClock(clock: WallClock): Date {
   const first = guess - ukOffset(guess);
   return new Date(guess - ukOffset(first));
 }
+
+// ------------------------------------------------- words for dates
+
+const WEEKDAY_NAMES = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+/** "11:00", UK time. */
+export function ukClock(when: Date): string {
+  const clock = ukWallClock(when);
+  return `${String(clock.hour).padStart(2, '0')}:${String(clock.minute).padStart(2, '0')}`;
+}
+
+/** "Tuesday 10 November", UK date. */
+export function ukDayLong(when: Date): string {
+  const clock = ukWallClock(when);
+  return `${WEEKDAY_NAMES[clock.weekday]} ${clock.day} ${MONTH_NAMES[clock.month - 1]}`;
+}
+
+/** "Tue 10 Nov", UK date. */
+export function ukDayShort(when: Date): string {
+  const clock = ukWallClock(when);
+  return `${WEEKDAY_NAMES[clock.weekday].slice(0, 3)} ${clock.day} ${MONTH_NAMES[clock.month - 1].slice(0, 3)}`;
+}
+
+/** "Tuesday 10 November, 11:00 UK time" */
+export function ukSlotLong(when: Date): string {
+  return `${ukDayLong(when)}, ${ukClock(when)} UK time`;
+}
+
+/** "23 November 2026", a calendar date (stored at midnight UTC). */
+export function longDate(date: Date): string {
+  return `${date.getUTCDate()} ${MONTH_NAMES[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+}

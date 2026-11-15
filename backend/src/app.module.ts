@@ -7,6 +7,7 @@ import { CustomersModule } from './customers/customers.module.js';
 import { LeadsModule } from './leads/leads.module.js';
 import { EmailModule } from './email/email.module.js';
 import { HealthModule } from './health/health.module.js';
+import { JobsModule } from './jobs/jobs.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { RequestsModule } from './requests/requests.module.js';
@@ -27,6 +28,7 @@ import { UploadsModule } from './uploads/uploads.module.js';
     RequestsModule,
     CustomersModule,
     LeadsModule,
+    JobsModule,
     HealthModule,
   ],
 })

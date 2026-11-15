@@ -37,6 +37,28 @@ describe('App (e2e)', () => {
       .expect({ status: 'ok', database: 'up' });
   });
 
+  it('previews every email at /dev/emails outside production', async () => {
+    const http = request(app.getHttpServer());
+    const list = await http.get('/dev/emails').expect(200);
+    expect(list.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'daily-digest',
+          subject: '2 requests waiting for review',
+        }),
+      ]),
+    );
+    const html = await http.get('/dev/emails/daily-digest').expect(200);
+    expect(html.headers['content-type']).toMatch(/^text\/html/);
+    expect(html.text).toContain('Requests waiting for review');
+    const text = await http
+      .get('/dev/emails/daily-digest?format=text')
+      .expect(200);
+    expect(text.headers['content-type']).toMatch(/^text\/plain/);
+    expect(text.text).toContain('TKT-2026-00125');
+    await http.get('/dev/emails/nothing-like-this').expect(404);
+  });
+
   it('every other route needs a signed-in person', () => {
     return request(app.getHttpServer())
       .get('/me')

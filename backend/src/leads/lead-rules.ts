@@ -6,7 +6,7 @@ import type {
   QuoteProjectType,
   Timeline,
 } from '../generated/prisma/client.js';
-import { fromUkWallClock, ukWallClock } from '../time/uk-time.js';
+import { fromUkWallClock, ukClock, ukWallClock } from '../time/uk-time.js';
 
 /**
  * The fixed rules and words for website leads (docs/01, sections 2 and 6),
@@ -158,57 +158,14 @@ export function isOfferedSlot(start: Date, now = new Date()): boolean {
   );
 }
 
-const WEEKDAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-/** "11:00", UK time. */
-export function ukClock(when: Date): string {
-  const clock = ukWallClock(when);
-  return `${String(clock.hour).padStart(2, '0')}:${String(clock.minute).padStart(2, '0')}`;
-}
-
-/** "Tuesday 10 November", UK date. */
-export function ukDayLong(when: Date): string {
-  const clock = ukWallClock(when);
-  return `${WEEKDAYS[clock.weekday]} ${clock.day} ${MONTHS[clock.month - 1]}`;
-}
-
-/** "Tue 10 Nov", UK date. */
-export function ukDayShort(when: Date): string {
-  const clock = ukWallClock(when);
-  return `${WEEKDAYS[clock.weekday].slice(0, 3)} ${clock.day} ${MONTHS[clock.month - 1].slice(0, 3)}`;
-}
-
-/** "Tuesday 10 November, 11:00 UK time" */
-export function ukSlotLong(when: Date): string {
-  return `${ukDayLong(when)}, ${ukClock(when)} UK time`;
-}
-
-/** "23 November 2026", a calendar date (stored at midnight UTC). */
-export function longDate(date: Date): string {
-  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
+// UK dates and times, shared with the scheduled jobs (src/time/uk-time.ts).
+export {
+  longDate,
+  ukClock,
+  ukDayLong,
+  ukDayShort,
+  ukSlotLong,
+} from '../time/uk-time.js';
 
 // ---------------------------------------------------------- estimates
 

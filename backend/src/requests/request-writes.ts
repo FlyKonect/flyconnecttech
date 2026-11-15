@@ -54,7 +54,8 @@ export async function moveStatus(
   request: RequestState,
   to: RequestStatus,
   options: {
-    actorId: string;
+    /** Who changed it; null for an automatic change (auto-close). */
+    actorId: string | null;
     /** A system line in the conversation, or null for none. */
     line: string | null;
     now: Date;
