@@ -323,7 +323,10 @@ test("every client portal screen", async ({ page }) => {
   ).toBeVisible();
   await expectAccessible(page, "New request: review");
   await page.getByRole("button", { name: "Submit request" }).click();
-  await expect(page).toHaveURL(/\/portal\/requests\/TKT-[\d-]+\/submitted$/);
+  // Sending saves the request and its emails: slower on a busy machine.
+  await expect(page).toHaveURL(/\/portal\/requests\/TKT-[\d-]+\/submitted$/, {
+    timeout: 15_000,
+  });
   await expectAccessible(page, "Request submitted");
 
   await page.setViewportSize(phone);

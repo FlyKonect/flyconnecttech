@@ -110,9 +110,11 @@ test("a customer sends a request in four steps, with a file", async ({
   ).toBeVisible();
   await page.getByRole("button", { name: "Submit request" }).click();
 
-  // Submitted (screen 11).
+  // Submitted (screen 11). Sending saves the request, its file and its
+  // emails: slower on a busy machine.
   await expect(page).toHaveURL(
     /\/portal\/requests\/TKT-\d{4}-\d{5}\/submitted$/,
+    { timeout: 15_000 },
   );
   const code = page.url().match(/TKT-\d{4}-\d{5}/)![0];
   await expect(

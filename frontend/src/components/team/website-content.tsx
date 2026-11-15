@@ -33,13 +33,16 @@ import {
 
 const card = "rounded-[22px] border border-line-2 bg-white p-6";
 
-/** After a change: the website shows it at once, and this page updates. */
+/**
+ * After a change: the website drops its old copy first, so when the
+ * message shows, visitors already see the change. Then this page updates.
+ */
 function useAfterChange() {
   const router = useRouter();
   const toast = useToast();
   return async (message: string) => {
-    toast(message);
     await refreshWebsite();
+    toast(message);
     router.refresh();
   };
 }

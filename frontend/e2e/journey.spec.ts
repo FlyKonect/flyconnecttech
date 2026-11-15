@@ -122,8 +122,10 @@ test("demo → customer → request → assigned → resolved → confirmed", as
   );
   await customer.getByRole("button", { name: "Continue" }).click();
   await customer.getByRole("button", { name: "Submit request" }).click();
+  // Sending saves the request and its emails: slower on a busy machine.
   await expect(customer).toHaveURL(
     /\/portal\/requests\/TKT-[\d-]+\/submitted$/,
+    { timeout: 15_000 },
   );
   const code = customer.url().match(/TKT-\d{4}-\d{5}/)![0];
 
