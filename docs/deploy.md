@@ -159,6 +159,33 @@ GitHub > repository > **Settings** > **Secrets and variables** > **Actions** > *
 4. Open `https://flyconnecttech.co.uk`. You should see the FlyConnect Tech home page. Click through a few pages.
 5. If it fails, see "If something goes wrong" at the end.
 
+## Without SSH: put the website live from File Manager
+
+Use this while Krystal has not switched on SSH yet (Step 1). It replaces Steps 6 and 7 for the website; Step 5 (the Node.js app) is still needed. Once SSH works, GitHub takes over and this is no longer needed.
+
+**1. Build the zip on your PC.** Ask Claude for "the website zip for File Manager". It is made like this, in the `frontend` folder (Git Bash):
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://flyconnecttech.co.uk NEXT_PUBLIC_API_URL=https://api.flyconnecttech.co.uk npm run build
+cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+cd .next/standalone && /c/Windows/System32/tar.exe -a -c -f ../../../../flyconnecttech-website.zip .next node_modules public server.js package.json
+```
+
+The zip (about 12 MB) is `flyconnecttech-website.zip`, in the folder above the project. It has the live addresses built in. Use Windows' own `tar.exe` as above: zips made by PowerShell's Compress-Archive have the wrong kind of slashes for the hosting.
+
+**2. Upload it.**
+1. cPanel > **File Manager**. Click **Settings** (top right), tick **Show Hidden Files (dotfiles)**, click **Save**. The zip has a hidden folder called `.next`.
+2. Open the folder `flyconnect-tech/frontend` (cPanel made it in Step 5). If there is a `server.js` there already, it is cPanel's sample: delete it.
+3. Click **Upload**, choose `flyconnecttech-website.zip`, wait for 100%, then click **Go Back to …**.
+4. Right-click the zip > **Extract**. Check the folder shown is `/home/flyconne/flyconnect-tech/frontend` and click **Extract File(s)**.
+5. You should now see `.next`, `node_modules`, `public`, `server.js` and `package.json`. Delete the zip.
+
+**3. Restart.** cPanel > **Setup Node.js App** > the `flyconnecttech.co.uk` app > **Restart**. Do not click "Run NPM Install".
+
+**4. Check.** Open `https://flyconnecttech.co.uk`. The pages work; the forms and Client login say "Backend not running" until Part C.
+
+**For an update:** build a new zip, then in File Manager delete `.next`, `node_modules`, `public`, `server.js` and `package.json` from `flyconnect-tech/frontend`, upload and extract the new zip, and restart.
+
 ---
 
 # Part C. The backend: api.flyconnecttech.co.uk
@@ -407,7 +434,7 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | Signing in seems to work but you land back on the sign-in page | `COOKIE_DOMAIN` is missing or wrong, or `BACKEND_URL` / `FRONTEND_URL` do not match the real addresses (Step 12). Open the site as `https://flyconnecttech.co.uk`, without `www` |
 | Git Bash says `$'\302\226ssh': command not found` (or similar strange characters before a command) | An invisible character came along when the line was copied. Type the command by hand instead of pasting it |
 | The test login in Step 3 asks for a password | The key was not accepted, so do not type a password: press Ctrl+C. In cPanel > SSH Access > Manage SSH Keys, the key must be listed and **authorized**; the username must be the account's (the **Team Owner**, or the last part of **Home Directory**, not a team member's **Current User**); and `ls ~/flyconnect-deploy*` in Git Bash must show the two key files. Run the login again with `-v` after `ssh` to see why the key was refused |
-| "Shell access is not enabled on your account! If you need shell access please contact support." | The key worked, but Krystal has SSH shell access switched off. Ask Krystal support to enable it (Step 1) |
+| "Shell access is not enabled on your account! If you need shell access please contact support." | The key worked, but Krystal has SSH shell access switched off. Ask Krystal support to enable it (Step 1). Meanwhile the website can go live from File Manager ("Without SSH", after Step 7) |
 | A warning about "post-quantum key exchange" | Harmless: the server uses an older SSH version. The login still works |
 | PowerShell says "Corrupted MAC on input" when you test the login | A known fault in the SSH program that comes with Windows. Use **Git Bash** instead (Step 3), or add `-m hmac-sha2-512` after `ssh`. It does not affect GitHub's deploys |
 | "rsync: command not found" | Ask Krystal support to enable `rsync` for SSH on your account |
