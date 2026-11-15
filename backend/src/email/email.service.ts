@@ -10,6 +10,8 @@ export type OutgoingEmail = {
   subject: string;
   /** A React Email template, for example <InvitationEmail ... />. */
   template: ReactElement;
+  /** A calendar invite (.ics text, src/leads/ics.ts), sent as invite.ics. */
+  calendar?: { method: 'REQUEST' | 'CANCEL'; content: string };
 };
 
 /**
@@ -46,6 +48,14 @@ export class EmailService {
       subject: email.subject,
       html,
       text,
+      // Mail apps show this as an invite to accept, and as invite.ics.
+      icalEvent: email.calendar
+        ? {
+            method: email.calendar.method,
+            filename: 'invite.ics',
+            content: email.calendar.content,
+          }
+        : undefined,
     });
     this.logger.log(`Sent "${email.subject}"`);
   }

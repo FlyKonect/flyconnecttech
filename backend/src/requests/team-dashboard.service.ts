@@ -57,11 +57,43 @@ export class TeamDashboardService {
 
   /** The numbers beside the sidebar's menu items. */
   async summary(actor: SignedIn) {
-    const [counts, unreadNotifications] = await Promise.all([
+    const [counts, unreadNotifications, leads] = await Promise.all([
       this.statusCounts(actor),
       this.notifications.unreadCount(actor.id),
+      can(actor, 'leads.manage') ? this.newLeads() : null,
     ]);
-    return { requests: counts, unreadNotifications };
+    return { requests: counts, unreadNotifications, leads };
+  }
+
+  /** New demo requests, quote requests and messages: the sidebar badges. */
+  private async newLeads() {
+    const [demos, quotes, messages] = await Promise.all([
+      this.prisma.demoRequest.count({ where: { status: 'NEW' } }),
+      this.prisma.quoteRequest.count({ where: { status: 'NEW' } }),
+      this.prisma.contactMessage.count({ where: { status: 'NEW' } }),
+    ]);
+    return { demos, quotes, messages };
+  }
+
+  /** The dashboard's Website leads card. */
+  private async leadsCard(now: Date) {
+    const [newLeads, estimatesAwaiting, demosBooked, nextDemo] =
+      await Promise.all([
+        this.newLeads(),
+        this.prisma.quoteRequest.count({ where: { status: 'ESTIMATE_SENT' } }),
+        this.prisma.demoRequest.count({ where: { status: 'SCHEDULED' } }),
+        this.prisma.demoRequest.findFirst({
+          where: { status: 'SCHEDULED', scheduledStart: { gte: now } },
+          orderBy: { scheduledStart: 'asc' },
+          select: { scheduledStart: true },
+        }),
+      ]);
+    return {
+      ...newLeads,
+      estimatesAwaiting,
+      demosBooked,
+      nextDemo: nextDemo?.scheduledStart ?? null,
+    };
   }
 
   /** Active developers, with their job title and open requests. */
@@ -122,6 +154,7 @@ export class TeamDashboardService {
       workload,
       customers,
       team,
+      leads,
     ] = await Promise.all([
       this.prisma.supportRequest.count({
         where: { status: { in: OPEN_STATUSES }, assigneeId: null },
@@ -149,6 +182,7 @@ export class TeamDashboardService {
       this.developers(),
       can(actor, 'customers.view') ? this.customerCounts() : null,
       can(actor, 'users.view') ? this.teamCounts() : null,
+      can(actor, 'leads.manage') ? this.leadsCard(now) : null,
     ]);
 
     return {
@@ -165,6 +199,7 @@ export class TeamDashboardService {
       workload,
       customers,
       team,
+      leads,
       alerts,
     };
   }

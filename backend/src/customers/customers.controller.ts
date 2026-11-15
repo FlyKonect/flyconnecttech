@@ -52,6 +52,8 @@ const newCustomerSchema = z.object({
     .array(projectSchema)
     .min(1, 'Add at least one project')
     .max(MAX_NEW_PROJECTS, `Add up to ${MAX_NEW_PROJECTS} projects at a time`),
+  /** Converting a website lead: its code, for example QUO-2026-040. */
+  from: z.string().trim().max(20).optional(),
 });
 
 const projectStatusSchema = z.object({

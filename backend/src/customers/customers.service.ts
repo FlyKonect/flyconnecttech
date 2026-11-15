@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InvitationsService } from '../accounts/invitations.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { SignedIn } from '../auth/signed-in.js';
@@ -9,6 +13,7 @@ import type {
   ProjectStatus,
   ProjectType,
 } from '../generated/prisma/client.js';
+import { findConvertible, linkConverted } from '../leads/lead-convert.js';
 import { can } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { OPEN_STATUSES } from '../requests/status-rules.js';
@@ -24,6 +29,8 @@ export type NewCustomer = {
   company: string;
   phone?: string;
   projects: { name: string; type: ProjectType }[];
+  /** Converting a website lead: its code (docs/01 §6, screen 42). */
+  from?: string;
 };
 
 /**
@@ -105,6 +112,12 @@ export class CustomersService {
    * If the email fails the customer stays, and the page offers Resend.
    */
   async create(actor: SignedIn, input: NewCustomer) {
+    const lead = input.from
+      ? await findConvertible(this.prisma, input.from)
+      : null;
+    if (lead && !can(actor, 'leads.convert')) {
+      throw new ForbiddenException({ code: 'NOT_ALLOWED' });
+    }
     const { customerId, emailSent } = await this.invitations.inviteUser(
       {
         name: input.name,
@@ -113,6 +126,24 @@ export class CustomersService {
         company: input.company,
         phone: input.phone,
         projects: input.projects,
+        sourceLead: lead ? { type: lead.type, id: lead.id } : undefined,
+        // The lead is linked in the same save: "Came from" on the customer,
+        // "Now a customer" on the lead.
+        onCustomer: lead
+          ? async (tx, newCustomerId, email) => {
+              await linkConverted(tx, lead, newCustomerId, actor, email);
+              await this.audit.record(
+                {
+                  actorId: actor.id,
+                  action: 'lead.converted',
+                  entityType: 'lead',
+                  entityId: lead.id,
+                  data: { code: lead.code, customerId: newCustomerId },
+                },
+                tx,
+              );
+            }
+          : undefined,
       },
       actor.id,
     );

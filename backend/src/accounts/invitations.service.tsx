@@ -17,7 +17,11 @@ import {
   invitationSubject,
 } from '../email/templates/invitation.js';
 import { Prisma } from '../generated/prisma/client.js';
-import type { ProjectType, Role } from '../generated/prisma/client.js';
+import type {
+  LeadType,
+  ProjectType,
+  Role,
+} from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   LINK_LIFETIME_HOURS,
@@ -54,6 +58,17 @@ export type InviteUserInput = {
   phone?: string;
   /** Customers only: their first projects, listed in the invitation email. */
   projects?: { name: string; type: ProjectType }[];
+  /** Customers only: the website lead they were converted from. */
+  sourceLead?: { type: LeadType; id: string };
+  /**
+   * Customers only: more steps inside the same save, after the customer is
+   * created (converting a lead links it here).
+   */
+  onCustomer?: (
+    tx: Prisma.TransactionClient,
+    customerId: string,
+    email: string,
+  ) => Promise<void>;
 };
 
 export type InvitationDetails = {
@@ -116,6 +131,8 @@ export class InvitationsService {
             company: input.company!.trim(),
             country: input.country?.trim() || null,
             createdById: invitedById,
+            sourceLeadType: input.sourceLead?.type ?? null,
+            sourceLeadId: input.sourceLead?.id ?? null,
           },
         });
         customerId = customer.id;
@@ -142,6 +159,7 @@ export class InvitationsService {
           },
           tx,
         );
+        await input.onCustomer?.(tx, customer.id, email);
       }
 
       const user = await tx.user.create({
