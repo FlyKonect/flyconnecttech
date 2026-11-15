@@ -88,7 +88,6 @@ export function CustomersList({
         rows={list.rows}
         rowKey={(c) => c.id}
         rowHref={(c) => routes.teamCustomer(c.id)}
-        rowLabel={(c) => `View ${c.name}, ${c.company}`}
         empty={query ? "No customers match your search." : "No customers yet."}
         columns={[
           {

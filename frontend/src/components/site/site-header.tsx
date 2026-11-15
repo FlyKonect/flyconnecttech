@@ -179,22 +179,40 @@ const navLink =
 function ServicesMenu({ pathname }: { pathname: string }) {
   const [open, setOpen] = React.useState(false);
   const current = isCurrent(routes.services, pathname);
+  const trigger = React.useRef<HTMLAnchorElement>(null);
+  // Set while Escape moves the keyboard back to "Services", so that focus
+  // does not open the dropdown again.
+  const keepClosed = React.useRef(false);
 
   return (
     <div
       className="relative flex items-center"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
+      onFocus={() => {
+        if (keepClosed.current) {
+          keepClosed.current = false;
+          return;
+        }
+        setOpen(true);
+      }}
       onBlur={(event) => {
         // Close only when the keyboard has left the whole dropdown.
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
       onKeyDown={(event) => {
-        if (event.key === "Escape") setOpen(false);
+        if (event.key !== "Escape") return;
+        setOpen(false);
+        // From a link in the dropdown: back to "Services", so the keyboard
+        // is not lost when the dropdown goes.
+        if (event.target !== trigger.current) {
+          keepClosed.current = true;
+          trigger.current?.focus();
+        }
       }}
     >
       <Link
+        ref={trigger}
         href={routes.services}
         aria-haspopup="true"
         aria-expanded={open}

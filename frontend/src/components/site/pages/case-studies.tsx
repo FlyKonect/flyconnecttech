@@ -44,6 +44,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -530,7 +533,7 @@ function OverviewSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               The brief
@@ -561,7 +564,7 @@ function OverviewSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               What we delivered
@@ -610,7 +613,7 @@ function TwoPortalsOnePlatformSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             What we built
@@ -655,7 +658,7 @@ function TwoPortalsOnePlatformSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -719,7 +722,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -742,7 +745,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -765,7 +768,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -788,7 +791,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -811,7 +814,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -834,7 +837,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -857,7 +860,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -880,7 +883,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -912,7 +915,7 @@ function TwoPortalsOnePlatformSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -977,7 +980,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1000,7 +1003,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1023,7 +1026,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1046,7 +1049,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1069,7 +1072,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1092,7 +1095,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1115,7 +1118,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1138,7 +1141,7 @@ function TwoPortalsOnePlatformSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1181,7 +1184,7 @@ function WhatMakesItWorkSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Key features
@@ -1227,7 +1230,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1284,7 +1287,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1342,7 +1345,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1400,7 +1403,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1460,7 +1463,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1519,7 +1522,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1580,7 +1583,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1639,7 +1642,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1696,7 +1699,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1757,7 +1760,7 @@ function WhatMakesItWorkSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1828,7 +1831,7 @@ function SearchToETicketSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Booking flow
@@ -2156,7 +2159,7 @@ function TheStackBehindFlyconnectSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Architecture
@@ -2561,7 +2564,7 @@ function InsideThePlatformSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Screens
@@ -2756,7 +2759,7 @@ function MoreProjectsComingSoonSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             More case studies

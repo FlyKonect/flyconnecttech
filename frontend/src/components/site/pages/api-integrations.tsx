@@ -44,6 +44,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -509,7 +512,7 @@ function WhatWeConnectSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Integrations
@@ -573,7 +576,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -650,7 +653,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -729,7 +732,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -807,7 +810,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -887,7 +890,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -967,7 +970,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -1045,7 +1048,7 @@ function WhatWeConnectSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -1196,7 +1199,7 @@ function FewerGapsBetweenYourSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Business problems solved
@@ -1267,7 +1270,7 @@ function FewerGapsBetweenYourSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1340,7 +1343,7 @@ function FewerGapsBetweenYourSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1413,7 +1416,7 @@ function FewerGapsBetweenYourSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1486,7 +1489,7 @@ function FewerGapsBetweenYourSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1550,7 +1553,7 @@ function BuiltForTheRealSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we build integrations
@@ -1600,7 +1603,7 @@ function BuiltForTheRealSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1623,7 +1626,7 @@ function BuiltForTheRealSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1646,7 +1649,7 @@ function BuiltForTheRealSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1669,7 +1672,7 @@ function BuiltForTheRealSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1692,7 +1695,7 @@ function BuiltForTheRealSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1715,7 +1718,7 @@ function BuiltForTheRealSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1827,7 +1830,7 @@ function SixStepsFromIdeaSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our integration process
@@ -2143,7 +2146,7 @@ function StandardsYourPartnersAlreadySection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Technology stack

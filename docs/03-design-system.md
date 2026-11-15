@@ -14,7 +14,7 @@ The website, the client portal and the team panel share this system. The values 
 | `navy-700` | `#0C3584` | Gradient start, text on light navy tints |
 | `navy-900` | `#01123D` | Footer, gradient end |
 | `gold` | `#D3AF34` | Main CTA on navy (navy text on gold), badges, focus ring |
-| `gold-text` | `#887122` | Gold text on white: links and eyebrows (passes AA) |
+| `gold-text` | `#846E21` | Gold text on white: links and eyebrows (passes AA, also on the light tints). The design files use `#887122`, which falls just short of AA on the light blue and gold tints, so it was darkened slightly. |
 | `gold-on-navy` | `#E9D27A` | Links on navy panels |
 | `ink-2` | `#23324F` | Strong body text |
 | `body` | `#3E4C66` | Body text |
@@ -176,7 +176,7 @@ Sizes:
   --muted: #f1f5fa;       --muted-foreground: #5a6882;
   --border: #e1e8f2;      --input: #cbd5e4;  --ring: rgba(211,175,52,0.6);
   --destructive: #b91c1c; --radius: 10px;
-  --portal-bg: #f6f8fc;   --team-bg: #f4f6fa; --gold-text: #887122;
+  --portal-bg: #f6f8fc;   --team-bg: #f4f6fa; --gold-text: #846E21;
 }
 ```
 Dark mode is not part of the design. Don't add it unless the client asks.

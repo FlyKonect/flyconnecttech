@@ -45,6 +45,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -445,7 +448,7 @@ function StartWhereYourBusinessSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Service overview
@@ -491,7 +494,7 @@ function StartWhereYourBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -553,7 +556,7 @@ function StartWhereYourBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -616,7 +619,7 @@ function StartWhereYourBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -690,7 +693,7 @@ function WhatWeBuildSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"Features & capabilities"}
@@ -735,7 +738,7 @@ function WhatWeBuildSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -781,7 +784,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -822,7 +825,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -863,7 +866,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -904,7 +907,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -945,7 +948,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -986,7 +989,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1027,7 +1030,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1075,7 +1078,7 @@ function WhatWeBuildSection() {
                   alignItems: "center",
                   justifyContent: "center",
                   background: "rgba(211,175,52,0.13)",
-                  color: "#887122",
+                  color: "#846E21",
                 }}
               >
                 <svg
@@ -1121,7 +1124,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1162,7 +1165,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1203,7 +1206,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1244,7 +1247,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1285,7 +1288,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1326,7 +1329,7 @@ function WhatWeBuildSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1385,7 +1388,7 @@ function TheDetailsThatMakeSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Included as standard
@@ -1432,7 +1435,7 @@ function TheDetailsThatMakeSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1489,7 +1492,7 @@ function TheDetailsThatMakeSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1544,7 +1547,7 @@ function TheDetailsThatMakeSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1600,7 +1603,7 @@ function TheDetailsThatMakeSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1657,7 +1660,7 @@ function TheDetailsThatMakeSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1712,7 +1715,7 @@ function TheDetailsThatMakeSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1779,7 +1782,7 @@ function SoftwareThatFixesHowSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Business problems solved
@@ -1851,7 +1854,7 @@ function SoftwareThatFixesHowSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1924,7 +1927,7 @@ function SoftwareThatFixesHowSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1997,7 +2000,7 @@ function SoftwareThatFixesHowSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -2070,7 +2073,7 @@ function SoftwareThatFixesHowSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -2128,7 +2131,7 @@ function ModernTypedAndBuiltSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Technology stack
@@ -2461,7 +2464,7 @@ function SixStepsNoSurprisesSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our development process

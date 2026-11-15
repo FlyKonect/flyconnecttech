@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+import { env } from "./src/env";
+import { securityHeaders } from "./src/lib/security-headers";
+
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
@@ -12,6 +15,19 @@ const nextConfig: NextConfig = {
   // This folder is the project. Without these two "root" lines, Next.js picks
   // the parent FlyConnect folder because it also has a package-lock.json.
   outputFileTracingRoot: __dirname,
+  // Security headers on every page (src/lib/security-headers.ts).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders({
+          apiUrl: env.NEXT_PUBLIC_API_URL,
+          siteUrl: env.NEXT_PUBLIC_SITE_URL,
+          development: process.env.NODE_ENV === "development",
+        }),
+      },
+    ];
+  },
   turbopack: {
     root: __dirname,
     rules: {

@@ -40,6 +40,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -255,7 +258,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -315,7 +318,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -373,7 +376,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -430,7 +433,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -496,7 +499,7 @@ function OnePlaceForEverySection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             What you can request
@@ -555,7 +558,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -614,7 +617,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -681,7 +684,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -742,7 +745,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -802,7 +805,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -862,7 +865,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -921,7 +924,7 @@ function OnePlaceForEverySection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1057,7 +1060,7 @@ function FromInvitationToFixedSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             How support works
@@ -1347,7 +1350,7 @@ function FrequentlyAskedQuestionsSection() {
                   <Link
                     href={routes.teamSignIn}
                     style={{
-                      color: "#887122",
+                      color: "#846E21",
                       fontWeight: "600",
                       textDecoration: "none",
                     }}

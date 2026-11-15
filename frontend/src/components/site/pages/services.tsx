@@ -44,6 +44,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -321,7 +324,7 @@ function HeroSection() {
                         padding: "3px 9px",
                         borderRadius: "999px",
                         background: "rgba(211,175,52,0.13)",
-                        color: "#887122",
+                        color: "#846E21",
                         fontSize: "12px",
                         fontWeight: "600",
                       }}
@@ -369,7 +372,7 @@ function HeroSection() {
                         padding: "3px 9px",
                         borderRadius: "999px",
                         background: "rgba(211,175,52,0.13)",
-                        color: "#887122",
+                        color: "#846E21",
                         fontSize: "12px",
                         fontWeight: "600",
                       }}
@@ -417,7 +420,7 @@ function HeroSection() {
                         padding: "3px 9px",
                         borderRadius: "999px",
                         background: "rgba(211,175,52,0.13)",
-                        color: "#887122",
+                        color: "#846E21",
                         fontSize: "12px",
                         fontWeight: "600",
                       }}
@@ -518,7 +521,7 @@ function EverythingWeOfferEndSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             What we do
@@ -564,7 +567,7 @@ function EverythingWeOfferEndSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -625,7 +628,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -648,7 +651,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -671,7 +674,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -694,7 +697,7 @@ function EverythingWeOfferEndSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -735,7 +738,7 @@ function EverythingWeOfferEndSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -798,7 +801,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -821,7 +824,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -844,7 +847,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -867,7 +870,7 @@ function EverythingWeOfferEndSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -908,7 +911,7 @@ function EverythingWeOfferEndSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -972,7 +975,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -995,7 +998,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1018,7 +1021,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1041,7 +1044,7 @@ function EverythingWeOfferEndSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -1082,7 +1085,7 @@ function EverythingWeOfferEndSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1146,7 +1149,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1169,7 +1172,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1192,7 +1195,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1215,7 +1218,7 @@ function EverythingWeOfferEndSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -1256,7 +1259,7 @@ function EverythingWeOfferEndSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1319,7 +1322,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1342,7 +1345,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1365,7 +1368,7 @@ function EverythingWeOfferEndSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1388,7 +1391,7 @@ function EverythingWeOfferEndSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -1514,7 +1517,7 @@ function NoHandOffsBetweenSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               Why one team
@@ -1564,7 +1567,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1587,7 +1590,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1610,7 +1613,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1634,7 +1637,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1682,7 +1685,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1723,7 +1726,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1764,7 +1767,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1805,7 +1808,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1846,7 +1849,7 @@ function NoHandOffsBetweenSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1905,7 +1908,7 @@ function SixStepsNoSurprisesSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our development process
@@ -2247,7 +2250,7 @@ function TechStackSection() {
                 fontSize: "19px",
                 fontWeight: "600",
                 letterSpacing: "-0.01em",
-                color: "#6B7891",
+                color: "#69768F",
               }}
             >
               {t.label}

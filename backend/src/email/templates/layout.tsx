@@ -21,7 +21,7 @@ import type { ReactNode } from 'react';
 export const colors = {
   navy: '#021A54',
   gold: '#D3AF34',
-  goldText: '#887122',
+  goldText: '#846E21',
   body: '#3E4C66',
   muted: '#5A6882',
   line: '#E1E8F2',

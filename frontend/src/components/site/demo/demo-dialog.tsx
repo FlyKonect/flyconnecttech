@@ -235,7 +235,8 @@ export function DemoDialog({
                             ? "text-navy"
                             : number < step
                               ? "text-muted-foreground"
-                              : "text-[#7D8AA3]",
+                              : // The design's #7D8AA3, darkened to pass AA.
+                                "text-[#687387]",
                         )}
                       >
                         {label}

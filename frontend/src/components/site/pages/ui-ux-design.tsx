@@ -44,6 +44,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -435,7 +438,7 @@ function InterfacesPeopleUnderstandAtSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             What we design
@@ -481,7 +484,7 @@ function InterfacesPeopleUnderstandAtSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -543,7 +546,7 @@ function InterfacesPeopleUnderstandAtSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -607,7 +610,7 @@ function InterfacesPeopleUnderstandAtSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -670,7 +673,7 @@ function InterfacesPeopleUnderstandAtSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -731,7 +734,7 @@ function InterfacesPeopleUnderstandAtSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -873,7 +876,7 @@ function DesignThatRemovesFrictionSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Business problems solved
@@ -944,7 +947,7 @@ function DesignThatRemovesFrictionSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1017,7 +1020,7 @@ function DesignThatRemovesFrictionSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1090,7 +1093,7 @@ function DesignThatRemovesFrictionSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1163,7 +1166,7 @@ function DesignThatRemovesFrictionSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1221,7 +1224,7 @@ function FromFirstIdeaToSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our design process
@@ -1544,7 +1547,7 @@ function EverythingYourDevelopersNeedSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               Deliverables
@@ -1615,7 +1618,7 @@ function EverythingYourDevelopersNeedSection() {
                     height="18"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#887122"
+                    stroke="#846E21"
                     strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1638,7 +1641,7 @@ function EverythingYourDevelopersNeedSection() {
                     height="18"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#887122"
+                    stroke="#846E21"
                     strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1661,7 +1664,7 @@ function EverythingYourDevelopersNeedSection() {
                     height="18"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#887122"
+                    stroke="#846E21"
                     strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1684,7 +1687,7 @@ function EverythingYourDevelopersNeedSection() {
                     height="18"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#887122"
+                    stroke="#846E21"
                     strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1707,7 +1710,7 @@ function EverythingYourDevelopersNeedSection() {
                     height="18"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#887122"
+                    stroke="#846E21"
                     strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1730,7 +1733,7 @@ function EverythingYourDevelopersNeedSection() {
                     height="18"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#887122"
+                    stroke="#846E21"
                     strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1774,7 +1777,7 @@ function DesignedInFigmaBuiltSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"Tools & handoff"}

@@ -26,7 +26,8 @@ const buttonVariants = cva(
         outline: "border border-input bg-white text-navy hover:bg-soft",
         ghostOnNavy:
           "border border-white/32 bg-white/6 text-white hover:bg-white/14",
-        success: "bg-success text-white hover:bg-[#15803d]",
+        // A darker green than the design's #16A34A: white text needs it for AA.
+        success: "bg-[#15803D] text-white hover:bg-[#166534]",
         danger: "bg-danger text-white hover:bg-[#991b1b]",
         dangerOutline:
           "border border-[#fecaca] bg-white text-danger hover:bg-[#fef2f2]",

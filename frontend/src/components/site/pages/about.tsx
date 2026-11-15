@@ -43,6 +43,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -275,7 +278,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -332,7 +335,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -391,7 +394,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -449,7 +452,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -522,7 +525,7 @@ function WeStartedWithTravelSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               Our story
@@ -588,7 +591,7 @@ function WeStartedWithTravelSection() {
                     fontFamily: "var(--font-heading)",
                     fontSize: "15px",
                     fontWeight: "700",
-                    color: "#887122",
+                    color: "#846E21",
                   }}
                 >
                   01
@@ -627,7 +630,7 @@ function WeStartedWithTravelSection() {
                     fontFamily: "var(--font-heading)",
                     fontSize: "15px",
                     fontWeight: "700",
-                    color: "#887122",
+                    color: "#846E21",
                   }}
                 >
                   02
@@ -666,7 +669,7 @@ function WeStartedWithTravelSection() {
                     fontFamily: "var(--font-heading)",
                     fontSize: "15px",
                     fontWeight: "700",
-                    color: "#887122",
+                    color: "#846E21",
                   }}
                 >
                   03
@@ -723,7 +726,7 @@ function WhatWorkingWithUsSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Why choose us
@@ -757,7 +760,7 @@ function WhatWorkingWithUsSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -800,7 +803,7 @@ function WhatWorkingWithUsSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -845,7 +848,7 @@ function WhatWorkingWithUsSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -891,7 +894,7 @@ function WhatWorkingWithUsSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -936,7 +939,7 @@ function WhatWorkingWithUsSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -979,7 +982,7 @@ function WhatWorkingWithUsSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -1047,7 +1050,7 @@ function HowWeWorkFromSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our process
@@ -1363,7 +1366,7 @@ function ThePeopleBehindYourSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             The team
@@ -1584,7 +1587,7 @@ function TechStackSection() {
                 fontSize: "19px",
                 fontWeight: "600",
                 letterSpacing: "-0.01em",
-                color: "#6B7891",
+                color: "#69768F",
               }}
             >
               {t.label}

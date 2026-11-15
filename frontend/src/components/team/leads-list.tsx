@@ -269,7 +269,6 @@ export function LeadsList({
         rows={list.rows}
         rowKey={(row) => row.code}
         rowHref={(row) => leadHref(kind, row.code)}
-        rowLabel={(row) => `${row.code}: ${row.name}`}
         empty="Nothing in this view."
         columns={columns}
         card={(row) => (

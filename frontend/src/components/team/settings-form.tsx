@@ -132,15 +132,15 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
         <ul className="mt-3 flex flex-col gap-2">
           {SWITCHES.map(([key, label]) => (
             <li key={key}>
-              <label className="flex min-h-9 cursor-pointer items-center gap-3 text-sm text-body">
-                <Checkbox
-                  checked={switches[key]}
-                  onChange={(event) =>
-                    setSwitches({ ...switches, [key]: event.target.checked })
-                  }
-                />
+              <Checkbox
+                className="min-h-9 gap-3"
+                checked={switches[key]}
+                onChange={(event) =>
+                  setSwitches({ ...switches, [key]: event.target.checked })
+                }
+              >
                 {label}
-              </label>
+              </Checkbox>
             </li>
           ))}
         </ul>

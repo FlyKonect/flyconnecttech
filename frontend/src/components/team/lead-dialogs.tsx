@@ -292,13 +292,13 @@ export function CancelDemoDialog({
           value={reason}
           onChange={setReason}
         />
-        <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-body">
-          <Checkbox
-            checked={email}
-            onChange={(event) => setEmail(event.target.checked)}
-          />
+        <Checkbox
+          className="mt-4 gap-2.5 font-semibold"
+          checked={email}
+          onChange={(event) => setEmail(event.target.checked)}
+        >
           Email {first} that the demo is cancelled
-        </label>
+        </Checkbox>
         {error ? (
           <div className="mt-3">
             <FormError>{error}</FormError>

@@ -50,6 +50,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -493,7 +496,7 @@ function HeroSection() {
                       padding: "3px 9px",
                       borderRadius: "999px",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                       fontSize: "12px",
                       fontWeight: "600",
                     }}
@@ -692,7 +695,7 @@ function TechStackSection() {
                 fontSize: "19px",
                 fontWeight: "600",
                 letterSpacing: "-0.01em",
-                color: "#6B7891",
+                color: "#69768F",
               }}
             >
               {t.label}
@@ -729,7 +732,7 @@ function EverythingYouNeedToSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"Products & solutions"}
@@ -784,7 +787,7 @@ function EverythingYouNeedToSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -844,7 +847,7 @@ function EverythingYouNeedToSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -902,7 +905,7 @@ function EverythingYouNeedToSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -979,7 +982,7 @@ function EverythingYouNeedToSection() {
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#887122"
+              stroke="#846E21"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -1014,7 +1017,7 @@ function EverythingYouNeedToSection() {
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#887122"
+              stroke="#846E21"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -1049,7 +1052,7 @@ function EverythingYouNeedToSection() {
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#887122"
+              stroke="#846E21"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -1084,7 +1087,7 @@ function EverythingYouNeedToSection() {
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#887122"
+              stroke="#846E21"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -1119,7 +1122,7 @@ function EverythingYouNeedToSection() {
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#887122"
+              stroke="#846E21"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -1140,7 +1143,7 @@ function EverythingYouNeedToSection() {
               minHeight: "44px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
               textDecoration: "none",
             }}
           >
@@ -1186,7 +1189,7 @@ function OurSpecialtyBookingPlatformsSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"Travel technology · Amadeus & Sabre"}
@@ -1233,7 +1236,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1252,7 +1255,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1271,7 +1274,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1290,7 +1293,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1309,7 +1312,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1328,7 +1331,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1347,7 +1350,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1366,7 +1369,7 @@ function OurSpecialtyBookingPlatformsSection() {
                 height="18"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#887122"
+                stroke="#846E21"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1404,7 +1407,7 @@ function OurSpecialtyBookingPlatformsSection() {
               minHeight: "44px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
               textDecoration: "none",
             }}
           >
@@ -1849,7 +1852,7 @@ function FromAFastWebsiteSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"Websites & custom software"}
@@ -1948,7 +1951,7 @@ function FromAFastWebsiteSection() {
               minHeight: "44px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
               textDecoration: "none",
             }}
           >
@@ -2000,7 +2003,7 @@ function SeeItClickItSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             UI/UX design
@@ -2103,7 +2106,7 @@ function SeeItClickItSection() {
               minHeight: "44px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
               textDecoration: "none",
             }}
           >
@@ -2547,7 +2550,7 @@ function ConnectTheSystemsYourSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"API & payment integrations"}
@@ -2598,7 +2601,7 @@ function ConnectTheSystemsYourSection() {
               minHeight: "44px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
               textDecoration: "none",
             }}
           >
@@ -2946,7 +2949,7 @@ function SixStepsNoSurprisesSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our development process
@@ -3271,7 +3274,7 @@ function ATechnologyPartnerNotSection() {
                 margin: "0",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               Why choose us
@@ -3323,7 +3326,7 @@ function ATechnologyPartnerNotSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -3366,7 +3369,7 @@ function ATechnologyPartnerNotSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -3411,7 +3414,7 @@ function ATechnologyPartnerNotSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -3457,7 +3460,7 @@ function ATechnologyPartnerNotSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -3502,7 +3505,7 @@ function ATechnologyPartnerNotSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -3545,7 +3548,7 @@ function ATechnologyPartnerNotSection() {
               borderRadius: "16px",
             }}
           >
-            <span style={{ color: "#887122" }}>
+            <span style={{ color: "#846E21" }}>
               <svg
                 width="24"
                 height="24"
@@ -3594,7 +3597,7 @@ function ATechnologyPartnerNotSection() {
               minHeight: "44px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
               textDecoration: "none",
             }}
           >
@@ -3636,7 +3639,7 @@ function WhatOurClientsSaySection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Client testimonials

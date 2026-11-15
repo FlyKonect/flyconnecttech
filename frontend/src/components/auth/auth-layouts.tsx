@@ -45,6 +45,9 @@ export function AuthSplit({ children }: { children: React.ReactNode }) {
           width={1440}
           height={528}
           unoptimized
+          // The biggest thing in view: load it straight away.
+          loading="eager"
+          fetchPriority="high"
           className="absolute top-[12%] -left-[30%] w-[160%] max-w-none opacity-[0.22]"
         />
         {/* The design: 420px wide plus its 28px padding and 1px border. */}

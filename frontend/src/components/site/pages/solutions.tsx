@@ -43,6 +43,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -275,7 +278,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -354,7 +357,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -436,7 +439,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -516,7 +519,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -597,7 +600,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -679,7 +682,7 @@ function HeroSection() {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgba(211,175,52,0.13)",
-                      color: "#887122",
+                      color: "#846E21",
                     }}
                   >
                     <svg
@@ -758,7 +761,7 @@ function ReadyMadeCustomOrSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Three ways we help
@@ -817,7 +820,7 @@ function ReadyMadeCustomOrSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -881,7 +884,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -904,7 +907,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -927,7 +930,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -950,7 +953,7 @@ function ReadyMadeCustomOrSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -991,7 +994,7 @@ function ReadyMadeCustomOrSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1053,7 +1056,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1076,7 +1079,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1099,7 +1102,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1122,7 +1125,7 @@ function ReadyMadeCustomOrSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -1163,7 +1166,7 @@ function ReadyMadeCustomOrSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1227,7 +1230,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1250,7 +1253,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1273,7 +1276,7 @@ function ReadyMadeCustomOrSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1296,7 +1299,7 @@ function ReadyMadeCustomOrSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -1348,7 +1351,7 @@ function TellUsWhereYouSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Where to start
@@ -1398,7 +1401,7 @@ function TellUsWhereYouSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1442,7 +1445,7 @@ function TellUsWhereYouSection() {
                 marginTop: "auto",
                 paddingTop: "18px",
                 display: "inline-flex",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1485,7 +1488,7 @@ function TellUsWhereYouSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1530,7 +1533,7 @@ function TellUsWhereYouSection() {
                 marginTop: "auto",
                 paddingTop: "18px",
                 display: "inline-flex",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1573,7 +1576,7 @@ function TellUsWhereYouSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1615,7 +1618,7 @@ function TellUsWhereYouSection() {
                 marginTop: "auto",
                 paddingTop: "18px",
                 display: "inline-flex",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1658,7 +1661,7 @@ function TellUsWhereYouSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1702,7 +1705,7 @@ function TellUsWhereYouSection() {
                 marginTop: "auto",
                 paddingTop: "18px",
                 display: "inline-flex",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1745,7 +1748,7 @@ function TellUsWhereYouSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1790,7 +1793,7 @@ function TellUsWhereYouSection() {
                 marginTop: "auto",
                 paddingTop: "18px",
                 display: "inline-flex",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1833,7 +1836,7 @@ function TellUsWhereYouSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1878,7 +1881,7 @@ function TellUsWhereYouSection() {
                 marginTop: "auto",
                 paddingTop: "18px",
                 display: "inline-flex",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1927,7 +1930,7 @@ function EveryProductAndServiceSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Solution catalogue
@@ -1984,7 +1987,7 @@ function EveryProductAndServiceSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -2044,7 +2047,7 @@ function EveryProductAndServiceSection() {
                 minHeight: "44px",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -2085,7 +2088,7 @@ function EveryProductAndServiceSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -2145,7 +2148,7 @@ function EveryProductAndServiceSection() {
                 minHeight: "44px",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -2186,7 +2189,7 @@ function EveryProductAndServiceSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -2245,7 +2248,7 @@ function EveryProductAndServiceSection() {
                 minHeight: "44px",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -2286,7 +2289,7 @@ function EveryProductAndServiceSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -2347,7 +2350,7 @@ function EveryProductAndServiceSection() {
                 minHeight: "44px",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -2388,7 +2391,7 @@ function EveryProductAndServiceSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -2447,7 +2450,7 @@ function EveryProductAndServiceSection() {
                 minHeight: "44px",
                 fontSize: "14px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -2499,12 +2502,13 @@ function TwoStartingPointsOneSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Ready-made or custom?
           </p>
           <h2
+            id="compare-heading"
             style={{
               margin: "12px 0 0",
               fontFamily: "var(--font-heading)",
@@ -2517,7 +2521,11 @@ function TwoStartingPointsOneSection() {
             Two starting points, one standard of quality.
           </h2>
         </div>
+        {/* Scrolls sideways on phones, so keyboard users can reach it too. */}
         <div
+          role="region"
+          aria-labelledby="compare-heading"
+          tabIndex={0}
           style={{
             marginTop: "48px",
             overflowX: "auto",
@@ -2576,7 +2584,7 @@ function TwoStartingPointsOneSection() {
                         alignItems: "center",
                         justifyContent: "center",
                         background: "rgba(211,175,52,0.13)",
-                        color: "#887122",
+                        color: "#846E21",
                       }}
                     >
                       <svg
@@ -2626,7 +2634,7 @@ function TwoStartingPointsOneSection() {
                         alignItems: "center",
                         justifyContent: "center",
                         background: "rgba(211,175,52,0.13)",
-                        color: "#887122",
+                        color: "#846E21",
                       }}
                     >
                       <svg

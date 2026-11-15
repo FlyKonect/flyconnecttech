@@ -45,6 +45,9 @@ function HeroSection() {
         width={1440}
         height={528}
         unoptimized
+        // The biggest thing in view: load it straight away.
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "absolute",
           left: "50%",
@@ -558,7 +561,7 @@ function TwoWaysToStartSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Service overview
@@ -616,7 +619,7 @@ function TwoWaysToStartSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -680,7 +683,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -703,7 +706,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -726,7 +729,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -749,7 +752,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -772,7 +775,7 @@ function TwoWaysToStartSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -813,7 +816,7 @@ function TwoWaysToStartSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -877,7 +880,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -900,7 +903,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -923,7 +926,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -946,7 +949,7 @@ function TwoWaysToStartSection() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#887122"
+                  stroke="#846E21"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -969,7 +972,7 @@ function TwoWaysToStartSection() {
                 minHeight: "44px",
                 fontSize: "15px",
                 fontWeight: "600",
-                color: "#887122",
+                color: "#846E21",
                 textDecoration: "none",
               }}
             >
@@ -1021,7 +1024,7 @@ function EverythingATravelBusinessSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             {"Features & capabilities"}
@@ -1068,7 +1071,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1123,7 +1126,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1179,7 +1182,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1236,7 +1239,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1292,7 +1295,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1350,7 +1353,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1415,7 +1418,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1470,7 +1473,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1534,7 +1537,7 @@ function EverythingATravelBusinessSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(211,175,52,0.13)",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               <svg
@@ -1600,7 +1603,7 @@ function BuiltForTheHardSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Business problems solved
@@ -1672,7 +1675,7 @@ function BuiltForTheHardSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1747,7 +1750,7 @@ function BuiltForTheHardSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1820,7 +1823,7 @@ function BuiltForTheHardSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1893,7 +1896,7 @@ function BuiltForTheHardSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -1966,7 +1969,7 @@ function BuiltForTheHardSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -2039,7 +2042,7 @@ function BuiltForTheHardSection() {
                 fontWeight: "700",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "#887122",
+                color: "#846E21",
               }}
             >
               How we solve it
@@ -2098,7 +2101,7 @@ function SearchToETicketSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             The booking flow we built
@@ -2426,7 +2429,7 @@ function ProvenToolsChosenForSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Technology stack
@@ -2759,7 +2762,7 @@ function SixStepsNoSurprisesSection() {
               margin: "0",
               fontSize: "14px",
               fontWeight: "600",
-              color: "#887122",
+              color: "#846E21",
             }}
           >
             Our development process

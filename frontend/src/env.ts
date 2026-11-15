@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+// Zod would test once whether it may build code with new Function(), which the
+// site's security policy forbids (the browser reports it as a violation).
+// This file is read first, so the setting covers every form check.
+z.config({ jitless: true });
+
 /**
  * Settings the frontend reads from `.env.local` (see `.env.example`).
  * They are checked once, so a missing or wrong value fails with a clear message.
