@@ -135,12 +135,17 @@ export type TestPerson = {
 };
 
 /**
- * A fresh, active person of this role, signed in. Team members also have
+ * A fresh, active person of this role, signed in (called "Test {role}"
+ * unless given a name). Team members also have
  * two-factor set up, as the team panel requires.
  */
-export async function createPerson(role: Role): Promise<TestPerson> {
+export async function createPerson(
+  role: Role,
+  /** A name of their own, to pick them out of a list. */
+  ownName?: string,
+): Promise<TestPerson> {
   const email = uniqueEmail(role);
-  const name = `Test ${role.replace("-", " ")}`;
+  const name = ownName ?? `Test ${role.replace("-", " ")}`;
   const link = inviteWithCommand({
     role,
     name,

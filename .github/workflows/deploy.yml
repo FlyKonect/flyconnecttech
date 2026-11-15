@@ -14,6 +14,8 @@
 #
 # Setup (secrets, variables, cPanel): docs/deploy.md
 # The deploy job is skipped until the variable DEPLOY_ENABLED is "true".
+# With DEPLOY_BACKEND set to "false", only the website is deployed (the
+# guide puts the website live first, then the backend).
 
 name: Deploy
 
@@ -48,6 +50,7 @@ jobs:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_PORT: ${{ vars.SSH_PORT }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      DEPLOY_BACKEND: ${{ vars.DEPLOY_BACKEND || 'true' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -60,9 +63,11 @@ jobs:
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
           problems=0
-          for name in SITE_URL API_URL FRONTEND_PATH BACKEND_PATH SSH_HOST SSH_PORT SSH_USER SSH_PRIVATE_KEY SSH_KNOWN_HOSTS; do
+          required="SITE_URL API_URL FRONTEND_PATH SSH_HOST SSH_PORT SSH_USER SSH_PRIVATE_KEY SSH_KNOWN_HOSTS"
+          if [ "$DEPLOY_BACKEND" = "true" ]; then required="$required BACKEND_PATH"; fi
+          for name in $required; do
             if [ -z "${!name}" ]; then
-              echo "::error::$name is not set. See docs/deploy.md, step 7."
+              echo "::error::$name is not set. See docs/deploy.md, steps 4 and 6 (BACKEND_PATH: step 13)."
               problems=1
             fi
           done
@@ -96,8 +101,13 @@ jobs:
             fi
           done
 
+          if [ "$DEPLOY_BACKEND" != "true" ] && [ "$DEPLOY_BACKEND" != "false" ]; then
+            echo "::error::DEPLOY_BACKEND must be true or false."
+            problems=1
+          fi
+
           if ! [[ "$SSH_PORT" =~ ^[0-9]+$ ]]; then
-            echo "::error::SSH_PORT must be a number, for example 22."
+            echo "::error::SSH_PORT must be a number, for example 722."
             problems=1
           fi
 
@@ -113,6 +123,7 @@ jobs:
             backend/package-lock.json
 
       - name: Build the backend
+        if: env.DEPLOY_BACKEND == 'true'
         working-directory: backend
         run: |
           npm ci
@@ -160,13 +171,15 @@ jobs:
           chmod 600 ~/.ssh/config
 
           if ! ssh live true; then
-            echo "::error::Could not log in to the hosting. Check SSH_HOST, SSH_PORT, SSH_USER, SSH_PRIVATE_KEY and SSH_KNOWN_HOSTS (docs/deploy.md, steps 5 and 7)."
+            echo "::error::Could not log in to the hosting. Check SSH_HOST, SSH_PORT, SSH_USER, SSH_PRIVATE_KEY and SSH_KNOWN_HOSTS (docs/deploy.md, steps 3 and 4)."
             exit 1
           fi
 
-          for name in FRONTEND_PATH BACKEND_PATH; do
+          folders="FRONTEND_PATH"
+          if [ "$DEPLOY_BACKEND" = "true" ]; then folders="$folders BACKEND_PATH"; fi
+          for name in $folders; do
             if ! ssh live "test -d \"\$HOME/${!name}\""; then
-              echo "::error::The folder ${!name} does not exist on the hosting. Create the Node.js app in cPanel first (docs/deploy.md, step 4)."
+              echo "::error::The folder ${!name} does not exist on the hosting. Create the Node.js app in cPanel first (docs/deploy.md, steps 5 and 11)."
               exit 1
             fi
           done
@@ -174,6 +187,7 @@ jobs:
       # Only dist/ and prisma/ are replaced. The settings file (.env), the
       # installed packages and everything else on the hosting stay as they are.
       - name: Upload the backend
+        if: env.DEPLOY_BACKEND == 'true'
         run: |
           rsync -az --delete backend/dist/ "live:$BACKEND_PATH/dist/"
           rsync -az --delete backend/prisma/ "live:$BACKEND_PATH/prisma/"
@@ -185,6 +199,7 @@ jobs:
             "live:$BACKEND_PATH/"
 
       - name: Install packages, update the database, restart the backend
+        if: env.DEPLOY_BACKEND == 'true'
         run: ssh live "APP_PATH='$BACKEND_PATH' bash -se" < .github/scripts/remote-backend.sh
 
       # Only .next/, node_modules/ and public/ are replaced.
@@ -216,7 +231,7 @@ jobs:
             return 1
           }
 
-          check "$API_URL/health"
+          if [ "$DEPLOY_BACKEND" = "true" ]; then check "$API_URL/health"; fi
           check "$SITE_URL/"
 
       - name: Remove the login key from this machine

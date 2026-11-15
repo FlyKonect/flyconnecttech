@@ -20,7 +20,7 @@ for candidate in "$HOME/nodevenv/$APP_PATH"/*/bin/activate; do
 done
 
 if [ -z "$activate" ]; then
-  echo "::error::No Node.js app was found for the folder $APP_PATH. In cPanel > Setup Node.js App, create the backend app with this folder as its Application root (docs/deploy.md, step 4)."
+  echo "::error::No Node.js app was found for the folder $APP_PATH. In cPanel > Setup Node.js App, create the backend app with this folder as its Application root (docs/deploy.md, step 11)."
   exit 1
 fi
 
@@ -32,7 +32,7 @@ set -u
 echo "Using Node.js $(node --version) and npm $(npm --version)"
 
 if [ ! -f .env ]; then
-  echo "::error::The settings file $APP_PATH/.env is missing on the hosting. Create it first (docs/deploy.md, step 6)."
+  echo "::error::The settings file $APP_PATH/.env is missing on the hosting. Create it first (docs/deploy.md, step 12)."
   exit 1
 fi
 

@@ -34,7 +34,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - Tailwind CSS 4 and shadcn/ui (Radix). Theme tokens from `docs/03-design-system.md`, set in `src/app/globals.css`.
 - Inter and Inter Tight through `next/font`.
 - Zod for every input. react-hook-form on the client.
-- Vitest for unit tests, Playwright for end-to-end tests. ESLint, Prettier.
+- Vitest for unit tests, Playwright for end-to-end tests, with axe (`@axe-core/playwright`) for the accessibility checks. ESLint, Prettier.
 - It has no database access. It gets everything from the backend (`NEXT_PUBLIC_API_URL`).
 
 **Backend (`backend/`)**
@@ -54,19 +54,20 @@ cPanel **shared business hosting** (not a VPS), with "Setup Node.js App" and Mar
 - Two Node.js apps: the website on `yourdomain.com`, the backend on `api.yourdomain.com`.
 - Never build on the server. GitHub builds both apps and uploads the result.
 - Database changes on the server: `prisma migrate deploy` (the deploy runs it). Never `db:migrate` there.
-- No Docker, no S3, no Redis, no long-running workers. Scheduled jobs run from cPanel Cron: `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 10).
+- No Docker, no S3, no Redis, no long-running workers. Scheduled jobs run from cPanel Cron: `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 15).
 - The server's default text format is latin1. Create the live database as `utf8mb4`.
 - Needs Node.js 22.12 or newer on the server. GitHub builds with the same version (`NODE_VERSION` variable, default 22).
 
 ## Deploy
 Setup guide for the owner, in plain steps: `docs/deploy.md`. Keep it current when the pipeline changes.
 - `.github/workflows/ci.yml`: checks for both apps. Runs on pull requests, on pushes to other branches, and before every deploy.
-- `.github/workflows/deploy.yml`: on a push to `main`, runs the checks, builds, uploads over SSH (rsync), runs `.github/scripts/remote-backend.sh` on the server (packages, migrations, restart), then checks `/health` and the home page. Skipped unless the variable `DEPLOY_ENABLED` is `true`.
+- `.github/workflows/deploy.yml`: on a push to `main`, runs the checks, builds, uploads over SSH (rsync), runs `.github/scripts/remote-backend.sh` on the server (packages, migrations, restart), then checks `/health` and the home page. Skipped unless the variable `DEPLOY_ENABLED` is `true`. With `DEPLOY_BACKEND` set to `false` it deploys only the website (the guide puts the website live first, then the backend).
+- The live hosting is Krystal business hosting (cPanel, SSH on port 722): the website on `flyconnecttech.co.uk`, the backend on `api.flyconnecttech.co.uk`.
 - The website is deployed as the Next.js standalone build (`output: "standalone"`), started by `server.js`.
 - The backend is started by `backend/app.cjs`: cPanel loads the start file with `require`, which cannot load the ESM app directly.
 - A deploy replaces only `dist/` and `prisma/` (backend) and `.next/`, `node_modules/` and `public/` (website). `.env` and `uploads/` on the server are never touched. Keep it that way.
 - `prisma` is a normal dependency (not a dev one) so migrations can run on the server.
-- Secrets stay in `backend/.env` on the server. GitHub holds only the SSH login. A new backend setting means: add it to `src/config/env.ts`, `.env.example` and Step 6 of `docs/deploy.md`.
+- Secrets stay in `backend/.env` on the server. GitHub holds only the SSH login. A new backend setting means: add it to `src/config/env.ts`, `.env.example` and Step 12 of `docs/deploy.md`.
 - Values the website needs (`NEXT_PUBLIC_*`) are built in at build time from GitHub variables.
 
 ## Commands
@@ -89,11 +90,11 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run lint`
 - `npm run format`
 - `npm test`: unit tests
-- `npm run test:e2e`: whole-app tests (no database needed)
+- `npm run test:e2e`: whole-app tests (no database needed), including `test/security.e2e-spec.ts`: the security headers, and that every route needs a sign-in except the listed public ones (a new `@Public()` route must be added to that list)
 - `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active), website leads (the public forms, demos, quotes, messages, owners, convert), the scheduled jobs (daily digest, auto-close, weekly summary), and reports and settings (every number from known requests; saving targets changes the next due time)
-- `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
-- `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
-- `npm run job -- daily-digest` (or `auto-close`, `weekly-summary`): run a scheduled job now, against your own database and Mailpit. Live, cPanel Cron runs `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 10). Each run prints one line with the time and what it did.
+- `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 14)
+- `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 14)
+- `npm run job -- daily-digest` (or `auto-close`, `weekly-summary`): run a scheduled job now, against your own database and Mailpit. Live, cPanel Cron runs `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 15). Each run prints one line with the time and what it did.
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
 - `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
@@ -173,6 +174,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
   - `waitForEmail()` also lists an email's attachments (the demo invite's `invite.ics`).
   - A test that books a demo and confirms it takes that time in the test database until it is completed: pick a time no other test uses (the website test uses the first day at 14:00; the leads test the last day).
   - The test database keeps every run's data, and every test person has the same name ("Test developer"): pick by role or code, not by position in a list.
+  - `journey.spec.ts` is the main journey (demo → customer → request → assigned → resolved → confirmed); `access.spec.ts` checks which pages each role reaches; `a11y.spec.ts` runs axe on every screen (serious and critical findings fail) and the keyboard checks of dialogs and menus. `createPerson(role, name)` takes a name when a test must pick that person out of a list.
   - Next.js keeps pages you left in the page, hidden. Pick fields with the visible-only `field()` helper and form errors by `[data-slot=form-error]`, as in `e2e/accounts.spec.ts`, or a test finds two matches.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
@@ -291,6 +293,8 @@ Every row of docs/01 §7, where it is sent from, what it follows, and where it i
   - Validate uploads (type and size).
   - Keep audit log entries for account, role and permission changes.
   - Secrets live only in `backend/.env` and `frontend/.env.local`. Nothing secret goes in a `NEXT_PUBLIC_` value.
+  - Security headers: the website's in `frontend/src/lib/security-headers.ts` (used by `next.config.ts`; the standard CSP without nonces, so pages stay pre-built; it only allows calls to the site and `NEXT_PUBLIC_API_URL`), the backend's in `backend/src/security/security-headers.ts`. A new outside script, font, image or address must be added to the policy. Zod runs with `jitless` (`src/env.ts`) so it never tries `new Function()`.
+  - Colours must pass AA contrast; axe checks it. `gold-text` is `#846E21`, slightly darker than the design files' `#887122`.
 
 ## How we work
 - Build one phase at a time from `docs/04-build-plan.md`. Plan first, then build.
