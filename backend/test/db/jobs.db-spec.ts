@@ -123,10 +123,10 @@ async function setTeamNotifications(
 
 const emailsTo = (who: Person) => sent.filter((e) => e.to === who.email);
 type Rows = { code: string }[];
-const codesIn = (email: OutgoingEmail | undefined, list: string) =>
-  ((email?.template.props as Record<string, Rows>)[list] ?? []).map(
-    (row) => row.code,
-  );
+const codesIn = (email: OutgoingEmail | undefined, list: string) => {
+  const props = (email?.template.props ?? {}) as Record<string, Rows>;
+  return (props[list] ?? []).map((row) => row.code);
+};
 
 let superAdmin: Person;
 let admin: Person;

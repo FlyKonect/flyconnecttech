@@ -42,7 +42,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - MariaDB 10.11 with Prisma 7 (`@prisma/adapter-mariadb`). Keep `prisma`, `@prisma/client` and the adapter on the same exact version.
 - Zod for every input and for the settings in `.env` (`src/config/env.ts`).
 - Swagger API docs at `/api-docs` (not in production).
-- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Account, support request and website lead emails exist (the demo invite carries an `.ics` file, `src/leads/ics.ts`); the rest, with the final sender, come in Phase 9.
+- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Every email in docs/01 §7 exists (see "Notifications and emails" below), with a plain-text version; the demo invite carries an `.ics` file (`src/leads/ics.ts`). The sender is `EMAIL_FROM` ("FlyConnect Tech Support <hello@yourdomain.com>" until the client gives the real mailbox). Every email can be previewed at `/dev/emails` in development.
 - File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check. multer (part of `@nestjs/platform-express`) writes them to `UPLOAD_DIR/tmp` first. See "Support requests" below.
 - Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
 - Sign-in: Better Auth (email and password, sessions in the database, TOTP two-factor required for team accounts, sign-up switched off). Invitations and password resets are our own code in `backend/src/accounts/`. See "Sign-in and permissions" below.
@@ -54,7 +54,7 @@ cPanel **shared business hosting** (not a VPS), with "Setup Node.js App" and Mar
 - Two Node.js apps: the website on `yourdomain.com`, the backend on `api.yourdomain.com`.
 - Never build on the server. GitHub builds both apps and uploads the result.
 - Database changes on the server: `prisma migrate deploy` (the deploy runs it). Never `db:migrate` there.
-- No Docker, no S3, no Redis, no long-running workers. Scheduled jobs run from cPanel Cron.
+- No Docker, no S3, no Redis, no long-running workers. Scheduled jobs run from cPanel Cron: `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 10).
 - The server's default text format is latin1. Create the live database as `utf8mb4`.
 - Needs Node.js 22.12 or newer on the server. GitHub builds with the same version (`NODE_VERSION` variable, default 22).
 
@@ -90,9 +90,10 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active) and website leads (the public forms, demos, quotes, messages, owners, convert)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile), the team panel (who sees what, assigning, notes, statuses, emails, dashboards), customers and users (adding them with their projects, resend, reset links, disable, last active), website leads (the public forms, demos, quotes, messages, owners, convert) and the scheduled jobs (daily digest, auto-close, weekly summary)
 - `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Needed for the very first super admin; after that, people are added from the team panel (Users, Customers). Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
 - `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project from the command line (the normal way is Add customer / Add project in the team panel; the browser tests use this). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
+- `npm run job -- daily-digest` (or `auto-close`, `weekly-summary`): run a scheduled job now, against your own database and Mailpit. Live, cPanel Cron runs `node dist/cli/run-job.js <job>` (docs/deploy.md, Step 10). Each run prints one line with the time and what it did.
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
 - `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
@@ -141,7 +142,9 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
 - `backend/src/settings/settings.service.ts`: reads a setting, falling back to `defaults.ts`
 - `backend/src/time/uk-time.ts`: UK wall-clock time (business days, demo slots)
-- `backend/src/cli/`: command-line tools (`invite-user.ts`, `add-project.ts`)
+- `backend/src/jobs/`: the scheduled jobs (`jobs.service.tsx`: daily digest, auto-close, weekly summary) and their wording (`job-words.ts`)
+- `backend/src/email/previews.tsx`: every email with sample content, grouped by the docs/01 §7 rows; served by `dev-emails.controller.ts` at `/dev/emails` outside production. Add a new email here too (a unit test checks every row has one).
+- `backend/src/cli/`: command-line tools (`invite-user.ts`, `add-project.ts`, `run-job.ts`)
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
@@ -150,6 +153,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 
 ## Frontend conventions
 - **Use the shared components.** Check `/dev/components` (run the frontend, open http://localhost:3001/dev/components) before building a new piece. Add new shared components to that page.
+- **Emails:** `/dev/emails` (development only) shows every email as sent and as plain text, from the backend's `/dev/emails`. The backend must be running.
 - **Pills:** `<LabelPill group="requestStatus" value="IN_PROGRESS" />`. Labels and colours come from `labels.ts`.
 - **Screen sizes** (Tailwind variants, set in `globals.css`): `site:` 860px and `nav:` 1240px for the website, `app:` 900px for the portal and team panel. Use `max-app:` and so on for "below". The design's full-menu width is 1180px; it is 1240px here because the FlyConnect Tech logo is wider.
 - **Website pages** (`components/site/pages/*.tsx`) were converted once from `design/source/website-*.dc.html` and keep the design's inline styles, so they match it exactly. Edit them by hand like any other component. Their root has the class `design-page`, which makes styled elements measure boxes the design's way (padding outside the width, see `globals.css`). Keep both.
@@ -191,6 +195,31 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Last active:** `SessionGuard` saves `users.lastActiveAt` at most every 5 minutes per person (`LAST_ACTIVE_EVERY_MS`). The Users list and the customer page show it.
 - **Cookies** are named `fct.*` (`__Secure-fct.*` live). Live, `COOKIE_DOMAIN` makes one sign-in work on both the website and the `api.` address.
 - **Change password** is our own `POST /me/password` (`accounts/profile.service.ts`): it applies the password rules and signs out other devices. Better Auth's `/change-password` is switched off.
+
+## Notifications and emails (backend)
+Every row of docs/01 §7, where it is sent from, what it follows, and where it is tested. In-app notifications are written inside the change's transaction; emails go after it and a failed email never undoes the change. SA, A, M = active super admins, admins, managers.
+
+| §7 row | In-app | Email | Sent from | Follows | Tested in |
+|---|---|---|---|---|---|
+| Customer or team invitation | — | Invitee (48-hour link) | `accounts/invitations.service.tsx` | — | `accounts`, `customers` db tests |
+| Password reset requested or sent by admin | — | The person | `accounts/password-reset.service.tsx` | — | `accounts`, `customers` |
+| New support request | SA, A, M ("urgent" kind when Urgent) | Customer's copy; Urgent alert to SA, A | `requests/request-events.service.tsx` | setting `urgentAlert` | `portal`, `team` |
+| Request assigned or transferred | Developer | Developer | `request-events` | — | `team` |
+| Team reply to customer | Customer | Customer | `request-events` | customer "The team replies" | `team`, `portal` |
+| Customer reply | Assignee, or SA, A when unassigned | Assignee | `request-events` | setting `notifyAssigneeOnReply` | `team`, `jobs` |
+| Status changed / needs info / resolved / closed | Customer | Customer ("Resolved" asks to confirm) | `request-events` | customer "A status changes" | `team`, `portal`, `jobs` (auto-close) |
+| Daily digest of requests waiting for review | — | SA, A, M (none when nothing waits) | `jobs/jobs.service.tsx` | setting `dailyDigest` | `jobs` |
+| Weekly summary (added in Phase 9) | — | Customer (none when nothing to report) | `jobs/jobs.service.tsx` | customer "Weekly summary" | `jobs` |
+| Demo requested | SA, A, M | Visitor's copy; team alert to SA, A, M | `leads/lead-events.service.tsx` | — | `leads` |
+| Demo confirmed or rescheduled | Owner and host (not the person who did it) | Visitor, with `.ics` | `lead-events` | — | `leads` |
+| Demo cancelled | — | Visitor, if ticked (a CANCEL `.ics` if it was booked) | `lead-events` | the "Email {first}" tick | `leads` |
+| Quote requested | SA, A, M | Visitor's copy; team alert | `lead-events` | — | `leads` |
+| Estimate sent or updated | — | Visitor | `lead-events` | — | `leads` |
+| Contact message received | SA, A, M | Team alert | `lead-events` | — | `leads` |
+| Lead email from the composer | — | The lead's contact | `lead-events` | — | `leads` |
+
+- **Every template** renders as HTML and plain text in the brand layout (`email/previews.spec.ts`).
+- **Scheduled jobs** (`jobs/jobs.service.tsx`, run by `cli/run-job.ts`): each is safe to run again. Auto-close moves Resolved requests whose `resolvedAt` is 7 days old to Closed through `moveStatus()` with no person (`actorId: null`), the line "Closed automatically 7 days after it was resolved", and the usual customer notification and email. Each request has its own transaction.
 
 ## Website leads (backend)
 - **Public forms** (`/leads/demo`, `/leads/quote`, `/leads/message`, `@Public`, rate-limited per address): the same Zod rules as the website; a filled honeypot field answers "sent" and saves nothing; the page is stored by name ("Travel Technology", `pageName()`); a message from a customer's email is linked to that customer. The answer never says whether an email exists.

@@ -244,6 +244,33 @@ node dist/cli/add-project.js --email customer@theircompany.com --name "Bluewave 
 - `--status` can be `planning` (if you leave it out), `in-design`, `in-development`, `live` or `completed`.
 - It prints the project's code, for example `P-0001`. Run it once for each project.
 
+## Step 10. Scheduled jobs (cPanel Cron)
+
+Three small jobs run on a timetable. The hosting has no programs running in the background, so cPanel's **Cron Jobs** starts each one at its time:
+
+| Job | What it does | When |
+|---|---|---|
+| `daily-digest` | Emails the super admins, admins and managers the support requests still waiting for review. Nothing is sent when none are waiting. Settings switch: "Daily digest of requests waiting for review". | Every day, 08:00 |
+| `auto-close` | Closes support requests that have been Resolved for 7 days, and tells the customer. Settings switch: "Auto-close resolved requests after 7 days" (off at the start). | Every day, 02:00 |
+| `weekly-summary` | Emails customers who ticked "Weekly summary of my requests" in their profile a summary of their requests. | Mondays, 08:00 |
+
+1. Find the `source … activate` command you copied in Step 9 (cPanel > Setup Node.js App > pencil next to the **backend** app).
+2. cPanel > **Cron Jobs**. Under "Add New Cron Job", fill in the times (minute, hour, day, month, weekday) and the command, then **Add New Cron Job**. Do this three times:
+
+   | Minute | Hour | Day | Month | Weekday | Command |
+   |---|---|---|---|---|---|
+   | `0` | `8` | `*` | `*` | `*` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js daily-digest >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
+   | `0` | `2` | `*` | `*` | `*` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js auto-close >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
+   | `0` | `8` | `*` | `*` | `1` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js weekly-summary >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
+
+   Replace `<source … activate>` with your own command from step 1.
+
+Notes:
+- **The times are the server's clock**, which may not be UK time. cPanel shows the server's time zone at the top of the Cron Jobs page. If it is an hour off from the UK, move the hour by one.
+- **Each run adds one line to `jobs.log`** in the backend folder, with the time and what it did, for example `daily-digest: sent to 3 of 3 people, 2 waiting`. A deploy never touches this file.
+- **To try a job now**, run the same command in the Terminal (after the `source … activate` line), without the `>> …` part.
+- Turning a switch off in Settings is enough to stop a job doing anything; the cron line can stay.
+
 ---
 
 ## Everyday use
@@ -275,6 +302,7 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | "The settings file … .env is missing" | Do Step 6 |
 | Error while "Updating the database", with "Access denied" | Wrong database name, user or password in `DATABASE_URL`, or the user was not added to the database with ALL PRIVILEGES (Step 3) |
 | "… did not answer" at the end, or the site shows a 503 error | In File Manager open the app's folder and read `stderr.log`. The usual causes: the Node.js version is below 22, a mistake in `.env`, or a database password with symbols in it |
+| A scheduled job seems not to run | Look at `jobs.log` in the backend folder (Step 10). No new lines means the cron line is wrong: run its command in the Terminal to see the error |
 | No invitation or reset email arrives | Check the `SMTP_` settings in `.env` (Step 6), restart the backend app, and look in `stderr.log` for "email". The invite command prints the link anyway |
 | Signing in seems to work but you land back on the sign-in page | `COOKIE_DOMAIN` is missing or wrong, or `BACKEND_URL` / `FRONTEND_URL` do not match the real addresses (Step 6) |
 | The site opens but says "Backend not running" | `API_URL` is wrong, `FRONTEND_URL` in `.env` does not match the site's address exactly (check `www`), or `api.yourdomain.com` has no padlock yet |
