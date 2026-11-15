@@ -218,10 +218,7 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
               />
             )}
           </SiteField>
-          <SiteField
-            label="Phone or WhatsApp (optional)"
-            className="flex-[1_1_180px]"
-          >
+          <SiteField label="Phone (optional)" className="flex-[1_1_180px]">
             {(props) => (
               <input
                 type="tel"

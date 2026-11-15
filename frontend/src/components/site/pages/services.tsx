@@ -2665,7 +2665,7 @@ function HaveAProjectInSection() {
             }}
           >
             Tell us what you want to build. We reply with next steps, a rough
-            scope and an estimate within [X business days].
+            scope and an estimate within 1 business day.
           </p>
         </div>
         <div

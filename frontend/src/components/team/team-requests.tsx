@@ -233,7 +233,8 @@ export function TeamRequests({
           },
           {
             header: "Assigned to",
-            className: "whitespace-nowrap text-body",
+            // Long names wrap, so the Updated column stays on the card.
+            className: "min-w-[120px] text-body",
             cell: (r) => r.assignee?.name ?? "Unassigned",
           },
           {

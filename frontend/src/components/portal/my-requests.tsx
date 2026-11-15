@@ -135,14 +135,15 @@ export function MyRequests({
               },
               {
                 header: "Assigned to",
-                className: "whitespace-nowrap",
+                // Long names wrap, so the table stays on the card.
+                className: "min-w-[160px]",
                 cell: (r) =>
                   r.assignee ? (
                     <span className="flex items-center gap-2">
                       <Avatar
                         name={r.assignee.name}
                         tone="tint"
-                        className="size-7 text-[11px]"
+                        className="size-7 shrink-0 text-[11px]"
                       />
                       {r.assignee.name}
                     </span>

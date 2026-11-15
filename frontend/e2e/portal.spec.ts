@@ -242,12 +242,20 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
 test("notifications: open one, then mark all as read", async ({ page }) => {
   const customer = await customerWithProject(page);
   const first = await sendRequest(customer, { title: "First request" });
-  await sendRequest(customer, { title: "Second request" });
+  const second = await sendRequest(customer, { title: "Second request" });
+  // Sending a request gives the customer no notice; a team reply does.
+  const admin = await createPerson("admin", "Notice admin");
+  for (const code of [first, second]) {
+    await postAs(admin, `/team/requests/${code}/messages`, {
+      kind: "reply",
+      body: "We are looking at it.",
+    });
+  }
 
   await page.goto("/portal/notifications");
   await expect(page.getByRole("heading", { name: "2 unread" })).toBeVisible();
   await page
-    .getByRole("link", { name: `Unread: Request ${first} submitted` })
+    .getByRole("link", { name: `Unread: Notice admin replied to ${first}` })
     .click();
   await expect(page).toHaveURL(new RegExp(`/portal/requests/${first}$`));
   await expect(

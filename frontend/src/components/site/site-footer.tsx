@@ -3,6 +3,7 @@ import { Mail } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
 import { footerColumns } from "@/components/site/site-nav";
+import { contactEmail, contactEmailHref, socialLinks } from "@/lib/contact";
 import { routes } from "@/lib/routes";
 
 const socialButton =
@@ -27,9 +28,14 @@ export function SiteFooter() {
               your business.
             </p>
 
-            {/* Placeholders until the client gives the real profile links. */}
             <div className="mt-5 flex gap-2">
-              <a href="#top" aria-label="LinkedIn" className={socialButton}>
+              <a
+                href={socialLinks.linkedIn}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn (opens in a new tab)"
+                className={socialButton}
+              >
                 <svg
                   aria-hidden="true"
                   width="18"
@@ -46,7 +52,13 @@ export function SiteFooter() {
                   <circle cx="4" cy="4" r="2" />
                 </svg>
               </a>
-              <a href="#top" aria-label="Instagram" className={socialButton}>
+              <a
+                href={socialLinks.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram (opens in a new tab)"
+                className={socialButton}
+              >
                 <svg
                   aria-hidden="true"
                   width="18"
@@ -63,9 +75,9 @@ export function SiteFooter() {
                   <path d="M17.5 6.5h.01" />
                 </svg>
               </a>
-              <Link
-                href={routes.contact}
-                aria-label="Email"
+              <a
+                href={contactEmailHref}
+                aria-label={`Email ${contactEmail}`}
                 className={socialButton}
               >
                 <Mail
@@ -73,7 +85,7 @@ export function SiteFooter() {
                   className="size-[18px]"
                   strokeWidth={1.8}
                 />
-              </Link>
+              </a>
             </div>
           </div>
 

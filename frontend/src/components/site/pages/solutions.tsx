@@ -2848,7 +2848,7 @@ function TwoStartingPointsOneSection() {
                     verticalAlign: "top",
                   }}
                 >
-                  [X–Y weeks]
+                  Shorter
                 </td>
                 <td
                   style={{
@@ -2860,7 +2860,7 @@ function TwoStartingPointsOneSection() {
                     verticalAlign: "top",
                   }}
                 >
-                  [X–Y months]
+                  Longer
                 </td>
               </tr>
               <tr>

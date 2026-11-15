@@ -61,8 +61,8 @@ export function QuoteReceivedEmail(
       <Heading>Your request is in</Heading>
       <Paragraph>
         Thanks, {props.firstName}. Your request is in. We will reply to{' '}
-        {props.email} within [X business days] with next steps, a rough scope
-        and an estimate.
+        {props.email} within 1 business day with next steps, a rough scope and
+        an estimate.
       </Paragraph>
       <RequestCard
         code={props.code}

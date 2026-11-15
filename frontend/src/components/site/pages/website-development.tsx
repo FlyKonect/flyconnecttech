@@ -3100,13 +3100,7 @@ function FrequentlyAskedQuestionsSection() {
             },
             {
               question: "How long does a website take?",
-              answer: (
-                <>
-                  It depends on scope. A business website usually takes [X–Y
-                  weeks]; a web application [X–Y months]. Your quote includes a
-                  timeline.
-                </>
-              ),
+              answer: <>It depends on scope. Your quote includes a timeline.</>,
             },
             {
               question: "Can you build software for our internal processes?",

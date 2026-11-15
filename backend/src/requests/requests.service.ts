@@ -215,7 +215,7 @@ export class RequestsService {
           },
         });
         await saveFiles(tx, checked, keys, id, actor.id, null);
-        await this.events.created(tx, created, actor.id, company);
+        await this.events.created(tx, created, company);
         return created;
       }, REQUEST_TX);
     } catch (error) {

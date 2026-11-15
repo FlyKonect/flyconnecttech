@@ -230,14 +230,10 @@ describe('a new request', () => {
     const notifications = await prisma.notification.findMany({
       where: { text: { contains: code } },
     });
+    // The customer gets no notice about their own request.
+    expect(notifications.filter((n) => n.userId === sarah.id)).toEqual([]);
     expect(notifications).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          userId: sarah.id,
-          kind: 'ok',
-          text: `Request ${code} submitted`,
-          href: `/portal/requests/${code}`,
-        }),
         expect.objectContaining({
           userId: admin.id,
           kind: 'new',
@@ -519,6 +515,19 @@ describe("the customer's buttons", () => {
 });
 
 describe('My requests and the Overview numbers', () => {
+  beforeAll(async () => {
+    // Sending a request gives the customer no notice; the team's actions do.
+    // Two notices as a team reply would leave them.
+    await prisma.notification.createMany({
+      data: ['TKT-TEST-1', 'TKT-TEST-2'].map((code) => ({
+        userId: sarah.id,
+        kind: 'reply' as const,
+        text: `Emma Clarke replied to ${code}`,
+        href: `/portal/requests/${code}`,
+      })),
+    });
+  });
+
   it('counts each tab and searches by code or title', async () => {
     const { body } = await http()
       .get('/portal/requests?tab=open')

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { DemoButton } from "@/components/site/demo/demo-button";
 import { Faq } from "@/components/site/faq";
 import { ContactForms } from "@/components/site/forms/contact-forms";
+import { contactEmail, contactEmailHref } from "@/lib/contact";
 import { routes } from "@/lib/routes";
 
 export function ContactPage() {
@@ -139,7 +140,7 @@ function HeroSection() {
               }}
             >
               Get a quote, ask a question or book a demo. We reply with next
-              steps, a rough scope and an estimate within [X business days].
+              steps, a rough scope and an estimate within 1 business day.
             </p>
             <div
               style={{
@@ -303,60 +304,6 @@ function TechStackSection() {
                     alignItems: "center",
                     justifyContent: "center",
                     background: "#F6F9FF",
-                    color: "#16A34A",
-                  }}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                  </svg>
-                </span>
-                <div style={{ minWidth: "0" }}>
-                  <p
-                    style={{ margin: "0", fontSize: "16px", fontWeight: "700" }}
-                  >
-                    WhatsApp
-                  </p>
-                  <p
-                    style={{
-                      margin: "4px 0 0",
-                      fontSize: "15px",
-                      lineHeight: "1.55",
-                      color: "#3E4C66",
-                    }}
-                  >
-                    Chat with us on [+00 000 000 0000]
-                  </p>
-                </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "14px",
-                  alignItems: "flex-start",
-                  padding: "18px 0",
-                  borderTop: "1px solid #E8EDF4",
-                }}
-              >
-                <span
-                  style={{
-                    width: "44px",
-                    height: "44px",
-                    flex: "none",
-                    borderRadius: "12px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "#F6F9FF",
                     color: "#846E21",
                   }}
                 >
@@ -389,7 +336,16 @@ function TechStackSection() {
                       color: "#3E4C66",
                     }}
                   >
-                    [hello@yourdomain.com]
+                    <a
+                      href={contactEmailHref}
+                      style={{
+                        color: "inherit",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "3px",
+                      }}
+                    >
+                      {contactEmail}
+                    </a>
                   </p>
                 </div>
               </div>
@@ -534,7 +490,7 @@ function TechStackSection() {
                       color: "#3E4C66",
                     }}
                   >
-                    Within [X business days], Monday to Friday
+                    Within 1 business day, Monday to Friday
                   </p>
                 </div>
               </div>
@@ -694,7 +650,7 @@ function TechStackSection() {
                         color: "#3E4C66",
                       }}
                     >
-                      And reply within [X business days].
+                      And reply within 1 business day.
                     </span>
                   </span>
                 </li>
@@ -852,8 +808,8 @@ function FrequentlyAskedQuestionsSection() {
               question: "How quickly will you reply?",
               answer: (
                 <>
-                  Within [X business days], with next steps, a rough scope and
-                  an estimate.
+                  Within 1 business day, with next steps, a rough scope and an
+                  estimate.
                 </>
               ),
             },

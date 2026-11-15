@@ -188,9 +188,7 @@ test.describe("Get a quote", () => {
     await form.getByLabel("Full name *").fill("James Carter");
     await form.getByLabel("Work email *").fill("james@northgate.travel");
     await form.getByLabel("Company (optional)").fill("Northgate Tours");
-    await form
-      .getByLabel("Phone or WhatsApp (optional)")
-      .fill("+44 20 7946 0000");
+    await form.getByLabel("Phone (optional)").fill("+44 20 7946 0000");
     await form.getByLabel("Requirements *").fill("Amadeus search on our site.");
     await form.getByRole("button", { name: "Request my quote" }).click();
 

@@ -80,22 +80,15 @@ export class RequestEventsService {
 
   // ------------------------------------------------- in the transaction
 
-  /** A customer sent a new request. */
+  /**
+   * A customer sent a new request. The team is notified; the customer is
+   * not (they see the "Request submitted" page and get an email copy).
+   */
   async created(
     tx: Prisma.TransactionClient,
     request: EventRequest,
-    customerUserId: string,
     company: string,
   ): Promise<void> {
-    await this.notifications.notify(
-      [customerUserId],
-      {
-        kind: 'ok',
-        text: `Request ${request.code} submitted`,
-        href: portalRequestHref(request.code),
-      },
-      tx,
-    );
     const team = await tx.user.findMany({
       where: {
         role: { in: ['SUPER_ADMIN', 'ADMIN', 'MANAGER'] },

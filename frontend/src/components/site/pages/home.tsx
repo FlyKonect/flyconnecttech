@@ -11,6 +11,7 @@ import { DemoButton } from "@/components/site/demo/demo-button";
 import { Faq } from "@/components/site/faq";
 import { QuoteForm } from "@/components/site/forms/quote-form";
 import { techStack } from "@/components/site/tech-stack";
+import { contactEmail, contactEmailHref } from "@/lib/contact";
 import { routes } from "@/lib/routes";
 
 export function HomePage() {
@@ -2782,36 +2783,36 @@ function ACompleteTravelBookingSection() {
                 </Link>
               </div>
             </div>
+            {/* The route map, until there is a screenshot to show here. */}
             <div
+              aria-hidden="true"
+              className="max-site:hidden"
               style={{
                 flex: "1 1 380px",
                 minWidth: "0",
                 minHeight: "300px",
-                borderRadius: "18px",
-                border: "1px dashed rgba(255,255,255,0.28)",
-                background: "rgba(255,255,255,0.05)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                padding: "24px",
-                textAlign: "center",
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <p
+              <Image
+                src="/images/route-map.svg"
+                alt=""
+                width={1440}
+                height={528}
+                unoptimized
                 style={{
-                  margin: "0",
-                  fontSize: "15px",
-                  fontWeight: "600",
-                  color: "#E6ECF7",
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  width: "max(760px, 150%)",
+                  maxWidth: "none",
+                  height: "auto",
+                  transform: "translate(-50%, -50%)",
+                  opacity: "0.35",
+                  pointerEvents: "none",
                 }}
-              >
-                FlyConnect screenshot
-              </p>
-              <p style={{ margin: "0", fontSize: "13px", color: "#B4C3E6" }}>
-                Add a capture of the booking site or dashboard
-              </p>
+              />
             </div>
           </div>
           <div
@@ -3871,13 +3872,7 @@ function FrequentlyAskedQuestionsSection() {
             },
             {
               question: "How long does a project take?",
-              answer: (
-                <>
-                  It depends on scope. A business website usually takes [X–Y
-                  weeks]; a booking platform [X–Y months]. Your quote includes a
-                  timeline.
-                </>
-              ),
+              answer: <>It depends on scope. Your quote includes a timeline.</>,
             },
             {
               question: "Do you work with international clients?",
@@ -3948,7 +3943,7 @@ function TechStack2Section() {
             }}
           >
             Tell us about your project. We reply with next steps, a rough scope
-            and an estimate within [X business days].
+            and an estimate within 1 business day.
           </p>
           <div
             style={{
@@ -3960,33 +3955,7 @@ function TechStack2Section() {
             }}
           >
             <a
-              href="#contact"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "12px",
-                minHeight: "44px",
-                color: "#FFFFFF",
-                textDecoration: "none",
-              }}
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#4ADE80"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-              </svg>
-              Chat on WhatsApp · [+00 000 000 0000]
-            </a>
-            <a
-              href="#contact"
+              href={contactEmailHref}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -4010,7 +3979,7 @@ function TechStack2Section() {
                 <rect width="20" height="16" x="2" y="4" rx="2" />
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
-              [hello@yourdomain.com]
+              {contactEmail}
             </a>
             <DemoButton
               style={{
