@@ -90,7 +90,7 @@ In `backend/` (http://localhost:4000, API docs at `/api-docs`, health check at `
 - `npm run format`
 - `npm test`: unit tests
 - `npm run test:e2e`: whole-app tests (no database needed)
-- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, and the client portal (requests, files, statuses, notifications, profile)
+- `npm run test:db`: database tests on a separate `flyconnect_tech_test` database (needs `docker compose up -d`): migrations, codes, time zone, the account journeys, the client portal (requests, files, statuses, notifications, profile) and the team panel (who sees what, assigning, notes, statuses, emails, dashboards)
 - `npm run user:invite -- --role super-admin --name "Your Name" --email you@example.com`: invite a person (roles `super-admin`, `admin`, `manager`, `developer`, `customer`; a customer also needs `--company`). Emails the invitation and prints the link. Live: `node dist/cli/invite-user.js ...` (docs/deploy.md, Step 9)
 - `npm run project:add -- --email customer@example.com --name "Project name" --type website --status live`: give a customer a project (a customer needs one to send a request) until the Add customer screen exists (Phase 7). The types and statuses are listed in docs/deploy.md, Step 9. Live: `node dist/cli/add-project.js ...` (docs/deploy.md, Step 9)
 - `npm run db:migrate`: apply schema changes in development
@@ -109,7 +109,9 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/app/dev/components/`: every shared component on one page. Development only (404 on the live site).
 - `frontend/src/app/invite/[token]`, `frontend/src/app/reset-password/[token]`: account activation and password reset
 - `frontend/src/components/ui/`: shared components (button, field, pill, card, tabs, choice, dialog, toast, banner, avatar, kpi-tile, data-table, stepper, notification-row, file-chip, status-history)
-- `frontend/src/components/portal/`: the client portal's pieces (shell, my requests, new request steps, conversation, reply box, notifications, profile forms, page loading)
+- `frontend/src/components/portal/`: the client portal's pieces (shell, my requests, new request steps, conversation, reply box, profile forms)
+- `frontend/src/components/team/`: the team panel's pieces (shell, dashboard parts, requests list, conversation with notes, composer, status panel and buttons, assign, resolve and request-info dialogs)
+- `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo
 - `frontend/src/components/site/`, `portal/`, `team/`
@@ -120,7 +122,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/auth/`: the sign-in client, `getMe()` and the page gates (`requireCustomer()`, `requireTeamMember()`)
 - `frontend/src/lib/api.ts`: `apiFetch()` (JSON or FormData) and error messages for calls from the browser to the backend
 - `frontend/src/lib/api-server.ts`: `serverApi()` for server components: reads from the backend with the visitor's cookie; "not found" shows the not-found page
-- `frontend/src/lib/portal/types.ts`: what the backend's portal routes return
+- `frontend/src/lib/portal/types.ts`, `frontend/src/lib/team/types.ts`: what the backend's portal and team routes return
+- `frontend/src/lib/sla.ts`: the SLA badge words ("Due in 38m", "Due tomorrow", "Paused", "Met", "Overdue"), shown with `<SlaPill>`
 - `frontend/src/lib/format-time.ts`: dates and times as the design writes them ("Today, 08:50", "8 Nov 2026"), in the person's time zone
 - `frontend/src/lib/uploads.ts`: which files can be attached (kept in step with the backend's `upload-rules.ts`)
 - `frontend/src/components/auth/`: sign-in, invitation, password reset and two-factor forms
@@ -129,13 +132,12 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `backend/src/auth/`: Better Auth setup, the global `SessionGuard` and its decorators
 - `backend/src/policies/policies.ts`: who may do what, for every role
 - `backend/src/accounts/`: invitations, password reset, `/me`, profile and password change
-- `backend/src/requests/`: support requests: the portal routes, status rules, SLA, labels for emails, and `RequestEventsService` (who gets which notification and email)
+- `backend/src/requests/`: support requests: the portal and team routes, status rules, SLA, shared writes (`request-writes.ts`), the dashboards, labels for emails, and `RequestEventsService` (who gets which notification and email)
 - `backend/src/uploads/`: file rules and storage on disk
 - `backend/src/notifications/`: in-app notifications (`/notifications`, for anyone signed in, only their own)
 - `backend/src/settings/settings.service.ts`: reads a setting, falling back to `defaults.ts`
 - `backend/src/time/uk-time.ts`: UK wall-clock time (business days, demo slots)
 - `backend/src/cli/`: command-line tools (`invite-user.ts`, `add-project.ts`)
-- `backend/test/e2e-tools/`: helpers the browser tests run on their own database (never live)
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
@@ -157,7 +159,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Times** shown to signed-in people use `lib/format-time.ts` with their profile's time zone (`me.timezone`).
 - **Browser tests** can target a running site: `E2E_BASE_URL=https://… npm run test:e2e`. Without it Playwright starts (or reuses) its own backend and website on ports 4100 and 3101.
   - Make test people with `createPerson(role)` and `signInBrowser()` from `e2e/support/accounts.ts`; read emails with `waitForEmail()` from `e2e/support/mailpit.ts`.
-  - Portal helpers in `e2e/support/portal.ts`: `addProject()` (the `project:add` command), `sendRequest()`, and `teamUpdate()`, which sets a status or adds a team reply straight in the test database until the team screens exist (Phase 6; then use them instead).
+  - Request helpers in `e2e/support/portal.ts`: `addProject()` (the `project:add` command), `sendRequest()`, `postAs(person, path, body)` for a team action through the backend (assign, request-info, resolve…), and `idOf(person)`.
+  - The test database keeps every run's data, and every test person has the same name ("Test developer"): pick by role or code, not by position in a list.
   - Next.js keeps pages you left in the page, hidden. Pick fields with the visible-only `field()` helper and form errors by `[data-slot=form-error]`, as in `e2e/accounts.spec.ts`, or a test finds two matches.
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
@@ -184,10 +187,18 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 
 ## Support requests (backend)
 - **Customers reach only their own records:** every portal query includes `customerScope()`. Someone else's request, project or file answers 404, never 403, so codes can't be guessed.
+- **Developers reach only the requests assigned to them:** every team query includes `requestScope()` (404 otherwise). Each team route also has `@Can(...)`, and status changes check `allowedStatuses()` (developers: In Progress, Waiting for Customer, Resolved).
 - **Internal notes never reach customers:** customer queries ask only for `CUSTOMER_REPLY`, `STAFF_REPLY` and `SYSTEM` messages, and only files on those messages (or on the request itself). Tests check it.
-- **Status changes** go through `statusChangeFields()` (`requests/status-rules.ts`), which also sets `resolvedAt`, `closedAt` and the SLA fields. Each change writes a status history row and, for customer actions, a line in the conversation. Changes use `updateMany` with the old status, so two clicks at once can't both win.
+- **Status changes** go through `moveStatus()` (`requests/request-writes.ts`, shared by the portal and the team), which uses `statusChangeFields()` (`requests/status-rules.ts`) to set `resolvedAt`, `closedAt` and the SLA fields, and writes a status history row and (when given) a line in the conversation. Changes use `updateMany` with the old status, so two clicks at once can't both win.
+- **Team actions** (`requests/team-requests.service.ts`):
+  - **Assign:** only an active developer. Submitted moves to Under Review. The line reads "Assigned to X by Y", or "Transferred from A to B by Y" for a transfer.
+  - **Reply to customer:** sets `firstResponseAt` the first time. **Internal note:** changes nothing the customer can see, not even `updatedAt`.
+  - **Status chip:** "Status changed to … by …". **Priority:** "Priority changed to …"; the due time is worked out again from the creation time.
+  - **Request more info and Resolve:** post their message as a reply and change the status. The question or summary goes inside the status email, so the customer gets one email, not two.
+  - **Close:** "{name} closed this request".
 - **SLA:** `requests/sla.ts`. The due time comes from the `responseTargets` setting ("4h", "1bd"; business days are Monday to Friday in UK time). Paused while Waiting for Customer: the due time moves later by the time spent waiting. A reopened request gets a fresh due time.
-- **Who hears about what:** `RequestEventsService`. In-app notifications are written inside the change's transaction; emails go after it, follow the customer's "Email me when" choices (`accounts/email-prefs.ts`), and a failed email never undoes the change. Phase 6's team actions call the same service (`teamReplied`, `statusChanged`, `emailTeamReply`, `emailStatusChanged`).
+- **Who hears about what:** `RequestEventsService`. In-app notifications are written inside the change's transaction; emails go after it, follow the customer's "Email me when" choices (`accounts/email-prefs.ts`), and a failed email never undoes the change. The team's emails: assigned (always), customer replied (setting `notifyAssigneeOnReply`), urgent request to super admins and admins (setting `urgentAlert`).
+- **Dashboard numbers** (`requests/team-dashboard.service.ts`): open = not Resolved or Closed; at risk = Submitted, Under Review or In Progress with less than an hour left or past due; average first response = from arriving to the first team reply, for first replies in the month (UK months, `dashboard-math.ts`). Developers' numbers count only their own requests.
 - **Files:** up to 5 per request or reply, 10 MB each, checked by name, browser type and first bytes (`uploads/upload-rules.ts`). Kept as `UPLOAD_DIR/requests/<request id>/<random id>`; the name and type are in the `attachments` table. Routes that take files use `FilesInterceptor` then `CleanUploadsInterceptor`, which deletes whatever is left in `tmp/`. Downloads are always "attachment" with `nosniff`.
 - **Request transactions** use read committed (`REQUEST_TX`), like the account ones.
 

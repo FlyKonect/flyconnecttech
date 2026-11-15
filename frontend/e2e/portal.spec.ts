@@ -7,8 +7,8 @@ import {
   addProject,
   asPerson,
   PNG,
+  postAs,
   sendRequest,
-  teamUpdate,
 } from "./support/portal";
 
 // The client portal (docs/01, section 4) through the real screens.
@@ -159,12 +159,9 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
   const admin = await createPerson("admin");
   const customer = await customerWithProject(page);
   const code = await sendRequest(customer);
-  teamUpdate(code, {
-    status: "WAITING_FOR_CUSTOMER",
-    reply: {
-      text: "Could you share the booking reference?",
-      authorEmail: admin.email,
-    },
+  // The team asks for more information (team panel, "Request more info").
+  await postAs(admin, `/team/requests/${code}/request-info`, {
+    body: "Could you share the booking reference?",
   });
 
   await page.goto(`/portal/requests/${code}`);
@@ -204,7 +201,9 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
   ).toBeHidden();
 
   // Resolved: "I still need help" reopens it.
-  teamUpdate(code, { status: "RESOLVED" });
+  const resolve = () =>
+    postAs(admin, `/team/requests/${code}/resolve`, { email: false });
+  await resolve();
   await page.reload();
   await expect(
     page.getByRole("button", { name: "Confirm it's fixed" }),
@@ -225,7 +224,7 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
   ).toBeVisible();
 
   // Resolved again, and confirmed: closed.
-  teamUpdate(code, { status: "RESOLVED" });
+  await resolve();
   await page.reload();
   await page.getByRole("button", { name: "Confirm it's fixed" }).click();
   await expect(

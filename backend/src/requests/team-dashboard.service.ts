@@ -68,7 +68,7 @@ export class TeamDashboardService {
   async developers() {
     const developers = await this.prisma.user.findMany({
       where: { role: 'DEVELOPER', status: 'ACTIVE' },
-      orderBy: { name: 'asc' },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
       select: { id: true, name: true, jobTitle: true },
     });
     const loads = await this.prisma.supportRequest.groupBy({
