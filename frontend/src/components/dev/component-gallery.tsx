@@ -27,9 +27,11 @@ import {
   Select,
   Textarea,
 } from "@/components/ui/field";
+import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill } from "@/components/ui/pill";
+import { StatusHistory } from "@/components/ui/status-history";
 import { Stepper } from "@/components/ui/stepper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
@@ -475,6 +477,34 @@ export function ComponentGallery() {
               text="New demo request DEM-2026-031 from Olivia Grant, Skyhaven Travel"
               time="Today, 10:12"
               href={routes.teamNotifications}
+            />
+          </Card>
+        </Section>
+
+        <Section title="File chips">
+          <Row label="Picked (not sent yet)">
+            <FileChip
+              look="picked"
+              name="commission-report-oct.xlsx"
+              onRemove={() => toast("Removed")}
+            />
+          </Row>
+          <Row label="Listed">
+            <FileChip name="report-totals.png" />
+          </Row>
+          <Row label="Sent (downloads)">
+            <FileChip look="link" name="multicity-error.png" href="#" />
+          </Row>
+        </Section>
+
+        <Section title="Status history">
+          <Card className="max-w-[360px]">
+            <StatusHistory
+              items={[
+                { label: "Submitted", time: "2 Nov, 10:14" },
+                { label: "Under Review", time: "2 Nov, 10:40" },
+                { label: "In Progress", time: "2 Nov, 13:30" },
+              ]}
             />
           </Card>
         </Section>

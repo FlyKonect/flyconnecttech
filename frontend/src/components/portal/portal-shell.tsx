@@ -42,6 +42,16 @@ const titles: [prefix: string, title: string][] = [
 ];
 
 export function portalTitle(pathname: string): string {
+  // One request: "Request TKT-2026-00118", or its "Request submitted" page.
+  const request =
+    /^\/portal\/requests\/(?!new(?:\/|$))([^/]+)(\/submitted)?\/?$/.exec(
+      pathname,
+    );
+  if (request) {
+    return request[2]
+      ? "Request submitted"
+      : `Request ${decodeURIComponent(request[1])}`;
+  }
   const match = titles.find(
     ([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 
 import { PortalShell } from "@/components/portal/portal-shell";
 import { ShellLoading } from "@/components/shell/shell-loading";
+import { serverApi } from "@/lib/api-server";
 import { requireCustomer } from "@/lib/auth/server";
+import type { PortalSummary } from "@/lib/portal/types";
 
 export const metadata: Metadata = {
   title: { default: "Client portal", template: "%s · FlyConnect Tech" },
@@ -27,14 +29,14 @@ export default function PortalLayout({ children }: LayoutProps<"/portal">) {
 
 async function SignedInPortal({ children }: { children: React.ReactNode }) {
   const me = await requireCustomer();
+  const summary = await serverApi<PortalSummary>("/portal/summary");
   return (
     <PortalShell
       user={{
         name: me.name,
         company: me.customer?.company ?? "",
-        // Real numbers arrive with the requests and notifications (Phase 5).
-        requestCount: 0,
-        unreadNotifications: 0,
+        requestCount: summary.requests.total,
+        unreadNotifications: summary.unreadNotifications,
       }}
     >
       {children}

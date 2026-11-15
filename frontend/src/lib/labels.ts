@@ -292,6 +292,21 @@ export const notificationDots: Record<NotificationKind, string> = {
   lead: "#D3AF34",
 };
 
+/** The small heading above a notification's text (screens 14 and 32). */
+export const notificationHeadings: Record<NotificationKind, string> = {
+  reply: "New reply",
+  info: "Action required",
+  status: "Status change",
+  ok: "Update",
+  closed: "Closed",
+  urgent: "Urgent request",
+  new: "New request",
+  high: "High priority",
+  review: "Assignment",
+  invite: "Invitation",
+  lead: "Website",
+};
+
 // ------------------------------------------------------------- Pill lookup
 
 /** Every group that is shown as a coloured pill. */

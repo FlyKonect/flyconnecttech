@@ -24,18 +24,22 @@ export class ApiError extends Error {
   }
 }
 
+/** `body` is sent as JSON, or as it is when it is FormData (files). */
 type Options = Omit<RequestInit, "body"> & { body?: unknown };
 
 export async function apiFetch<T>(path: string, options: Options = {}) {
   const { body, headers, ...rest } = options;
+  const form = body instanceof FormData;
   const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
     ...rest,
     credentials: "include",
     headers: {
-      ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+      ...(body === undefined || form
+        ? {}
+        : { "Content-Type": "application/json" }),
       ...headers,
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: form ? body : body === undefined ? undefined : JSON.stringify(body),
   });
   return readResponse<T>(response);
 }

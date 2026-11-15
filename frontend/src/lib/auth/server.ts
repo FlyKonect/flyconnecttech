@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -8,9 +9,10 @@ import { routes } from "@/lib/routes";
 /**
  * Who is signed in, for server components and layouts. It asks the backend
  * with the visitor's own cookies, so the answer is always the backend's.
+ * Asked once per page view, however many components call it.
  * Reads cookies, so call it inside a <Suspense> boundary.
  */
-export async function getMe(): Promise<Me | null> {
+export const getMe = cache(async (): Promise<Me | null> => {
   const cookieHeader = (await cookies()).toString();
   if (!cookieHeader) return null;
 
@@ -23,7 +25,7 @@ export async function getMe(): Promise<Me | null> {
     throw new Error(`The backend answered ${response.status} to GET /me.`);
   }
   return (await response.json()) as Me;
-}
+});
 
 /** Where a signed-in person belongs. */
 export function homeFor(me: Me): string {

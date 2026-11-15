@@ -15,6 +15,7 @@ function NotificationRow({
   time,
   href,
   unread = false,
+  onClick,
   className,
 }: {
   kind: NotificationKind;
@@ -24,11 +25,14 @@ function NotificationRow({
   time: string;
   href: string;
   unread?: boolean;
+  /** For example, to mark it read before the page opens. */
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
   className?: string;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       data-slot="notification-row"
       data-unread={unread || undefined}
       className={cn(

@@ -30,6 +30,9 @@ export const routes = {
   portalNewRequest: "/portal/requests/new",
   portalNotifications: "/portal/notifications",
   portalProfile: "/portal/profile",
+  portalRequest: (code: string) => `/portal/requests/${code}`,
+  portalRequestSubmitted: (code: string) =>
+    `/portal/requests/${code}/submitted`,
 
   // Team panel
   team: "/team",

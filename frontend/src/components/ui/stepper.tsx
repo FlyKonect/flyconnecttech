@@ -51,8 +51,6 @@ function Stepper({
               className={cn(
                 "text-sm font-bold",
                 state === "todo" ? "text-muted-foreground" : "text-navy",
-                // On phones only the current step keeps its name.
-                state !== "current" && "max-app:sr-only",
               )}
             >
               <span className="sr-only">
