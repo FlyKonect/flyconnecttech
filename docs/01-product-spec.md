@@ -88,6 +88,7 @@ Notes:
 - **Services:** no FAQs and no closing "Have a project in mind?" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Website Development:** no FAQs and no closing "Let's build your…" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **UI/UX Design:** no FAQs and no closing "Start with a prototype" band (both removed at the client's request); the page ends with the FlyConnect project card.
+- **API Integrations:** no FAQs and no closing "Let's connect your…" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **About Us:** no team section and no closing "Let's talk about your project." band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Support:**
   - Hero buttons: "Sign in to the client portal" and "Open my invitation".
