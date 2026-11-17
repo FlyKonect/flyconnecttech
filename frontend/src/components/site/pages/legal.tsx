@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 import { contactEmail, contactEmailHref } from "@/lib/contact";
 import { routes } from "@/lib/routes";
 
-export const LEGAL_UPDATED = "15 November 2026";
+export const LEGAL_UPDATED = "17 November 2026";
 
 function LegalPage({
   title,
@@ -313,9 +313,8 @@ export function TermsPage() {
 
       <Section title="Links to other websites">
         <p>
-          Some links open other websites, such as our live projects and our
-          LinkedIn and Instagram pages. We are not responsible for their
-          content.
+          Some links open other websites, such as our live projects. We are not
+          responsible for their content.
         </p>
       </Section>
 

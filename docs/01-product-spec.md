@@ -54,8 +54,7 @@ Customers see only their own projects, requests, notifications and profile. Inte
   - A menu button opens the menu, with the service pages indented under Services, plus Support and Client login.
   - A row of two buttons under the header: Get a quote and Book a demo.
 - **Footer (navy):**
-  - Logo and the line "We design, develop & integrate digital solutions that grow your business."
-  - Social buttons: LinkedIn (linkedin.com/company/flyconnecttech) and Instagram (instagram.com/flyconnecttech), opening in a new tab, and Email (hello@flyconnecttech.co.uk).
+  - The logo only: the line "We design, develop & integrate…" and the social buttons were removed at the client's request.
   - Columns:
     - Solutions: Ready-made products, Custom software, API integrations.
     - Services: Travel technology, Website development, UI/UX design, All services.
@@ -518,7 +517,7 @@ In-app notifications go to the people listed; emails respect each person's prefe
 - **Time zones:** store UTC. Show demo slots in UK time, and other times in the user's time zone (from their profile, defaulting to Europe/London).
 
 ## 9. Placeholders the client still has to supply
-Supplied: reply time (5 business days; the demo calendar invite within 1 business day), contact email (hello@flyconnecttech.co.uk), LinkedIn and Instagram, no WhatsApp. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
+Supplied: reply time (5 business days; the demo calendar invite within 1 business day), contact email (hello@flyconnecttech.co.uk), no WhatsApp and no social links. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
 
 Still to come, and hidden from visitors until then:
 - Team members and photos (About's "The people behind your product").

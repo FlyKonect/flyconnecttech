@@ -118,7 +118,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/team/targets.ts`: response targets in words ("4 hours", "1 business day") and their saved short form ("4h", "1bd")
 - `frontend/src/lib/team/website-content.ts`: the Website content screen's rules and words (kept in step with the backend's `website-rules.ts`); the screen is `components/team/website-content.tsx`, its page `app/team/(app)/website-content/` with the `refreshWebsite()` server action
 - `frontend/src/lib/site-content.ts`: what the public website shows from Website content (types, checks, fallback); `site-content-cache.ts` has `getSiteContent()`, the cached copy the pages read
-- `frontend/src/lib/contact.ts`: the public email (hello@flyconnecttech.co.uk) and the LinkedIn and Instagram addresses
+- `frontend/src/lib/contact.ts`: the public email (hello@flyconnecttech.co.uk)
 - `frontend/src/components/site/live-project-link.tsx`: every "View live project" link (the saved address); `testimonial-card.tsx`: one Home testimonial
 - `frontend/src/components/site/pages/legal.tsx`: the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`)
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
@@ -295,7 +295,7 @@ Every row of docs/01 §7, where it is sent from, what it follows, and where it i
   - Customers see only their own requests and projects.
   - Internal notes never reach customers: not in pages, not in emails, not in API responses.
 - **Invite-only.** Invitation and reset links are single-use, stored hashed, and expire after 48 hours.
-- **No placeholder text on the website.** The client supplied: reply time "5 business days" (the demo calendar invite "within 1 business day"), hello@flyconnecttech.co.uk, LinkedIn and Instagram (flyconnecttech), and no WhatsApp number. Testimonials come from the Website content screen. Parts still waiting for content (team members and photos, screenshots, further case studies) are hidden, not shown as "[…]"; add them back when the client provides them.
+- **No placeholder text on the website.** The client supplied: reply time "5 business days" (the demo calendar invite "within 1 business day"), hello@flyconnecttech.co.uk, no social links in the footer, and no WhatsApp number. Testimonials come from the Website content screen. Parts still waiting for content (team members and photos, screenshots, further case studies) are hidden, not shown as "[…]"; add them back when the client provides them.
 - **Content facts.** Amadeus and Stripe are in production on FlyConnect. Sabre is only a service we offer. No fake testimonials, no lorem ipsum.
 - **Time.** Store UTC. Show demo times in UK time (Europe/London), as the website shows them to visitors.
 - **Readable codes** next to UUIDs: `TKT-YYYY-NNNNN` (requests), `DEM-YYYY-NNN`, `QUO-YYYY-NNN`, `MSG-YYYY-NNN` (leads), `P-NNNN` (projects).
