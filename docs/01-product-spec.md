@@ -91,6 +91,7 @@ Notes:
 - **API Integrations:** no FAQs and no closing "Let's connect your…" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Travel Technology:** no FAQs and no closing "Ready to sell flights…" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Products & Solutions:** no "Every product and service, in one place." section, no FAQs and no closing "Not sure which option…" band (removed at the client's request); the page ends with the FlyConnect project card.
+- **Home:** no "Products & solutions · Everything you need to launch, run and grow online." section (removed at the client's request).
 - **About Us:** no team section and no closing "Let's talk about your project." band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Support:**
   - Hero buttons: "Sign in to the client portal" and "Open my invitation".
