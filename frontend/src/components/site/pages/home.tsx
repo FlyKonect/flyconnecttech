@@ -10,7 +10,6 @@ import Link from "next/link";
 import { DemoButton } from "@/components/site/demo/demo-button";
 import { LiveProjectLink } from "@/components/site/live-project-link";
 import { TestimonialCard } from "@/components/site/testimonial-card";
-import { Faq } from "@/components/site/faq";
 import { QuoteForm } from "@/components/site/forms/quote-form";
 import { techStack } from "@/components/site/tech-stack";
 import { contactEmail, contactEmailHref } from "@/lib/contact";
@@ -29,7 +28,6 @@ export function HomePage() {
       <ACompleteTravelBookingSection />
       <ATechnologyPartnerNotSection />
       <WhatOurClientsSaySection />
-      <FrequentlyAskedQuestionsSection />
       <TechStack2Section />
     </div>
   );
@@ -2889,102 +2887,6 @@ async function WhatOurClientsSaySection() {
             <TestimonialCard key={testimonial.id} testimonial={testimonial} />
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-function FrequentlyAskedQuestionsSection() {
-  return (
-    <section
-      id="faq"
-      style={{
-        padding: "clamp(72px, 9vw, 120px) 0",
-        borderTop: "1px solid #E8EDF4",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "860px",
-          margin: "0 auto",
-          padding: "0 clamp(20px, 4vw, 40px)",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0",
-            textAlign: "center",
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(32px, 4vw, 48px)",
-            lineHeight: "1.08",
-            letterSpacing: "-0.03em",
-            fontWeight: "700",
-          }}
-        >
-          Frequently asked questions
-        </h2>
-        <Faq
-          style={{
-            marginTop: "44px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
-          items={[
-            {
-              question:
-                "Can you integrate Amadeus or Sabre into my existing travel website?",
-              answer: (
-                <>
-                  Yes. We connect flight search, pricing and booking to your
-                  current site, or build a new booking flow alongside it,
-                  without rebuilding everything.
-                </>
-              ),
-            },
-            {
-              question:
-                "Can you build a complete booking platform from scratch?",
-              answer: (
-                <>
-                  Yes. FlyConnect is one: a customer booking site, an agent
-                  dashboard, payments, finance tools and reporting.
-                </>
-              ),
-            },
-            {
-              question: "Do you redesign existing websites?",
-              answer: (
-                <>
-                  Yes. We review what you have, redesign it in Figma, then
-                  rebuild it on a fast, modern stack.
-                </>
-              ),
-            },
-            {
-              question: "How long does a project take?",
-              answer: <>It depends on scope. Your quote includes a timeline.</>,
-            },
-            {
-              question: "Do you work with international clients?",
-              answer: (
-                <>
-                  Yes. We work remotely with businesses worldwide, across time
-                  zones.
-                </>
-              ),
-            },
-            {
-              question: "What do you need to prepare a quote?",
-              answer: (
-                <>
-                  Your project type, requirements, budget range and contact
-                  details. The form below takes about two minutes.
-                </>
-              ),
-            },
-          ]}
-        />
       </div>
     </section>
   );

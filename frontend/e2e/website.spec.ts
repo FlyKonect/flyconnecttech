@@ -104,24 +104,23 @@ test.describe("the 11 website pages", () => {
 test("FAQ: the first answer is open, and only one is open at a time", async ({
   page,
 }) => {
-  await page.goto("/");
+  // Home has no FAQ any more; the Support page keeps one.
+  await page.goto("/support");
   const faq = page.locator("#faq");
-  const first = faq.getByRole("button", {
-    name: "Can you integrate Amadeus or Sabre into my existing travel website?",
-  });
+  const first = faq.getByRole("button", { name: "How do I get an account?" });
   const second = faq.getByRole("button", {
-    name: "Can you build a complete booking platform from scratch?",
+    name: "I cannot find my invitation email",
   });
 
   await expect(first).toHaveAttribute("aria-expanded", "true");
   await expect(second).toHaveAttribute("aria-expanded", "false");
-  await expect(faq.getByText(/We connect flight search/)).toBeVisible();
+  await expect(faq.getByText(/Our team creates it/)).toBeVisible();
 
   await second.click();
   await expect(second).toHaveAttribute("aria-expanded", "true");
   await expect(first).toHaveAttribute("aria-expanded", "false");
-  await expect(faq.getByText(/FlyConnect is one/)).toBeVisible();
-  await expect(faq.getByText(/We connect flight search/)).toBeHidden();
+  await expect(faq.getByText(/Check your spam folder first/)).toBeVisible();
+  await expect(faq.getByText(/Our team creates it/)).toBeHidden();
 
   // Clicking an open question closes it.
   await second.click();
