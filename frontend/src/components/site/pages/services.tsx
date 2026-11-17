@@ -9,7 +9,6 @@ import Link from "next/link";
 
 import { DemoButton } from "@/components/site/demo/demo-button";
 import { LiveProjectLink } from "@/components/site/live-project-link";
-import { Faq } from "@/components/site/faq";
 import { techStack } from "@/components/site/tech-stack";
 import { routes } from "@/lib/routes";
 
@@ -22,7 +21,6 @@ export function ServicesPage() {
       <SixStepsNoSurprisesSection />
       <TechStackSection />
       <ACompleteTravelBookingSection />
-      <FrequentlyAskedQuestionsSection />
       <HaveAProjectInSection />
     </div>
   );
@@ -2534,86 +2532,6 @@ function ACompleteTravelBookingSection() {
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function FrequentlyAskedQuestionsSection() {
-  return (
-    <section
-      id="faq"
-      style={{
-        padding: "clamp(64px, 8vw, 112px) 0",
-        borderTop: "1px solid #E8EDF4",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "860px",
-          margin: "0 auto",
-          padding: "0 clamp(20px, 4vw, 40px)",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0",
-            textAlign: "center",
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(32px, 4vw, 48px)",
-            lineHeight: "1.08",
-            letterSpacing: "-0.03em",
-            fontWeight: "700",
-          }}
-        >
-          Frequently asked questions
-        </h2>
-        <Faq
-          style={{
-            marginTop: "44px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
-          items={[
-            {
-              question: "Can I hire you for just one service?",
-              answer: (
-                <>
-                  Yes. You can start with design, a single integration or a
-                  website, and add more later.
-                </>
-              ),
-            },
-            {
-              question: "Do you work with international clients?",
-              answer: (
-                <>
-                  Yes. We work remotely with businesses worldwide, across time
-                  zones.
-                </>
-              ),
-            },
-            {
-              question: "Do you offer maintenance after launch?",
-              answer: (
-                <>
-                  Yes. After launch we can look after maintenance, updates and
-                  new features.
-                </>
-              ),
-            },
-            {
-              question: "How do you estimate a project?",
-              answer: (
-                <>
-                  We agree requirements and scope first, then give you a
-                  timeline and cost before any work starts.
-                </>
-              ),
-            },
-          ]}
-        />
       </div>
     </section>
   );
