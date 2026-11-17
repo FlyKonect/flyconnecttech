@@ -2519,23 +2519,6 @@ function ATechnologyPartnerNotSection() {
               A technology partner, not just a vendor.
             </h2>
           </div>
-          <Link
-            href={routes.contact}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              height: "48px",
-              padding: "0 20px",
-              borderRadius: "10px",
-              background: "#021A54",
-              color: "#FFFFFF",
-              fontSize: "15px",
-              fontWeight: "600",
-              textDecoration: "none",
-            }}
-          >
-            Talk to our team
-          </Link>
         </div>
         <div
           style={{
