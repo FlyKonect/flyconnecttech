@@ -82,7 +82,7 @@ Build the content from `design/source/website-*.dc.html`; the screenshots are in
 
 Notes:
 - **Contact & Quote:**
-  - Contact options: Email (hello@flyconnecttech.co.uk), Book a demo, Response time ("Within 1 business day, Monday to Friday"), and "Already a client?" linking to Client login. No WhatsApp: the client decided against showing a number.
+  - Contact options: Email (hello@flyconnecttech.co.uk), Book a demo, Response time ("Within 5 business days, Monday to Friday"), and "Already a client?" linking to Client login. No WhatsApp: the client decided against showing a number.
   - A card with two tabs, **Get a quote** (full form) and **Send a message**.
   - What happens next, and FAQs.
 - **Support:**
@@ -103,7 +103,7 @@ Notes:
    - Slots 09:30, 11:00, 12:30, 14:00, 15:30 and 17:00, **UK time**. A demo is a 30-minute video call.
    - Slots already taken by a scheduled demo are shown crossed out and can't be picked.
 3. **Your details:** Full name*, Work email*, Company*, Phone (optional), Notes (optional).
-4. **Confirmation:** "Demo requested · Thanks, {first}. We will send a calendar invite to {email} within [1 business day]", with a summary of Demo, When, Where ("Video call · 30 minutes") and Company.
+4. **Confirmation:** "Demo requested · Thanks, {first}. We will send a calendar invite to {email} within 1 business day", with a summary of Demo, When, Where ("Video call · 30 minutes") and Company.
 
 On submit, create a **Demo request**: status New, page of origin recorded. Email the visitor a confirmation and notify the team (section 6).
 
@@ -114,7 +114,7 @@ On submit, create a **Demo request**: status New, page of origin recorded. Email
   - Project type: Travel booking platform, Amadeus / Sabre integration, New website, Website redesign, Custom software, UI/UX design, API integration, Other.
   - Budget: Under $5k, $5k – $15k, $15k – $50k, $50k+, Not sure yet.
   - Timeline: As soon as possible, Within 1–3 months, Within 3–6 months, Not sure yet.
-- **Success state:** "Thanks, {first}. Your request is in. We will reply to {email} within 1 business day with next steps, a rough scope and an estimate." Then a summary, "Send another request" and "Book a demo".
+- **Success state:** "Thanks, {first}. Your request is in. We will reply to {email} within 5 business days with next steps, a rough scope and an estimate." Then a summary, "Send another request" and "Book a demo".
 - **On submit:** create a **Quote request** with status New, email the visitor a confirmation, and notify the team.
 
 ### Send a message (Contact page)
@@ -510,7 +510,7 @@ In-app notifications go to the people listed; emails respect each person's prefe
 - **Time zones:** store UTC. Show demo slots in UK time, and other times in the user's time zone (from their profile, defaulting to Europe/London).
 
 ## 9. Placeholders the client still has to supply
-Supplied: reply time (1 business day), contact email (hello@flyconnecttech.co.uk), LinkedIn and Instagram, no WhatsApp. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
+Supplied: reply time (5 business days; the demo calendar invite within 1 business day), contact email (hello@flyconnecttech.co.uk), LinkedIn and Instagram, no WhatsApp. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
 
 Still to come, and hidden from visitors until then:
 - Team members and photos (About's "The people behind your product").

@@ -69,8 +69,8 @@ function LegalPage({
         {children}
         <Section title="Questions">
           <p>
-            Email us at <EmailLink />. We reply within 1 business day, Monday to
-            Friday.
+            Email us at <EmailLink />. We reply within 5 business days, Monday
+            to Friday.
           </p>
         </Section>
       </div>

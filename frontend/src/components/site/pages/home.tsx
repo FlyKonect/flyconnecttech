@@ -3825,7 +3825,7 @@ function TechStack2Section() {
             }}
           >
             Tell us about your project. We reply with next steps, a rough scope
-            and an estimate within 1 business day.
+            and an estimate within 5 business days.
           </p>
           <div
             style={{

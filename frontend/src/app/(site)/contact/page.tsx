@@ -5,7 +5,7 @@ import { ContactPage } from "@/components/site/pages/contact";
 export const metadata: Metadata = {
   title: "Contact & Quote",
   description:
-    "Get a quote, ask a question or book a demo. We reply with next steps, a rough scope and an estimate within 1 business day.",
+    "Get a quote, ask a question or book a demo. We reply with next steps, a rough scope and an estimate within 5 business days.",
 };
 
 export default function Page() {

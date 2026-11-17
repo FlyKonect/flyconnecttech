@@ -56,7 +56,7 @@ export function MessageForm() {
         </p>
         <p className="m-0 text-[15px] leading-[1.6] text-body">
           Thanks, {firstName(sent.name)}. We will reply to{" "}
-          <b className="text-navy">{sent.email}</b> within 1 business day.
+          <b className="text-navy">{sent.email}</b> within 5 business days.
         </p>
         <div>
           <button

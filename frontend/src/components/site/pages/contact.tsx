@@ -140,7 +140,7 @@ function HeroSection() {
               }}
             >
               Get a quote, ask a question or book a demo. We reply with next
-              steps, a rough scope and an estimate within 1 business day.
+              steps, a rough scope and an estimate within 5 business days.
             </p>
             <div
               style={{
@@ -490,7 +490,7 @@ function TechStackSection() {
                       color: "#3E4C66",
                     }}
                   >
-                    Within 1 business day, Monday to Friday
+                    Within 5 business days, Monday to Friday
                   </p>
                 </div>
               </div>
@@ -650,7 +650,7 @@ function TechStackSection() {
                         color: "#3E4C66",
                       }}
                     >
-                      And reply within 1 business day.
+                      And reply within 5 business days.
                     </span>
                   </span>
                 </li>
@@ -808,7 +808,7 @@ function FrequentlyAskedQuestionsSection() {
               question: "How quickly will you reply?",
               answer: (
                 <>
-                  Within 1 business day, with next steps, a rough scope and an
+                  Within 5 business days, with next steps, a rough scope and an
                   estimate.
                 </>
               ),

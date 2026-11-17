@@ -492,7 +492,7 @@ export function DemoDialog({
                     <p className="mx-auto mt-2 mb-0 max-w-[430px] text-[15px] leading-[1.6] text-body">
                       Thanks, {firstName(values.name)}. We will send a calendar
                       invite to <b className="text-navy">{values.email}</b>{" "}
-                      within [1 business day].
+                      within 1 business day.
                     </p>
                   </div>
                   <div className="mt-[18px]">

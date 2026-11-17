@@ -29,7 +29,7 @@ export function DemoReceivedEmail(
       <Heading>Demo requested</Heading>
       <Paragraph>
         Thanks, {props.firstName}. We will send a calendar invite to{' '}
-        {props.email} within [1 business day].
+        {props.email} within 1 business day.
       </Paragraph>
       <RequestCard
         code={props.code}
@@ -61,7 +61,7 @@ export function QuoteReceivedEmail(
       <Heading>Your request is in</Heading>
       <Paragraph>
         Thanks, {props.firstName}. Your request is in. We will reply to{' '}
-        {props.email} within 1 business day with next steps, a rough scope and
+        {props.email} within 5 business days with next steps, a rough scope and
         an estimate.
       </Paragraph>
       <RequestCard
