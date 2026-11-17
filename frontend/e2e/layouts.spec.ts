@@ -31,6 +31,12 @@ test.describe("website layout", () => {
     await expect(
       banner.getByRole("link", { name: "Client login", exact: true }),
     ).toHaveAttribute("href", "/portal/sign-in");
+    // No Contact beside the buttons: "Get a quote" opens the same page.
+    await expect(
+      banner
+        .getByRole("link", { name: "Contact", exact: true })
+        .filter({ visible: true }),
+    ).toHaveCount(0);
 
     // Header menu.
     const main = page.getByRole("navigation", { name: "Main" });
@@ -86,8 +92,8 @@ test.describe("website layout", () => {
   test("the menu does not wrap at the narrowest desktop width", async ({
     page,
   }) => {
-    // The full menu shows from 1360px (1366px laptops and wider).
-    await page.setViewportSize({ width: 1360, height: 800 });
+    // The full menu shows from 1280px (1280px laptops and wider).
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
 
     const main = page.getByRole("navigation", { name: "Main" });

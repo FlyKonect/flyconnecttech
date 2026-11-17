@@ -48,8 +48,8 @@ Customers see only their own projects, requests, notifications and profile. Inte
 - **Header:**
   - Northstack logo, linking to Home.
   - Menu: Solutions, Travel Technology, Services ▾ (All services, Website development, UI/UX design, API integrations), Case Studies, About. The current page is underlined in gold.
-  - On the right: Contact, **Support** (the Support page), **Client login** (`/portal/sign-in`), **Get a quote** (navy, links to Contact), **Book a demo** (gold, opens the demo dialog).
-  - The full menu shows from 1360px wide (1366px laptops and up); narrower screens get the menu button, whose menu also lists Support and Client login.
+  - On the right: **Support** (the Support page), **Client login** (`/portal/sign-in`), **Get a quote** (navy, links to Contact), **Book a demo** (gold, opens the demo dialog).
+  - No Contact link here: **Get a quote** opens the same page (the phone menu and the footer still list Contact). The full menu shows from 1280px wide; narrower screens get the menu button, whose menu also lists Contact, Support and Client login.
 - **Phone and tablet:**
   - A menu button opens the menu, with the service pages indented under Services, plus Support and Client login.
   - A row of two buttons under the header: Get a quote and Book a demo.
@@ -85,6 +85,7 @@ Notes:
   - Contact options: Email (hello@flyconnecttech.co.uk), Book a demo, Response time ("Within 5 business days, Monday to Friday"). No WhatsApp, and no "Already a client?" or "What happens next" boxes: the client removed them (Client login is in the header).
   - A card with two tabs, **Get a quote** (full form) and **Send a message**.
   - No FAQs on this page (removed at the client's request; the other pages keep theirs).
+- **About Us:** no team section and no closing "Let's talk about your project." band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Support:**
   - Hero buttons: "Sign in to the client portal" and "Open my invitation".
   - In the prototype, "Open my invitation" shows the invitation email. In the real app it can't open an invitation without the emailed link, so it goes to `/portal/invitation`. That is a short page in the design system: "Open the invitation email we sent you and click **Verify email and set password**. Can't find it? Check your spam folder, or send us a message and we'll send a new one." It links to Contact and to sign in. Confirm the wording with the client.

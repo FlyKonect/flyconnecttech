@@ -16,14 +16,15 @@ import { cn } from "@/lib/utils";
  * The website header.
  *
  * Three widths:
- * - 1240px and up: logo, full menu with the Services dropdown, Contact,
- *   Support and Client login, and the two buttons.
- * - 860px to 1239px: logo, the two buttons and a menu button.
+ * - 1280px and up: logo, full menu with the Services dropdown, Support and
+ *   Client login, and the two buttons.
+ * - 860px to 1279px: logo, the two buttons and a menu button.
  * - below 860px: logo and a menu button, with the two buttons in a row underneath.
  *
- * The design switches to the full menu at 1180px. That is 1240px here, with
- * slightly tighter spacing between the menu items, because
- * the FlyConnect Tech logo is wider than the design's placeholder logo.
+ * The design switches to the full menu at 1180px. That is 1280px here, with
+ * slightly tighter spacing, because the FlyConnect Tech logo is wider than
+ * the design's placeholder logo and the header also holds Support and
+ * Client login (the full header needs about 1265px with a scrollbar).
  */
 export function SiteHeader() {
   const pathname = usePathname();
@@ -48,7 +49,7 @@ export function SiteHeader() {
 
   return (
     <header className="relative z-20 border-b border-line-2 bg-white">
-      <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between gap-5 px-[clamp(20px,4vw,40px)] nav:max-w-[1360px] nav:px-8">
+      <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between gap-5 px-[clamp(20px,4vw,40px)] nav:max-w-[1360px] nav:px-6">
         <Link
           href={routes.home}
           aria-label="FlyConnect Tech home"
@@ -171,9 +172,12 @@ export function SiteHeader() {
   );
 }
 
-/** Beside the buttons on wide screens; in the menu on smaller ones. */
+/**
+ * Beside the buttons on wide screens; in the menu on smaller ones. Contact
+ * is left out here: "Get a quote" opens the same page. The phone menu and
+ * the footer still list Contact.
+ */
 const headerLinks = [
-  { label: "Contact", href: routes.contact },
   { label: "Support", href: routes.support },
   { label: "Client login", href: routes.portalSignIn },
 ];
