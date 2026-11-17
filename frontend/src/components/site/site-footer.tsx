@@ -15,14 +15,15 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-white/8 bg-navy-900 text-white">
       <div className="mx-auto max-w-[1240px] px-[clamp(20px,4vw,40px)] pt-16 pb-10">
-        <div className="flex flex-wrap justify-between gap-10">
-          <div className="max-w-[320px] flex-[1_1_260px]">
+        {/* The logo sits at the middle height of the link columns. */}
+        <div className="flex flex-wrap items-center justify-between gap-10">
+          <div className="max-w-[400px] flex-[1_1_300px]">
             <Link
               href={routes.home}
               aria-label="FlyConnect Tech home"
               className="inline-flex"
             >
-              <Logo onNavy className="h-6" />
+              <Logo onNavy className="h-8 site:h-9" />
             </Link>
           </div>
 

@@ -54,7 +54,7 @@ Customers see only their own projects, requests, notifications and profile. Inte
   - A menu button opens the menu, with the service pages indented under Services, plus Support and Client login.
   - A row of two buttons under the header: Get a quote and Book a demo.
 - **Footer (navy):**
-  - The logo only: the line "We design, develop & integrate…" and the social buttons were removed at the client's request.
+  - The logo only, larger (36px tall, 32px on phones) and at the middle height of the link columns. The line "We design, develop & integrate…" and the social buttons were removed at the client's request.
   - Columns:
     - Solutions: Ready-made products, Custom software, API integrations.
     - Services: Travel technology, Website development, UI/UX design, All services.
