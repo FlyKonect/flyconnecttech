@@ -84,7 +84,7 @@ Notes:
 - **Contact & Quote:**
   - Contact options: Email (hello@flyconnecttech.co.uk), Book a demo, Response time ("Within 5 business days, Monday to Friday"). No WhatsApp, and no "Already a client?" or "What happens next" boxes: the client removed them (Client login is in the header).
   - A card with two tabs, **Get a quote** (full form) and **Send a message**.
-  - No FAQs on this page (removed at the client's request; the other pages keep theirs).
+  - FAQs (4 questions). The client asked to keep them here.
 - **Services:** no FAQs and no closing "Have a project in mind?" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **Website Development:** no FAQs and no closing "Let's build your…" band (both removed at the client's request); the page ends with the FlyConnect project card.
 - **UI/UX Design:** no FAQs and no closing "Start with a prototype" band (both removed at the client's request); the page ends with the FlyConnect project card.
