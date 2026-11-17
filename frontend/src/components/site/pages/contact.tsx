@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { DemoButton } from "@/components/site/demo/demo-button";
-import { Faq } from "@/components/site/faq";
 import { ContactForms } from "@/components/site/forms/contact-forms";
 import { contactEmail, contactEmailHref } from "@/lib/contact";
 import { routes } from "@/lib/routes";
@@ -18,7 +17,6 @@ export function ContactPage() {
     <div className="design-page">
       <HeroSection />
       <TechStackSection />
-      <FrequentlyAskedQuestionsSection />
     </div>
   );
 }
@@ -497,87 +495,6 @@ function TechStackSection() {
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function FrequentlyAskedQuestionsSection() {
-  return (
-    <section
-      id="faq"
-      style={{
-        padding: "clamp(64px, 8vw, 112px) 0",
-        background: "#F6F9FF",
-        borderTop: "1px solid #E8EDF4",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "860px",
-          margin: "0 auto",
-          padding: "0 clamp(20px, 4vw, 40px)",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0",
-            textAlign: "center",
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(32px, 4vw, 48px)",
-            lineHeight: "1.08",
-            letterSpacing: "-0.03em",
-            fontWeight: "700",
-          }}
-        >
-          Frequently asked questions
-        </h2>
-        <Faq
-          style={{
-            marginTop: "44px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
-          items={[
-            {
-              question: "What do you need to prepare a quote?",
-              answer: (
-                <>
-                  Your project type, requirements, budget range and contact
-                  details. The form takes about two minutes.
-                </>
-              ),
-            },
-            {
-              question: "How quickly will you reply?",
-              answer: (
-                <>
-                  Within 5 business days, with next steps, a rough scope and an
-                  estimate.
-                </>
-              ),
-            },
-            {
-              question: "Do you work with international clients?",
-              answer: (
-                <>
-                  Yes. We work remotely with businesses worldwide, across time
-                  zones.
-                </>
-              ),
-            },
-            {
-              question: "Can I see a demo before I decide?",
-              answer: (
-                <>
-                  Yes. Book a 30-minute video call and we will walk you through
-                  a booking platform, dashboards or integrations.
-                </>
-              ),
-            },
-          ]}
-        />
       </div>
     </section>
   );
