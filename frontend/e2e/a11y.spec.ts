@@ -623,6 +623,8 @@ test("keyboard: the users' row menu opens, moves with arrows and closes", async 
 test("keyboard: the website's Services menu and phone menu", async ({
   page,
 }) => {
+  // The full menu shows from 1360px wide.
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await settled(page);
 

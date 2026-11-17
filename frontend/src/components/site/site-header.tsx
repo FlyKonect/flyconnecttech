@@ -16,7 +16,8 @@ import { cn } from "@/lib/utils";
  * The website header.
  *
  * Three widths:
- * - 1240px and up: logo, full menu with the Services dropdown, Contact and the two buttons.
+ * - 1240px and up: logo, full menu with the Services dropdown, Contact,
+ *   Support and Client login, and the two buttons.
  * - 860px to 1239px: logo, the two buttons and a menu button.
  * - below 860px: logo and a menu button, with the two buttons in a row underneath.
  *
@@ -47,18 +48,18 @@ export function SiteHeader() {
 
   return (
     <header className="relative z-20 border-b border-line-2 bg-white">
-      <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between gap-5 px-[clamp(20px,4vw,40px)]">
+      <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between gap-5 px-[clamp(20px,4vw,40px)] nav:max-w-[1360px] nav:px-8">
         <Link
           href={routes.home}
           aria-label="FlyConnect Tech home"
           className="flex min-w-0 shrink-0 items-center max-nav:shrink"
         >
-          <Logo eager className="h-6 nav:h-[22px]" />
+          <Logo eager className="h-6 nav:h-5" />
         </Link>
 
         <nav
           aria-label="Main"
-          className="flex shrink-0 items-center gap-[18px] text-[15px] font-medium whitespace-nowrap max-nav:hidden"
+          className="flex shrink-0 items-center gap-3.5 text-[15px] font-medium whitespace-nowrap max-nav:hidden"
         >
           {mainLinks.map((link) =>
             link.services ? (
@@ -78,16 +79,17 @@ export function SiteHeader() {
           )}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2.5">
-          <Link
-            href={routes.contact}
-            aria-current={
-              isCurrent(routes.contact, pathname) ? "page" : undefined
-            }
-            className="inline-flex h-11 items-center px-2 text-[15px] font-medium text-ink-2 transition-colors hover:text-navy aria-[current=page]:font-semibold max-nav:hidden"
-          >
-            Contact
-          </Link>
+        <div className="flex shrink-0 items-center gap-2.5 nav:gap-2">
+          {headerLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isCurrent(link.href, pathname) ? "page" : undefined}
+              className="inline-flex h-11 items-center px-1 text-[15px] font-medium whitespace-nowrap text-ink-2 transition-colors hover:text-navy aria-[current=page]:font-semibold max-nav:hidden"
+            >
+              {link.label}
+            </Link>
+          ))}
 
           <span className="flex items-center gap-2.5 max-site:hidden">
             <Button asChild size="siteSm">
@@ -168,6 +170,13 @@ export function SiteHeader() {
     </header>
   );
 }
+
+/** Beside the buttons on wide screens; in the menu on smaller ones. */
+const headerLinks = [
+  { label: "Contact", href: routes.contact },
+  { label: "Support", href: routes.support },
+  { label: "Client login", href: routes.portalSignIn },
+];
 
 const navLink =
   "text-ink-2 hover:text-navy aria-[current=page]:border-gold aria-[current=page]:text-navy inline-flex h-[76px] items-center gap-1 border-b-2 border-transparent pt-0.5 transition-colors aria-[current=page]:font-semibold";

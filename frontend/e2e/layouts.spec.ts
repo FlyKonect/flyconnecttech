@@ -14,20 +14,22 @@ async function expectNoSidewaysScroll(page: Page) {
 }
 
 test.describe("website layout", () => {
-  test("desktop: top bar, full menu, Services dropdown and footer", async ({
+  test("desktop: full menu, Support and Client login, Services dropdown and footer", async ({
     page,
   }) => {
     await page.setViewportSize(desktop);
     await page.goto("/");
 
-    // Gold top bar.
-    const topBar = page.locator("#top");
-    await expect(topBar).toContainText(
-      "Travel agencies: add Amadeus flight search and booking to your website.",
+    // No promotion bar: Support and Client login are in the header.
+    await expect(page.locator("body")).not.toContainText(
+      "Travel agencies: add Amadeus flight search",
     );
-    await expect(topBar.getByRole("link", { name: "Support" })).toBeVisible();
+    const banner = page.getByRole("banner");
     await expect(
-      topBar.getByRole("link", { name: "Client login" }),
+      banner.getByRole("link", { name: "Support", exact: true }),
+    ).toHaveAttribute("href", "/support");
+    await expect(
+      banner.getByRole("link", { name: "Client login", exact: true }),
     ).toHaveAttribute("href", "/portal/sign-in");
 
     // Header menu.
@@ -84,7 +86,8 @@ test.describe("website layout", () => {
   test("the menu does not wrap at the narrowest desktop width", async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1240, height: 800 });
+    // The full menu shows from 1360px (1366px laptops and wider).
+    await page.setViewportSize({ width: 1360, height: 800 });
     await page.goto("/");
 
     const main = page.getByRole("navigation", { name: "Main" });

@@ -1,9 +1,8 @@
 import { DemoProvider } from "@/components/site/demo/demo-context";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
-import { TopBar } from "@/components/site/top-bar";
 
-/** The public website: gold top bar, header, the page, navy footer. */
+/** The public website: header, the page, navy footer. */
 export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (
     // DemoProvider lets every "Book a demo" button open the one demo dialog.
@@ -14,7 +13,6 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
       >
         Skip to content
       </a>
-      <TopBar />
       <SiteHeader />
       <main id="main" className="flex flex-1 flex-col overflow-x-clip">
         {children}

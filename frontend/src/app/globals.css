@@ -47,7 +47,7 @@
 
   /* Screen sizes where the layouts change (docs/03, "Breakpoints") */
   --breakpoint-site: 53.75rem; /* 860px: website phone layout below this */
-  --breakpoint-nav: 77.5rem; /* 1240px: website shows the full menu from here */
+  --breakpoint-nav: 85rem; /* 1360px: website shows the full menu from here */
   --breakpoint-app: 56.25rem; /* 900px: portal and team panel show the sidebar from here */
 
   /* Brand colours (docs/03, "Colours" table) */

@@ -44,13 +44,12 @@ Customers see only their own projects, requests, notifications and profile. Inte
 ## 2. Website (public)
 
 ### Shared parts on every page
-- **Top bar (gold):**
-  - "Travel agencies: add Amadeus flight search and booking to your website." with a **Learn more** link to Travel Technology.
-  - On desktop, **Support** (to the Support page) and **Client login** (to `/portal/sign-in`) on the right.
+- **No top bar.** The design's gold bar ("Travel agencies: add Amadeus…", Learn more) was removed at the client's request; Support and Client login moved into the header.
 - **Header:**
   - Northstack logo, linking to Home.
   - Menu: Solutions, Travel Technology, Services ▾ (All services, Website development, UI/UX design, API integrations), Case Studies, About. The current page is underlined in gold.
-  - On the right: Contact, **Get a quote** (navy, links to Contact), **Book a demo** (gold, opens the demo dialog).
+  - On the right: Contact, **Support** (the Support page), **Client login** (`/portal/sign-in`), **Get a quote** (navy, links to Contact), **Book a demo** (gold, opens the demo dialog).
+  - The full menu shows from 1360px wide (1366px laptops and up); narrower screens get the menu button, whose menu also lists Support and Client login.
 - **Phone and tablet:**
   - A menu button opens the menu, with the service pages indented under Services, plus Support and Client login.
   - A row of two buttons under the header: Get a quote and Book a demo.

@@ -126,7 +126,7 @@ The website, the client portal and the team panel share this system. The values 
   - Dialogs: `0 40px 80px -30px rgba(0,0,0,0.5)`.
 - **Focus:** `outline: 3px solid rgba(211,175,52,0.6); outline-offset: 2px` on every interactive element.
 - **Breakpoints:**
-  - Website: below 1180px the menu collapses to a menu button; below 860px the phone layout shows the CTA row under the header.
+  - Website: below 1360px the menu collapses to a menu button (the design said 1180px; the header now also holds Support and Client login, and the logo is wider); below 860px the phone layout shows the CTA row under the header.
   - Portal and team panel: below 900px the sidebar becomes a slide-in menu and tables become cards.
 
 ## Buttons
