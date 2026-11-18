@@ -212,7 +212,7 @@ The zip (about 12 MB) is `flyconnecttech-website.zip`, in the folder above the p
 Invitations, password resets, support request updates and the website's form emails are all sent from one mailbox.
 
 1. cPanel > **Email Accounts** > **+ Create**.
-2. Domain `flyconnecttech.co.uk`, username for example `hello` (the address is `hello@flyconnecttech.co.uk`). Choose a strong password and write it down. Click **Create**.
+2. Domain `flyconnecttech.co.uk`, username for example `info` (the address is `info@flyconnecttech.co.uk`). Choose a strong password and write it down. Click **Create**.
 3. Next to the new mailbox, click **Connect Devices**. Under **Secure SSL/TLS Settings (Recommended)** write down:
    - **Outgoing Server**: usually the server name, like `something.krystal.uk`;
    - **SMTP Port**: usually `465`.
@@ -257,9 +257,9 @@ Passwords live only in this file on Krystal. They are never saved to GitHub.
    SMTP_HOST=OUTGOING-SERVER
    SMTP_PORT=465
    SMTP_SECURE=true
-   SMTP_USER=hello@flyconnecttech.co.uk
+   SMTP_USER=info@flyconnecttech.co.uk
    SMTP_PASS=MAILBOX-PASSWORD
-   EMAIL_FROM="FlyConnect Tech Support <hello@flyconnecttech.co.uk>"
+   EMAIL_FROM="FlyConnect Tech Support <info@flyconnecttech.co.uk>"
    ```
 
 5. Click **Save Changes**. Then right-click `.env` > **Change Permissions**, set it to `600` (only the owner can read and write) and click **Change Permissions**.
@@ -279,9 +279,9 @@ Where each value comes from:
 | `SMTP_HOST` | the Outgoing Server | Step 10, part 3 |
 | `SMTP_PORT` | `465` | Step 10, part 3 |
 | `SMTP_SECURE` | `true` | `true` for port 465. Only if you use port 587 instead, write `false` |
-| `SMTP_USER` | `hello@flyconnecttech.co.uk` | the mailbox from Step 10 |
+| `SMTP_USER` | `info@flyconnecttech.co.uk` | the mailbox from Step 10 |
 | `SMTP_PASS` | the mailbox password | Step 10, part 2. If it has symbols such as `#` or spaces, put it in double quotes |
-| `EMAIL_FROM` | `"FlyConnect Tech Support <hello@flyconnecttech.co.uk>"` | the name people see, and the same mailbox. Keep the double quotes |
+| `EMAIL_FROM` | `"FlyConnect Tech Support <info@flyconnecttech.co.uk>"` | the name people see, and the same mailbox. Keep the double quotes |
 
 ## Step 13. Switch the backend on and deploy
 
@@ -366,7 +366,7 @@ Three settings on your domain tell other mail servers that Krystal may send emai
 3. Add a DMARC record, which tells other servers what to do with email that fails these checks. cPanel > **Zone Editor** > **Manage** next to `flyconnecttech.co.uk` > **+ Add Record**:
    - Type: `TXT`
    - Name: `_dmarc.flyconnecttech.co.uk.`
-   - Record: `v=DMARC1; p=none; rua=mailto:hello@flyconnecttech.co.uk`
+   - Record: `v=DMARC1; p=none; rua=mailto:info@flyconnecttech.co.uk`
 
    `p=none` only reports problems and blocks nothing, which is the safe start. After a few weeks with no problems you can change it to `p=quarantine`.
 4. Changes can take a few hours to spread. Then check: at `https://flyconnecttech.co.uk/team/sign-in` click **Forgot password**, send yourself a link, and see that it lands in your inbox, not spam. In Gmail, **⋮** > **Show original** on that email should say `PASS` for SPF, DKIM and DMARC.
@@ -382,7 +382,7 @@ Three settings on your domain tell other mail servers that Krystal may send emai
 - [ ] Add one test customer (Customers > + Add customer), open their invitation, send a support request from the portal, and reply from the team panel. Then disable that test customer on the customer's page.
 - [ ] The scheduled jobs are in cPanel Cron, and `jobs.log` gets new lines each day (Step 15).
 - [ ] Settings (team panel) has the response times and notifications you want.
-- [ ] The mailbox `hello@flyconnecttech.co.uk` exists (cPanel > Email Accounts): the website shows it to visitors.
+- [ ] The mailbox `info@flyconnecttech.co.uk` exists (cPanel > Email Accounts): the website shows it to visitors.
 - [ ] Team panel > **Website content**: the live-project link is right, and you have added any client testimonials you have permission to show (Home and Case Studies hide that part until you do).
 - [ ] Someone has checked the texts of the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`).
 - [ ] Still hidden until you have them (ask Claude to add them): team members and photos (About), product screenshots, further case studies.

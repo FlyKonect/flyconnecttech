@@ -64,7 +64,7 @@ Customers see only their own projects, requests, notifications and profile. Inte
   - From 1280px the five columns sit beside the logo (the footer is then as wide as the header, up to 1360px); a long link wraps onto two lines.
 - **Legal Entity and Ownership** (`/legal-entity-and-ownership`): the client's "Legal Entity and Ownership" document, word for word except "FlyConnectTech" written "FlyConnect Tech": FlyConnect Tech is a trading brand and technology division of FlyConnect Limited (England and Wales, company number 16152024), which provides the services and is the party to every contract. In the legal pages' style; in the sitemap.
   - Bottom line: "© 2026 Northstack. All rights reserved." and the links Privacy · Terms · Cookies.
-- **Privacy, Terms and Cookies** (`/privacy`, `/terms`, `/cookies`): not in the design, so they follow the Support page's style (navy top band with breadcrumb, then text). Written from what the site really does: the three forms, client portal accounts, and only the sign-in cookies (no analytics or advertising, so no cookie banner). "FlyConnect Tech" and hello@flyconnecttech.co.uk as the contact. The client should have the texts checked.
+- **Privacy, Terms and Cookies** (`/privacy`, `/terms`, `/cookies`): not in the design, so they follow the Support page's style (navy top band with breadcrumb, then text). Written from what the site really does: the three forms, client portal accounts, and only the sign-in cookies (no analytics or advertising, so no cookie banner). "FlyConnect Tech" and info@flyconnecttech.co.uk as the contact. The client should have the texts checked.
 - **Inner pages:** breadcrumbs, a navy hero with the route-map art (`design/assets/route-map.svg`), a closing navy call-to-action band (Get a quote and Book a demo), and accordion FAQs (one open at a time, the first open at start).
 
 ### Pages
@@ -84,7 +84,7 @@ Build the content from `design/source/website-*.dc.html`; the screenshots are in
 
 Notes:
 - **Contact & Quote:**
-  - Contact options: Email (hello@flyconnecttech.co.uk), Book a demo, Response time ("Within 5 business days, Monday to Friday"). No WhatsApp, and no "Already a client?" or "What happens next" boxes: the client removed them (Client login is in the header).
+  - Contact options: Email (info@flyconnecttech.co.uk), Book a demo, Response time ("Within 5 business days, Monday to Friday"). No WhatsApp, and no "Already a client?" or "What happens next" boxes: the client removed them (Client login is in the header).
   - A card with two tabs, **Get a quote** (full form) and **Send a message**.
   - FAQs (4 questions). The client asked to keep them here.
 - **Services:** no FAQs and no closing "Have a project in mind?" band (both removed at the client's request); the page ends with the FlyConnect project card.
@@ -520,7 +520,7 @@ In-app notifications go to the people listed; emails respect each person's prefe
 - **Time zones:** store UTC. Show demo slots in UK time, and other times in the user's time zone (from their profile, defaulting to Europe/London).
 
 ## 9. Placeholders the client still has to supply
-Supplied: reply time (5 business days; the demo calendar invite within 1 business day), contact email (hello@flyconnecttech.co.uk), no WhatsApp and no social links. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
+Supplied: reply time (5 business days; the demo calendar invite within 1 business day), contact email (info@flyconnecttech.co.uk), no WhatsApp and no social links. Project timelines are left out ("Your quote includes a timeline"). Testimonials are added on the Website content screen.
 
 Still to come, and hidden from visitors until then:
 - Team members and photos (About's "The people behind your product").

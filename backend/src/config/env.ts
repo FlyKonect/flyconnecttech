@@ -52,7 +52,7 @@ export const envSchema = z.object({
   EMAIL_FROM: z
     .string()
     .min(1)
-    .default('FlyConnect Tech Support <hello@yourdomain.com>'),
+    .default('FlyConnect Tech Support <info@flyconnecttech.co.uk>'),
   /** Folder for uploaded files. It must not be reachable from the web. */
   UPLOAD_DIR: z.string().min(1).default('./uploads'),
 });

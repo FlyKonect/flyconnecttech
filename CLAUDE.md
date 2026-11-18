@@ -42,7 +42,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 - MariaDB 10.11 with Prisma 7 (`@prisma/adapter-mariadb`). Keep `prisma`, `@prisma/client` and the adapter on the same exact version.
 - Zod for every input and for the settings in `.env` (`src/config/env.ts`).
 - Swagger API docs at `/api-docs` (not in production).
-- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Every email in docs/01 §7 exists (see "Notifications and emails" below), with a plain-text version; the demo invite carries an `.ics` file (`src/leads/ics.ts`). The sender is `EMAIL_FROM` ("FlyConnect Tech Support <hello@yourdomain.com>" until the client gives the real mailbox). Every email can be previewed at `/dev/emails` in development.
+- Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Every email in docs/01 §7 exists (see "Notifications and emails" below), with a plain-text version; the demo invite carries an `.ics` file (`src/leads/ics.ts`). The sender is `EMAIL_FROM` ("FlyConnect Tech Support <info@flyconnecttech.co.uk>", the client's mailbox). Every email can be previewed at `/dev/emails` in development.
 - File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check. multer (part of `@nestjs/platform-express`) writes them to `UPLOAD_DIR/tmp` first. See "Support requests" below.
 - Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
 - Sign-in: Better Auth (email and password, sessions in the database, TOTP two-factor required for team accounts, sign-up switched off). Invitations and password resets are our own code in `backend/src/accounts/`. See "Sign-in and permissions" below.
@@ -118,7 +118,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/team/targets.ts`: response targets in words ("4 hours", "1 business day") and their saved short form ("4h", "1bd")
 - `frontend/src/lib/team/website-content.ts`: the Website content screen's rules and words (kept in step with the backend's `website-rules.ts`); the screen is `components/team/website-content.tsx`, its page `app/team/(app)/website-content/` with the `refreshWebsite()` server action
 - `frontend/src/lib/site-content.ts`: what the public website shows from Website content (types, checks, fallback); `site-content-cache.ts` has `getSiteContent()`, the cached copy the pages read
-- `frontend/src/lib/contact.ts`: the public email (hello@flyconnecttech.co.uk)
+- `frontend/src/lib/contact.ts`: the public email (info@flyconnecttech.co.uk)
 - `frontend/src/components/site/live-project-link.tsx`: every "View live project" link (the saved address); `testimonial-card.tsx`: one Home testimonial
 - `frontend/src/components/site/pages/legal.tsx`: the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`) and Legal Entity and Ownership (`/legal-entity-and-ownership`, linked from the footer)
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
@@ -295,7 +295,7 @@ Every row of docs/01 §7, where it is sent from, what it follows, and where it i
   - Customers see only their own requests and projects.
   - Internal notes never reach customers: not in pages, not in emails, not in API responses.
 - **Invite-only.** Invitation and reset links are single-use, stored hashed, and expire after 48 hours.
-- **No placeholder text on the website.** The client supplied: reply time "5 business days" (the demo calendar invite "within 1 business day"), hello@flyconnecttech.co.uk, no social links in the footer, and no WhatsApp number. Testimonials come from the Website content screen. Parts still waiting for content (team members and photos, screenshots, further case studies) are hidden, not shown as "[…]"; add them back when the client provides them.
+- **No placeholder text on the website.** The client supplied: reply time "5 business days" (the demo calendar invite "within 1 business day"), info@flyconnecttech.co.uk, no social links in the footer, and no WhatsApp number. Testimonials come from the Website content screen. Parts still waiting for content (team members and photos, screenshots, further case studies) are hidden, not shown as "[…]"; add them back when the client provides them.
 - **Content facts.** Amadeus and Stripe are in production on FlyConnect. Sabre is only a service we offer. No fake testimonials, no lorem ipsum.
 - **Time.** Store UTC. Show demo times in UK time (Europe/London), as the website shows them to visitors.
 - **Readable codes** next to UUIDs: `TKT-YYYY-NNNNN` (requests), `DEM-YYYY-NNN`, `QUO-YYYY-NNN`, `MSG-YYYY-NNN` (leads), `P-NNNN` (projects).

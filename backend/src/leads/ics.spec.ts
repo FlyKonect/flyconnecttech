@@ -6,7 +6,7 @@ const base = {
   minutes: 30,
   summary: 'FlyConnect Tech demo: Travel booking platform',
   description: 'A 30-minute video call with Emma Clarke, from FlyConnect Tech.',
-  organizer: { name: 'FlyConnect Tech', email: 'hello@yourdomain.com' },
+  organizer: { name: 'FlyConnect Tech', email: 'info@flyconnecttech.co.uk' },
   attendee: { name: 'Olivia Grant', email: 'olivia@skyhaven.example' },
   domain: 'yourdomain.com',
   now: new Date('2026-11-09T12:00:00Z'),

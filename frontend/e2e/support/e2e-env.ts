@@ -31,7 +31,7 @@ export const e2e = {
     RATE_LIMITS: "false",
     SMTP_HOST: process.env.E2E_SMTP_HOST ?? "localhost",
     SMTP_PORT: "1025",
-    EMAIL_FROM: "FlyConnect Tech Support <hello@yourdomain.com>",
+    EMAIL_FROM: "FlyConnect Tech Support <info@flyconnecttech.co.uk>",
     // Uploaded files go to a folder of their own, not the real uploads/.
     UPLOAD_DIR: path.join(os.tmpdir(), "flyconnect-tech-e2e-uploads"),
   },
