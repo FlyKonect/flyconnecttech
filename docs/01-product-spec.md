@@ -49,6 +49,7 @@ Customers see only their own projects, requests, notifications and profile. Inte
   - Northstack logo, linking to Home.
   - Menu: Solutions, Travel Technology, Services ▾ (All services, Website development, UI/UX design, API integrations), Case Studies, About. The current page is underlined in gold.
   - On the right: **Support** (the Support page), **Client login** (`/portal/sign-in`), **Get a quote** (navy, links to Contact), **Book a demo** (gold, opens the demo dialog).
+  - **Signed in:** "Client login" becomes **Client portal** (customers) or **Team panel** (the team), linking to their own area, in the header, the phone menu and the footer, and the Support page's buttons read "Go to the client portal" / "Go to the team panel". "Open my invitation" is hidden. The pages are pre-built, so they ask the backend (`GET /me/status`) after loading.
   - No Contact link here: **Get a quote** opens the same page (the phone menu and the footer still list Contact). The full menu shows from 1280px wide; narrower screens get the menu button, whose menu also lists Contact, Support and Client login.
 - **Phone and tablet:**
   - A menu button opens the menu, with the service pages indented under Services, plus Support and Client login.
@@ -143,6 +144,8 @@ On submit, create a **Demo request**: status New, page of origin recorded. Email
 ## 3. Accounts (invite-only)
 
 There is no sign-up anywhere. Staff create accounts; people activate them from an email.
+
+Someone already signed in never sees these pages: sign in, forgot password, the invitation help page, and invitation and reset links all send them to their own area (the portal, the team panel, or two-factor setup if it isn't done yet). To open another person's invitation, use a private window.
 
 - **Customer invitation:**
   - Created when an admin adds a customer, or converts a lead.

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { AuthSplit } from "@/components/auth/auth-layouts";
+import { RedirectIfSignedIn } from "@/components/auth/redirect-if-signed-in";
 import { LinkNotValid } from "@/components/auth/link-not-valid";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { env } from "@/env";
@@ -20,6 +21,8 @@ export default function ResetPasswordPage({
   return (
     <AuthSplit>
       <Suspense>
+        {/* Already signed in: straight to their own area. */}
+        <RedirectIfSignedIn />
         <Reset params={params} />
       </Suspense>
     </AuthSplit>

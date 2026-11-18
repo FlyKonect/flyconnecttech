@@ -83,19 +83,22 @@ test.describe("invitations", () => {
     await expect(sidebar).toContainText("Sarah Mitchell");
     await expect(sidebar).toContainText("Bluewave Holidays");
 
-    // The link works only once.
+    // Signed in, the invitation link just leads to the portal.
     await page.goto(new URL(link).pathname);
-    await expect(
-      page.getByRole("heading", { name: "This link no longer works" }),
-    ).toBeVisible();
+    await expect(page).toHaveURL(/\/portal$/);
 
     // Sign out: back to customer sign in, and the portal is closed again.
-    await page.goto("/portal");
     await page.getByRole("button", { name: /^Account menu/ }).click();
     await page.getByRole("menuitem", { name: "Logout" }).click();
     await expect(page).toHaveURL(/\/portal\/sign-in$/);
     await page.goto("/portal");
     await expect(page).toHaveURL(/\/portal\/sign-in$/);
+
+    // Signed out, the link works only once.
+    await page.goto(new URL(link).pathname);
+    await expect(
+      page.getByRole("heading", { name: "This link no longer works" }),
+    ).toBeVisible();
   });
 
   test("a team member sets a password, then sets up two-factor before getting in", async ({

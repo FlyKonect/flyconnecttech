@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ACCOUNT_LABELS } from "@/components/site/account-link";
 import { BookDemoButton } from "@/components/site/book-demo-button";
 import { isCurrent, mainLinks, serviceLinks } from "@/components/site/site-nav";
 import { Button } from "@/components/ui/button";
+import { useSignedInArea, type SignedInArea } from "@/lib/auth/signed-in-area";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +30,7 @@ import { cn } from "@/lib/utils";
  */
 export function SiteHeader() {
   const pathname = usePathname();
+  const area = useSignedInArea();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const menuButton = React.useRef<HTMLButtonElement>(null);
   const menuId = React.useId();
@@ -81,7 +84,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2.5 nav:gap-2">
-          {headerLinks.map((link) => (
+          {headerLinks(area).map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -161,11 +164,11 @@ export function SiteHeader() {
           Support
         </MenuLink>
         <MenuLink
-          href={routes.portalSignIn}
+          href={account(area).href}
           pathname={pathname}
           onClick={closeMenu}
         >
-          Client login
+          {account(area).label}
         </MenuLink>
       </nav>
     </header>
@@ -177,9 +180,18 @@ export function SiteHeader() {
  * is left out here: "Get a quote" opens the same page. The phone menu and
  * the footer still list Contact.
  */
-const headerLinks = [
+/** "Client login", or the signed-in visitor's own area. */
+function account(area: SignedInArea | undefined) {
+  if (area === "team") return { label: ACCOUNT_LABELS.team, href: routes.team };
+  if (area === "portal") {
+    return { label: ACCOUNT_LABELS.portal, href: routes.portal };
+  }
+  return { label: "Client login", href: routes.portalSignIn };
+}
+
+const headerLinks = (area: SignedInArea | undefined) => [
   { label: "Support", href: routes.support },
-  { label: "Client login", href: routes.portalSignIn },
+  account(area),
 ];
 
 const navLink =

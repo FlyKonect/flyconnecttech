@@ -121,3 +121,60 @@ for (const [role, rules, rest] of cases) {
     await check(page, expected(rules, rest));
   });
 }
+
+// Signed in, the sign-in pages are not for you: each one sends you to your
+// own area, and the website shows that area instead of "Client login".
+const SIGN_IN_PAGES = [
+  "/portal/sign-in",
+  "/team/sign-in",
+  "/portal/forgot-password",
+  "/team/forgot-password",
+  "/portal/invitation",
+];
+
+for (const [role, home, label] of [
+  ["customer", "/portal", "Client portal"],
+  ["admin", "/team", "Team panel"],
+] as const) {
+  test(`${role} signed in: no sign-in pages, and the website links to ${label}`, async ({
+    page,
+  }) => {
+    await signInBrowser(page.context(), await createPerson(role));
+    for (const path of SIGN_IN_PAGES) {
+      await page.goto(path);
+      await expect(page, `${path} should send a ${role} home`).toHaveURL(
+        new RegExp(`${home}$`),
+      );
+    }
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const banner = page.getByRole("banner");
+    await expect(
+      banner.getByRole("link", { name: label, exact: true }),
+    ).toHaveAttribute("href", home);
+    await expect(
+      banner.getByRole("link", { name: "Client login" }),
+    ).toHaveCount(0);
+    const footer = page.getByRole("navigation", { name: "Clients" });
+    await expect(
+      footer.getByRole("link", { name: label, exact: true }),
+    ).toBeVisible();
+    await expect(
+      footer.getByRole("link", { name: "Open my invitation" }),
+    ).toHaveCount(0);
+  });
+}
+
+test("signed out: the website shows Client login", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(
+    page.getByRole("banner").getByRole("link", { name: "Client login" }),
+  ).toHaveAttribute("href", "/portal/sign-in");
+  await expect(
+    page
+      .getByRole("navigation", { name: "Clients" })
+      .getByRole("link", { name: "Open my invitation" }),
+  ).toBeVisible();
+});

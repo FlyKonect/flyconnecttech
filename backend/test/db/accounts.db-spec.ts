@@ -448,3 +448,34 @@ describe('permissions on the server', () => {
     expect(response.body).toMatchObject({ code: 'WRONG_AREA', area: 'portal' });
   });
 });
+
+describe('the website asks "am I signed in, and where?"', () => {
+  it('answers the area, or nothing, and never an error', async () => {
+    const signedOut = await http().get('/me/status').expect(200);
+    expect(signedOut.body).toEqual({ area: null });
+
+    const { email } = await inviteAndActivate('CUSTOMER', {
+      company: 'Status Ltd',
+    });
+    const customer = cookieFrom(await signIn(email).expect(200));
+    const asCustomer = await http()
+      .get('/me/status')
+      .set('Cookie', customer)
+      .expect(200);
+    expect(asCustomer.body).toEqual({ area: 'portal' });
+
+    const admin = await teamMemberWithTwoFactor('ADMIN');
+    const asAdmin = await http()
+      .get('/me/status')
+      .set('Cookie', admin.cookie)
+      .expect(200);
+    expect(asAdmin.body).toEqual({ area: 'team' });
+
+    // A made-up session is simply "not signed in".
+    const fake = await http()
+      .get('/me/status')
+      .set('Cookie', 'fct.session_token=nonsense')
+      .expect(200);
+    expect(fake.body).toEqual({ area: null });
+  });
+});

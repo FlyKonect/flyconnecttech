@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 
 import { AuthHeading, AuthSplit } from "@/components/auth/auth-layouts";
+import { RedirectIfSignedIn } from "@/components/auth/redirect-if-signed-in";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/lib/routes";
 
@@ -20,6 +22,10 @@ export const metadata: Metadata = {
 export default function InvitationHelpPage() {
   return (
     <AuthSplit>
+      {/* Already signed in: straight to their own area. */}
+      <Suspense>
+        <RedirectIfSignedIn />
+      </Suspense>
       <span className="inline-flex size-12 items-center justify-center rounded-xl bg-[rgba(211,175,52,0.13)] text-gold-text">
         <Mail aria-hidden="true" className="size-6" />
       </span>

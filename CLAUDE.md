@@ -198,6 +198,10 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - **Better Auth** knows only role, status, customerId, jobTitle and timezone (`backend/src/auth/auth-options.ts`). Our services manage the other user fields.
 - **Account changes** (invitations, password resets) run their transactions with `ACCOUNT_TX` (read committed). With MariaDB's default locking, people asking for links at the same moment blocked each other.
 
+## Signed-in visitors (frontend)
+- **The sign-in pages** (sign in, forgot password, invitation help, invitation and reset links) start with `<RedirectIfSignedIn />` (`components/auth/redirect-if-signed-in.tsx`): someone signed in goes to `homeFor(me)`.
+- **The website** is pre-built, so it finds out after loading: `useSignedInArea()` (`lib/auth/signed-in-area.ts`) asks the public `GET /me/status` (always 200, only `{ area }`), once for the header, footer and page. `<AccountLink>` turns "Client login" into "Client portal" / "Team panel"; `<HideWhenSignedIn>` hides "Open my invitation" (`components/site/account-link.tsx`).
+
 ## Sign-in and permissions (backend)
 - **Every route needs a signed-in person** (global `SessionGuard`) unless it has `@Public()`. Add `@Area('portal')` or `@Area('team')` and `@Can('requests.view')` (and so on) to narrow it. Team members without two-factor reach only routes with `@AllowWithoutTwoFactor()`.
 - **Who may do what** lives only in `policies.ts`. Lists filter with `requestScope()` and `customerScope()`, so developers and customers never get other people's records.

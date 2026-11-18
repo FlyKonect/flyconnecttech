@@ -7,6 +7,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AccountLink, HideWhenSignedIn } from "@/components/site/account-link";
 import { DemoButton } from "@/components/site/demo/demo-button";
 import { Faq } from "@/components/site/faq";
 import { routes } from "@/lib/routes";
@@ -150,8 +151,28 @@ function HeroSection() {
                 gap: "12px",
               }}
             >
-              <Link
-                href={routes.portalSignIn}
+              <AccountLink
+                label="Sign in to the client portal"
+                signedIn={{
+                  portal: "Go to the client portal",
+                  team: "Go to the team panel",
+                }}
+                icon={
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                }
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -167,44 +188,30 @@ function HeroSection() {
                   background: "#D3AF34",
                   color: "#021A54",
                 }}
-              >
-                Sign in to the client portal
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+              />
+              <HideWhenSignedIn>
+                <Link
+                  href={routes.portalInvitation}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    height: "52px",
+                    padding: "0 24px",
+                    borderRadius: "10px",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.32)",
+                    color: "#FFFFFF",
+                  }}
                 >
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
-              </Link>
-              <Link
-                href={routes.portalInvitation}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  height: "52px",
-                  padding: "0 24px",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.32)",
-                  color: "#FFFFFF",
-                }}
-              >
-                Open my invitation
-              </Link>
+                  Open my invitation
+                </Link>
+              </HideWhenSignedIn>
             </div>
           </div>
           <div

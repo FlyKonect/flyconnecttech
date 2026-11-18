@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import {
@@ -5,6 +6,7 @@ import {
   AuthLead,
   AuthSplit,
 } from "@/components/auth/auth-layouts";
+import { RedirectIfSignedIn } from "@/components/auth/redirect-if-signed-in";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
 export const metadata: Metadata = {
@@ -16,6 +18,10 @@ export const metadata: Metadata = {
 export default function PortalForgotPasswordPage() {
   return (
     <AuthSplit>
+      {/* Already signed in: straight to their own area. */}
+      <Suspense>
+        <RedirectIfSignedIn />
+      </Suspense>
       <AuthHeading>Forgot your password?</AuthHeading>
       <AuthLead>
         Enter your account email and we will send you a secure link to choose a

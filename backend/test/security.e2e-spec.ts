@@ -43,6 +43,7 @@ const PUBLIC_ROUTES = [
   'POST /leads/quote',
   'POST /leads/message',
   'GET /website',
+  'GET /me/status',
 ];
 
 const join = (...parts: (string | undefined)[]) =>

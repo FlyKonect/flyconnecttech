@@ -6,6 +6,7 @@ import {
   type InvitationDetails,
 } from "@/components/auth/accept-invitation-form";
 import { AuthSplit } from "@/components/auth/auth-layouts";
+import { RedirectIfSignedIn } from "@/components/auth/redirect-if-signed-in";
 import { LinkNotValid } from "@/components/auth/link-not-valid";
 import { env } from "@/env";
 
@@ -21,6 +22,8 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
   return (
     <AuthSplit>
       <Suspense>
+        {/* Already signed in: straight to their own area. */}
+        <RedirectIfSignedIn />
         <Invitation params={params} />
       </Suspense>
     </AuthSplit>

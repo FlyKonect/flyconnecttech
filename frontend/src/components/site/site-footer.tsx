@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/brand/logo";
+import { AccountLink, HideWhenSignedIn } from "@/components/site/account-link";
 import { footerColumns } from "@/components/site/site-nav";
 import { routes } from "@/lib/routes";
 
@@ -40,16 +41,36 @@ export function SiteFooter() {
               >
                 <p className="text-sm font-bold">{column.title}</p>
                 <ul className="mt-3.5 flex flex-col items-start text-[15px]">
-                  {column.links.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="inline-block py-[5px] leading-[1.45] text-on-navy transition-colors hover:text-white"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {column.links.map((link) => {
+                    const linkClass =
+                      "inline-block py-[5px] leading-[1.45] text-on-navy transition-colors hover:text-white";
+                    // Signed in: "Client login" becomes their own area, and
+                    // "Open my invitation" is not needed.
+                    if (link.href === routes.portalSignIn) {
+                      return (
+                        <li key={link.label}>
+                          <AccountLink
+                            label={link.label}
+                            className={linkClass}
+                          />
+                        </li>
+                      );
+                    }
+                    const item = (
+                      <li key={link.label}>
+                        <Link href={link.href} className={linkClass}>
+                          {link.label}
+                        </Link>
+                      </li>
+                    );
+                    return link.href === routes.portalInvitation ? (
+                      <HideWhenSignedIn key={link.label}>
+                        {item}
+                      </HideWhenSignedIn>
+                    ) : (
+                      item
+                    );
+                  })}
                 </ul>
               </nav>
             ))}

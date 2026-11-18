@@ -5,6 +5,7 @@ import { AccountsController } from './accounts.controller.js';
 import { InvitationsService } from './invitations.service.js';
 import { MeController } from './me.controller.js';
 import { PasswordResetService } from './password-reset.service.js';
+import { SessionStatusController } from './session-status.controller.js';
 import {
   PasswordController,
   ProfileController,
@@ -19,6 +20,7 @@ import { TeamUsersService } from './team-users.service.js';
     AccountsController,
     MeController,
     TeamUsersController,
+    SessionStatusController,
     ProfileController,
     TeamProfileController,
     PasswordController,
