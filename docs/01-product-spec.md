@@ -260,7 +260,7 @@ There is no sign-up anywhere. Staff create accounts; people activate them from a
 - **Navy sidebar:**
   - Logo, then "Team panel · **View website**".
   - **Dashboard**.
-  - **SUPPORT REQUESTS** (labelled **MY REQUESTS** for developers): All requests (count), New requests (gold badge; not shown to developers), Under review, In progress, Waiting for customer, Resolved, Closed (counts).
+  - **SUPPORT REQUESTS** (labelled **MY REQUESTS** for developers): All requests (count) only. The per-status shortcuts (New requests, Under review, In progress, Waiting for customer, Resolved, Closed) were removed at the client's request: All requests has them as filter tabs, and stays highlighted on every tab.
   - **WEBSITE** (Super admin, Admin, Manager): Demo requests, Quote requests, Messages, each with a gold badge for new items; then Website content (Super admin, Admin).
   - **MANAGE:** Customers (Super admin, Admin, Manager), Users (Super admin, Admin), Reports & Analytics (Super admin, Admin, Manager).
   - Notifications (badge), Settings (Super admin), Logout.

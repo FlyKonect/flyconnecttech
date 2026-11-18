@@ -19,12 +19,6 @@ describe("team menu per role (docs/01, section 5)", () => {
     expect(keys("SUPER_ADMIN")).toEqual([
       "dashboard",
       "all",
-      "new",
-      "underReview",
-      "inProgress",
-      "waiting",
-      "resolved",
-      "closed",
       "demos",
       "quotes",
       "messages",
@@ -58,16 +52,7 @@ describe("team menu per role (docs/01, section 5)", () => {
   });
 
   test("developer sees only their requests and notifications", () => {
-    expect(keys("DEVELOPER")).toEqual([
-      "dashboard",
-      "all",
-      "underReview",
-      "inProgress",
-      "waiting",
-      "resolved",
-      "closed",
-      "notifications",
-    ]);
+    expect(keys("DEVELOPER")).toEqual(["dashboard", "all", "notifications"]);
     expect(headings("DEVELOPER")).toEqual(["MY REQUESTS"]);
   });
 });
@@ -79,18 +64,16 @@ describe("which menu item is active", () => {
     expect(isTeamNavItemActive(dashboard, "/team/users", null)).toBe(false);
   });
 
-  test("request filters follow the ?status= value", () => {
+  test("All requests stays active on every status tab and on a request", () => {
     const all = item("ADMIN", "all");
-    const inProgress = item("ADMIN", "inProgress");
-
     expect(isTeamNavItemActive(all, "/team/requests", null)).toBe(true);
     expect(isTeamNavItemActive(all, "/team/requests", "in-progress")).toBe(
-      false,
+      true,
     );
     expect(
-      isTeamNavItemActive(inProgress, "/team/requests", "in-progress"),
+      isTeamNavItemActive(all, "/team/requests/TKT-2026-00001", null),
     ).toBe(true);
-    expect(isTeamNavItemActive(inProgress, "/team/requests", null)).toBe(false);
+    expect(isTeamNavItemActive(all, "/team/customers", null)).toBe(false);
   });
 
   test("a section stays active on its inner pages", () => {

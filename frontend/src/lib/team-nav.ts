@@ -49,19 +49,6 @@ export type TeamNavSection = {
 /** The numbers shown beside menu items. A missing key shows as 0. */
 export type TeamNavCounts = Partial<Record<TeamNavKey, number>>;
 
-const requestFilter = (
-  key: TeamNavKey,
-  label: string,
-  status: string,
-  number: TeamNavItem["number"] = "count",
-): TeamNavItem => ({
-  key,
-  label,
-  href: `${routes.teamRequests}?status=${status}`,
-  number,
-  status,
-});
-
 export function teamNav(role: TeamRole): TeamNavSection[] {
   const isDeveloper = role === "DEVELOPER";
   const isSuperAdmin = role === "SUPER_ADMIN";
@@ -81,19 +68,7 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
           href: routes.teamRequests,
           number: "count",
         },
-        // New requests are not assigned yet, so developers have none.
-        ...(isDeveloper
-          ? []
-          : [requestFilter("new", "New requests", "submitted", "badge")]),
-        requestFilter("underReview", "Under review", "under-review"),
-        requestFilter("inProgress", "In progress", "in-progress"),
-        requestFilter(
-          "waiting",
-          "Waiting for customer",
-          "waiting-for-customer",
-        ),
-        requestFilter("resolved", "Resolved", "resolved"),
-        requestFilter("closed", "Closed", "closed"),
+        // No shortcut per status: All requests has them as filter tabs.
       ],
     },
   ];
@@ -191,7 +166,8 @@ export function isTeamNavItemActive(
     pathname === routes.teamRequests ||
     pathname.startsWith(`${routes.teamRequests}/`);
 
-  if (item.key === "all") return onRequests && !status;
+  // Stays active whichever status tab is chosen on the page.
+  if (item.key === "all") return onRequests;
   if (item.status) return onRequests && status === item.status;
 
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
