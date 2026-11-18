@@ -92,6 +92,10 @@ export const footerColumns: FooterColumn[] = [
       { label: "Open my invitation", href: routes.portalInvitation },
     ],
   },
+  {
+    title: "Legal and Ownership",
+    links: [{ label: "Legal Entity and Ownership", href: routes.legalEntity }],
+  },
 ];
 
 /** Is `href` the page being looked at, or the section it belongs to? */

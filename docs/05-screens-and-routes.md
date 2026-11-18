@@ -18,6 +18,7 @@ Screenshots are in `design/screens/`. Codes like `TKT-2026-00118` appear in URLs
 | 10 | Contact & Quote | `/contact` (`#form` opens the quote tab) | `10-contact-quote-*` |
 | 11 | Support | `/support` | `11-support-*` |
 | — | Privacy policy, Terms of use, Cookie policy | `/privacy`, `/terms`, `/cookies` | none (in the Support page's style) |
+| — | Legal Entity and Ownership | `/legal-entity-and-ownership` | none (in the legal pages' style) |
 
 Dialogs and form states (there is no separate route for these):
 

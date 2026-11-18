@@ -336,11 +336,32 @@ test("the footer's Privacy, Terms and Cookies links open their pages", async ({
   }
 });
 
-test("sitemap.xml lists the 14 pages and robots.txt keeps out private areas", async ({
+test("the footer's Legal and Ownership column opens the legal entity page", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("navigation", { name: "Legal and Ownership" })
+    .getByRole("link", { name: "Legal Entity and Ownership" })
+    .click();
+  // The test server builds a page on its first visit: allow it time.
+  await expect(page).toHaveURL(/\/legal-entity-and-ownership$/, {
+    timeout: 15_000,
+  });
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Legal Entity and Ownership" }),
+  ).toBeVisible();
+  await expect(page.getByText(/company registration number/)).toContainText(
+    "16152024",
+  );
+});
+
+test("sitemap.xml lists the 15 pages and robots.txt keeps out private areas", async ({
   request,
 }) => {
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  expect(sitemap.match(/<loc>/g)).toHaveLength(14);
+  expect(sitemap.match(/<loc>/g)).toHaveLength(15);
+  expect(sitemap).toContain("/legal-entity-and-ownership</loc>");
   expect(sitemap).toContain("/services/ui-ux-design</loc>");
   expect(sitemap).toContain("/privacy</loc>");
   expect(sitemap).not.toContain("/portal");

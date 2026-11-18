@@ -124,6 +124,7 @@ const WEBSITE = [
   "/privacy",
   "/terms",
   "/cookies",
+  "/legal-entity-and-ownership",
 ];
 
 test("the website pages, on a computer and a phone", async ({ page }) => {

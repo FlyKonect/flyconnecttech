@@ -17,10 +17,13 @@ export const LEGAL_UPDATED = "17 November 2026";
 function LegalPage({
   title,
   intro,
+  updated = LEGAL_UPDATED,
   children,
 }: {
   title: string;
   intro: string;
+  /** "Last updated …", when this page changed on another day. */
+  updated?: string;
   children: ReactNode;
 }) {
   return (
@@ -60,7 +63,7 @@ function LegalPage({
             {intro}
           </p>
           <p className="mt-4 text-sm text-on-navy-muted">
-            Last updated {LEGAL_UPDATED}
+            Last updated {updated}
           </p>
         </div>
       </section>
@@ -79,6 +82,10 @@ function LegalPage({
 }
 
 /** One numbered part of a legal page. */
+/** The look of a legal page's text. */
+const prose =
+  "flex flex-col gap-3 text-base leading-[1.7] text-body [&_a]:font-semibold [&_a]:text-navy [&_a]:underline [&_a]:underline-offset-[3px] [&_strong]:text-ink-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-2 [&_ul]:pl-5";
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   return (
@@ -89,9 +96,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       >
         {title}
       </h2>
-      <div className="mt-3 flex flex-col gap-3 text-base leading-[1.7] text-body [&_a]:font-semibold [&_a]:text-navy [&_a]:underline [&_a]:underline-offset-[3px] [&_strong]:text-ink-2 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-2 [&_ul]:pl-5">
-        {children}
-      </div>
+      <div className={`mt-3 ${prose}`}>{children}</div>
     </section>
   );
 }
@@ -458,6 +463,48 @@ export function CookiesPage() {
           use the information you give us.
         </p>
       </Section>
+    </LegalPage>
+  );
+}
+
+// ------------------------------------------------- legal entity and ownership
+
+/**
+ * Who stands behind the brand, from the client's "Legal Entity and
+ * Ownership" document (18 November 2026). Linked from the footer.
+ */
+export function LegalEntityPage() {
+  return (
+    <LegalPage
+      title="Legal Entity and Ownership"
+      intro="FlyConnect Tech is a trading brand and technology division operated by FlyConnect Limited."
+      updated="18 November 2026"
+    >
+      <div className={prose}>
+        <p>
+          FlyConnect Tech is a trading brand and technology division operated by{" "}
+          <strong>FlyConnect Limited</strong>, a company incorporated in England
+          and Wales under company registration number <strong>16152024</strong>.
+        </p>
+        <p>
+          All software products, technology services, subscriptions, licences,
+          commercial agreements and related services offered through the
+          FlyConnect Tech website are provided by FlyConnect Limited, unless
+          expressly stated otherwise in an individual agreement.
+        </p>
+        <p>
+          Any contracts entered into through FlyConnect Tech shall be legally
+          entered into with FlyConnect Limited.
+        </p>
+        <p>
+          References to FlyConnect Tech throughout this website refer to the
+          technology brand and services operated by FlyConnect Limited.
+        </p>
+        <p>
+          FlyConnect Limited retains responsibility for the contractual and
+          commercial obligations associated with FlyConnect Tech services.
+        </p>
+      </div>
     </LegalPage>
   );
 }

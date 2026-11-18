@@ -120,7 +120,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/site-content.ts`: what the public website shows from Website content (types, checks, fallback); `site-content-cache.ts` has `getSiteContent()`, the cached copy the pages read
 - `frontend/src/lib/contact.ts`: the public email (hello@flyconnecttech.co.uk)
 - `frontend/src/components/site/live-project-link.tsx`: every "View live project" link (the saved address); `testimonial-card.tsx`: one Home testimonial
-- `frontend/src/components/site/pages/legal.tsx`: the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`)
+- `frontend/src/components/site/pages/legal.tsx`: the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`) and Legal Entity and Ownership (`/legal-entity-and-ownership`, linked from the footer)
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
 - `frontend/src/components/brand/`: the logo

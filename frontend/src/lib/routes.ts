@@ -18,6 +18,7 @@ export const routes = {
   privacy: "/privacy",
   terms: "/terms",
   cookies: "/cookies",
+  legalEntity: "/legal-entity-and-ownership",
 
   // Accounts
   portalSignIn: "/portal/sign-in",

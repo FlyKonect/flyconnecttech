@@ -19,6 +19,7 @@ const pages = [
   routes.privacy,
   routes.terms,
   routes.cookies,
+  routes.legalEntity,
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
