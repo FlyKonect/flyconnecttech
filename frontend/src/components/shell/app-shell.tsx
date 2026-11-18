@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Bell, Menu, Search } from "lucide-react";
 
-import { Avatar } from "@/components/ui/avatar";
+import { UserMenu } from "@/components/shell/user-menu";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,8 +28,8 @@ export type AppShellProps = {
   sidebar: (closeMenu: () => void) => React.ReactNode;
   search: { action: string; label: string; placeholder: string };
   bell: { href: string; unread: boolean };
-  /** Name and role at the right of the header (team panel only). */
-  user?: { name: string; detail: string };
+  /** The signed-in person at the right of the header, with their menu. */
+  user?: { name: string; detail: string; profileHref: string };
   children: React.ReactNode;
 };
 
@@ -181,13 +181,12 @@ export function AppShell({
           </Link>
 
           {user ? (
-            <span className="flex items-center gap-2.5 max-app:hidden">
-              <Avatar name={user.name} />
-              <span className="text-[13px] leading-[1.3]">
-                <strong className="block">{user.name}</strong>
-                <span className="text-muted-foreground">{user.detail}</span>
-              </span>
-            </span>
+            <UserMenu
+              area={tone}
+              name={user.name}
+              detail={user.detail}
+              profileHref={user.profileHref}
+            />
           ) : null}
         </header>
 

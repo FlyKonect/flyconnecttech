@@ -8,32 +8,9 @@ import {
 } from "@/components/portal/profile-forms";
 import { serverApi } from "@/lib/api-server";
 import type { Profile } from "@/lib/portal/types";
+import { timeZoneOptions } from "@/lib/time-zones";
 
 export const metadata: Metadata = { title: "Profile Settings" };
-
-/** Every time zone, labelled like "Europe/London (GMT)". */
-function timeZoneOptions(current: string) {
-  const now = new Date();
-  const zones = Intl.supportedValuesOf("timeZone");
-  if (!zones.includes(current)) zones.unshift(current);
-  return zones.map((zone) => {
-    let offset = "";
-    try {
-      offset =
-        new Intl.DateTimeFormat("en-GB", {
-          timeZone: zone,
-          timeZoneName: "shortOffset",
-        })
-          .formatToParts(now)
-          .find((part) => part.type === "timeZoneName")?.value ?? "";
-    } catch {
-      offset = "";
-    }
-    // "GMT+0" reads as "GMT", as in the design.
-    if (offset === "GMT+0") offset = "GMT";
-    return { value: zone, label: offset ? `${zone} (${offset})` : zone };
-  });
-}
 
 /** Profile Settings (screen 15). */
 async function ProfileSettingsPageContent() {
@@ -41,6 +18,7 @@ async function ProfileSettingsPageContent() {
   return (
     <div className="flex flex-wrap items-start gap-5">
       <ProfileForm
+        area="portal"
         profile={profile}
         timeZones={timeZoneOptions(profile.timezone)}
       />

@@ -481,6 +481,7 @@ test("team: customers, users and website leads, with their dialogs", async ({
     "/team/leads/quotes",
     "/team/leads/messages",
     "/team/website-content",
+    "/team/profile",
   ]) {
     await page.goto(path);
     await expectAccessible(page, path);

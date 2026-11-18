@@ -3,22 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Bell,
-  Globe,
-  LayoutGrid,
-  LogOut,
-  Ticket,
-  UserRound,
-  type LucideIcon,
-} from "lucide-react";
+import { Bell, Globe, LayoutGrid, Ticket, type LucideIcon } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
-import { useSignOut } from "@/components/auth/use-sign-out";
+
 import { Avatar } from "@/components/ui/avatar";
 import { routes } from "@/lib/routes";
-import { cn } from "@/lib/utils";
 
 /** The customer shown in the sidebar, with the numbers beside the menu. */
 export type PortalUser = {
@@ -59,7 +50,7 @@ export function portalTitle(pathname: string): string {
 /** The client portal layout for the signed-in customer. */
 export function PortalShell({ user, children }: ShellProps) {
   const pathname = usePathname();
-  const { signOut, signingOut } = useSignOut("portal");
+
   const onOverview = pathname === routes.portal;
   const under = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
@@ -77,6 +68,11 @@ export function PortalShell({ user, children }: ShellProps) {
       bell={{
         href: routes.portalNotifications,
         unread: user.unreadNotifications > 0,
+      }}
+      user={{
+        name: user.name,
+        detail: user.company,
+        profileHref: routes.portalProfile,
       }}
       sidebar={(closeMenu) => (
         <>
@@ -123,14 +119,6 @@ export function PortalShell({ user, children }: ShellProps) {
                 </span>
               ) : null}
             </NavItem>
-            <NavItem
-              href={routes.portalProfile}
-              icon={UserRound}
-              active={under(routes.portalProfile)}
-              onClick={closeMenu}
-            >
-              Profile Settings
-            </NavItem>
           </nav>
 
           <div className="mt-auto flex flex-col gap-2 border-t border-line-3 pt-5">
@@ -148,15 +136,6 @@ export function PortalShell({ user, children }: ShellProps) {
             <NavItem href={routes.home} icon={Globe} onClick={closeMenu}>
               Visit website
             </NavItem>
-            <button
-              type="button"
-              onClick={signOut}
-              disabled={signingOut}
-              className={cn(navItem, "cursor-pointer disabled:opacity-60")}
-            >
-              <LogOut aria-hidden="true" className="size-[18px] shrink-0" />
-              {signingOut ? "Signing out…" : "Logout"}
-            </button>
           </div>
         </>
       )}

@@ -82,6 +82,7 @@ Dialogs and form states (there is no separate route for these):
 | 41 | Message details | `/team/leads/messages/[code]` | `41-message-details.jpg` |
 | 42 | Convert lead to customer | `/team/customers/new?from=QUO-2026-040` | `42-convert-lead-to-customer.jpg` |
 | — | Website content (Super admin, Admin): testimonials and the live-project link | `/team/website-content` | none (built from the Settings and Users screens' parts) |
+| — | Profile settings (every team role) | `/team/profile` | none (the client portal's screen 15 without the email choices) |
 
 ## Not part of the product
 - **The design's "VIEW AS" switcher** (Customer / Super admin / Admin / Manager / Developer) is a prototype control and is hidden in these screenshots. Don't build it. For development, a seeded user per role is enough. If you want a dev-only role switcher, keep it behind `NODE_ENV=development`.

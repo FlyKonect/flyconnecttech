@@ -15,6 +15,7 @@ import {
   passwordChangeSchema,
   profileSchema,
   ProfileService,
+  teamProfileSchema,
 } from './profile.service.js';
 
 /** The customer's Profile Settings (screen 15). */
@@ -34,6 +35,27 @@ export class ProfileController {
     @Body({ schema: profileSchema }) body: z.infer<typeof profileSchema>,
   ) {
     return this.profile.update(user, body);
+  }
+}
+
+/** A team member's own Profile settings (any team role). */
+@Area('team')
+@Controller('team/profile')
+export class TeamProfileController {
+  constructor(private readonly profile: ProfileService) {}
+
+  @Get()
+  get(@CurrentUser() user: SignedIn) {
+    return this.profile.getTeam(user);
+  }
+
+  @Patch()
+  update(
+    @CurrentUser() user: SignedIn,
+    @Body({ schema: teamProfileSchema })
+    body: z.infer<typeof teamProfileSchema>,
+  ) {
+    return this.profile.updateTeam(user, body);
   }
 }
 

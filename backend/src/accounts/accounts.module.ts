@@ -5,7 +5,11 @@ import { AccountsController } from './accounts.controller.js';
 import { InvitationsService } from './invitations.service.js';
 import { MeController } from './me.controller.js';
 import { PasswordResetService } from './password-reset.service.js';
-import { PasswordController, ProfileController } from './profile.controller.js';
+import {
+  PasswordController,
+  ProfileController,
+  TeamProfileController,
+} from './profile.controller.js';
 import { ProfileService } from './profile.service.js';
 import { TeamUsersController } from './team-users.controller.js';
 import { TeamUsersService } from './team-users.service.js';
@@ -16,6 +20,7 @@ import { TeamUsersService } from './team-users.service.js';
     MeController,
     TeamUsersController,
     ProfileController,
+    TeamProfileController,
     PasswordController,
   ],
   providers: [

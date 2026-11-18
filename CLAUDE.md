@@ -123,6 +123,8 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/components/site/pages/legal.tsx`: the Privacy, Terms and Cookies pages (`/privacy`, `/terms`, `/cookies`) and Legal Entity and Ownership (`/legal-entity-and-ownership`, linked from the footer)
 - `frontend/src/components/shell/`: shared by both areas: the frame, the notifications list, the page loading placeholder
 - `frontend/src/components/shell/app-shell.tsx`: the sidebar-and-header frame shared by the portal and the team panel
+- `frontend/src/components/shell/user-menu.tsx`: the name at the right of the header; a click opens Profile settings and Logout (both areas)
+- `frontend/src/components/portal/profile-forms.tsx`: Profile settings and Change password for both areas (`area="portal"` with the email choices, `area="team"` with role and job title read-only); the time zone list is `lib/time-zones.ts`
 - `frontend/src/components/brand/`: the logo
 - `frontend/src/components/site/`, `portal/`, `team/`
 - `frontend/public/brand/`: logo files
@@ -141,7 +143,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/e2e/`: Playwright tests
 - `backend/src/auth/`: Better Auth setup, the global `SessionGuard` and its decorators
 - `backend/src/policies/policies.ts`: who may do what, for every role
-- `backend/src/accounts/`: invitations, password reset, `/me`, profile and password change, and the team's Users routes (`team-users.*`: list, add, disable, resend, reset link, the roles for Add user)
+- `backend/src/accounts/`: invitations, password reset, `/me`, profile (`/portal/profile`, and `/team/profile` for every team role) and password change, and the team's Users routes (`team-users.*`: list, add, disable, resend, reset link, the roles for Add user)
 - `backend/src/customers/`: the team's customer routes (list, add with projects, the customer page, add project, project status)
 - `backend/src/leads/`: website leads: the public forms (`public-leads.*`), the team routes (`team-leads.*`), the status actions (`lead-actions.service.ts`), who hears about what (`lead-events.service.tsx`), the shared rules and words (`lead-rules.ts`), convert (`lead-convert.ts`) and the calendar invite (`ics.ts`)
 - `backend/src/requests/`: support requests: the portal and team routes, status rules, SLA, shared writes (`request-writes.ts`), the dashboards, labels for emails, and `RequestEventsService` (who gets which notification and email)

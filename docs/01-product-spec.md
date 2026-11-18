@@ -180,9 +180,9 @@ There is no sign-up anywhere. Staff create accounts; people activate them from a
 - **White sidebar:**
   - Logo with "Client portal".
   - No "Create support request" button here (removed at the client's request); it is on the Overview, and My Requests has **New request**.
-  - Menu: Overview, My Requests (count), Notifications (unread badge), Profile Settings.
-  - At the bottom: user card (name, company), **Visit website**, **Logout**.
-- **Header:** page title, a search box (searches the customer's requests) and the notifications button.
+  - Menu: Overview, My Requests (count), Notifications (unread badge).
+  - At the bottom: user card (name, company) and **Visit website**.
+- **Header:** page title, a search box (searches the customer's requests), the notifications button, and the customer's name and company. A click on the name opens a menu: **Profile settings** and **Logout** (moved out of the left menu at the client's request; on phones only the avatar shows).
 - **Phone:** the sidebar becomes a slide-in menu.
 
 ### Overview (screen 06)
@@ -263,9 +263,10 @@ There is no sign-up anywhere. Staff create accounts; people activate them from a
   - **SUPPORT REQUESTS** (labelled **MY REQUESTS** for developers): All requests (count) only. The per-status shortcuts (New requests, Under review, In progress, Waiting for customer, Resolved, Closed) were removed at the client's request: All requests has them as filter tabs, and stays highlighted on every tab.
   - **WEBSITE** (Super admin, Admin, Manager): Demo requests, Quote requests, Messages, each with a gold badge for new items; then Website content (Super admin, Admin).
   - **MANAGE:** Customers (Super admin, Admin, Manager), Users (Super admin, Admin), Reports & Analytics (Super admin, Admin, Manager).
-  - Notifications (badge), Settings (Super admin), Logout.
+  - Notifications (badge), Settings (Super admin).
   - User card (gold avatar, name, role).
-- **Header:** page title, search (requests and customers), notifications, and the user's name with role · job title.
+- **Header:** page title, search (requests and customers), notifications, and the user's name with role · job title. A click on the name opens a menu: **Profile settings** and **Logout** (Logout moved out of the left menu at the client's request).
+- **Profile settings** (`/team/profile`, every team role): Full name, Phone, Country and Time zone can be changed; Email, Role and Job title are shown read-only (an admin sets them); and Change password, as in the client portal.
 
 ### Dashboards (screens 17–20)
 - **Common parts:**

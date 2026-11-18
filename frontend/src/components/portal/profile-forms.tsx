@@ -13,31 +13,42 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
+import { roles } from "@/lib/labels";
 import type { Profile } from "@/lib/portal/types";
+import type { TeamProfile } from "@/lib/team/types";
 
 const profileSchema = z.object({
   name: z.string().trim().min(1, "Enter your name").max(120),
   phone: z.string().trim().max(40, "Keep it under 40 characters"),
   country: z.string().trim().max(80, "Keep it under 80 characters"),
   timezone: z.string().min(1, "Choose a time zone"),
-  emailPrefs: z.object({
-    replies: z.boolean(),
-    statusChanges: z.boolean(),
-    weeklySummary: z.boolean(),
-  }),
+  // Customers only: the team has no email choices here.
+  emailPrefs: z
+    .object({
+      replies: z.boolean(),
+      statusChanges: z.boolean(),
+      weeklySummary: z.boolean(),
+    })
+    .optional(),
 });
 
 type ProfileInput = z.infer<typeof profileSchema>;
 
-/** Profile Settings, left card (screen 15). Company and email are read-only. */
-export function ProfileForm({
-  profile,
-  timeZones,
-}: {
-  profile: Profile;
-  /** Every time zone, with its label: "Europe/London (GMT)". */
-  timeZones: { value: string; label: string }[];
-}) {
+type ProfileFormProps =
+  | { area: "portal"; profile: Profile; timeZones: TimeZoneOption[] }
+  | { area: "team"; profile: TeamProfile; timeZones: TimeZoneOption[] };
+
+/** "Europe/London (GMT)". */
+type TimeZoneOption = { value: string; label: string };
+
+/**
+ * Profile Settings, left card (screen 15), for customers and the team.
+ * Customers: company and email are read-only, with their email choices.
+ * Team: email, role and job title are read-only.
+ */
+export function ProfileForm(props: ProfileFormProps) {
+  const { profile, timeZones } = props;
+  const isTeam = props.area === "team";
   const router = useRouter();
   const toast = useToast();
   const [error, setError] = React.useState("");
@@ -48,18 +59,28 @@ export function ProfileForm({
       phone: profile.phone ?? "",
       country: profile.country ?? "",
       timezone: profile.timezone,
-      emailPrefs: profile.emailPrefs,
+      emailPrefs:
+        props.area === "portal" ? props.profile.emailPrefs : undefined,
     },
   });
   const errors = form.formState.errors;
-  const subtitle = [profile.jobTitle, profile.company]
-    .filter(Boolean)
-    .join(" · ");
+  const subtitle =
+    props.area === "team"
+      ? [roles[props.profile.role].label, props.profile.jobTitle]
+          .filter(Boolean)
+          .join(" · ")
+      : [props.profile.jobTitle, props.profile.company]
+          .filter(Boolean)
+          .join(" · ");
 
   const save = form.handleSubmit(async (values) => {
     setError("");
     try {
-      await apiFetch("/portal/profile", { method: "PATCH", body: values });
+      const { emailPrefs, ...details } = values;
+      await apiFetch(isTeam ? "/team/profile" : "/portal/profile", {
+        method: "PATCH",
+        body: isTeam ? details : { ...details, emailPrefs },
+      });
       toast("Changes saved");
       router.refresh();
     } catch (failed) {
@@ -96,7 +117,11 @@ export function ProfileForm({
               {...form.register("name")}
             />
           </Field>
-          <ReadOnly label="Company" value={profile.company ?? ""} />
+          {props.area === "team" ? (
+            <ReadOnly label="Role" value={roles[props.profile.role].label} />
+          ) : (
+            <ReadOnly label="Company" value={props.profile.company ?? ""} />
+          )}
           <ReadOnly label="Email" value={profile.email} />
           <Field label="Phone" error={errors.phone?.message}>
             <Input
@@ -124,26 +149,29 @@ export function ProfileForm({
           </Field>
         </div>
         <p className="mt-3 text-[13px] text-muted-foreground">
-          Your company and email were set when the FlyConnect Tech team created
-          your account. Ask them if either needs to change.
+          {isTeam
+            ? "Your email, role and job title were set when your account was created. Ask a super admin or admin if any needs to change."
+            : "Your company and email were set when the FlyConnect Tech team created your account. Ask them if either needs to change."}
         </p>
 
-        <fieldset className="mt-[22px]">
-          <legend className="mb-2.5 text-[15px] font-bold">
-            Email me when
-          </legend>
-          <div className="flex flex-col gap-2.5 [&_label]:text-ink-2">
-            <Checkbox {...form.register("emailPrefs.replies")}>
-              The team replies to my request
-            </Checkbox>
-            <Checkbox {...form.register("emailPrefs.statusChanges")}>
-              A status changes or more information is needed
-            </Checkbox>
-            <Checkbox {...form.register("emailPrefs.weeklySummary")}>
-              Weekly summary of my requests
-            </Checkbox>
-          </div>
-        </fieldset>
+        {isTeam ? null : (
+          <fieldset className="mt-[22px]">
+            <legend className="mb-2.5 text-[15px] font-bold">
+              Email me when
+            </legend>
+            <div className="flex flex-col gap-2.5 [&_label]:text-ink-2">
+              <Checkbox {...form.register("emailPrefs.replies")}>
+                The team replies to my request
+              </Checkbox>
+              <Checkbox {...form.register("emailPrefs.statusChanges")}>
+                A status changes or more information is needed
+              </Checkbox>
+              <Checkbox {...form.register("emailPrefs.weeklySummary")}>
+                Weekly summary of my requests
+              </Checkbox>
+            </div>
+          </fieldset>
+        )}
 
         {error ? (
           <div className="mt-4">

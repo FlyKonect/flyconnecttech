@@ -30,6 +30,11 @@ export const profileSchema = z.object({
 
 export type ProfileInput = z.infer<typeof profileSchema>;
 
+/** What a team member may change on their profile. Not email, role or job title. */
+export const teamProfileSchema = profileSchema.omit({ emailPrefs: true });
+
+export type TeamProfileInput = z.infer<typeof teamProfileSchema>;
+
 export const passwordChangeSchema = z.object({
   currentPassword: z.string().min(1, 'Enter your current password').max(200),
   newPassword: newPasswordSchema,
@@ -73,6 +78,35 @@ export class ProfileService {
       },
     });
     return this.get(user);
+  }
+
+  /** A team member's own profile (team panel > Profile settings). */
+  async getTeam(user: SignedIn) {
+    return this.prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: {
+        name: true,
+        email: true,
+        role: true,
+        jobTitle: true,
+        phone: true,
+        country: true,
+        timezone: true,
+      },
+    });
+  }
+
+  async updateTeam(user: SignedIn, input: TeamProfileInput) {
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name: input.name,
+        phone: input.phone || null,
+        country: input.country || null,
+        timezone: input.timezone,
+      },
+    });
+    return this.getTeam(user);
   }
 
   /**

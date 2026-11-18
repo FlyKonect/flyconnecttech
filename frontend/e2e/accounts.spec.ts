@@ -91,7 +91,8 @@ test.describe("invitations", () => {
 
     // Sign out: back to customer sign in, and the portal is closed again.
     await page.goto("/portal");
-    await sidebar.getByRole("button", { name: "Logout" }).click();
+    await page.getByRole("button", { name: /^Account menu/ }).click();
+    await page.getByRole("menuitem", { name: "Logout" }).click();
     await expect(page).toHaveURL(/\/portal\/sign-in$/);
     await page.goto("/portal");
     await expect(page).toHaveURL(/\/portal\/sign-in$/);
@@ -155,7 +156,8 @@ test.describe("invitations", () => {
     );
 
     // Sign out, then sign in again: now the code is needed.
-    await nav.getByRole("button", { name: "Logout" }).click();
+    await page.getByRole("button", { name: /^Account menu/ }).click();
+    await page.getByRole("menuitem", { name: "Logout" }).click();
     await expect(page).toHaveURL(/\/team\/sign-in$/);
     await field(page, "Work email").fill(email);
     await field(page, "Password").fill(PASSWORD);

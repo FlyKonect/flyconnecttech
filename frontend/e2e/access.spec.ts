@@ -27,6 +27,7 @@ const PAGES = [
   "/team/website-content",
   "/team/reports",
   "/team/settings",
+  "/team/profile",
 ] as const;
 
 type Page_ = (typeof PAGES)[number];

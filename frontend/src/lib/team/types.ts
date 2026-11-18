@@ -460,3 +460,14 @@ export type WebsiteContentView = {
   liveProjectUrl: string;
   testimonials: TeamTestimonial[];
 };
+
+/** GET /team/profile: the team member's own Profile settings. */
+export type TeamProfile = {
+  name: string;
+  email: string;
+  role: "SUPER_ADMIN" | "ADMIN" | "MANAGER" | "DEVELOPER";
+  jobTitle: string | null;
+  phone: string | null;
+  country: string | null;
+  timezone: string;
+};

@@ -93,6 +93,8 @@ const as = (who: Person) => ({
   get: (path: string) => http().get(path).set('Cookie', who.cookie),
   post: (path: string, body: object = {}) =>
     http().post(path).set('Cookie', who.cookie).send(body),
+  patch: (path: string, body: object = {}) =>
+    http().patch(path).set('Cookie', who.cookie).send(body),
 });
 
 /** A new request from Sarah. Returns its code. */
@@ -562,5 +564,50 @@ describe('the dashboards and the sidebar numbers', () => {
       company: 'Bluewave Holidays',
       name: 'Sarah Mitchell',
     });
+  });
+});
+
+describe('Profile settings for the team', () => {
+  it('a team member reads and changes their own profile; customers cannot', async () => {
+    const read = await as(manager).get('/team/profile').expect(200);
+    expect(read.body).toMatchObject({ role: 'MANAGER' });
+    expect(read.body).not.toHaveProperty('emailPrefs');
+
+    const saved = await as(manager)
+      .patch('/team/profile', {
+        name: 'Sofia Martins',
+        phone: '+44 20 7946 0101',
+        country: 'United Kingdom',
+        timezone: 'Europe/London',
+      })
+      .expect(200);
+    expect(saved.body).toMatchObject({
+      name: 'Sofia Martins',
+      phone: '+44 20 7946 0101',
+      country: 'United Kingdom',
+      timezone: 'Europe/London',
+    });
+
+    // The role and job title stay as the admins set them.
+    await as(manager)
+      .patch('/team/profile', {
+        name: 'Sofia Martins',
+        timezone: 'Europe/London',
+        role: 'SUPER_ADMIN',
+        jobTitle: 'Owner',
+      })
+      .expect(200);
+    const after = await prisma.user.findUniqueOrThrow({
+      where: { id: manager.id },
+    });
+    expect(after.role).toBe('MANAGER');
+    expect(after.jobTitle).toBe(read.body.jobTitle);
+
+    const bad = await as(manager)
+      .patch('/team/profile', { name: ' ', timezone: 'Mars/Base' })
+      .expect(400);
+    expect(JSON.stringify(bad.body)).toContain('Enter your name');
+
+    await as(sarah).get('/team/profile').expect(403);
   });
 });

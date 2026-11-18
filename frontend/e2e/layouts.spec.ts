@@ -180,9 +180,10 @@ test.describe("client portal layout", () => {
     await expect(
       nav.getByRole("link", { name: /Notifications/ }),
     ).toBeVisible();
+    // Profile settings and Logout are in the menu under the name.
     await expect(
-      nav.getByRole("link", { name: "Profile Settings" }),
-    ).toBeVisible();
+      nav.getByRole("link", { name: /Profile Settings/i }),
+    ).toHaveCount(0);
 
     const sidebar = page.getByRole("complementary", {
       name: "Client portal menu",
@@ -198,7 +199,15 @@ test.describe("client portal layout", () => {
     await expect(
       sidebar.getByRole("link", { name: "Visit website" }),
     ).toBeVisible();
-    await expect(sidebar.getByRole("button", { name: "Logout" })).toBeVisible();
+    await expect(sidebar.getByRole("button", { name: "Logout" })).toHaveCount(
+      0,
+    );
+    await page.getByRole("button", { name: /^Account menu/ }).click();
+    await expect(
+      page.getByRole("menuitem", { name: "Profile settings" }),
+    ).toHaveAttribute("href", "/portal/profile");
+    await expect(page.getByRole("menuitem", { name: "Logout" })).toBeVisible();
+    await page.keyboard.press("Escape");
 
     await expect(
       page.getByRole("searchbox", { name: "Search requests" }),

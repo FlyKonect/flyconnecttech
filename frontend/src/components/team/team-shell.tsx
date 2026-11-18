@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
-import { useSignOut } from "@/components/auth/use-sign-out";
+
 import { Avatar } from "@/components/ui/avatar";
 import { roles, type TeamRole } from "@/lib/labels";
 import { routes } from "@/lib/routes";
@@ -16,7 +16,6 @@ import {
   type TeamNavCounts,
   type TeamNavItem,
 } from "@/lib/team-nav";
-import { cn } from "@/lib/utils";
 
 /** The team member shown in the sidebar and header. */
 export type TeamUser = {
@@ -38,6 +37,7 @@ const titles: [prefix: string, title: string][] = [
   [routes.teamReports, "Reports & Analytics"],
   [routes.teamNotifications, "Notifications"],
   [routes.teamSettings, "Settings"],
+  [routes.teamProfile, "Profile settings"],
 ];
 
 export function teamTitle(pathname: string): string {
@@ -97,7 +97,7 @@ export function TeamShell({
 }) {
   const pathname = usePathname();
   const status = useSearchParams().get("status");
-  const { signOut, signingOut } = useSignOut("team");
+
   const roleLabel = roles[user.role].label;
   const [override, setOverride] = React.useState<TitleOverride>(null);
   // Only for the page that set it, in case another page shows first.
@@ -121,6 +121,7 @@ export function TeamShell({
         user={{
           name: user.name,
           detail: user.jobTitle ? `${roleLabel} · ${user.jobTitle}` : roleLabel,
+          profileHref: routes.teamProfile,
         }}
         sidebar={(closeMenu) => (
           <>
@@ -166,14 +167,6 @@ export function TeamShell({
                   ))}
                 </React.Fragment>
               ))}
-              <button
-                type="button"
-                onClick={signOut}
-                disabled={signingOut}
-                className={cn(navItem, "cursor-pointer disabled:opacity-60")}
-              >
-                {signingOut ? "Signing out…" : "Logout"}
-              </button>
             </nav>
 
             <div className="mt-auto flex items-center gap-2.5 border-t border-white/10 px-2.5 pt-3.5">
