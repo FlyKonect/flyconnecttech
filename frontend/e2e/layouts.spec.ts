@@ -191,9 +191,10 @@ test.describe("client portal layout", () => {
     // The real signed-in customer and company, not sample names.
     await expect(sidebar).toContainText(customer.name);
     await expect(sidebar).toContainText("E2E Travel Ltd");
+    // No "Create support request" in the menu: Overview and My Requests have it.
     await expect(
       sidebar.getByRole("link", { name: "Create support request" }),
-    ).toHaveAttribute("href", "/portal/requests/new");
+    ).toHaveCount(0);
     await expect(
       sidebar.getByRole("link", { name: "Visit website" }),
     ).toBeVisible();

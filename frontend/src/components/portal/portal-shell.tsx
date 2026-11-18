@@ -8,7 +8,6 @@ import {
   Globe,
   LayoutGrid,
   LogOut,
-  Plus,
   Ticket,
   UserRound,
   type LucideIcon,
@@ -18,7 +17,6 @@ import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
 import { useSignOut } from "@/components/auth/use-sign-out";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -88,13 +86,6 @@ export function PortalShell({ user, children }: ShellProps) {
               Client portal
             </p>
           </div>
-
-          <Button asChild className="mb-[18px] w-full">
-            <Link href={routes.portalNewRequest} onClick={closeMenu}>
-              <Plus aria-hidden="true" className="size-4" />
-              Create support request
-            </Link>
-          </Button>
 
           <nav aria-label="Customer" className="flex flex-col gap-0.5">
             <NavItem

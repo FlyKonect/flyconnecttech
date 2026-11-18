@@ -179,7 +179,7 @@ There is no sign-up anywhere. Staff create accounts; people activate them from a
 ### Layout
 - **White sidebar:**
   - Logo with "Client portal".
-  - **Create support request** button.
+  - No "Create support request" button here (removed at the client's request); it is on the Overview, and My Requests has **New request**.
   - Menu: Overview, My Requests (count), Notifications (unread badge), Profile Settings.
   - At the bottom: user card (name, company), **Visit website**, **Logout**.
 - **Header:** page title, a search box (searches the customer's requests) and the notifications button.
