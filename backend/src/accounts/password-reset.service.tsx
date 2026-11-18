@@ -9,6 +9,7 @@ import {
   passwordResetSubject,
 } from '../email/templates/password-reset.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { retryOnConflict } from '../prisma/retry.js';
 import {
   LINK_LIFETIME_HOURS,
   hashToken,
@@ -135,19 +136,26 @@ export class PasswordResetService {
 
   private async send(userId: string, sentByTeam: boolean): Promise<void> {
     const { token, hash } = newToken();
-    const user = await this.prisma.$transaction(async (tx) => {
-      await tx.verification.deleteMany({
-        where: { value: userId, identifier: { startsWith: RESET_LINK_PREFIX } },
-      });
-      await tx.verification.create({
-        data: {
-          identifier: RESET_LINK_PREFIX + hash,
-          value: userId,
-          expiresAt: linkExpiry(),
-        },
-      });
-      return tx.user.findUniqueOrThrow({ where: { id: userId } });
-    }, ACCOUNT_TX);
+    // Many people asking at the same moment can still lock each other now
+    // and then; the database then cancels one, and it is simply run again.
+    const user = await retryOnConflict(() =>
+      this.prisma.$transaction(async (tx) => {
+        await tx.verification.deleteMany({
+          where: {
+            value: userId,
+            identifier: { startsWith: RESET_LINK_PREFIX },
+          },
+        });
+        await tx.verification.create({
+          data: {
+            identifier: RESET_LINK_PREFIX + hash,
+            value: userId,
+            expiresAt: linkExpiry(),
+          },
+        });
+        return tx.user.findUniqueOrThrow({ where: { id: userId } });
+      }, ACCOUNT_TX),
+    );
 
     const link = `${this.siteUrl}/reset-password/${token}`;
     await this.email.send({
