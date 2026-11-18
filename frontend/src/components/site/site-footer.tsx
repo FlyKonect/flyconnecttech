@@ -49,7 +49,12 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-wrap justify-between gap-3 border-t border-white/12 pt-6 text-sm text-on-navy-muted">
-          <p>© 2026 FlyConnect Tech. All rights reserved.</p>
+          <div>
+            <p>© 2026 FlyConnect Tech. All rights reserved.</p>
+            <p className="mt-1">
+              FlyConnect Tech is a trading brand of FlyConnect Limited.
+            </p>
+          </div>
           <nav aria-label="Legal">
             <ul className="flex flex-wrap items-center gap-x-1.5">
               {legalLinks.map((link, index) => (

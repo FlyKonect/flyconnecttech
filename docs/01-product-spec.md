@@ -60,7 +60,7 @@ Customers see only their own projects, requests, notifications and profile. Inte
     - Services: Travel technology, Website development, UI/UX design, All services.
     - Company: About, Case studies, Contact.
     - Clients: Support, Client login, Open my invitation.
-  - Bottom line: "© 2026 Northstack. All rights reserved." and the links Privacy · Terms · Cookies.
+  - Bottom line: "© 2026 Northstack. All rights reserved.", under it "FlyConnect Tech is a trading brand of FlyConnect Limited.", and the links Privacy · Terms · Cookies.
 - **Privacy, Terms and Cookies** (`/privacy`, `/terms`, `/cookies`): not in the design, so they follow the Support page's style (navy top band with breadcrumb, then text). Written from what the site really does: the three forms, client portal accounts, and only the sign-in cookies (no analytics or advertising, so no cookie banner). "FlyConnect Tech" and hello@flyconnecttech.co.uk as the contact. The client should have the texts checked.
 - **Inner pages:** breadcrumbs, a navy hero with the route-map art (`design/assets/route-map.svg`), a closing navy call-to-action band (Get a quote and Book a demo), and accordion FAQs (one open at a time, the first open at start).
 
