@@ -54,13 +54,13 @@ Customers see only their own projects, requests, notifications and profile. Inte
   - A menu button opens the menu, with the service pages indented under Services, plus Support and Client login.
   - A row of two buttons under the header: Get a quote and Book a demo.
 - **Footer (navy):**
-  - The logo only, larger (36px tall, 32px on phones) and at the middle height of the link columns. The line "We design, develop & integrate…" and the social buttons were removed at the client's request.
+  - The logo (32px tall, 28px on phones), at the top, with "FlyConnect Tech is a trading brand of FlyConnect Limited." under it. The line "We design, develop & integrate…" and the social buttons were removed at the client's request.
   - Columns:
     - Solutions: Ready-made products, Custom software, API integrations.
     - Services: Travel technology, Website development, UI/UX design, All services.
     - Company: About, Case studies, Contact.
     - Clients: Support, Client login, Open my invitation.
-  - Bottom line: "© 2026 Northstack. All rights reserved.", under it "FlyConnect Tech is a trading brand of FlyConnect Limited.", and the links Privacy · Terms · Cookies.
+  - Bottom line: "© 2026 Northstack. All rights reserved." and the links Privacy · Terms · Cookies.
 - **Privacy, Terms and Cookies** (`/privacy`, `/terms`, `/cookies`): not in the design, so they follow the Support page's style (navy top band with breadcrumb, then text). Written from what the site really does: the three forms, client portal accounts, and only the sign-in cookies (no analytics or advertising, so no cookie banner). "FlyConnect Tech" and hello@flyconnecttech.co.uk as the contact. The client should have the texts checked.
 - **Inner pages:** breadcrumbs, a navy hero with the route-map art (`design/assets/route-map.svg`), a closing navy call-to-action band (Get a quote and Book a demo), and accordion FAQs (one open at a time, the first open at start).
 

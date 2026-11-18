@@ -15,16 +15,18 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-white/8 bg-navy-900 text-white">
       <div className="mx-auto max-w-[1240px] px-[clamp(20px,4vw,40px)] pt-16 pb-10">
-        {/* The logo sits at the middle height of the link columns. */}
-        <div className="flex flex-wrap items-center justify-between gap-10">
+        <div className="flex flex-wrap justify-between gap-10">
           <div className="max-w-[400px] flex-[1_1_300px]">
             <Link
               href={routes.home}
               aria-label="FlyConnect Tech home"
               className="inline-flex"
             >
-              <Logo onNavy className="h-8 site:h-9" />
+              <Logo onNavy className="h-7 site:h-8" />
             </Link>
+            <p className="mt-3 text-sm text-on-navy">
+              FlyConnect Tech is a trading brand of FlyConnect Limited.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-x-16 gap-y-10">
@@ -49,12 +51,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-wrap justify-between gap-3 border-t border-white/12 pt-6 text-sm text-on-navy-muted">
-          <div>
-            <p>© 2026 FlyConnect Tech. All rights reserved.</p>
-            <p className="mt-1">
-              FlyConnect Tech is a trading brand of FlyConnect Limited.
-            </p>
-          </div>
+          <p>© 2026 FlyConnect Tech. All rights reserved.</p>
           <nav aria-label="Legal">
             <ul className="flex flex-wrap items-center gap-x-1.5">
               {legalLinks.map((link, index) => (
