@@ -255,7 +255,7 @@ test.describe("team panel layout", () => {
       await expect(nav.getByText(heading, { exact: true })).toBeVisible();
     }
     for (const name of [
-      /New requests/,
+      /All requests/,
       /Demo requests/,
       /Customers/,
       /Users/,
@@ -264,6 +264,10 @@ test.describe("team panel layout", () => {
     ]) {
       await expect(nav.getByRole("link", { name })).toBeVisible();
     }
+    // No per-status shortcuts: All requests has them as tabs.
+    await expect(nav.getByRole("link", { name: /New requests/ })).toHaveCount(
+      0,
+    );
 
     const header = page.getByRole("banner");
     await expect(header).toContainText(superAdmin.name);
