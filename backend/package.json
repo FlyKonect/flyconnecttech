@@ -34,7 +34,7 @@
     "project:add": "node dist/cli/add-project.js",
     "prejob": "tsc -p tsconfig.build.json",
     "job": "node dist/cli/run-job.js",
-    "e2e:serve": "node scripts/prepare-database.mjs && nest build && node dist/main.js"
+    "e2e:serve": "node scripts/prepare-database.mjs && tsc -p tsconfig.build.json && node dist/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
