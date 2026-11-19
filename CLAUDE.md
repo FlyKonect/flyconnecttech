@@ -65,6 +65,7 @@ Setup guide for the owner, in plain steps: `docs/deploy.md`. Keep it current whe
 - The live hosting is Krystal business hosting (cPanel, SSH on port 722): the website on `flyconnecttech.co.uk`, the backend on `api.flyconnecttech.co.uk`.
 - The website is deployed as the Next.js standalone build (`output: "standalone"`), started by `server.js`.
 - The backend is started by `backend/app.cjs`: cPanel loads the start file with `require`, which cannot load the ESM app directly.
+- On cPanel, `npm install` (the deploy's, or the Run NPM Install button) runs inside the app's Node.js folder (`~/nodevenv/<app root>/<version>/lib`), not in the app folder. So the backend's `postinstall` runs `prisma generate` only where `prisma/schema.prisma` is present: on the server it skips, because `dist` already holds the client. Never make an install script depend on the app's own files.
 - A deploy replaces only `dist/` and `prisma/` (backend) and `.next/`, `node_modules/` and `public/` (website). `.env` and `uploads/` on the server are never touched. Keep it that way.
 - `prisma` is a normal dependency (not a dev one) so migrations can run on the server.
 - Secrets stay in `backend/.env` on the server. GitHub holds only the SSH login. A new backend setting means: add it to `src/config/env.ts`, `.env.example` and Step 12 of `docs/deploy.md`.

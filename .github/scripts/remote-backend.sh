@@ -39,6 +39,9 @@ fi
 echo "Installing packages..."
 # "npm install", not "npm ci": on cPanel the node_modules folder is a link that
 # belongs to the Node.js app, and "npm ci" would delete it.
+# cPanel runs the install inside the app's own Node.js folder (~/nodevenv/.../lib),
+# where prisma/schema.prisma is not, so the postinstall skips "prisma generate":
+# dist already holds the database client built on GitHub.
 npm install --omit=dev --no-audit --no-fund
 
 echo "Updating the database..."
