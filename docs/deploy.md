@@ -428,6 +428,7 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | "The settings file … .env is missing" | Do Step 12 |
 | Error while "Updating the database", with "Access denied" | Wrong database name, user or password in `DATABASE_URL`, or the user was not added to the database with ALL PRIVILEGES (Step 9) |
 | "… did not answer" at the end, or the site shows a 503 error | In File Manager open the app's folder and read `stderr.log`. The usual causes: the Node.js version is below 22, a mistake in `.env`, or a database password with symbols in it |
+| `stderr.log` says "URIError: URI malformed" | The database password has a symbol in it (`%`, `@`, `#`, `/` …). In cPanel > Manage My Databases > **Current Users**, click **Change Password** next to the user and choose one with letters and numbers only. Put it in `DATABASE_URL` in `.env`, then **Restart** the backend app |
 | The website's forms or Client login say "Backend not running" | Before Part C, that is expected. After it: `API_URL` is wrong, `FRONTEND_URL` in `.env` does not match the site's address exactly, or `api.flyconnecttech.co.uk` has no padlock yet |
 | A scheduled job seems not to run | Look at `jobs.log` in the backend folder (Step 15). No new lines means the cron line is wrong: run its command in the Terminal to see the error |
 | No invitation or reset email arrives | Check the `SMTP_` settings in `.env` (Step 12), restart the backend app, and look in `stderr.log` for "email". The invite command prints the link anyway |

@@ -153,6 +153,7 @@ Without SSH, cPanel's **Cron Jobs** page is the only place to run a command. To 
 | The website shows an error or 503 | Read `stderr.log` in `flyconnect-tech/frontend`. Check that the five items from the zip are there, including the hidden `.next` |
 | Run NPM Install says "CloudLinux NodeJS Selector demands to store node modules … in separate folder" | There is a real `node_modules` folder in `flyconnect-tech/backend`. Delete it and click again. For the website, never click it |
 | `/health` does not answer, or shows 503 | Read `stderr.log` in `flyconnect-tech/backend`. Usual causes: a mistake in `.env`, Node.js below 22, or the tables were not made (B4, point 4) |
+| `stderr.log` says "URIError: URI malformed" | The database password has a symbol in it. Give the user a new password with letters and numbers only (Manage My Databases > Current Users > Change Password), put it in `DATABASE_URL` in `.env`, then **Restart** |
 | `db:deploy` says "Access denied" | `DATABASE_URL` in `.env` is wrong, or the user lacks ALL PRIVILEGES (Step 9) |
 | `once.log` is missing after 5 minutes | The time had already passed on the server's clock, or `SOURCE-COMMAND` is not exactly what cPanel shows. Fix it and try again |
 | The forms say "Backend not running" | The backend is not live yet, or `/health` fails: see the rows above |
