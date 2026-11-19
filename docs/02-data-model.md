@@ -32,7 +32,7 @@ Better Auth generates its own tables (user, session, account, verification, two-
 | `LeadType` | DEMO, QUOTE, MESSAGE |
 | `LeadActivityKind` | SYSTEM, EMAIL, NOTE |
 
-Keep the display labels (for example "Waiting for Customer", "$5k – $15k") in one place, `src/lib/labels.ts`.
+Keep the display labels (for example "Waiting for Customer", "£5k – £15k") in one place, `src/lib/labels.ts`.
 
 ## Entities
 
@@ -118,7 +118,7 @@ Keep the display labels (for example "Waiting for Customer", "$5k – $15k") in 
 ### Estimate
 - **Fields:**
   - `id`, `quoteRequestId`
-  - `amountCents`, `currency` (default `USD`)
+  - `amountCents`, `currency` (default `GBP`)
   - `deliveryTime`, `validUntil` (date), `summary`
   - `sentById`, `sentAt`
 - The newest estimate is the current one. Older ones are history.

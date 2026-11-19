@@ -34,10 +34,10 @@ export const QUOTE_TYPE_LABELS: Record<QuoteProjectType, string> = {
 };
 
 export const BUDGET_LABELS: Record<Budget, string> = {
-  UNDER_5K: 'Under $5k',
-  FROM_5K_TO_15K: '$5k – $15k',
-  FROM_15K_TO_50K: '$15k – $50k',
-  OVER_50K: '$50k+',
+  UNDER_5K: 'Under £5k',
+  FROM_5K_TO_15K: '£5k – £15k',
+  FROM_15K_TO_50K: '£15k – £50k',
+  OVER_50K: '£50k+',
   NOT_SURE: 'Not sure yet',
 };
 
@@ -169,12 +169,12 @@ export {
 
 // ---------------------------------------------------------- estimates
 
-/** "$24,000", or "$24,000.50" when there are cents. */
-export function formatUsd(cents: number): string {
+/** "£24,000", or "£24,000.50" when there are cents. */
+export function formatGbp(cents: number): string {
   const whole = cents % 100 === 0;
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-GB', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'GBP',
     minimumFractionDigits: whole ? 0 : 2,
     maximumFractionDigits: whole ? 0 : 2,
   }).format(cents / 100);

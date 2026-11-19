@@ -532,7 +532,7 @@ model Estimate {
   quoteRequest   QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
   /// Money in whole cents.
   amountCents    Int
-  currency       String       @default("USD") @db.Char(3)
+  currency       String       @default("GBP") @db.Char(3)
   deliveryTime   String       @db.VarChar(120)
   validUntil     DateTime     @db.Date
   summary        String       @db.Text

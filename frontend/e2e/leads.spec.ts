@@ -183,7 +183,7 @@ test("a quote from the Contact page: review, estimate, won, convert", async ({
   await form
     .getByLabel("Project type")
     .selectOption({ label: "API integration" });
-  await form.getByLabel("Budget range").selectOption({ label: "$15k – $50k" });
+  await form.getByLabel("Budget range").selectOption({ label: "£15k – £50k" });
   await form
     .getByLabel("Timeline")
     .selectOption({ label: "Within 3–6 months" });
@@ -206,13 +206,13 @@ test("a quote from the Contact page: review, estimate, won, convert", async ({
 
   await page.getByRole("button", { name: "Send estimate" }).click();
   const estimate = page.getByRole("dialog", { name: "Send estimate" });
-  await expect(estimate.getByLabel("Estimate (USD) *")).toHaveValue("$24,000");
+  await expect(estimate.getByLabel("Estimate (GBP) *")).toHaveValue("£24,000");
   await estimate.getByRole("button", { name: "Send estimate" }).click();
   await expect(toast(page, `Estimate sent to ${email}`)).toBeVisible();
   const sent = await waitForEmail(email, /estimate from/);
   expect(sent.subject).toBe("Your estimate from FlyConnect Tech");
   await expect(
-    page.getByText(/^Estimate of \$24,000 sent\. Valid until /),
+    page.getByText(/^Estimate of £24,000 sent\. Valid until /),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Mark as won" }).click();

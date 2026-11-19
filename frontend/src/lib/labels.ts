@@ -224,10 +224,10 @@ export type Budget =
   "UNDER_5K" | "FROM_5K_TO_15K" | "FROM_15K_TO_50K" | "OVER_50K" | "NOT_SURE";
 
 export const budgets: Record<Budget, Labelled> = {
-  UNDER_5K: { label: "Under $5k" },
-  FROM_5K_TO_15K: { label: "$5k – $15k" },
-  FROM_15K_TO_50K: { label: "$15k – $50k" },
-  OVER_50K: { label: "$50k+" },
+  UNDER_5K: { label: "Under £5k" },
+  FROM_5K_TO_15K: { label: "£5k – £15k" },
+  FROM_15K_TO_50K: { label: "£15k – £50k" },
+  OVER_50K: { label: "£50k+" },
   NOT_SURE: { label: "Not sure yet" },
 };
 

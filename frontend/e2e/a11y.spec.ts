@@ -543,7 +543,7 @@ test("team: customers, users and website leads, with their dialogs", async ({
   await page.getByRole("button", { name: "Send estimate" }).click();
   const estimate = page.getByRole("dialog", { name: "Send estimate" });
   await expectAccessible(page, "Send estimate dialog");
-  await estimate.getByLabel("Estimate (USD) *").fill("$18,000");
+  await estimate.getByLabel("Estimate (GBP) *").fill("£18,000");
   await estimate.getByRole("button", { name: "Send estimate" }).click();
   await expect(estimate).toBeHidden();
   await page.getByRole("button", { name: "Mark as won" }).click();

@@ -1,6 +1,6 @@
 import {
   ESTIMATE_FROM_BUDGET,
-  formatUsd,
+  formatGbp,
   isDemoSlot,
   isOfferedSlot,
   offeredDemoSlots,
@@ -63,9 +63,9 @@ describe('demo slots (UK time)', () => {
 });
 
 describe('estimates', () => {
-  it('writes US dollars without cents unless there are some', () => {
-    expect(formatUsd(2_400_000)).toBe('$24,000');
-    expect(formatUsd(2_400_050)).toBe('$24,000.50');
+  it('writes pounds without cents unless there are some', () => {
+    expect(formatGbp(2_400_000)).toBe('£24,000');
+    expect(formatGbp(2_400_050)).toBe('£24,000.50');
   });
 
   it('starts from the visitor budget', () => {

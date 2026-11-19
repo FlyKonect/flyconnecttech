@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { parseAmount } from "@/components/team/lead-dialogs";
 import { demoWhenLong } from "@/lib/forms/demo-slots";
 import {
-  formatUsd,
+  formatGbp,
   leadActions,
   leadBanner,
   leadFacts,
@@ -182,9 +182,9 @@ describe("facts and words", () => {
   });
 
   test("money and dates", () => {
-    expect(formatUsd(2_400_000)).toBe("$24,000");
+    expect(formatGbp(2_400_000)).toBe("£24,000");
     expect(longDate("2026-11-23T00:00:00.000Z")).toBe("23 November 2026");
-    expect(parseAmount("$24,000")).toBe(24000);
+    expect(parseAmount("£24,000")).toBe(24000);
     expect(parseAmount("24,000.50")).toBe(24000.5);
     expect(parseAmount("about that")).toBeNull();
   });

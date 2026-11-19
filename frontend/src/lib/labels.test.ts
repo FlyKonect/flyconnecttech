@@ -18,7 +18,7 @@ describe("labels", () => {
   });
 
   test("budgets use the wording from the design", () => {
-    expect(budgets.FROM_5K_TO_15K.label).toBe("$5k – $15k");
+    expect(budgets.FROM_5K_TO_15K.label).toBe("£5k – £15k");
   });
 
   test("there are seven request types, each with a description", () => {

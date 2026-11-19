@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { LeadEventsService } from './lead-events.service.js';
 import {
   firstNameOf,
-  formatUsd,
+  formatGbp,
   isDemoSlot,
   ukSlotLong,
   type CANCEL_REASONS,
@@ -227,7 +227,7 @@ export class LeadActionsService {
       await addActivity(tx, 'quote', quote.id, {
         kind: 'SYSTEM',
         authorId: actor.id,
-        body: `${updated ? 'Updated estimate of' : 'Estimate of'} ${formatUsd(estimate.amountCents)} sent by ${actor.name}`,
+        body: `${updated ? 'Updated estimate of' : 'Estimate of'} ${formatGbp(estimate.amountCents)} sent by ${actor.name}`,
       });
     }, TX);
     const text = await this.events.sendEstimate(quote, estimate, updated);

@@ -440,7 +440,7 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
         firstName="Hannah"
         code="QUO-2026-042"
         projectType="API integration"
-        budget="$15k – $50k"
+        budget="£15k – £50k"
         timeline="Within 3–6 months"
         email="hannah.weber@alpenblick-hotels.de"
         requirements="Connect our booking engine to our channel manager and our accounting software, so bookings and invoices sync automatically."
@@ -461,7 +461,7 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
         code="QUO-2026-042"
         title="API integration"
         lines={[
-          'Budget: $15k – $50k',
+          'Budget: £15k – £50k',
           'Timeline: Within 3–6 months',
           'Sent from: Contact & Quote page',
         ]}
@@ -482,7 +482,7 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
         subject={estimateSubject(updated)}
         code="QUO-2026-042"
         projectType="API integration"
-        amount={updated ? '$22,000' : '$24,000'}
+        amount={updated ? '£22,000' : '£24,000'}
         deliveryTime="6–8 weeks"
         validUntil="23 November 2026"
         summary="Connect your booking engine to your channel manager and your accounting software, so bookings and invoices sync automatically."

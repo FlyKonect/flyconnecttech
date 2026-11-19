@@ -155,7 +155,7 @@ test.describe("Get a quote", () => {
     await card
       .getByLabel("Project type")
       .selectOption({ label: "New website" });
-    await card.getByLabel("Budget range").selectOption({ label: "$5k – $15k" });
+    await card.getByLabel("Budget range").selectOption({ label: "£5k – £15k" });
     await card.getByLabel("Full name *").fill("Sarah Mitchell");
     await card.getByLabel("Work email *").fill("sarah@bluewave.co.uk");
     await card.getByLabel("Requirements *").fill("A new booking website.");
@@ -165,7 +165,7 @@ test.describe("Get a quote", () => {
     await expect(done).toContainText("Thanks, Sarah. Your request is in.");
     await expect(done).toContainText("sarah@bluewave.co.uk");
     await expect(done).toContainText("New website");
-    await expect(done).toContainText("$5k – $15k");
+    await expect(done).toContainText("£5k – £15k");
 
     await card.getByRole("button", { name: "Send another request" }).click();
     await expect(card.getByLabel("Full name *")).toHaveValue("");

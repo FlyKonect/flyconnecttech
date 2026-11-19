@@ -7,7 +7,7 @@ import { formatMessageTime, formatWhen } from "@/lib/format-time";
 import { userStatuses } from "@/lib/labels";
 import {
   firstOf,
-  formatUsd,
+  formatGbp,
   HOW_IT_WORKS,
   KIND_LABEL,
   leadBanner,
@@ -136,7 +136,7 @@ export function LeadPage({
               </h2>
               <dl className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2.5">
                 {[
-                  ["Amount", formatUsd(lead.estimates[0].amountCents)],
+                  ["Amount", formatGbp(lead.estimates[0].amountCents)],
                   ["Delivery", lead.estimates[0].deliveryTime],
                   ["Valid until", longDate(lead.estimates[0].validUntil)],
                 ].map(([label, value]) => (
@@ -164,7 +164,7 @@ export function LeadPage({
                   <ul className="mt-1.5 flex flex-col gap-1 text-[13px] text-body">
                     {lead.estimates.slice(1).map((estimate) => (
                       <li key={estimate.id}>
-                        {formatUsd(estimate.amountCents)} · sent{" "}
+                        {formatGbp(estimate.amountCents)} · sent{" "}
                         {formatWhen(estimate.sentAt, timeZone, now)} by{" "}
                         {estimate.sentBy.name}
                       </li>

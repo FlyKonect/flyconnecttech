@@ -30,7 +30,7 @@ import {
 } from "@/lib/forms/demo-slots";
 import { takenDemoSlots } from "@/lib/forms/submit";
 import { budgets, timelines } from "@/lib/labels";
-import { demoStart, firstOf, formatUsd } from "@/lib/team/leads";
+import { demoStart, firstOf, formatGbp } from "@/lib/team/leads";
 import type { DemoDetail, LeadPerson, QuoteDetail } from "@/lib/team/types";
 
 /** "{code} · {name} · {company} · {email}" under a dialog's title. */
@@ -340,7 +340,7 @@ const FROM_BUDGET: Record<QuoteDetail["budget"], number | null> = {
   NOT_SURE: null,
 };
 
-/** "$24,000" -> 24000; "24,000.50" -> 24000.5; nothing usable -> null. */
+/** "£24,000" -> 24000; "24,000.50" -> 24000.5; nothing usable -> null. */
 export function parseAmount(text: string): number | null {
   const clean = text.replace(/[^0-9.]/g, "");
   if (!/\d/.test(clean)) return null;
@@ -367,7 +367,7 @@ export function EstimateDialog({
   const latest = lead.estimates[0];
   const starting = latest ? latest.amountCents / 100 : FROM_BUDGET[lead.budget];
   const [amount, setAmount] = React.useState(
-    starting ? formatUsd(Math.round(starting * 100)) : "",
+    starting ? formatGbp(Math.round(starting * 100)) : "",
   );
   const [deliveryTime, setDeliveryTime] = React.useState(
     latest?.deliveryTime ?? "6–8 weeks",
@@ -418,7 +418,7 @@ export function EstimateDialog({
         >
           <div className="mt-4 grid grid-cols-2 gap-3 max-sm:grid-cols-1">
             <Field
-              label="Estimate (USD)"
+              label="Estimate (GBP)"
               required
               error={tried && value === null ? "Enter the estimate amount" : ""}
             >

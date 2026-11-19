@@ -76,12 +76,12 @@ export const LEAD_TABS: Record<
 /** "Olivia" from "Olivia Grant". */
 export const firstOf = (name: string) => name.trim().split(/\s+/)[0] || name;
 
-/** "$24,000", or "$24,000.50" when there are cents. */
-export function formatUsd(cents: number): string {
+/** "£24,000", or "£24,000.50" when there are cents. */
+export function formatGbp(cents: number): string {
   const whole = cents % 100 === 0;
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "USD",
+    currency: "GBP",
     minimumFractionDigits: whole ? 0 : 2,
     maximumFractionDigits: whole ? 0 : 2,
   }).format(cents / 100);
@@ -175,7 +175,7 @@ export function leadBanner(
       case "ESTIMATE_SENT":
         return {
           text: latest
-            ? `Estimate of ${formatUsd(latest.amountCents)} sent. Valid until ${longDate(latest.validUntil)}.`
+            ? `Estimate of ${formatGbp(latest.amountCents)} sent. Valid until ${longDate(latest.validUntil)}.`
             : "Estimate sent.",
           tone: "info",
         };

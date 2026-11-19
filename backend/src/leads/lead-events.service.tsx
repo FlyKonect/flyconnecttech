@@ -34,7 +34,7 @@ import {
   DEMO_MINUTES,
   DEMO_TOPIC_LABELS,
   firstNameOf,
-  formatUsd,
+  formatGbp,
   longDate,
   MESSAGE_TOPIC_LABELS,
   QUOTE_TYPE_LABELS,
@@ -365,7 +365,7 @@ export class LeadEventsService {
   ): Promise<string | null> {
     const firstName = firstNameOf(quote.name);
     const projectType = QUOTE_TYPE_LABELS[quote.projectType];
-    const amount = formatUsd(estimate.amountCents);
+    const amount = formatGbp(estimate.amountCents);
     const validUntil = longDate(estimate.validUntil);
     const subject = estimateSubject(updated);
     const sent = await this.trySend({

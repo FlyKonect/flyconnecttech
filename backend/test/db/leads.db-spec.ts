@@ -560,9 +560,9 @@ describe('quote requests', () => {
     expect(subjects).toContain('Your estimate from FlyConnect Tech');
     expect(subjects).toContain('Your updated estimate from FlyConnect Tech');
     const bodies = (await activityOf(quote.id)).map((a) => a.body);
-    expect(bodies).toContain('Estimate of $24,000 sent by Emma Clarke');
+    expect(bodies).toContain('Estimate of £24,000 sent by Emma Clarke');
     expect(bodies).toContain(
-      'Updated estimate of $22,000.50 sent by Emma Clarke',
+      'Updated estimate of £22,000.50 sent by Emma Clarke',
     );
 
     await as(admin).post(`/team/leads/quotes/${quote.code}/won`).expect(200);

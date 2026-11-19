@@ -123,7 +123,7 @@ On submit, create a **Demo request**: status New, page of origin recorded. Email
 - **Full form** (Contact): the same fields plus Timeline, Company (optional), Phone (optional).
 - **Options:**
   - Project type: Travel booking platform, Amadeus / Sabre integration, New website, Website redesign, Custom software, UI/UX design, API integration, Other.
-  - Budget: Under $5k, $5k – $15k, $15k – $50k, $50k+, Not sure yet.
+  - Budget: Under £5k, £5k – £15k, £15k – £50k, £50k+, Not sure yet.
   - Timeline: As soon as possible, Within 1–3 months, Within 3–6 months, Not sure yet.
 - **Success state:** "Thanks, {first}. Your request is in. We will reply to {email} within 5 business days with next steps, a rough scope and an estimate." Then a summary, "Send another request" and "Book a demo".
 - **On submit:** create a **Quote request** with status New, email the visitor a confirmation, and notify the team.
@@ -453,7 +453,7 @@ Lists have status tabs with counts, search, and a note on where the leads come f
   - **Start review**.
   - **Send estimate** (dialog, screen 39):
     - Shows "Their budget / Timeline".
-    - Fields: Estimate (USD)* (prefilled from the budget range), Delivery time, Valid until, What is included.
+    - Fields: Estimate (GBP)* (prefilled from the budget range), Delivery time, Valid until, What is included.
     - Emails the visitor and sets the status to Estimate sent.
     - **Update estimate** sends a new version; keep the history.
   - **Mark as won**.
