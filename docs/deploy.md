@@ -8,6 +8,8 @@ This guide puts FlyConnect Tech on your **Krystal business hosting** (cPanel), i
 
 When it is all done, every push to the `main` branch on GitHub puts the new version live by itself.
 
+**Deploying by hand instead** (no GitHub, no SSH: both apps from cPanel File Manager): the short checklist is [deploy-by-hand.md](deploy-by-hand.md).
+
 > **Not yet tested on the real hosting.** The deploy was rehearsed on a PC, and each part passed. It has not run against your Krystal account, because that needs your logins. If a step fails, copy the red error text (from GitHub or cPanel) and send it to Claude.
 
 **Until Part C is done**, the website's pages all work, but the forms (Book a demo, Get a quote, Send a message) and Client login answer "Backend not running", because the backend is not there yet.
@@ -161,7 +163,7 @@ GitHub > repository > **Settings** > **Secrets and variables** > **Actions** > *
 
 ## Without SSH: put the website live from File Manager
 
-Use this while Krystal has not switched on SSH yet (Step 1). It replaces Steps 6 and 7 for the website; Step 5 (the Node.js app) is still needed. Once SSH works, GitHub takes over and this is no longer needed.
+Use this while Krystal has not switched on SSH yet (Step 1). It replaces Steps 6 and 7 for the website; Step 5 (the Node.js app) is still needed. Once SSH works, GitHub takes over and this is no longer needed. The backend can go live by hand too: [deploy-by-hand.md](deploy-by-hand.md), B4.
 
 **1. Build the zip on your PC.** Ask Claude for "the website zip for File Manager". It is made like this, in the `frontend` folder (Git Bash):
 
@@ -231,7 +233,7 @@ Invitations, password resets, support request updates and the website's form ema
    | Application URL | `api.flyconnecttech.co.uk` |
    | Application startup file | `app.cjs` |
 
-3. Click **Create**. **Do not click "Run NPM Install"**: the deploy installs what is needed.
+3. Click **Create**. **Do not click "Run NPM Install"**: the deploy installs what is needed. (By hand without SSH you do click it, after uploading the files: [deploy-by-hand.md](deploy-by-hand.md), B4.)
 4. At the top of the app's page there is a command that starts with `source` and ends with `activate`. Copy it and keep it: Steps 14 and 15 use it.
 
 ## Step 12. The backend's settings file (.env)

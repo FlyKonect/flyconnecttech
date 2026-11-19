@@ -59,7 +59,7 @@ cPanel **shared business hosting** (not a VPS), with "Setup Node.js App" and Mar
 - Needs Node.js 22.12 or newer on the server. GitHub builds with the same version (`NODE_VERSION` variable, default 22).
 
 ## Deploy
-Setup guide for the owner, in plain steps: `docs/deploy.md`. Keep it current when the pipeline changes.
+Setup guide for the owner, in plain steps: `docs/deploy.md`. Keep it current when the pipeline changes. Without SSH, both apps go live by hand from File Manager, with one-off commands run through cPanel Cron: `docs/deploy-by-hand.md`. Keep the two guides in step.
 - `.github/workflows/ci.yml`: checks for both apps. Runs on pull requests, on pushes to other branches, and before every deploy.
 - `.github/workflows/deploy.yml`: on a push to `main`, runs the checks, builds, uploads over SSH (rsync), runs `.github/scripts/remote-backend.sh` on the server (packages, migrations, restart), then checks `/health` and the home page. Skipped unless the variable `DEPLOY_ENABLED` is `true`. With `DEPLOY_BACKEND` set to `false` it deploys only the website (the guide puts the website live first, then the backend).
 - The live hosting is Krystal business hosting (cPanel, SSH on port 722): the website on `flyconnecttech.co.uk`, the backend on `api.flyconnecttech.co.uk`.
