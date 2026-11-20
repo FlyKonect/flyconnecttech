@@ -1,0 +1,34 @@
+---
+paths:
+  - "backend/src/email/**"
+  - "backend/src/jobs/**"
+  - "backend/src/**/*events.service.tsx"
+  - "backend/src/notifications/**"
+  - "backend/src/accounts/invitations.service.tsx"
+  - "backend/src/accounts/password-reset.service.tsx"
+---
+
+## Notifications and emails (backend)
+Every row of docs/01 §7, where it is sent from, what it follows, and where it is tested. In-app notifications are written inside the change's transaction; emails go after it and a failed email never undoes the change. SA, A, M = active super admins, admins, managers.
+
+| §7 row | In-app | Email | Sent from | Follows | Tested in |
+|---|---|---|---|---|---|
+| Customer or team invitation | — | Invitee (48-hour link) | `accounts/invitations.service.tsx` | — | `accounts`, `customers` db tests |
+| Password reset requested or sent by admin | — | The person | `accounts/password-reset.service.tsx` | — | `accounts`, `customers` |
+| New support request | SA, A, M ("urgent" kind when Urgent) | Customer's copy; Urgent alert to SA, A | `requests/request-events.service.tsx` | setting `urgentAlert` | `portal`, `team` |
+| Request assigned or transferred | Developer | Developer | `request-events` | — | `team` |
+| Team reply to customer | Customer | Customer | `request-events` | customer "The team replies" | `team`, `portal` |
+| Customer reply | Assignee, or SA, A when unassigned | Assignee | `request-events` | setting `notifyAssigneeOnReply` | `team`, `jobs` |
+| Status changed / needs info / resolved / closed | Customer | Customer ("Resolved" asks to confirm) | `request-events` | customer "A status changes" | `team`, `portal`, `jobs` (auto-close) |
+| Daily digest of requests waiting for review | — | SA, A, M (none when nothing waits) | `jobs/jobs.service.tsx` | setting `dailyDigest` | `jobs` |
+| Weekly summary (added in Phase 9) | — | Customer (none when nothing to report) | `jobs/jobs.service.tsx` | customer "Weekly summary" | `jobs` |
+| Demo requested | SA, A, M | Visitor's copy; team alert to SA, A, M | `leads/lead-events.service.tsx` | — | `leads` |
+| Demo confirmed or rescheduled | Owner and host (not the person who did it) | Visitor, with `.ics` | `lead-events` | — | `leads` |
+| Demo cancelled | — | Visitor, if ticked (a CANCEL `.ics` if it was booked) | `lead-events` | the "Email {first}" tick | `leads` |
+| Quote requested | SA, A, M | Visitor's copy; team alert | `lead-events` | — | `leads` |
+| Estimate sent or updated | — | Visitor | `lead-events` | — | `leads` |
+| Contact message received | SA, A, M | Team alert | `lead-events` | — | `leads` |
+| Lead email from the composer | — | The lead's contact | `lead-events` | — | `leads` |
+
+- **Every template** renders as HTML and plain text in the brand layout (`email/previews.spec.ts`).
+- **Scheduled jobs** (`jobs/jobs.service.tsx`, run by `cli/run-job.ts`): each is safe to run again. Auto-close moves Resolved requests whose `resolvedAt` is 7 days old to Closed through `moveStatus()` with no person (`actorId: null`), the line "Closed automatically 7 days after it was resolved", and the usual customer notification and email. Each request has its own transaction.

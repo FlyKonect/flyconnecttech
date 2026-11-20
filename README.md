@@ -6,7 +6,7 @@ Everything Claude Code needs to build the Northstack website, client portal and 
 
 | Path | What it is |
 |---|---|
-| `CLAUDE.md` | Project brief. Claude Code reads it automatically at the start of every conversation. |
+| `CLAUDE.md` | Project brief. Claude Code reads it automatically at the start of every conversation. `backend/CLAUDE.md`, `frontend/CLAUDE.md` and `.claude/rules/` hold the details and load only with their files. |
 | `docs/01-product-spec.md` | What every screen does, roles and permissions, statuses, emails |
 | `docs/02-data-model.md` | Database entities, fields and enums |
 | `docs/03-design-system.md` | Colours, fonts, buttons, components |
