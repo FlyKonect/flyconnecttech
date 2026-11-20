@@ -40,6 +40,8 @@ export type Action =
   | 'requests.assign'
   /** Change the priority. */
   | 'requests.changePriority'
+  /** Correct a request: its title, type or project (same customer). */
+  | 'requests.edit'
   /** Close a request. */
   | 'requests.close'
   /** Change the status (developers: only some statuses, see allowedStatuses). */
@@ -79,6 +81,7 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'requests.reply': ALL_TEAM,
   'requests.assign': NOT_DEVELOPER,
   'requests.changePriority': NOT_DEVELOPER,
+  'requests.edit': NOT_DEVELOPER,
   'requests.close': NOT_DEVELOPER,
   'requests.changeStatus': ALL_TEAM,
   'customers.view': NOT_DEVELOPER,

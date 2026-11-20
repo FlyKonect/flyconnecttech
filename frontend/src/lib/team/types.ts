@@ -186,8 +186,13 @@ export type TeamRequestDetail = {
     assign: boolean;
     changePriority: boolean;
     close: boolean;
+    /** Edit details: title, type, project. */
+    edit: boolean;
     statuses: RequestStatus[];
   };
+  projectId: string;
+  /** The customer's projects, for Edit details (empty without the right). */
+  projectChoices: { id: string; code: string; name: string }[];
   /** The starting text of the "Request more info" dialog. */
   requestInfoText: string;
 };
@@ -454,6 +459,7 @@ export type AppSettings = {
   resolutionTargets: Record<"URGENT" | "HIGH" | "MEDIUM" | "LOW", string>;
   /** Bank holidays, "YYYY-MM-DD": not business days. */
   slaCalendar: { bankHolidays: string[] };
+  requestRules: { reopenWithinDays: number };
   teamNotifications: {
     urgentAlert: boolean;
     notifyAssigneeOnReply: boolean;

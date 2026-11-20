@@ -512,6 +512,37 @@ describe("the customer's buttons", () => {
       detail.body.history.map((h: { status: string }) => h.status),
     ).toEqual(['SUBMITTED', 'CLOSED', 'IN_PROGRESS', 'IN_PROGRESS', 'CLOSED']);
   });
+
+  it('a request closed more than 14 days ago can no longer be reopened', async () => {
+    const { body } = await sendRequest(sarah, sarahProject.id).expect(201);
+    const code = body.code as string;
+    const detail = () =>
+      http()
+        .get(`/portal/requests/${code}`)
+        .set('Cookie', sarah.cookie)
+        .expect(200);
+    await http()
+      .post(`/portal/requests/${code}/close`)
+      .set('Cookie', sarah.cookie)
+      .expect(200);
+    expect((await detail()).body).toMatchObject({
+      actions: ['reopen'],
+      reopenWithinDays: 14,
+    });
+
+    // 15 days later.
+    await prisma.supportRequest.update({
+      where: { code },
+      data: { closedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) },
+    });
+    expect((await detail()).body.actions).toEqual([]);
+    const late = await http()
+      .post(`/portal/requests/${code}/reopen`)
+      .set('Cookie', sarah.cookie)
+      .expect(409);
+    expect(late.body.code).toBe('REOPEN_TOO_LATE');
+    expect(await statusOf(code)).toBe('CLOSED');
+  });
 });
 
 describe('My requests and the Overview numbers', () => {

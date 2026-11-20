@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -38,6 +39,7 @@ import {
   CUSTOMER_ACTIONS,
   CUSTOMER_REPLIED_LINE,
   customerActionsFor,
+  reopenTooLate,
   PORTAL_TABS,
   type CustomerAction,
   type PortalTab,
@@ -238,6 +240,7 @@ export class RequestsService {
 
   /** One request with its conversation (screen 13). Never internal notes. */
   async detail(actor: SignedIn, code: string) {
+    const { reopenWithinDays } = await this.settings.get('requestRules');
     const request = await this.prisma.supportRequest.findFirst({
       where: { code, ...customerScope(actor) },
       select: {
@@ -250,6 +253,7 @@ export class RequestsService {
         priority: true,
         createdAt: true,
         updatedAt: true,
+        closedAt: true,
         project: { select: { code: true, name: true, type: true } },
         assignee: { select: { name: true } },
         messages: {
@@ -285,7 +289,11 @@ export class RequestsService {
     const { messages, attachments, statusChanges, ...rest } = request;
     return {
       ...rest,
-      actions: customerActionsFor(request.status),
+      actions: customerActionsFor(request.status, {
+        closedAt: request.closedAt,
+        withinDays: reopenWithinDays,
+      }),
+      reopenWithinDays,
       files: attachments,
       messages: messages.map((message) => ({
         id: message.id,
@@ -379,6 +387,21 @@ export class RequestsService {
     const rule = CUSTOMER_ACTIONS[action];
     const request = await this.findOwn(actor, code);
     if (!rule.from.includes(request.status)) throw changedMeanwhile();
+    if (action === 'reopen' && request.status === 'CLOSED') {
+      const [{ closedAt }, { reopenWithinDays }] = await Promise.all([
+        this.prisma.supportRequest.findUniqueOrThrow({
+          where: { id: request.id },
+          select: { closedAt: true },
+        }),
+        this.settings.get('requestRules'),
+      ]);
+      if (reopenTooLate({ closedAt, withinDays: reopenWithinDays })) {
+        throw new ConflictException({
+          code: 'REOPEN_TOO_LATE',
+          message: `This request closed more than ${reopenWithinDays} days ago. Please send a new request.`,
+        });
+      }
+    }
     const targets = await this.settings.slaRules();
 
     await this.prisma.$transaction(async (tx) => {

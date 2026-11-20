@@ -83,6 +83,8 @@ export type RequestDetail = {
   project: { code: string; name: string; type: ProjectType };
   assignee: { name: string } | null;
   actions: CustomerAction[];
+  /** A closed request can be reopened for this many days after closing. */
+  reopenWithinDays: number;
   files: RequestFile[];
   messages: RequestMessage[];
   history: { status: RequestStatus; at: string }[];

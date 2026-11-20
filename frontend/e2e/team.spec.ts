@@ -240,3 +240,26 @@ test("phone: the developer's dashboard fits the screen", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "My queue" })).toBeVisible();
   await expectNoSidewaysScroll(page);
 });
+
+test("manager: Edit details corrects the title and type, with a line in the conversation", async ({
+  page,
+}) => {
+  const manager = await createPerson("manager", "Edit Manager");
+  const client = await customer();
+  const code = await sendRequest(client, { title: "Paymnet page slow" });
+  await signInBrowser(page.context(), manager);
+  await page.goto(`/team/requests/${code}`);
+
+  await page.getByRole("button", { name: "Edit details" }).click();
+  const dialog = page.getByRole("dialog", { name: `Edit ${code}` });
+  await dialog.getByLabel("Title *").fill("Payment page slow");
+  await dialog.getByLabel("Request type").selectOption("BUG_REPORT");
+  await dialog.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByRole("status")).toContainText(`${code} saved`);
+  await expect(
+    page.getByRole("heading", { name: /Payment page slow/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Conversation & internal notes" }),
+  ).toContainText("Edit Manager changed the title, the type to Bug Report");
+});

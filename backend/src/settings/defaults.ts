@@ -17,6 +17,12 @@ export type TeamNotifications = {
   autoCloseResolvedAfter7Days: boolean;
 };
 
+/** What customers may do with their requests. */
+export type RequestRules = {
+  /** A closed request can be reopened for this many days after closing. */
+  reopenWithinDays: number;
+};
+
 /** Days that are not business days, for the SLA. */
 export type SlaCalendar = {
   /** Bank holidays, "YYYY-MM-DD" (England and Wales). */
@@ -28,6 +34,7 @@ export type Settings = {
   /** How quickly a request must be fixed, per priority (SLA fix clock). */
   resolutionTargets: ResponseTargets;
   slaCalendar: SlaCalendar;
+  requestRules: RequestRules;
   teamNotifications: TeamNotifications;
 };
 
@@ -68,6 +75,8 @@ export const defaultSettings: Settings = {
       '2027-12-28',
     ],
   },
+  // The owner chose 14 days (audit, Phase 2).
+  requestRules: { reopenWithinDays: 14 },
   teamNotifications: {
     urgentAlert: true,
     notifyAssigneeOnReply: true,

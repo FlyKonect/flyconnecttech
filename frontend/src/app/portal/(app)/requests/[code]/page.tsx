@@ -65,6 +65,7 @@ async function RequestPageContent({
           code={request.code}
           status={request.status}
           actions={request.actions}
+          reopenWithinDays={request.reopenWithinDays}
         />
       </div>
 

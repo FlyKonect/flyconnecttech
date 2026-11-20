@@ -325,6 +325,7 @@ describe('Settings', () => {
       LOW: '10bd',
     },
     slaCalendar: defaultSettings.slaCalendar,
+    requestRules: { reopenWithinDays: 14 },
     teamNotifications: {
       urgentAlert: true,
       notifyAssigneeOnReply: true,

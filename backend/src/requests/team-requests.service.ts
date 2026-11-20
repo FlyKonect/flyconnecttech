@@ -4,11 +4,13 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { AuditService } from '../audit/audit.service.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import type {
   Prisma,
   Priority,
   RequestStatus,
+  RequestType,
 } from '../generated/prisma/client.js';
 import { allowedStatuses, can, requestScope } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -17,7 +19,7 @@ import {
   FileStorageService,
   type UploadedFile,
 } from '../uploads/file-storage.service.js';
-import { PRIORITY_LABELS, STATUS_LABELS } from './labels.js';
+import { PRIORITY_LABELS, STATUS_LABELS, TYPE_LABELS } from './labels.js';
 import { RequestEventsService } from './request-events.service.js';
 import {
   ALL_STATUSES,
@@ -98,6 +100,7 @@ export class TeamRequestsService {
     private readonly settings: SettingsService,
     private readonly events: RequestEventsService,
     private readonly dashboard: TeamDashboardService,
+    private readonly audit: AuditService,
   ) {}
 
   /** The requests list: tab counts, one page of matching rows (newest first), filter choices. */
@@ -192,6 +195,7 @@ export class TeamRequestsService {
         slaPausedAt: true,
         resolvedAt: true,
         firstResponseAt: true,
+        projectId: true,
         project: { select: { code: true, name: true, type: true } },
         assignee: { select: { id: true, name: true, jobTitle: true } },
         customer: {
@@ -271,10 +275,103 @@ export class TeamRequestsService {
         assign: can(actor, 'requests.assign'),
         changePriority: can(actor, 'requests.changePriority'),
         close: can(actor, 'requests.close'),
+        edit: can(actor, 'requests.edit'),
         statuses: allowedStatuses(actor),
       },
+      // For Edit details: the customer's other projects.
+      projectChoices: can(actor, 'requests.edit')
+        ? await this.prisma.project.findMany({
+            where: { customerId: customer.id },
+            orderBy: { name: 'asc' },
+            select: { id: true, code: true, name: true },
+          })
+        : [],
       requestInfoText: REQUEST_INFO_TEXT,
     };
+  }
+
+  /**
+   * Correct a request (requests.edit): its title, type or project. The
+   * project must belong to the same customer. A line in the conversation
+   * says what changed, and the audit log keeps the old values.
+   */
+  async updateDetails(
+    actor: SignedIn,
+    code: string,
+    input: { title?: string; type?: RequestType; projectId?: string },
+  ) {
+    const request = await this.findTeam(actor, code);
+    const before = await this.prisma.supportRequest.findUniqueOrThrow({
+      where: { id: request.id },
+      select: {
+        title: true,
+        type: true,
+        projectId: true,
+        project: { select: { name: true } },
+      },
+    });
+    let projectName: string | null = null;
+    if (input.projectId && input.projectId !== before.projectId) {
+      const project = await this.prisma.project.findFirst({
+        where: { id: input.projectId, customerId: request.customerId },
+        select: { name: true },
+      });
+      if (!project) {
+        throw new BadRequestException({
+          code: 'NOT_THEIR_PROJECT',
+          message: "Choose one of this customer's projects.",
+        });
+      }
+      projectName = project.name;
+    }
+    const data: { title?: string; type?: RequestType; projectId?: string } = {};
+    const parts: string[] = [];
+    if (input.title && input.title !== before.title) {
+      data.title = input.title;
+      parts.push('title');
+    }
+    if (input.type && input.type !== before.type) {
+      data.type = input.type;
+      parts.push(`type to ${TYPE_LABELS[input.type]}`);
+    }
+    if (projectName && input.projectId) {
+      data.projectId = input.projectId;
+      parts.push(`project to ${projectName}`);
+    }
+    if (!parts.length) return { ok: true };
+
+    await this.prisma.$transaction(async (tx) => {
+      const now = new Date();
+      await tx.supportRequest.update({
+        where: { id: request.id },
+        data: { ...data, updatedAt: now },
+      });
+      await systemLine(
+        tx,
+        request.id,
+        `${actor.name} changed the ${parts.join(', the ')}`,
+        now,
+      );
+      await this.audit.record(
+        {
+          actorId: actor.id,
+          action: 'request.updated',
+          entityType: 'request',
+          entityId: request.id,
+          data: {
+            code: request.code,
+            from: {
+              title: before.title,
+              type: before.type,
+              project: before.project.name,
+            },
+            to: data,
+          },
+        },
+        tx,
+      );
+    }, REQUEST_TX);
+    return { ok: true };
   }
 
   /**

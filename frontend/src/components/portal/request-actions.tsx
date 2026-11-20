@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -8,20 +9,24 @@ import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { requestStatuses, type RequestStatus } from "@/lib/labels";
 import type { CustomerAction } from "@/lib/portal/types";
+import { routes } from "@/lib/routes";
 
 /**
  * The customer's buttons on a request (screen 13): Close request while it is
  * open, Confirm it's fixed / I still need help when Resolved, Reopen request
- * when Closed. The backend says which ones apply.
+ * when Closed (for a few days only: later, a new request is asked). The
+ * backend says which ones apply.
  */
 export function RequestActions({
   code,
   status,
   actions,
+  reopenWithinDays,
 }: {
   code: string;
   status: RequestStatus;
   actions: CustomerAction[];
+  reopenWithinDays: number;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -58,6 +63,20 @@ export function RequestActions({
       {busy === action ? "Saving…" : label}
     </Button>
   );
+
+  if (status === "CLOSED" && !actions.includes("reopen")) {
+    return (
+      <div className="flex max-w-[360px] flex-col items-start gap-2">
+        <p className="text-sm text-muted-foreground">
+          This request closed more than {reopenWithinDays} days ago. Need more
+          help? Send a new request and mention {code}.
+        </p>
+        <Button asChild variant="navy" className="h-11 px-4">
+          <Link href={routes.portalNewRequest}>Start a new request</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap gap-2">

@@ -1,3 +1,4 @@
+import { AuditService } from '../audit/audit.service.js';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -42,6 +43,7 @@ import { TeamRequestsService } from './team-requests.service.js';
     RequestEventsService,
     TeamRequestsService,
     TeamDashboardService,
+    AuditService,
   ],
   exports: [RequestEventsService],
 })

@@ -82,17 +82,24 @@ export class SettingsService {
   }
 
   async all(): Promise<Settings> {
-    const [responseTargets, resolutionTargets, slaCalendar, teamNotifications] =
-      await Promise.all([
-        this.get('responseTargets'),
-        this.get('resolutionTargets'),
-        this.get('slaCalendar'),
-        this.get('teamNotifications'),
-      ]);
+    const [
+      responseTargets,
+      resolutionTargets,
+      slaCalendar,
+      requestRules,
+      teamNotifications,
+    ] = await Promise.all([
+      this.get('responseTargets'),
+      this.get('resolutionTargets'),
+      this.get('slaCalendar'),
+      this.get('requestRules'),
+      this.get('teamNotifications'),
+    ]);
     return {
       responseTargets,
       resolutionTargets,
       slaCalendar,
+      requestRules,
       teamNotifications,
     };
   }

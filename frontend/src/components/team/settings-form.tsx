@@ -66,6 +66,9 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
   const [holidays, setHolidays] = React.useState<string[]>(
     settings.slaCalendar.bankHolidays,
   );
+  const [reopenDays, setReopenDays] = React.useState(
+    String(settings.requestRules.reopenWithinDays),
+  );
   const [switches, setSwitches] = React.useState(settings.teamNotifications);
   const [tried, setTried] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
@@ -73,7 +76,9 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
 
   const replyCodes = toCodes(reply);
   const fixCodes = toCodes(fix);
-  const valid = ORDER.every((p) => replyCodes[p] && fixCodes[p]);
+  const days = Number(reopenDays);
+  const daysValid = Number.isInteger(days) && days >= 1 && days <= 365;
+  const valid = daysValid && ORDER.every((p) => replyCodes[p] && fixCodes[p]);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -88,6 +93,7 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
           responseTargets: replyCodes,
           resolutionTargets: fixCodes,
           slaCalendar: { bankHolidays: holidays },
+          requestRules: { reopenWithinDays: days },
           teamNotifications: switches,
         },
       });
@@ -135,6 +141,28 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
         <h2 id="team-notifications" className="text-[17px] font-bold">
           Team notifications
         </h2>
+        <div className="mt-3 flex flex-col gap-1">
+          <label
+            htmlFor="reopen-days"
+            className="flex flex-wrap items-center gap-2 text-sm"
+          >
+            Customers can reopen a closed request for
+            <Input
+              id="reopen-days"
+              inputMode="numeric"
+              value={reopenDays}
+              aria-invalid={(tried && !daysValid) || undefined}
+              onChange={(event) => setReopenDays(event.target.value)}
+              className="h-10 w-[72px] text-center font-semibold"
+            />
+            days
+          </label>
+          {tried && !daysValid ? (
+            <p className="text-xs font-semibold text-danger">
+              Write a number of days from 1 to 365
+            </p>
+          ) : null}
+        </div>
         <ul className="mt-3 flex flex-col gap-2">
           {SWITCHES.map(([key, label]) => (
             <li key={key}>

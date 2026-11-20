@@ -62,10 +62,29 @@ export const CUSTOMER_ACTIONS: Record<CustomerAction, ActionRule> = {
 };
 
 /** The customer's buttons for a request in this status. */
-export function customerActionsFor(status: RequestStatus): CustomerAction[] {
-  return (Object.keys(CUSTOMER_ACTIONS) as CustomerAction[]).filter((action) =>
-    CUSTOMER_ACTIONS[action].from.includes(status),
+export function customerActionsFor(
+  status: RequestStatus,
+  reopen?: { closedAt: Date | null; withinDays: number; now?: Date },
+): CustomerAction[] {
+  return (Object.keys(CUSTOMER_ACTIONS) as CustomerAction[]).filter(
+    (action) =>
+      CUSTOMER_ACTIONS[action].from.includes(status) &&
+      !(action === 'reopen' && status === 'CLOSED' && reopenTooLate(reopen)),
   );
+}
+
+/**
+ * A closed request can be reopened only for a while after it closed
+ * (setting requestRules.reopenWithinDays); later, a new request is asked.
+ */
+export function reopenTooLate(
+  reopen: { closedAt: Date | null; withinDays: number; now?: Date } | undefined,
+): boolean {
+  if (!reopen?.closedAt) return false;
+  const now = reopen.now ?? new Date();
+  const limit =
+    reopen.closedAt.getTime() + reopen.withinDays * 24 * 60 * 60 * 1000;
+  return now.getTime() > limit;
 }
 
 /** The line shown when a customer's reply wakes a waiting request. */

@@ -419,6 +419,61 @@ describe('the conversation', () => {
   });
 });
 
+describe('Edit details', () => {
+  it('admins and managers correct the title, type and project; developers may not', async () => {
+    const code = await newRequest('MEDIUM', 'Chekout fails');
+    const other = await prisma.$transaction(async (tx) =>
+      tx.project.create({
+        data: {
+          code: await nextCode(tx, 'project'),
+          name: 'Bluewave agent portal',
+          type: 'AGENT_PORTAL',
+          customerId: (await stored(code)).customerId,
+        },
+      }),
+    );
+
+    const detail = await as(manager).get(`/team/requests/${code}`).expect(200);
+    expect(detail.body.can.edit).toBe(true);
+    expect(
+      (detail.body.projectChoices as { id: string }[]).map((p) => p.id),
+    ).toContain(other.id);
+
+    await as(manager)
+      .post(`/team/requests/${code}/details`, {
+        title: 'Checkout fails',
+        type: 'BUG_REPORT',
+        projectId: other.id,
+      })
+      .expect(200);
+    const after = await stored(code);
+    expect(after).toMatchObject({
+      title: 'Checkout fails',
+      type: 'BUG_REPORT',
+      projectId: other.id,
+    });
+    expect(after.messages.at(-1)).toMatchObject({
+      kind: 'SYSTEM',
+      body: 'Sofia Martins changed the title, the type to Bug Report, the project to Bluewave agent portal',
+    });
+    const audit = await prisma.auditLog.findFirst({
+      where: { action: 'request.updated', entityId: after.id },
+    });
+    expect(audit?.data).toMatchObject({ from: { title: 'Chekout fails' } });
+
+    // Another customer's project, or a developer: refused.
+    const elsewhere = await prisma.project.findFirstOrThrow({
+      where: { NOT: { customerId: after.customerId } },
+    });
+    await as(admin)
+      .post(`/team/requests/${code}/details`, { projectId: elsewhere.id })
+      .expect(400);
+    await as(dev1)
+      .post(`/team/requests/${code}/details`, { title: 'X' })
+      .expect(403);
+  });
+});
+
 describe('statuses, priority and the dialogs', () => {
   it("a developer's limits", async () => {
     const code = await newRequest();
@@ -447,6 +502,7 @@ describe('statuses, priority and the dialogs', () => {
       assign: false,
       changePriority: false,
       close: false,
+      edit: false,
       statuses: ['IN_PROGRESS', 'WAITING_FOR_CUSTOMER', 'RESOLVED'],
     });
   });

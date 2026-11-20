@@ -51,6 +51,27 @@ const messageSchema = z.object({
     .max(10_000, 'Keep it under 10,000 characters')
     .default(''),
 });
+/** Correct a request: any of the three, at least one. */
+const detailsSchema = z
+  .object({
+    title: z.string().trim().min(1, 'Enter a title').max(200).optional(),
+    type: z
+      .enum([
+        'TECHNICAL_ISSUE',
+        'BUG_REPORT',
+        'FEATURE_REQUEST',
+        'INTEGRATION_PROBLEM',
+        'DESIGN_MODIFICATION',
+        'GENERAL_INQUIRY',
+        'MAINTENANCE_REQUEST',
+      ])
+      .optional(),
+    projectId: z.uuid().optional(),
+  })
+  .refine(
+    (body) => body.title || body.type || body.projectId,
+    'Change something',
+  );
 const statusSchema = z.object({ status: z.enum(STATUSES) });
 const prioritySchema = z.object({ priority: z.enum(PRIORITIES) });
 const assignSchema = z.object({
@@ -141,6 +162,18 @@ export class TeamRequestsController {
     @UploadedFiles() files: UploadedFile[] = [],
   ) {
     return this.requests.message(user, code, body, files);
+  }
+
+  /** Correct the title, type or project (admins and managers). */
+  @Can('requests.edit')
+  @Post('requests/:code/details')
+  @HttpCode(200)
+  updateDetails(
+    @CurrentUser() user: SignedIn,
+    @Param('code') code: string,
+    @Body({ schema: detailsSchema }) body: z.infer<typeof detailsSchema>,
+  ) {
+    return this.requests.updateDetails(user, code, body);
   }
 
   @Can('requests.changeStatus')

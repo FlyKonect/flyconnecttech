@@ -28,6 +28,10 @@ export const PERMISSION_ROWS: {
   { label: "Reply and add internal notes", actions: ["requests.reply"] },
   { label: "Assign requests to developers", actions: ["requests.assign"] },
   {
+    label: "Correct a request's title, type or project",
+    actions: ["requests.edit"],
+  },
+  {
     label: "Change priority, close requests",
     actions: ["requests.changePriority", "requests.close"],
   },

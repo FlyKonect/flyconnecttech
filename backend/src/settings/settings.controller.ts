@@ -46,6 +46,15 @@ const settingsSchema = z.object({
       bankHolidays: [...new Set(bankHolidays)].sort(),
     }))
     .optional(),
+  requestRules: z
+    .object({
+      reopenWithinDays: z
+        .number()
+        .int()
+        .min(1, 'At least 1 day')
+        .max(365, 'At most 365 days'),
+    })
+    .optional(),
   teamNotifications: z.object({
     urgentAlert: z.boolean(),
     notifyAssigneeOnReply: z.boolean(),

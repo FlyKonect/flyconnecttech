@@ -20,6 +20,7 @@ export type AuditAction =
   | 'project.added'
   | 'project.updated'
   | 'project.statusChanged'
+  | 'request.updated'
   | 'settings.changed'
   | 'lead.converted'
   | 'testimonial.added'
@@ -30,7 +31,13 @@ export type AuditEntry = {
   actorId: string | null;
   action: AuditAction;
   entityType:
-    'user' | 'customer' | 'project' | 'setting' | 'lead' | 'testimonial';
+    | 'user'
+    | 'customer'
+    | 'project'
+    | 'request'
+    | 'setting'
+    | 'lead'
+    | 'testimonial';
   entityId: string;
   data?: Prisma.InputJsonValue;
 };

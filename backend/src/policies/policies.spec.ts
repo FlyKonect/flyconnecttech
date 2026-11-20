@@ -50,6 +50,13 @@ const expected: Record<Action, Record<Role, boolean>> = {
     DEVELOPER: false,
     CUSTOMER: false,
   },
+  'requests.edit': {
+    SUPER_ADMIN: true,
+    ADMIN: true,
+    MANAGER: true,
+    DEVELOPER: false,
+    CUSTOMER: false,
+  },
   'requests.close': {
     SUPER_ADMIN: true,
     ADMIN: true,

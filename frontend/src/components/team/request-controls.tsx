@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 
 import { AssignDialog } from "@/components/team/assign-dialog";
+import { EditRequestButton } from "@/components/team/edit-request-dialog";
 import {
   RequestInfoDialog,
   ResolveDialog,
@@ -130,6 +131,7 @@ export function RequestHeaderActions({
           Close request
         </Button>
       ) : null}
+      {can.edit ? <EditRequestButton request={request} /> : null}
     </div>
   );
 }
