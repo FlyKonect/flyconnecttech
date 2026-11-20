@@ -788,6 +788,67 @@ describe('Change email', () => {
   });
 });
 
+describe('sessions: idle team sessions, two-step reset, signed-in devices', () => {
+  const HOUR = 60 * 60 * 1000;
+
+  it('a team session unused for 12 hours ends; a used one carries on', async () => {
+    const who = await person('DEVELOPER', 'Idle Isla');
+    await as(who).get('/me').expect(200);
+    await prisma.session.updateMany({
+      where: { userId: who.id },
+      data: { updatedAt: new Date(Date.now() - 13 * HOUR) },
+    });
+    const gone = await as(who).get('/me').expect(401);
+    expect(gone.body.reason).toBe('IDLE');
+    expect(await prisma.session.count({ where: { userId: who.id } })).toBe(0);
+  });
+
+  it('a super admin resets two-step sign-in; admins may not', async () => {
+    const who = await person('DEVELOPER', 'Lost Phone');
+    await as(admin).post(`/team/users/${who.id}/two-factor-reset`).expect(403);
+    await as(superAdmin)
+      .post(`/team/users/${who.id}/two-factor-reset`)
+      .expect(200);
+    const after = await prisma.user.findUniqueOrThrow({
+      where: { id: who.id },
+    });
+    expect(after.twoFactorEnabled).toBe(false);
+    expect(await prisma.twoFactor.count({ where: { userId: who.id } })).toBe(0);
+    await as(who).get('/me').expect(401);
+    expect(await auditOf('user.twoFactorReset', who.id)).toBeTruthy();
+
+    // Signing in again: everything waits for the new two-step setup.
+    const again = await signIn(who.email).expect(200);
+    await http()
+      .get('/team/requests')
+      .set('Cookie', cookieFrom(again))
+      .expect(403);
+  });
+
+  it('lists signed-in devices and signs out everywhere else', async () => {
+    const who = await person('MANAGER', 'Two Laptops');
+    // Another device: a second session of theirs.
+    const other = await prisma.session.create({
+      data: {
+        token: `other-device-${Date.now()}`,
+        userId: who.id,
+        expiresAt: new Date(Date.now() + 24 * HOUR),
+        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)',
+      },
+    });
+    const listed = await as(who).get('/me/sessions').expect(200);
+    expect(listed.body.sessions).toHaveLength(2);
+    expect(
+      listed.body.sessions.filter((s: { current: boolean }) => s.current),
+    ).toHaveLength(1);
+
+    const done = await as(who).post('/me/sessions/sign-out-others').expect(200);
+    expect(done.body.signedOut).toBe(1);
+    await as(who).get('/me').expect(200);
+    expect(await prisma.session.count({ where: { id: other.id } })).toBe(0);
+  });
+});
+
 describe('last active', () => {
   it('is saved when someone uses the app, at most every few minutes', async () => {
     const recent = new Date(Date.now() - 2 * 60 * 1000);

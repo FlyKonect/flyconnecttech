@@ -10,6 +10,7 @@ export type AuditAction =
   | 'user.disabled'
   | 'user.enabled'
   | 'user.emailChanged'
+  | 'user.twoFactorReset'
   | 'user.deleted'
   | 'user.restored'
   | 'passwordReset.sent'

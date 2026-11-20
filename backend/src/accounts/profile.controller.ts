@@ -10,6 +10,7 @@ import {
 import type { z } from 'zod';
 import { Area, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { RateLimit, RateLimitGuard } from '../rate-limit/rate-limit.js';
 import {
   passwordChangeSchema,
@@ -56,6 +57,42 @@ export class TeamProfileController {
     body: z.infer<typeof teamProfileSchema>,
   ) {
     return this.profile.updateTeam(user, body);
+  }
+}
+
+/**
+ * Signed-in devices, for anyone signed in: the list, and "Sign out
+ * everywhere else" (every session but this one).
+ */
+@Controller('me/sessions')
+export class SessionsController {
+  constructor(private readonly prisma: PrismaService) {}
+
+  @Get()
+  async list(@CurrentUser() user: SignedIn) {
+    const sessions = await this.prisma.session.findMany({
+      where: { userId: user.id, expiresAt: { gt: new Date() } },
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true, userAgent: true, createdAt: true, updatedAt: true },
+    });
+    return {
+      sessions: sessions.map((session) => ({
+        id: session.id,
+        device: session.userAgent ?? '',
+        signedInAt: session.createdAt,
+        lastUsedAt: session.updatedAt,
+        current: session.id === user.sessionId,
+      })),
+    };
+  }
+
+  @Post('sign-out-others')
+  @HttpCode(200)
+  async signOutOthers(@CurrentUser() user: SignedIn) {
+    const { count } = await this.prisma.session.deleteMany({
+      where: { userId: user.id, NOT: { id: user.sessionId } },
+    });
+    return { signedOut: count };
   }
 }
 

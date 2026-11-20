@@ -21,6 +21,13 @@ import type { SignedIn } from './signed-in.js';
 export const LAST_ACTIVE_EVERY_MS = 5 * 60 * 1000;
 
 /**
+ * A team session not used for this long ends (customers keep the 30 days
+ * of auth.ts). Each session's updatedAt is its last use, saved at most
+ * every LAST_ACTIVE_EVERY_MS.
+ */
+export const TEAM_IDLE_MS = 12 * 60 * 60 * 1000;
+
+/**
  * Runs before every backend route.
  *
  * 1. @Public() routes are open.
@@ -78,6 +85,14 @@ export class SessionGuard implements CanActivate {
     if (!user || user.status !== 'ACTIVE') {
       throw new UnauthorizedException({ code: 'SIGNED_OUT' });
     }
+    const lastUse = new Date(session.session.updatedAt).getTime();
+    if (isTeamRole(user.role) && Date.now() - lastUse > TEAM_IDLE_MS) {
+      await this.prisma.session.deleteMany({
+        where: { id: session.session.id },
+      });
+      throw new UnauthorizedException({ code: 'SIGNED_OUT', reason: 'IDLE' });
+    }
+    await this.touchSession(session.session.id, lastUse);
 
     const { lastActiveAt, ...account } = user;
     await this.markActive(account.id, lastActiveAt);
@@ -108,6 +123,21 @@ export class SessionGuard implements CanActivate {
    * Saves "last active" (the Users list, the customer page), at most once
    * every few minutes. A failure here never blocks the person.
    */
+  /** The session's last use, at most every 5 minutes (the idle timeout). */
+  private async touchSession(sessionId: string, lastUse: number) {
+    if (Date.now() - lastUse < LAST_ACTIVE_EVERY_MS) return;
+    try {
+      await this.prisma.session.updateMany({
+        where: { id: sessionId },
+        data: { updatedAt: new Date() },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Could not save the session's last use: ${(error as Error).message}`,
+      );
+    }
+  }
+
   private async markActive(userId: string, lastActiveAt: Date | null) {
     const now = Date.now();
     if (lastActiveAt && now - lastActiveAt.getTime() < LAST_ACTIVE_EVERY_MS) {

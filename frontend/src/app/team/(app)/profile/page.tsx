@@ -25,7 +25,7 @@ async function TeamProfileContent() {
         profile={profile}
         timeZones={timeZoneOptions(profile.timezone)}
       />
-      <ChangePasswordCard />
+      <ChangePasswordCard timeZone={profile.timezone} />
     </div>
   );
 }

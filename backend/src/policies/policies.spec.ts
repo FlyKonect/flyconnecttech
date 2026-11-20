@@ -113,6 +113,13 @@ const expected: Record<Action, Record<Role, boolean>> = {
     DEVELOPER: false,
     CUSTOMER: false,
   },
+  'users.resetTwoFactor': {
+    SUPER_ADMIN: true,
+    ADMIN: false,
+    MANAGER: false,
+    DEVELOPER: false,
+    CUSTOMER: false,
+  },
   'leads.manage': {
     SUPER_ADMIN: true,
     ADMIN: true,

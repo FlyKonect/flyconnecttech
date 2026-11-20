@@ -22,7 +22,7 @@ async function ProfileSettingsPageContent() {
         profile={profile}
         timeZones={timeZoneOptions(profile.timezone)}
       />
-      <ChangePasswordCard />
+      <ChangePasswordCard timeZone={profile.timezone} />
     </div>
   );
 }

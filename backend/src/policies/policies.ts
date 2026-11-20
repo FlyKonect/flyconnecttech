@@ -58,6 +58,8 @@ export type Action =
   | 'users.invite'
   /** Delete a team user (which roles: see canInviteRole; never yourself). */
   | 'users.delete'
+  /** Reset a team member's two-step sign-in (lost phone and backup codes). */
+  | 'users.resetTwoFactor'
   /** See and work on website leads: demos, quotes, messages. */
   | 'leads.manage'
   /** Convert a lead into a customer. */
@@ -90,6 +92,7 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'users.view': ADMINS,
   'users.invite': ADMINS,
   'users.delete': ADMINS,
+  'users.resetTwoFactor': ['SUPER_ADMIN'],
   'leads.manage': NOT_DEVELOPER,
   'leads.convert': ADMINS,
   'reports.view': NOT_DEVELOPER,

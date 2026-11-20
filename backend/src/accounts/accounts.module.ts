@@ -10,6 +10,7 @@ import { PasswordResetService } from './password-reset.service.js';
 import { SessionStatusController } from './session-status.controller.js';
 import {
   PasswordController,
+  SessionsController,
   ProfileController,
   TeamProfileController,
 } from './profile.controller.js';
@@ -26,6 +27,7 @@ import { TeamUsersService } from './team-users.service.js';
     ProfileController,
     TeamProfileController,
     PasswordController,
+    SessionsController,
   ],
   providers: [
     AccountDeletionService,

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
+import { SignedInDevices } from "@/components/shell/signed-in-devices";
 import { useNewPassword } from "@/components/auth/new-password-fields";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -276,36 +277,42 @@ function ReadOnly({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** Profile Settings, right card: Change password (screen 15). */
-export function ChangePasswordCard() {
+/**
+ * Profile Settings, right column: Change password (screen 15) and the
+ * signed-in devices.
+ */
+export function ChangePasswordCard({ timeZone }: { timeZone: string }) {
   // A new form after each change, so the fields start empty again.
   const [version, setVersion] = React.useState(0);
   return (
-    <section
-      aria-labelledby="change-password"
-      className="min-w-0 flex-[1_1_300px] rounded-[22px] border border-line-2 bg-white p-6 shadow-[0_1px_2px_rgba(2,26,84,0.04)] app:sticky app:top-[96px]"
-    >
-      <div className="flex items-start gap-3">
-        <span
-          aria-hidden="true"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gold/15 text-gold-text"
-        >
-          <KeyRound className="size-[21px]" strokeWidth={1.9} />
-        </span>
-        <div>
-          <h2 id="change-password" className="text-[17px] font-bold">
-            Change password
-          </h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
-            Changing it signs you out on your other devices.
-          </p>
+    <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-5 app:sticky app:top-[96px]">
+      <section
+        aria-labelledby="change-password"
+        className="rounded-[22px] border border-line-2 bg-white p-6 shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
+      >
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gold/15 text-gold-text"
+          >
+            <KeyRound className="size-[21px]" strokeWidth={1.9} />
+          </span>
+          <div>
+            <h2 id="change-password" className="text-[17px] font-bold">
+              Change password
+            </h2>
+            <p className="mt-0.5 text-[13px] text-muted-foreground">
+              Changing it signs you out on your other devices.
+            </p>
+          </div>
         </div>
-      </div>
-      <ChangePasswordForm
-        key={version}
-        onChanged={() => setVersion((v) => v + 1)}
-      />
-    </section>
+        <ChangePasswordForm
+          key={version}
+          onChanged={() => setVersion((v) => v + 1)}
+        />
+      </section>
+      <SignedInDevices timeZone={timeZone} />
+    </div>
   );
 }
 

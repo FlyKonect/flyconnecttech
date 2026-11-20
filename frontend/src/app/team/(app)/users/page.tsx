@@ -61,6 +61,7 @@ async function UsersContent() {
         rows={list.rows}
         timeZone={me.timezone}
         canAdd={me.actions.includes("users.invite")}
+        canResetTwoFactor={me.actions.includes("users.resetTwoFactor")}
         roleChoices={
           !me.actions.includes("users.invite")
             ? []

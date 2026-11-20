@@ -49,6 +49,7 @@ export function UsersTable({
   timeZone,
   canAdd = false,
   roleChoices = [],
+  canResetTwoFactor = false,
 }: {
   rows: TeamUserRow[];
   timeZone: string;
@@ -56,6 +57,8 @@ export function UsersTable({
   canAdd?: boolean;
   /** The roles this person may give (Change role). */
   roleChoices?: TeamRole[];
+  /** Super admins: "Reset two-step sign-in". */
+  canResetTwoFactor?: boolean;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -63,6 +66,7 @@ export function UsersTable({
   const [deleting, setDeleting] = React.useState<TeamUserRow | null>(null);
   const [changing, setChanging] = React.useState<TeamUserRow | null>(null);
   const [emailFor, setEmailFor] = React.useState<TeamUserRow | null>(null);
+  const [resetting, setResetting] = React.useState<TeamUserRow | null>(null);
   const now = new Date();
 
   async function enable(user: TeamUserRow) {
@@ -107,6 +111,11 @@ export function UsersTable({
         {roleChoices.length > 0 ? (
           <RowMenuItem onSelect={() => setChanging(user)}>
             Change role
+          </RowMenuItem>
+        ) : null}
+        {canResetTwoFactor && user.status === "ACTIVE" ? (
+          <RowMenuItem onSelect={() => setResetting(user)}>
+            Reset two-step sign-in
           </RowMenuItem>
         ) : null}
         {user.status === "DISABLED" ? (
@@ -235,6 +244,19 @@ export function UsersTable({
           }}
         />
       ) : null}
+      {resetting ? (
+        <ResetTwoFactorDialog
+          user={resetting}
+          onClose={() => setResetting(null)}
+          onDone={() => {
+            toast(
+              `Two-step sign-in reset. ${resetting.name} sets it up again at the next sign-in.`,
+            );
+            setResetting(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
       {emailFor ? (
         <ChangeEmailDialog user={emailFor} onClose={() => setEmailFor(null)} />
       ) : null}
@@ -341,6 +363,62 @@ function ChangeRoleDialog({
           </Button>
           <Button onClick={save} disabled={busy || role === user.role}>
             {busy ? "Saving…" : "Change role"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** "Reset two-step sign-in?" for someone who lost their phone and codes. */
+function ResetTwoFactorDialog({
+  user,
+  onClose,
+  onDone,
+}: {
+  user: TeamUserRow;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const first = user.name.split(/s+/)[0] || user.name;
+
+  async function reset() {
+    setBusy(true);
+    setError("");
+    try {
+      await apiFetch(`/team/users/${user.id}/two-factor-reset`, {
+        method: "POST",
+      });
+      onDone();
+    } catch (failed) {
+      setError(apiErrorMessage(failed));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => (open ? null : onClose())}>
+      <DialogContent>
+        <DialogTitle>Reset {user.name}&apos;s two-step sign-in?</DialogTitle>
+        <DialogDescription>
+          Only when {first} has lost both the authenticator app and the backup
+          codes. {first} is signed out everywhere and sets up a new
+          authenticator at the next sign-in. Check it really is {first} asking
+          first.
+        </DialogDescription>
+        {error ? (
+          <div className="mt-4">
+            <FormError>{error}</FormError>
+          </div>
+        ) : null}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={reset} disabled={busy}>
+            {busy ? "Resetting…" : "Reset two-step sign-in"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -39,6 +39,10 @@ export const PERMISSION_ROWS: {
   { label: "Add customers and projects", actions: ["customers.manage"] },
   { label: "Add team users", actions: ["users.invite"] },
   {
+    label: "Reset a team member's two-step sign-in",
+    actions: ["users.resetTwoFactor"],
+  },
+  {
     label: "Delete team users and customers (their history is kept)",
     actions: ["users.delete", "customers.delete"],
   },

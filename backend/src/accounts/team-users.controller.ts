@@ -92,6 +92,18 @@ export class TeamUsersController {
     return this.users.changeRole(actor, id, body.role);
   }
 
+  /**
+   * Reset two-step sign-in (super admins): their authenticator and backup
+   * codes are removed and they are signed out; they set it up again at
+   * their next sign-in.
+   */
+  @Can('users.resetTwoFactor')
+  @Post(':id/two-factor-reset')
+  @HttpCode(200)
+  resetTwoFactor(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
+    return this.users.resetTwoFactor(actor, id);
+  }
+
   /** Enable a disabled account: Active again, or Invited if never activated. */
   @Can('users.invite')
   @Post(':id/enable')

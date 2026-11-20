@@ -339,6 +339,34 @@ export class TeamUsersService {
     return { status };
   }
 
+  /** Reset two-step sign-in: see TeamUsersController.resetTwoFactor. */
+  async resetTwoFactor(actor: SignedIn, userId: string) {
+    const target = await this.manageable(
+      actor,
+      userId,
+      'reset two-step sign-in for',
+    );
+    await this.prisma.$transaction(async (tx) => {
+      await tx.twoFactor.deleteMany({ where: { userId: target.id } });
+      await tx.user.update({
+        where: { id: target.id },
+        data: { twoFactorEnabled: false },
+      });
+      await tx.session.deleteMany({ where: { userId: target.id } });
+      await this.audit.record(
+        {
+          actorId: actor.id,
+          action: 'user.twoFactorReset',
+          entityType: 'user',
+          entityId: target.id,
+          data: { email: target.email },
+        },
+        tx,
+      );
+    }, ACCOUNT_TX);
+    return { ok: true };
+  }
+
   /** A team user this person may manage: not deleted, not yourself, not above you. */
   private async manageable(actor: SignedIn, userId: string, what: string) {
     const target = await this.prisma.user.findUnique({
