@@ -168,14 +168,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col" inert={menuOpen}>
-        <header
-          className={cn(
-            "sticky top-0 z-30 flex h-[72px] items-center gap-3 border-b px-[clamp(16px,3vw,32px)]",
-            team
-              ? "border-line bg-[rgba(244,246,250,0.94)]"
-              : "border-line-2 bg-[rgba(246,248,252,0.92)]",
-          )}
-        >
+        <header className="sticky top-0 z-30 flex h-[72px] items-center gap-3 border-b border-line-2 bg-white/95 px-[clamp(16px,3vw,32px)] shadow-[0_1px_2px_rgba(2,26,84,0.04)] backdrop-blur">
           <button
             ref={menuButton}
             type="button"
@@ -195,7 +188,7 @@ export function AppShell({
             aria-expanded={!collapsed}
             aria-controls={sidebarId}
             onClick={toggleSidebar}
-            className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-stroke bg-white text-navy hover:bg-soft max-app:hidden"
+            className="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-[10px] text-muted-foreground transition-colors hover:bg-soft hover:text-navy max-app:hidden"
           >
             {collapsed ? (
               <PanelLeftOpen
@@ -212,16 +205,26 @@ export function AppShell({
             )}
           </button>
 
-          <p className="min-w-0 flex-1 truncate text-lg font-bold tracking-[-0.02em]">
-            {title}
-          </p>
+          <span
+            aria-hidden="true"
+            className="h-7 w-px shrink-0 bg-line-2 max-app:hidden"
+          />
+
+          <div className="min-w-0 flex-1 leading-tight">
+            <p className="truncate text-[11px] font-bold tracking-[0.1em] text-muted-foreground uppercase max-app:hidden">
+              {team ? "Team panel" : "Client portal"}
+            </p>
+            <p className="truncate text-lg font-bold tracking-[-0.02em]">
+              {title}
+            </p>
+          </div>
 
           <form
             role="search"
             action={search.action}
             className={cn("max-app:hidden", team ? "w-[300px]" : "w-[280px]")}
           >
-            <label className="flex h-11 items-center gap-2 rounded-xl border border-stroke bg-white px-3.5 text-muted-foreground focus-within:border-navy">
+            <label className="flex h-10 items-center gap-2 rounded-full border border-transparent bg-soft px-4 text-muted-foreground transition-colors focus-within:border-navy focus-within:bg-white hover:border-line-2">
               <Search aria-hidden="true" className="size-4 shrink-0" />
               <input
                 type="search"
@@ -238,7 +241,7 @@ export function AppShell({
             aria-label={
               bell.unread ? "Notifications, you have unread" : "Notifications"
             }
-            className="relative inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border border-stroke bg-white text-navy"
+            className="relative inline-flex size-10 shrink-0 items-center justify-center rounded-full text-navy transition-colors hover:bg-soft"
           >
             <Bell aria-hidden="true" className="size-[19px]" />
             {bell.unread ? (
@@ -252,6 +255,12 @@ export function AppShell({
             ) : null}
           </Link>
 
+          {user ? (
+            <span
+              aria-hidden="true"
+              className="h-7 w-px shrink-0 bg-line-2 max-app:hidden"
+            />
+          ) : null}
           {user ? (
             <UserMenu
               area={tone}

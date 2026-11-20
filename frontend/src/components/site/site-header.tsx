@@ -52,7 +52,7 @@ export function SiteHeader() {
 
   return (
     <header className="relative z-20 border-b border-line-2 bg-white">
-      <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between gap-5 px-[clamp(20px,4vw,40px)] nav:max-w-[1360px] nav:px-6">
+      <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between gap-4 px-[clamp(20px,4vw,40px)] nav:max-w-[1360px] nav:px-6">
         <Link
           href={routes.home}
           aria-label="FlyConnect Tech home"
@@ -63,7 +63,7 @@ export function SiteHeader() {
 
         <nav
           aria-label="Main"
-          className="flex shrink-0 items-center gap-3.5 text-[15px] font-medium whitespace-nowrap max-nav:hidden"
+          className="flex min-w-0 flex-1 items-center justify-center text-sm font-medium whitespace-nowrap max-nav:hidden"
         >
           {mainLinks.map((link) =>
             link.services ? (
@@ -89,12 +89,11 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               aria-current={isCurrent(link.href, pathname) ? "page" : undefined}
-              className="inline-flex h-11 items-center px-1 text-[15px] font-medium whitespace-nowrap text-ink-2 transition-colors hover:text-navy aria-[current=page]:font-semibold max-nav:hidden"
+              className="inline-flex h-10 items-center rounded-full px-2 text-sm font-semibold whitespace-nowrap text-ink-2 transition-colors hover:bg-soft hover:text-navy aria-[current=page]:text-navy max-nav:hidden"
             >
               {link.label}
             </Link>
           ))}
-
           <span className="flex items-center gap-2.5 max-site:hidden">
             <Button asChild size="siteSm">
               <Link href={routes.contact}>Get a quote</Link>
@@ -194,8 +193,10 @@ const headerLinks = (area: SignedInArea | undefined) => [
   account(area),
 ];
 
+// A soft pill on hover; the current page also gets a gold line along the
+// header's bottom edge (the header is 76px, the link 40px, centred).
 const navLink =
-  "text-ink-2 hover:text-navy aria-[current=page]:border-gold aria-[current=page]:text-navy inline-flex h-[76px] items-center gap-1 border-b-2 border-transparent pt-0.5 transition-colors aria-[current=page]:font-semibold";
+  "relative text-ink-2 hover:text-navy hover:bg-soft aria-[current=page]:text-navy inline-flex h-10 items-center gap-1 rounded-full px-2.5 transition-colors aria-[current=page]:font-semibold after:absolute after:inset-x-2.5 after:-bottom-[18px] after:h-0.5 after:rounded-full after:bg-gold after:opacity-0 aria-[current=page]:after:opacity-100";
 
 /**
  * "Services" with its dropdown. The dropdown opens when the mouse is over it
@@ -249,7 +250,7 @@ function ServicesMenu({ pathname }: { pathname: string }) {
       </Link>
 
       {open ? (
-        <div className="absolute top-full -left-6 z-40">
+        <div className="absolute top-full -left-6 z-40 pt-[18px]">
           <div className="w-[360px] rounded-2xl border border-line bg-white p-2 shadow-[0_28px_56px_-24px_rgba(2,26,84,0.35)]">
             {serviceLinks.map((service) => (
               <Link
