@@ -216,8 +216,10 @@ Invitations, password resets, support request updates and the website's form ema
 1. cPanel > **Email Accounts** > **+ Create**.
 2. Domain `flyconnecttech.co.uk`, username for example `info` (the address is `info@flyconnecttech.co.uk`). Choose a strong password and write it down. Click **Create**.
 3. Next to the new mailbox, click **Connect Devices**. Under **Secure SSL/TLS Settings (Recommended)** write down:
-   - **Outgoing Server**: usually the server name, like `something.krystal.uk`;
-   - **SMTP Port**: usually `465`.
+   - **Outgoing Server**: `mail.flyconnecttech.co.uk` (this goes into `SMTP_HOST` in Step 12);
+   - **SMTP Port**: `465` (`SMTP_PORT`, with `SMTP_SECURE=true`).
+
+   You do not need the Incoming Server values: they are only for reading the mailbox in Outlook or on a phone.
 4. People who reply to the emails reach this mailbox, so someone should read it (cPanel > Email Accounts > **Check Email**, or add it to your phone).
 
 ## Step 11. cPanel: create the backend's Node.js app
