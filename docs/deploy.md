@@ -157,7 +157,7 @@ GitHub > repository > **Settings** > **Secrets and variables** > **Actions** > *
 
 1. In the **Variables** tab, add one more: `DEPLOY_ENABLED` with the value `true`.
 2. Open the **Actions** tab > **Deploy** (left list) > **Run workflow** > branch `main` > **Run workflow**.
-3. Wait for it to finish (about 10 minutes). A green tick means the website is live.
+3. Wait for it to finish (usually 8 to 12 minutes: the checks and the builds run side by side). A green tick means the website is live.
 4. Open `https://flyconnecttech.co.uk`. You should see the FlyConnect Tech home page. Click through a few pages.
 5. If it fails, see "If something goes wrong" at the end.
 
@@ -444,7 +444,8 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | A warning about "post-quantum key exchange" | Harmless: the server uses an older SSH version. The login still works |
 | PowerShell says "Corrupted MAC on input" when you test the login | A known fault in the SSH program that comes with Windows. Use **Git Bash** instead (Step 3), or add `-m hmac-sha2-512` after `ssh`. It does not affect GitHub's deploys |
 | "rsync: command not found" | Ask Krystal support to enable `rsync` for SSH on your account |
-| The Checks part is red | A test failed. Nothing was deployed. Open the red step to see which test |
+| The Checks part is red | A test failed. Nothing was deployed. Open the red step to see which test. The browser tests run in two halves, "Browser tests (1/2)" and "(2/2)"; the failing half keeps a report you can download from the run's page |
+| A package seems missing on the hosting after a deploy | The deploy installs the backend's packages only when `package-lock.json` changed (a new or upgraded package always changes it). To force an install, delete the file `.installed-lock` in the backend folder in File Manager, then run the deploy again (Actions > Deploy > Run workflow) |
 
 ## What lives where
 
@@ -458,4 +459,4 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | The login key | only in the GitHub secret `SSH_PRIVATE_KEY` |
 | Uploaded files | `flyconnect-tech/uploads` on Krystal: the files customers and the team attach to support requests. A deploy never touches it. Back it up together with the database |
 
-A deploy replaces only these folders on the hosting: the backend's `dist` and `prisma`, and the website's `.next`, `node_modules` and `public`. It leaves `.env`, `uploads`, `jobs.log` and everything else alone.
+A deploy replaces only these folders on the hosting: the backend's `dist` and `prisma`, and the website's `.next`, `node_modules` and `public`. It leaves `.env`, `uploads`, `jobs.log` and everything else alone. The backend folder also keeps `.installed-lock`, a fingerprint of the last package install, so unchanged packages are not installed again.

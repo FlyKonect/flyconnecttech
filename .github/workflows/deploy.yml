@@ -5,12 +5,13 @@
 #   - by hand: GitHub > Actions > Deploy > Run workflow (main only)
 #
 # What it does:
-#   1. Runs all the checks (ci.yml). If one fails, nothing is deployed.
-#   2. Builds both apps here on GitHub, not on the hosting.
-#   3. Copies the built files to the hosting over SSH.
-#   4. On the hosting: installs the backend's packages, updates the database,
-#      restarts both apps.
-#   5. Opens the live site and the backend to confirm they answer.
+#   1. Runs all the checks (ci.yml) and, at the same time, builds both apps
+#      here on GitHub (never on the hosting). If a check or a build fails,
+#      nothing is deployed.
+#   2. Copies the built files to the hosting over SSH.
+#   3. On the hosting: installs the backend's packages (only when
+#      package-lock.json changed), updates the database, restarts both apps.
+#   4. Opens the live site and the backend to confirm they answer.
 #
 # Setup (secrets, variables, cPanel): docs/deploy.md
 # The deploy job is skipped until the variable DEPLOY_ENABLED is "true".
@@ -32,9 +33,62 @@ jobs:
     name: Checks
     uses: ./.github/workflows/ci.yml
 
+  # Builds both apps at the same time as the checks (it does not wait for
+  # them), so the deploy can start the moment the checks pass. A build that
+  # fails stops the deploy, just like a failed check.
+  build:
+    name: Build both apps
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Keep the same as the Node.js version chosen in cPanel.
+          node-version: ${{ vars.NODE_VERSION || '22' }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      - name: Build the backend
+        working-directory: backend
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+          npm run build
+
+      # The two addresses are built into the website, so they are set here.
+      - name: Build the website
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+          npm run build
+          # The ready-to-run copy needs the images and the page assets beside it.
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+          test -f .next/standalone/server.js
+
+      # One archive each keeps file details intact on the way to the deploy job.
+      - name: Pack the builds
+        run: |
+          tar -czf backend-build.tgz -C backend dist prisma package.json package-lock.json prisma7.config.ts app.cjs
+          tar -czf website-build.tgz -C frontend/.next standalone
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: builds
+          path: |
+            backend-build.tgz
+            website-build.tgz
+          retention-days: 1
+
   deploy:
     name: Deploy to live hosting
-    needs: checks
+    needs: [checks, build]
     if: vars.DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -113,35 +167,19 @@ jobs:
 
           exit "$problems"
 
-      - uses: actions/setup-node@v7
+      # The builds made by the "build" job, unpacked where the steps below
+      # expect them (backend/dist, frontend/.next/standalone, ...).
+      - uses: actions/download-artifact@v7
         with:
-          # Keep the same as the Node.js version chosen in cPanel.
-          node-version: ${{ vars.NODE_VERSION || '22' }}
-          cache: npm
-          cache-dependency-path: |
-            frontend/package-lock.json
-            backend/package-lock.json
+          name: builds
 
-      - name: Build the backend
-        if: env.DEPLOY_BACKEND == 'true'
-        working-directory: backend
+      - name: Unpack the builds
         run: |
-          npm ci
-          npm run build
-
-      # The two addresses are built into the website, so they are set here.
-      - name: Build the website
-        working-directory: frontend
-        env:
-          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
-          NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
-        run: |
-          npm ci
-          npm run build
-          # The ready-to-run copy needs the images and the page assets beside it.
-          cp -r public .next/standalone/
-          cp -r .next/static .next/standalone/.next/
-          test -f .next/standalone/server.js
+          tar -xzf backend-build.tgz -C backend
+          mkdir -p frontend/.next
+          tar -xzf website-build.tgz -C frontend/.next
+          test -f frontend/.next/standalone/server.js
+          test -d backend/dist
 
       - name: Connect to the hosting
         env:

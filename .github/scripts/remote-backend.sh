@@ -36,13 +36,24 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
-echo "Installing packages..."
 # "npm install", not "npm ci": on cPanel the node_modules folder is a link that
 # belongs to the Node.js app, and "npm ci" would delete it.
 # cPanel runs the install inside the app's own Node.js folder (~/nodevenv/.../lib),
 # where prisma/schema.prisma is not, so the postinstall skips "prisma generate":
 # dist already holds the database client built on GitHub.
-npm install --omit=dev --no-audit --no-fund
+#
+# Installing is the slowest part on shared hosting, so it runs only when the
+# packages changed: when package-lock.json differs from the last install, or
+# when there is no record of one, or the packages are missing.
+lock_hash="$(sha256sum package-lock.json | cut -d' ' -f1)"
+if [ -f .installed-lock ] && [ "$(cat .installed-lock)" = "$lock_hash" ] \
+  && [ -e node_modules/@prisma/client ] && [ -e node_modules/@nestjs/core ]; then
+  echo "Packages are the same as the last install: skipping npm install."
+else
+  echo "Installing packages..."
+  npm install --omit=dev --no-audit --no-fund
+  echo "$lock_hash" > .installed-lock
+fi
 
 echo "Updating the database..."
 npx --no prisma migrate deploy

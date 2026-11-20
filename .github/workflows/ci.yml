@@ -6,6 +6,13 @@
 #   - from deploy.yml, before anything is deployed (pushes to main)
 #
 # Nothing here touches the live hosting.
+#
+# For speed, the work is split into jobs that run side by side:
+#   - Frontend checks: typecheck, lint, code style, unit tests (and a build,
+#     except on main, where deploy.yml builds the website anyway).
+#   - Browser tests: split in two halves ("shards") that run at the same time,
+#     each with its own database and Mailpit.
+#   - Backend: typecheck, lint, unit, whole-app and database tests, build.
 
 name: Checks
 
@@ -20,9 +27,51 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend (Next.js)
+    name: Frontend checks
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Keep the same as the Node.js version chosen in cPanel.
+          node-version: ${{ vars.NODE_VERSION || '22' }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install packages
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Code style
+        run: npm run format:check
+
+      - name: Unit tests
+        run: npm test
+
+      # On main, deploy.yml builds the website (with the live addresses) at
+      # the same time as these checks, so building here would be twice.
+      - name: Build
+        if: github.ref != 'refs/heads/main'
+        run: npm run build
+
+  browser:
+    name: Browser tests (${{ matrix.shard }}/2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     # The browser tests start the backend too, with its own database, and read
     # the invitation and reset emails from Mailpit.
     services:
@@ -53,7 +102,6 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          # Keep the same as the Node.js version chosen in cPanel.
           node-version: ${{ vars.NODE_VERSION || '22' }}
           cache: npm
           cache-dependency-path: |
@@ -61,42 +109,45 @@ jobs:
             backend/package-lock.json
 
       - name: Install packages
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Install the backend's packages (the browser tests start it)
         working-directory: backend
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
-      - name: Typecheck
-        run: npm run typecheck
+      # The test browser is kept between runs; only its system libraries are
+      # installed each time (they are quick).
+      - name: Find the Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Code style
-        run: npm run format:check
-
-      - name: Unit tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
+      - name: Restore the test browser
+        id: browser-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
 
       - name: Install the test browser
+        if: steps.browser-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
+
+      - name: Install the test browser's system libraries
+        if: steps.browser-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
       - name: Browser tests
         env:
           E2E_DATABASE_URL: mysql://root:root@127.0.0.1:3306/flyconnect_tech_e2e
           E2E_SMTP_HOST: 127.0.0.1
           E2E_MAILPIT_URL: http://127.0.0.1:8025
-        run: npm run test:e2e
+        run: npx playwright test --shard=${{ matrix.shard }}/2
 
       - name: Keep the browser test report if a test failed
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: frontend/playwright-report
           retention-days: 7
           if-no-files-found: ignore
@@ -131,7 +182,7 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install packages
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Typecheck
         run: npm run typecheck
@@ -151,4 +202,5 @@ jobs:
         run: npm run test:db
 
       - name: Build
+        if: github.ref != 'refs/heads/main'
         run: npm run build
