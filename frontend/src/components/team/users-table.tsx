@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Dialog,
@@ -20,6 +21,7 @@ import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
 import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { formatDayMonth, formatWhen } from "@/lib/format-time";
+import { routes } from "@/lib/routes";
 import type { TeamUserRow } from "@/lib/team/types";
 
 import { plural } from "@/lib/plural";
@@ -42,9 +44,12 @@ export function lastActive(user: TeamUserRow, timeZone: string, now: Date) {
 export function UsersTable({
   rows,
   timeZone,
+  canAdd = false,
 }: {
   rows: TeamUserRow[];
   timeZone: string;
+  /** Shows "+ Add user" at the right of the search row. */
+  canAdd?: boolean;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -95,17 +100,24 @@ export function UsersTable({
 
   return (
     <>
-      <label className="flex h-11 w-full max-w-[380px] items-center gap-2 rounded-xl border border-input bg-white px-3.5 text-muted-foreground focus-within:border-navy">
-        <Search aria-hidden="true" className="size-4 shrink-0" />
-        <input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          aria-label="Search team members"
-          placeholder="Search by name, email or job title"
-          className="min-w-0 flex-1 bg-transparent text-sm text-navy outline-none placeholder:text-muted-foreground"
-        />
-      </label>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label className="flex h-11 w-full max-w-[380px] items-center gap-2 rounded-xl border border-input bg-white px-3.5 text-muted-foreground focus-within:border-navy">
+          <Search aria-hidden="true" className="size-4 shrink-0" />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label="Search team members"
+            placeholder="Search by name, email or job title"
+            className="min-w-0 flex-1 bg-transparent text-sm text-navy outline-none placeholder:text-muted-foreground"
+          />
+        </label>
+        {canAdd ? (
+          <Link href={routes.teamNewUser} className={buttonVariants()}>
+            + Add user
+          </Link>
+        ) : null}
+      </div>
       <DataTable<TeamUserRow>
         caption="Team members"
         rows={shown}

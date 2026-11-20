@@ -3,11 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Building2, FolderKanban, MailCheck, Search } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { StatCard } from "@/components/ui/stat-card";
 import { LabelPill } from "@/components/ui/pill";
 import { plural } from "@/lib/plural";
 import { routes } from "@/lib/routes";
@@ -40,19 +41,44 @@ export function CustomersList({
 
   return (
     <>
+      <ul
+        aria-label="Customers summary"
+        className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5"
+      >
+        <li>
+          <StatCard
+            icon={Building2}
+            value={list.summary.customers}
+            label={list.summary.customers === 1 ? "Customer" : "Customers"}
+            note="With a client portal account"
+          />
+        </li>
+        <li>
+          <StatCard
+            icon={FolderKanban}
+            tone="gold"
+            value={list.summary.projects}
+            label={list.summary.projects === 1 ? "Project" : "Projects"}
+            note="Across all customers"
+          />
+        </li>
+        <li>
+          <StatCard
+            icon={MailCheck}
+            tone="orange"
+            value={list.summary.invited}
+            label="Invitations pending"
+            note="Not activated yet"
+          />
+        </li>
+      </ul>
+
+      {/* Search on the left; Add customer (or View only) on the right. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[15px] text-muted-foreground">
-          {customerSummary(list.summary)}
-          {list.canManage ? null : (
-            <span className="ml-2 inline-block rounded-full bg-chip px-[9px] py-[3px] text-xs font-bold text-body">
-              View only
-            </span>
-          )}
-        </p>
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex w-full max-w-[380px] flex-wrap items-center gap-2.5">
           <form
             role="search"
-            className="w-[280px] max-w-full"
+            className="w-full"
             onSubmit={(event) => {
               event.preventDefault();
               const q = search.trim();
@@ -63,7 +89,7 @@ export function CustomersList({
               );
             }}
           >
-            <label className="flex h-[46px] items-center gap-2 rounded-xl border border-stroke bg-white px-3.5 text-muted-foreground focus-within:border-navy">
+            <label className="flex h-11 items-center gap-2 rounded-xl border border-line-2 bg-white px-3.5 text-muted-foreground focus-within:border-navy">
               <Search aria-hidden="true" className="size-4 shrink-0" />
               <input
                 type="search"
@@ -75,12 +101,16 @@ export function CustomersList({
               />
             </label>
           </form>
-          {list.canManage ? (
-            <Link href={routes.teamNewCustomer} className={buttonVariants()}>
-              + Add customer
-            </Link>
-          ) : null}
         </div>
+        {list.canManage ? (
+          <Link href={routes.teamNewCustomer} className={buttonVariants()}>
+            + Add customer
+          </Link>
+        ) : (
+          <span className="inline-block rounded-full bg-chip px-3 py-1 text-xs font-bold text-body">
+            View only
+          </span>
+        )}
       </div>
 
       <DataTable<CustomerRow>

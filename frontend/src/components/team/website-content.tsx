@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { ExternalLink, Link2, Plus, Quote } from "lucide-react";
 
 import { refreshWebsite } from "@/app/team/(app)/website-content/actions";
 import { FormError } from "@/components/auth/form-message";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +32,43 @@ import {
   type TestimonialForm,
 } from "@/lib/team/website-content";
 
-const card = "rounded-[22px] border border-line-2 bg-white p-6";
+const card =
+  "rounded-[22px] border border-line-2 bg-white p-6 shadow-[0_1px_2px_rgba(2,26,84,0.04)]";
+
+/** A card's heading with its icon and a line under it. */
+function CardHeading({
+  id,
+  icon: Icon,
+  title,
+  badge,
+  children,
+}: {
+  id: string;
+  icon: typeof Link2;
+  title: string;
+  badge?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-[1_1_320px] items-start gap-3.5">
+      <span
+        aria-hidden="true"
+        className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint text-navy-700"
+      >
+        <Icon className="size-[21px]" strokeWidth={1.9} />
+      </span>
+      <div className="min-w-0">
+        <h2 id={id} className="flex items-center gap-2 text-[17px] font-bold">
+          {title}
+          {badge}
+        </h2>
+        <p className="mt-1 max-w-[640px] text-sm leading-[1.55] text-muted-foreground">
+          {children}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 /**
  * After a change: the website drops its old copy first, so when the
@@ -91,13 +128,28 @@ function LiveProjectLinkCard({ saved }: { saved: string }) {
 
   return (
     <section aria-labelledby="live-project-link" className={card}>
-      <h2 id="live-project-link" className="text-[17px] font-bold">
-        Live project link
-      </h2>
+      <CardHeading
+        id="live-project-link"
+        icon={Link2}
+        title="Live project link"
+      >
+        Where the website&apos;s &ldquo;View live project&rdquo; buttons go.
+        Currently:{" "}
+        <a
+          href={saved}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 font-bold break-all text-navy-700 hover:underline"
+        >
+          {saved}
+          <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      </CardHeading>
       <form
         noValidate
         onSubmit={save}
-        className="mt-3.5 flex flex-wrap items-start gap-3"
+        className="mt-5 flex flex-wrap items-start gap-3 border-t border-line-3 pt-5"
       >
         <Field
           label="Web address"
@@ -139,16 +191,21 @@ function TestimonialsCard({
   return (
     <section aria-labelledby="testimonials" className={card}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-[1_1_320px]">
-          <h2 id="testimonials" className="text-[17px] font-bold">
-            Testimonials
-          </h2>
-          <p className="mt-1.5 max-w-[640px] text-sm leading-[1.55] text-muted-foreground">
-            Only add quotes with the client&apos;s permission. Home shows the{" "}
-            {HOME_TESTIMONIALS} newest marked for Home; Case Studies shows the
-            newest marked for Case Studies.
-          </p>
-        </div>
+        <CardHeading
+          id="testimonials"
+          icon={Quote}
+          title="Testimonials"
+          badge={
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-soft px-1.5 text-[11px] font-bold text-navy-700">
+              <span className="sr-only">, </span>
+              {testimonials.length}
+            </span>
+          }
+        >
+          Only add quotes with the client&apos;s permission. Home shows the{" "}
+          {HOME_TESTIMONIALS} newest marked for Home; Case Studies shows the
+          newest marked for Case Studies.
+        </CardHeading>
         <Button onClick={() => setAdding(true)}>
           <Plus aria-hidden="true" className="size-4" />
           Add testimonial
@@ -156,11 +213,22 @@ function TestimonialsCard({
       </div>
 
       {testimonials.length === 0 ? (
-        <p className="mt-5 rounded-[16px] border border-dashed border-line px-5 py-6 text-center text-sm text-muted-foreground">
-          No testimonials yet. The website hides this section until you add one.
-        </p>
+        <div className="mt-5 flex flex-col items-center gap-2 rounded-[18px] border-2 border-dashed border-line-2 bg-[#FAFBFD] px-5 py-9 text-center">
+          <Quote
+            aria-hidden="true"
+            className="size-7 text-gold"
+            strokeWidth={1.8}
+          />
+          <p className="text-sm font-semibold text-navy">No testimonials yet</p>
+          <p className="text-sm text-muted-foreground">
+            The website hides this section until you add one.
+          </p>
+        </div>
       ) : (
-        <ul aria-label="Testimonials" className="mt-5 flex flex-col gap-3">
+        <ul
+          aria-label="Testimonials"
+          className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5 border-t border-line-3 pt-5"
+        >
           {testimonials.map((testimonial) => (
             <TestimonialRow
               key={testimonial.id}
@@ -203,35 +271,45 @@ function TestimonialRow({
     .filter(Boolean)
     .join(", ");
   return (
-    <li className="flex items-start gap-3 rounded-[16px] border border-line-2 p-4">
-      <div className="min-w-0 flex-1">
-        <p className="line-clamp-3 text-[15px] leading-[1.55] text-ink-2">
-          “{testimonial.quote}”
-        </p>
-        <p className="mt-2 text-sm">
-          <span className="font-bold">{testimonial.name}</span>
+    <li className="flex flex-col rounded-[18px] border border-line-2 bg-[#FAFBFD] p-5 transition-colors hover:border-[#CBD5E4]">
+      <div className="flex items-start justify-between gap-3">
+        <Quote
+          aria-hidden="true"
+          className="size-6 shrink-0 fill-gold/20 text-gold"
+          strokeWidth={1.8}
+        />
+        <RowMenu label={`Actions for ${testimonial.name}'s testimonial`}>
+          <RowMenuItem onSelect={onEdit}>Edit</RowMenuItem>
+          <RowMenuItem danger onSelect={onRemove}>
+            Remove
+          </RowMenuItem>
+        </RowMenu>
+      </div>
+      <p className="mt-2 line-clamp-4 flex-1 text-[15px] leading-[1.6] text-ink-2">
+        “{testimonial.quote}”
+      </p>
+      <div className="mt-4 flex items-center gap-2.5 border-t border-line-3 pt-4">
+        <Avatar name={testimonial.name} size="sm" />
+        <p className="min-w-0 text-sm leading-tight">
+          <span className="block truncate font-bold">{testimonial.name}</span>
           {byline ? (
-            <span className="text-muted-foreground"> · {byline}</span>
+            <span className="block truncate text-[13px] text-muted-foreground">
+              {byline}
+            </span>
           ) : null}
         </p>
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-          {places.length ? (
-            places.map((place) => (
-              <LabelPill key={place} group="testimonialPlace" value={place} />
-            ))
-          ) : (
-            <span className="text-xs font-semibold text-muted-foreground">
-              Not shown on the website
-            </span>
-          )}
-        </div>
       </div>
-      <RowMenu label={`Actions for ${testimonial.name}'s testimonial`}>
-        <RowMenuItem onSelect={onEdit}>Edit</RowMenuItem>
-        <RowMenuItem danger onSelect={onRemove}>
-          Remove
-        </RowMenuItem>
-      </RowMenu>
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        {places.length ? (
+          places.map((place) => (
+            <LabelPill key={place} group="testimonialPlace" value={place} />
+          ))
+        ) : (
+          <span className="rounded-full bg-chip px-2.5 py-1 text-xs font-semibold text-body">
+            Not shown on the website
+          </span>
+        )}
+      </div>
     </li>
   );
 }

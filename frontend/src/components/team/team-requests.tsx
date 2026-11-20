@@ -84,110 +84,120 @@ export function TeamRequests({
         </Banner>
       ) : null}
 
-      <nav aria-label="Request status" className="flex flex-wrap gap-2">
-        {TABS.filter((tab) => !(isDeveloper && tab.key === "new")).map(
-          (tab) => {
-            const active = filters.status === tab.status;
-            return (
-              <Link
-                key={tab.key}
-                href={hrefFor({ ...filters, status: tab.status })}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "inline-flex min-h-10 items-center gap-2 rounded-[10px] border px-3.5 text-[13px] font-bold whitespace-nowrap transition-colors",
-                  active
-                    ? "border-navy bg-navy text-white"
-                    : "border-stroke bg-white text-body hover:bg-soft",
-                )}
-              >
-                {tab.label}
-                <span className="font-semibold opacity-80">
-                  {list.tabs[tab.key]}
-                </span>
-              </Link>
-            );
-          },
-        )}
-      </nav>
+      {/* One toolbar: the status tabs, then search and filters under a line. */}
+      <div className="rounded-[18px] border border-line-2 bg-white p-2">
+        <nav aria-label="Request status" className="flex flex-wrap gap-1">
+          {TABS.filter((tab) => !(isDeveloper && tab.key === "new")).map(
+            (tab) => {
+              const active = filters.status === tab.status;
+              return (
+                <Link
+                  key={tab.key}
+                  href={hrefFor({ ...filters, status: tab.status })}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-[13px] font-bold whitespace-nowrap transition-colors",
+                    active
+                      ? "bg-navy text-white"
+                      : "text-body hover:bg-soft hover:text-navy",
+                  )}
+                >
+                  {tab.label}
+                  <span
+                    className={cn(
+                      "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold",
+                      active
+                        ? "bg-white/20 text-white"
+                        : "bg-soft text-navy-700",
+                    )}
+                  >
+                    {list.tabs[tab.key]}
+                  </span>
+                </Link>
+              );
+            },
+          )}
+        </nav>
 
-      <div className="flex flex-wrap gap-2.5">
-        <form
-          role="search"
-          className="flex-[1_1_240px]"
-          onSubmit={(event) => {
-            event.preventDefault();
-            change({ q: search.trim() });
-          }}
-        >
-          <label className="flex h-[46px] items-center gap-2 rounded-xl border border-stroke bg-white px-3.5 text-muted-foreground focus-within:border-navy">
-            <Search aria-hidden="true" className="size-4 shrink-0" />
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Filter by ID, subject or customer"
-              aria-label="Filter requests"
-              className="min-w-0 flex-1 bg-transparent text-sm text-navy outline-none placeholder:text-muted-foreground"
-            />
-          </label>
-        </form>
-        <Select
-          aria-label="Project"
-          value={filters.project}
-          onChange={(event) => change({ project: event.target.value })}
-          className="h-[46px] w-auto min-w-[180px] text-sm"
-        >
-          <option value="">All projects</option>
-          {list.projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name}
-            </option>
-          ))}
-        </Select>
-        <Select
-          aria-label="Priority"
-          value={filters.priority}
-          onChange={(event) => change({ priority: event.target.value })}
-          className="h-[46px] w-auto text-sm"
-        >
-          <option value="">Any priority</option>
-          {PRIORITY_ORDER.map((priority) => (
-            <option key={priority} value={priority}>
-              {priorities[priority].label}
-            </option>
-          ))}
-        </Select>
-        {isDeveloper ? null : (
-          <Select
-            aria-label="Assigned to"
-            value={filters.assignee}
-            onChange={(event) => change({ assignee: event.target.value })}
-            className="h-[46px] w-auto text-sm"
+        <div className="mt-2 flex flex-wrap gap-2.5 border-t border-line-3 px-1 pt-3 pb-1">
+          <form
+            role="search"
+            className="flex-[1_1_240px]"
+            onSubmit={(event) => {
+              event.preventDefault();
+              change({ q: search.trim() });
+            }}
           >
-            <option value="">Anyone</option>
-            <option value="unassigned">Unassigned</option>
-            {list.developers.map((developer) => (
-              <option key={developer.id} value={developer.id}>
-                {developer.name}
+            <label className="flex h-11 items-center gap-2 rounded-xl border border-line-2 bg-white px-3.5 text-muted-foreground focus-within:border-navy">
+              <Search aria-hidden="true" className="size-4 shrink-0" />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Filter by ID, subject or customer"
+                aria-label="Filter requests"
+                className="min-w-0 flex-1 bg-transparent text-sm text-navy outline-none placeholder:text-muted-foreground"
+              />
+            </label>
+          </form>
+          <Select
+            aria-label="Project"
+            value={filters.project}
+            onChange={(event) => change({ project: event.target.value })}
+            className="h-11 w-auto min-w-[180px] text-sm"
+          >
+            <option value="">All projects</option>
+            {list.projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
               </option>
             ))}
           </Select>
-        )}
-        {filtersOn ? (
-          <Link
-            href={hrefFor({
-              status: filters.status,
-              q: "",
-              project: "",
-              priority: "",
-              assignee: "",
-            })}
-            onClick={() => setSearch("")}
-            className="inline-flex min-h-[46px] items-center px-3 text-sm font-bold text-gold-text hover:underline"
+          <Select
+            aria-label="Priority"
+            value={filters.priority}
+            onChange={(event) => change({ priority: event.target.value })}
+            className="h-11 w-auto text-sm"
           >
-            Clear filters
-          </Link>
-        ) : null}
+            <option value="">Any priority</option>
+            {PRIORITY_ORDER.map((priority) => (
+              <option key={priority} value={priority}>
+                {priorities[priority].label}
+              </option>
+            ))}
+          </Select>
+          {isDeveloper ? null : (
+            <Select
+              aria-label="Assigned to"
+              value={filters.assignee}
+              onChange={(event) => change({ assignee: event.target.value })}
+              className="h-11 w-auto text-sm"
+            >
+              <option value="">Anyone</option>
+              <option value="unassigned">Unassigned</option>
+              {list.developers.map((developer) => (
+                <option key={developer.id} value={developer.id}>
+                  {developer.name}
+                </option>
+              ))}
+            </Select>
+          )}
+          {filtersOn ? (
+            <Link
+              href={hrefFor({
+                status: filters.status,
+                q: "",
+                project: "",
+                priority: "",
+                assignee: "",
+              })}
+              onClick={() => setSearch("")}
+              className="inline-flex min-h-11 items-center px-3 text-sm font-bold text-gold-text hover:underline"
+            >
+              Clear filters
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <DataTable<TeamRequestRow>

@@ -21,7 +21,6 @@ import {
   demoStart,
   KIND_PLURAL,
   LEAD_TABS,
-  leadCount,
   leadHref,
   leadListHref,
 } from "@/lib/team/leads";
@@ -213,10 +212,46 @@ export function LeadsList({
 
   return (
     <>
+      {/* The tabs already show the counts; the search sits at the right. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[15px] text-muted-foreground">
-          {leadCount(kind, list.all)} · {list.tabs.NEW ?? 0} new
-        </p>
+        <nav
+          aria-label="Status"
+          className="flex max-w-full flex-wrap gap-1 rounded-xl border border-line-2 bg-white p-1"
+        >
+          {[{ slug: "", status: "", label: "All" }, ...LEAD_TABS[kind]].map(
+            (tab) => {
+              const active = status === tab.slug;
+              const count = tab.status
+                ? (list.tabs[tab.status] ?? 0)
+                : list.all;
+              return (
+                <Link
+                  key={tab.label}
+                  href={hrefFor({ status: tab.slug })}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-[13px] font-bold whitespace-nowrap transition-colors",
+                    active
+                      ? "bg-navy text-white"
+                      : "text-body hover:bg-soft hover:text-navy",
+                  )}
+                >
+                  {tab.label}
+                  <span
+                    className={cn(
+                      "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold",
+                      active
+                        ? "bg-white/20 text-white"
+                        : "bg-soft text-navy-700",
+                    )}
+                  >
+                    {count}
+                  </span>
+                </Link>
+              );
+            },
+          )}
+        </nav>
         <form
           role="search"
           className="w-[300px] max-w-full max-app:w-full"
@@ -225,7 +260,7 @@ export function LeadsList({
             router.push(hrefFor({ q: search.trim() }));
           }}
         >
-          <label className="flex h-[46px] items-center gap-2 rounded-xl border border-stroke bg-white px-3.5 text-muted-foreground focus-within:border-navy">
+          <label className="flex h-11 items-center gap-2 rounded-xl border border-line-2 bg-white px-3.5 text-muted-foreground focus-within:border-navy">
             <Search aria-hidden="true" className="size-4 shrink-0" />
             <input
               type="search"
@@ -238,31 +273,6 @@ export function LeadsList({
           </label>
         </form>
       </div>
-
-      <nav aria-label="Status" className="flex flex-wrap gap-2">
-        {[{ slug: "", status: "", label: "All" }, ...LEAD_TABS[kind]].map(
-          (tab) => {
-            const active = status === tab.slug;
-            const count = tab.status ? (list.tabs[tab.status] ?? 0) : list.all;
-            return (
-              <Link
-                key={tab.label}
-                href={hrefFor({ status: tab.slug })}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "inline-flex min-h-10 items-center gap-2 rounded-[10px] border px-3.5 text-[13px] font-bold whitespace-nowrap transition-colors",
-                  active
-                    ? "border-navy bg-navy text-white"
-                    : "border-stroke bg-white text-body hover:bg-soft",
-                )}
-              >
-                {tab.label}
-                <span className="font-semibold opacity-80">{count}</span>
-              </Link>
-            );
-          },
-        )}
-      </nav>
 
       <DataTable<AnyRow>
         caption={KIND_PLURAL[kind]}

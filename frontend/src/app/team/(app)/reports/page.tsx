@@ -2,8 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { PageLoading } from "@/components/shell/page-loading";
-import { Avatar } from "@/components/ui/avatar";
-import { DataTable } from "@/components/ui/data-table";
+import { DeveloperPerformance } from "@/components/team/developer-performance";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { serverApi } from "@/lib/api-server";
 import { routes } from "@/lib/routes";
@@ -131,39 +130,7 @@ async function ReportsContent() {
         <h2 id="developer-performance" className="text-[17px] font-bold">
           Developer performance · this month
         </h2>
-        <DataTable
-          caption="Developer performance this month"
-          rows={report.developers}
-          rowKey={(row) => row.id}
-          empty="No active developers yet."
-          className="mt-3 [&_table]:border-0 [&>div]:rounded-none [&>div]:border-0"
-          columns={[
-            {
-              header: "Developer",
-              primary: true,
-              className: "min-w-[220px]",
-              cell: (row) => (
-                <span className="flex items-center gap-2.5">
-                  <Avatar name={row.name} tone="tint" className="size-8" />
-                  <span className="min-w-0">
-                    <span className="block font-bold">{row.name}</span>
-                    {row.jobTitle ? (
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        {row.jobTitle}
-                      </span>
-                    ) : null}
-                  </span>
-                </span>
-              ),
-            },
-            { header: "Assigned", cell: (row) => row.assigned },
-            { header: "Resolved", cell: (row) => row.resolved },
-            {
-              header: "Avg. first response",
-              cell: (row) => row.firstResponse ?? "—",
-            },
-          ]}
-        />
+        <DeveloperPerformance rows={report.developers} />
       </section>
     </>
   );

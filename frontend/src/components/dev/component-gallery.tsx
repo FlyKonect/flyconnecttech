@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Building2, FolderKanban, MailCheck, Plus } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
 import { Avatar } from "@/components/ui/avatar";
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/field";
 import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
+import { StatCard } from "@/components/ui/stat-card";
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill } from "@/components/ui/pill";
 import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
@@ -394,6 +395,29 @@ export function ComponentGallery() {
             />
             <KpiTile label="At risk of SLA" value={1} tone="danger" />
             <KpiTile label="Resolved" value={3} tone="success" />
+          </div>
+        </Section>
+
+        <Section title="Stat cards (top of list pages)">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
+            <StatCard
+              icon={Building2}
+              value={6}
+              label="Customers"
+              note="With a client portal account"
+            />
+            <StatCard
+              icon={FolderKanban}
+              tone="gold"
+              value={7}
+              label="Projects"
+            />
+            <StatCard
+              icon={MailCheck}
+              tone="orange"
+              value={1}
+              label="Invitations pending"
+            />
           </div>
         </Section>
 
