@@ -367,7 +367,9 @@ Three settings on your domain tell other mail servers that Krystal may send emai
 
 1. cPanel > **Email Deliverability** (under Email).
 2. Next to `flyconnecttech.co.uk`, look at **DKIM** and **SPF**. If either says there is a problem, click **Repair**, then **Repair** again to confirm. If your domain's DNS is managed somewhere other than Krystal (for example Cloudflare, or the company you bought the domain from), the page shows the exact records to add there instead.
-3. Add a DMARC record, which tells other servers what to do with email that fails these checks. cPanel > **Zone Editor** > **Manage** next to `flyconnecttech.co.uk` > **+ Add Record**:
+3. **Only if the Email Deliverability page does not already show DMARC as valid** (Krystal often adds `v=DMARC1; p=none;` by itself, and a domain must have only one DMARC record):
+
+   Add a DMARC record, which tells other servers what to do with email that fails these checks. cPanel > **Zone Editor** > **Manage** next to `flyconnecttech.co.uk` > **+ Add Record**:
    - Type: `TXT`
    - Name: `_dmarc.flyconnecttech.co.uk.`
    - Record: `v=DMARC1; p=none; rua=mailto:info@flyconnecttech.co.uk`
