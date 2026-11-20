@@ -29,6 +29,10 @@ export function TeamReplyEmail(props: TeamReplyEmailProps) {
       <RequestCard code={props.code} title={props.title} />
       <Quote>{shorten(props.body, 1500)}</Quote>
       <PrimaryButton href={props.link}>View and reply</PrimaryButton>
+      <Paragraph>
+        Please reply in the client portal, so the whole conversation and any
+        files stay with your request.
+      </Paragraph>
     </EmailLayout>
   );
 }

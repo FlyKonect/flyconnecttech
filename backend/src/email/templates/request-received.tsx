@@ -25,9 +25,10 @@ export function RequestReceivedEmail(props: RequestReceivedEmailProps) {
       preview={requestReceivedSubject(props.code)}
       siteUrl={props.siteUrl}
     >
-      <Heading>Request submitted</Heading>
+      <Heading>We have received your request</Heading>
       <Paragraph>
-        Hi {props.firstName}, we have received your request. Here is your copy.
+        Hi {props.firstName}, thank you for getting in touch. Your support
+        request is with our team, and here is your copy for your records.
       </Paragraph>
       <RequestCard
         code={props.code}
@@ -39,8 +40,9 @@ export function RequestReceivedEmail(props: RequestReceivedEmailProps) {
       />
       <Quote>{shorten(props.description)}</Quote>
       <Paragraph>
-        Next, our team reviews your request. Then a developer is assigned and
-        replies. You are notified at every update.
+        What happens next: our team reviews your request and assigns it to a
+        developer, who replies in the client portal. You get an email at every
+        reply and status change.
       </Paragraph>
       <PrimaryButton href={props.link}>View request</PrimaryButton>
     </EmailLayout>
