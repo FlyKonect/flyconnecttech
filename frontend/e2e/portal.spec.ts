@@ -65,24 +65,20 @@ test("a customer sends a request in four steps, with a file", async ({
     .getByRole("link", { name: "Create support request" })
     .click();
 
-  // 1. Project.
+  // One page: submitting it empty shows what's missing.
   await expect(page).toHaveURL(/\/portal\/requests\/new$/);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Submit request" }).click();
   await expect(page.getByText("Choose a project.")).toBeVisible();
-  await page.getByRole("radio", { name: /Bluewave agent portal/ }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  // 2. Type.
-  await expect(
-    page.getByRole("heading", { name: "What kind of request is it?" }),
-  ).toBeFocused();
-  await expect(page.getByText("Project: Bluewave agent portal")).toBeVisible();
-  await page.getByRole("radio", { name: /Bug Report/ }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  // 3. Details.
-  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByText("Choose a request type.")).toBeVisible();
   await expect(page.getByText("Enter a request title")).toBeVisible();
+  await expect(field(page, "Project *")).toBeFocused();
+
+  const project = field(page, "Project *");
+  const option = await project
+    .locator("option", { hasText: "Bluewave agent portal" })
+    .textContent();
+  await project.selectOption({ label: option ?? "" });
+  await page.getByRole("radio", { name: /Bug Report/ }).click();
   await field(page, "Request title").fill(
     "Agent commission report shows wrong totals",
   );
@@ -99,15 +95,6 @@ test("a customer sends a request in four steps, with a file", async ({
     buffer: PNG,
   });
   await expect(page.getByText("report-totals.png")).toBeVisible();
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  // 4. Review, then submit.
-  await expect(
-    page.getByRole("heading", { name: "Review your request" }),
-  ).toBeVisible();
-  await expect(
-    page.getByText("URL: agents.bluewaveholidays.co.uk/reports"),
-  ).toBeVisible();
   await page.getByRole("button", { name: "Submit request" }).click();
 
   // Submitted (screen 11). Sending saves the request, its file and its
@@ -359,7 +346,7 @@ test("phone: the Overview and a request fit the screen", async ({ page }) => {
 
   await page.goto("/portal/requests/new");
   await expect(
-    page.getByRole("heading", { name: "Which project is this about?" }),
+    page.getByRole("heading", { name: "New support request" }),
   ).toBeVisible();
   await expectNoSidewaysScroll(page);
 });

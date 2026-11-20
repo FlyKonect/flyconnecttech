@@ -321,32 +321,20 @@ test("every client portal screen", async ({ page }) => {
     await expectAccessible(page, path);
   }
 
-  // The four steps of New request (their only project is picked already).
+  // New request, one page (their only project is picked already).
   await page.goto("/portal/requests/new");
   await expect(
-    page.getByRole("radio", { name: /Harbour booking website/ }),
+    page.getByRole("heading", { name: "New support request" }),
   ).toBeVisible();
-  await expectAccessible(page, "New request: project");
-  await page.getByRole("radio", { name: /Harbour booking website/ }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(
-    page.getByRole("heading", { name: "What kind of request is it?" }),
-  ).toBeVisible();
-  await expectAccessible(page, "New request: type");
-  await page.getByRole("radio", { name: /Bug Report/ }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
+  await expectAccessible(page, "New request");
+  await page.getByRole("button", { name: "Submit request" }).click();
   await expect(page.getByText("Enter a request title")).toBeVisible();
-  await expectAccessible(page, "New request: details, with errors");
+  await expectAccessible(page, "New request, with errors");
+  await page.getByRole("radio", { name: /Bug Report/ }).click();
   await field(page, "Request title").fill("Prices show in the wrong currency");
   await field(page, "Detailed description").fill(
     "Prices on the search page show in euros, not pounds.",
   );
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Review your request" }),
-  ).toBeVisible();
-  await expectAccessible(page, "New request: review");
   await page.getByRole("button", { name: "Submit request" }).click();
   // Sending saves the request and its emails: slower on a busy machine.
   await expect(page).toHaveURL(/\/portal\/requests\/TKT-[\d-]+\/submitted$/, {

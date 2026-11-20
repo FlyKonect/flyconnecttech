@@ -2,16 +2,16 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { PageLoading } from "@/components/shell/page-loading";
-import { NewRequestWizard } from "@/components/portal/new-request-wizard";
+import { NewRequestForm } from "@/components/portal/new-request-form";
 import { serverApi } from "@/lib/api-server";
 import type { PortalProject } from "@/lib/portal/types";
 
 export const metadata: Metadata = { title: "Create Support Request" };
 
-/** Create support request (screens 07 to 10, phone M3). */
+/** Create support request: one page (replaces the four steps of screens 07 to 10). */
 async function NewRequestPageContent() {
   const projects = await serverApi<PortalProject[]>("/portal/projects");
-  return <NewRequestWizard projects={projects} />;
+  return <NewRequestForm projects={projects} />;
 }
 
 /** Its data loads inside Suspense, so moving between pages is instant. */

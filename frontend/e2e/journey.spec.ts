@@ -113,14 +113,11 @@ test("demo → customer → request → assigned → resolved → confirmed", as
 
   // 3. The customer sends a request (their one project is picked already).
   await customer.goto("/portal/requests/new");
-  await customer.getByRole("button", { name: "Continue" }).click();
   await customer.getByRole("radio", { name: /Bug Report/ }).click();
-  await customer.getByRole("button", { name: "Continue" }).click();
   await field(customer, "Request title").fill("Hotel prices missing on search");
   await field(customer, "Detailed description").fill(
     "Since this morning the search page shows no hotel prices.",
   );
-  await customer.getByRole("button", { name: "Continue" }).click();
   await customer.getByRole("button", { name: "Submit request" }).click();
   // Sending saves the request and its emails: slower on a busy machine.
   await expect(customer).toHaveURL(
