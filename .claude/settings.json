@@ -26,7 +26,7 @@
       "Read(./frontend/.env.local)",
       "Read(./**/.next/**)",
       "Read(./**/.next-e2e/**)",
-      "Read(./**/dist/**)",
+      "Read(./backend/dist/**)",
       "Read(./**/coverage/**)",
       "Read(./**/test-results/**)",
       "Read(./**/playwright-report/**)",
