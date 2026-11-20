@@ -6,6 +6,7 @@ const ROWS = [
   'Customer or team invitation',
   'Password reset requested or sent by admin',
   'Email address changed by an admin',
+  'Account locked after wrong passwords',
   'New support request',
   'Request assigned or transferred',
   'Team reply to customer',

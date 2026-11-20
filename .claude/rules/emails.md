@@ -13,6 +13,7 @@ Every row of docs/01 §7, where it is sent from, what it follows, and where it i
 
 | §7 row | In-app | Email | Sent from | Follows | Tested in |
 |---|---|---|---|---|---|
+| Account locked after 10 wrong passwords (added in the audit) | — | The owner, with a link to Forgot password | `auth/locked-notice.tsx` | — | `accounts` |
 | Email address changed by an admin (added in the audit) | — | New address: confirm link (48 h); old address: notice once confirmed | `accounts/email-change.service.tsx` | — | `customers` |
 | Customer or team invitation | — | Invitee (48-hour link) | `accounts/invitations.service.tsx` | — | `accounts`, `customers` db tests |
 | Password reset requested or sent by admin | — | The person | `accounts/password-reset.service.tsx` | — | `accounts`, `customers` |

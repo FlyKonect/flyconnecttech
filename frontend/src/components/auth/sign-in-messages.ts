@@ -5,8 +5,13 @@ import { routes } from "@/lib/routes";
 /** A sentence for a failed Better Auth call (sign in, codes). */
 export function authErrorMessage(error: {
   status?: number;
+  code?: string;
   message?: string;
 }): string {
+  // 10 wrong passwords in 15 minutes (the backend's sign-in-lock.ts).
+  if (error.code === "ACCOUNT_LOCKED") {
+    return "Too many wrong passwords. This account is locked for 15 minutes. Try again later, or reset your password.";
+  }
   if (error.status === 429) {
     return "Too many attempts. Please wait a minute and try again.";
   }

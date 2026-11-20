@@ -10,6 +10,7 @@ import {
 import type { Env } from '../config/env.js';
 import type { AccountSide, PrismaClient } from '../generated/prisma/client.js';
 import { authOptions } from './auth-options.js';
+import { afterFailure, isLocked, LOCKED_MESSAGE } from './sign-in-lock.js';
 
 /** Where Better Auth's own routes live: /api/auth/sign-in/email and so on. */
 export const AUTH_BASE_PATH = '/api/auth';
@@ -60,7 +61,18 @@ export type AuthEnv = Pick<
   | 'RATE_LIMITS'
 >;
 
-export function createAuth(prisma: PrismaClient, env: AuthEnv) {
+/** Someone whose account was just locked (sign-in-lock.ts): tell them. */
+export type LockedAccount = {
+  name: string;
+  email: string;
+  side: AccountSide;
+};
+
+export function createAuth(
+  prisma: PrismaClient,
+  env: AuthEnv,
+  options: { onLocked?: (account: LockedAccount) => Promise<void> } = {},
+) {
   return betterAuth({
     ...authOptions,
     database: prismaAdapter(prisma, { provider: 'mysql' }),
@@ -75,7 +87,9 @@ export function createAuth(prisma: PrismaClient, env: AuthEnv) {
     },
     rateLimit: {
       enabled: env.RATE_LIMITS,
-      storage: 'memory',
+      // In the database (rate_limits), so every app process and every
+      // restart count the same tries.
+      storage: 'database',
       window: 60,
       max: 100,
       // Password and code guessing: a few tries a minute per address.
@@ -109,9 +123,54 @@ export function createAuth(prisma: PrismaClient, env: AuthEnv) {
           email,
           sideFromHeader(ctx.headers?.get(SIDE_HEADER)),
         );
-        return {
-          context: { body: { ...body, email: loginKeyFor(email, side) } },
-        };
+        const key = loginKeyFor(email, side);
+        const account = await prisma.user.findUnique({
+          where: { loginEmail: key },
+          select: { lockedUntil: true },
+        });
+        if (account && isLocked(account.lockedUntil, new Date())) {
+          throw new APIError('FORBIDDEN', {
+            code: 'ACCOUNT_LOCKED',
+            message: LOCKED_MESSAGE,
+          });
+        }
+        return { context: { body: { ...body, email: key } } };
+      }),
+      // Counts wrong passwords per account, and locks it after too many.
+      after: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== '/sign-in/email') return;
+        const key = (ctx.body as { email?: unknown } | undefined)?.email;
+        if (typeof key !== 'string') return;
+        const returned = ctx.context.returned;
+        const failed =
+          returned instanceof APIError && returned.statusCode === 401;
+        if (!failed) {
+          if (!(returned instanceof APIError)) {
+            await prisma.user.updateMany({
+              where: { loginEmail: key, failedSignIns: { gt: 0 } },
+              data: { failedSignIns: 0, failedSignInsSince: null },
+            });
+          }
+          return;
+        }
+        const account = await prisma.user.findUnique({
+          where: { loginEmail: key },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            side: true,
+            failedSignIns: true,
+            failedSignInsSince: true,
+            lockedUntil: true,
+          },
+        });
+        if (!account) return;
+        const { locked, ...next } = afterFailure(account, new Date());
+        await prisma.user.update({ where: { id: account.id }, data: next });
+        if (locked && options.onLocked) {
+          await options.onLocked(account).catch(() => undefined);
+        }
       }),
     },
     databaseHooks: {

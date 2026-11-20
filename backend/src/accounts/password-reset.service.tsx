@@ -138,6 +138,11 @@ export class PasswordResetService {
       if (updated.count !== 1) throw linkGone();
 
       await tx.session.deleteMany({ where: { userId: user.id } });
+      // A new password also lifts the lock after wrong passwords.
+      await tx.user.update({
+        where: { id: user.id },
+        data: { failedSignIns: 0, failedSignInsSince: null, lockedUntil: null },
+      });
       return { area: user.role === 'CUSTOMER' ? 'portal' : 'team' } as const;
     }, ACCOUNT_TX);
   }

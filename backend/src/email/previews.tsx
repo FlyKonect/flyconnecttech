@@ -4,6 +4,10 @@ import {
   dailyDigestSubject,
 } from './templates/daily-digest.js';
 import {
+  AccountLockedEmail,
+  accountLockedSubject,
+} from './templates/account-locked.js';
+import {
   EmailChangedEmail,
   emailChangedSubject,
   EmailChangeEmail,
@@ -194,6 +198,20 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
         siteUrl={siteUrl}
         firstName="Sarah"
         newEmail="sarah@bluewaveholidays.co.uk"
+      />
+    ),
+  },
+
+  {
+    key: 'account-locked',
+    row: 'Account locked after wrong passwords',
+    to: 'The account owner, after 10 wrong passwords in 15 minutes',
+    subject: accountLockedSubject,
+    render: (siteUrl) => (
+      <AccountLockedEmail
+        siteUrl={siteUrl}
+        firstName="Sarah"
+        resetLink={`${siteUrl}/portal/forgot-password`}
       />
     ),
   },

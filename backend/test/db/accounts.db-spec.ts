@@ -407,6 +407,46 @@ describe('disabled accounts', () => {
   });
 });
 
+describe('the account lock after wrong passwords', () => {
+  it('locks after 10 wrong passwords, emails the owner, and a reset lifts it', async () => {
+    const { userId, email } = await inviteAndActivate('CUSTOMER', {
+      company: 'Locked Ltd',
+    });
+    // A right password in between starts the count again.
+    for (let i = 0; i < 5; i += 1) await signIn(email, 'Wrong-pass-123');
+    await signIn(email).expect(200);
+    expect(
+      (await prisma.user.findUniqueOrThrow({ where: { id: userId } }))
+        .failedSignIns,
+    ).toBe(0);
+
+    for (let i = 0; i < 10; i += 1) {
+      await signIn(email, 'Wrong-pass-123').expect(401);
+    }
+    // Now even the right password is refused, with a clear reason.
+    const locked = await signIn(email).expect(403);
+    expect(JSON.stringify(locked.body)).toContain('locked for 15 minutes');
+    expect(
+      sent.some(
+        (item) =>
+          item.to === email && item.subject.includes('account was locked'),
+      ),
+    ).toBe(true);
+
+    // A new password lifts the lock.
+    await http()
+      .post('/accounts/password/forgot')
+      .send({ email, side: 'customer' })
+      .expect(202);
+    const token = lastLink(email, '/reset-password/');
+    await http()
+      .post(`/accounts/password/reset/${token}`)
+      .send({ password: 'Brand-new-pass-2027' })
+      .expect(200);
+    await signIn(email, 'Brand-new-pass-2027').expect(200);
+  });
+});
+
 describe('permissions on the server', () => {
   it('a developer may not send a reset link; an admin may', async () => {
     const developer = await teamMemberWithTwoFactor('DEVELOPER');
