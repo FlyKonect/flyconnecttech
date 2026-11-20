@@ -16,6 +16,8 @@ import {
 } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { OPEN_STATUSES } from '../requests/status-rules.js';
+import { SettingsService } from '../settings/settings.service.js';
+import { AccountDeletionService } from './account-deletion.service.js';
 import { InvitationsService } from './invitations.service.js';
 import { RESET_LINK_PREFIX } from './password-reset.service.js';
 
@@ -49,6 +51,8 @@ export class TeamUsersService {
     private readonly prisma: PrismaService,
     private readonly invitations: InvitationsService,
     private readonly audit: AuditService,
+    private readonly deletion: AccountDeletionService,
+    private readonly settings: SettingsService,
   ) {}
 
   async list(actor: SignedIn) {
@@ -153,13 +157,15 @@ export class TeamUsersService {
 
   /**
    * Disable user: they are signed out everywhere at once, can't sign in
-   * again, and any open invitation or reset link stops working. Their
-   * requests stay assigned to them until someone transfers them.
+   * again, and any open invitation or reset link stops working. Their open
+   * requests go to `transferTo` (an active developer) or back to Under
+   * Review unassigned, and their open leads go back to nobody, so no work
+   * waits on someone who has left.
    */
-  async disable(actor: SignedIn, userId: string) {
+  async disable(actor: SignedIn, userId: string, transferTo?: string | null) {
     const target = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, role: true, status: true },
+      select: { id: true, name: true, email: true, role: true, status: true },
     });
     if (!target || target.role === 'CUSTOMER' || target.status === 'DELETED') {
       throw new NotFoundException();
@@ -178,6 +184,25 @@ export class TeamUsersService {
     }
     if (target.status === 'DISABLED') return { ok: true };
 
+    const receiver = transferTo
+      ? await this.prisma.user.findFirst({
+          where: {
+            id: transferTo,
+            role: 'DEVELOPER',
+            status: 'ACTIVE',
+            NOT: { id: target.id },
+          },
+          select: { id: true, name: true },
+        })
+      : null;
+    if (transferTo && !receiver) {
+      throw new ConflictException({
+        code: 'NOT_A_DEVELOPER',
+        message: 'Choose an active developer to take over the requests.',
+      });
+    }
+
+    const targets = await this.settings.get('responseTargets');
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const changed = await tx.user.updateMany({
@@ -186,6 +211,14 @@ export class TeamUsersService {
       });
       // Someone else disabled them a moment ago.
       if (changed.count !== 1) return;
+      const moved = await this.deletion.releaseWork(tx, {
+        target,
+        actor,
+        reason: 'disabled',
+        now,
+        targets,
+        transferTo: receiver,
+      });
       await tx.session.deleteMany({ where: { userId: target.id } });
       await tx.invitation.updateMany({
         where: { userId: target.id, usedAt: null, revokedAt: null },
@@ -203,7 +236,14 @@ export class TeamUsersService {
           action: 'user.disabled',
           entityType: 'user',
           entityId: target.id,
-          data: { email: target.email, role: target.role, was: target.status },
+          data: {
+            email: target.email,
+            role: target.role,
+            was: target.status,
+            ...(receiver
+              ? { transferredRequests: moved, transferredTo: receiver.id }
+              : { unassignedRequests: moved }),
+          },
         },
         tx,
       );

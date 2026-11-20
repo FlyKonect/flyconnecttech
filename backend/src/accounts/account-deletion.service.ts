@@ -7,6 +7,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import { Prisma } from '../generated/prisma/client.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 import { canInviteRole } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -39,6 +40,7 @@ export class AccountDeletionService {
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /**
@@ -70,37 +72,12 @@ export class AccountDeletionService {
     const targets = await this.settings.get('responseTargets');
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
-      const line = `Unassigned because ${target.name}'s account was deleted`;
-      const assigned = await tx.supportRequest.findMany({
-        where: { assigneeId: target.id, status: { in: [...OPEN_STATUSES] } },
-        select: stateSelect,
-      });
-      for (const request of assigned) {
-        await tx.supportRequest.update({
-          where: { id: request.id },
-          data: { assigneeId: null },
-        });
-        await this.backToReview(tx, request, line, actor.id, now, targets);
-      }
-
-      await tx.demoRequest.updateMany({
-        where: { ownerId: target.id, status: { in: ['NEW', 'SCHEDULED'] } },
-        data: { ownerId: null },
-      });
-      await tx.demoRequest.updateMany({
-        where: { hostId: target.id, status: { in: ['NEW', 'SCHEDULED'] } },
-        data: { hostId: null },
-      });
-      await tx.quoteRequest.updateMany({
-        where: {
-          ownerId: target.id,
-          status: { in: ['NEW', 'REVIEWING', 'ESTIMATE_SENT'] },
-        },
-        data: { ownerId: null },
-      });
-      await tx.contactMessage.updateMany({
-        where: { ownerId: target.id, status: { in: ['NEW', 'REPLIED'] } },
-        data: { ownerId: null },
+      const assigned = await this.releaseWork(tx, {
+        target,
+        actor,
+        reason: 'deleted',
+        now,
+        targets,
       });
 
       await this.erase(tx, target, now);
@@ -114,7 +91,7 @@ export class AccountDeletionService {
             email: target.email,
             role: target.role,
             was: target.status,
-            unassignedRequests: assigned.map((request) => request.code),
+            unassignedRequests: assigned,
           },
         },
         tx,
@@ -184,6 +161,78 @@ export class AccountDeletionService {
   }
 
   /** Under Review, with a line saying why; already there: just the line. */
+  /**
+   * A team member leaves (deleted or disabled): their open requests go to
+   * another active developer (transferTo), or become unassigned and go
+   * back to Under Review, each with a line in the conversation. Open leads
+   * they owned and demos they hosted go back to nobody. Returns the codes
+   * of the requests that moved.
+   */
+  async releaseWork(
+    tx: Prisma.TransactionClient,
+    work: {
+      target: { id: string; name: string };
+      actor: SignedIn;
+      reason: 'deleted' | 'disabled';
+      now: Date;
+      targets: ResponseTargets;
+      transferTo?: { id: string; name: string } | null;
+    },
+  ): Promise<string[]> {
+    const { target, actor, reason, now, targets, transferTo } = work;
+    const assigned = await tx.supportRequest.findMany({
+      where: { assigneeId: target.id, status: { in: [...OPEN_STATUSES] } },
+      select: stateSelect,
+    });
+    for (const request of assigned) {
+      await tx.supportRequest.update({
+        where: { id: request.id },
+        data: { assigneeId: transferTo?.id ?? null },
+      });
+      if (transferTo) {
+        const line = `Transferred from ${target.name} to ${transferTo.name} by ${actor.name} (${target.name}'s account was ${reason})`;
+        await systemLine(tx, request.id, line, now);
+      } else {
+        const line = `Unassigned because ${target.name}'s account was ${reason}`;
+        await this.backToReview(tx, request, line, actor.id, now, targets);
+      }
+    }
+    if (transferTo && assigned.length > 0) {
+      const count = assigned.length;
+      const what = count === 1 ? '1 request' : `${count} requests`;
+      await this.notifications.notify(
+        [transferTo.id],
+        {
+          kind: 'info',
+          text: `${what} transferred to you from ${target.name}`,
+          href: '/team/requests',
+        },
+        tx,
+      );
+    }
+
+    await tx.demoRequest.updateMany({
+      where: { ownerId: target.id, status: { in: ['NEW', 'SCHEDULED'] } },
+      data: { ownerId: null },
+    });
+    await tx.demoRequest.updateMany({
+      where: { hostId: target.id, status: { in: ['NEW', 'SCHEDULED'] } },
+      data: { hostId: null },
+    });
+    await tx.quoteRequest.updateMany({
+      where: {
+        ownerId: target.id,
+        status: { in: ['NEW', 'REVIEWING', 'ESTIMATE_SENT'] },
+      },
+      data: { ownerId: null },
+    });
+    await tx.contactMessage.updateMany({
+      where: { ownerId: target.id, status: { in: ['NEW', 'REPLIED'] } },
+      data: { ownerId: null },
+    });
+    return assigned.map((request) => request.code);
+  }
+
   private async backToReview(
     tx: Prisma.TransactionClient,
     request: Prisma.SupportRequestGetPayload<{ select: typeof stateSelect }>,

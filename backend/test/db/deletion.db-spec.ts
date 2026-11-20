@@ -374,6 +374,75 @@ describe('deleting a team member', () => {
   });
 });
 
+describe('disabling a team member: their open work', () => {
+  /** A developer with one In Progress request assigned to them. */
+  async function busyDeveloper(name: string, company: string) {
+    const customer = await customerWithProject(`${name} client`, company);
+    const developer = await person('DEVELOPER', name);
+    const code = await newRequest(customer, `${company} search is slow`);
+    await as(admin)
+      .post(`/team/requests/${code}/assign`, { developerId: developer.id })
+      .expect(200);
+    await as(developer)
+      .post(`/team/requests/${code}/status`, { status: 'IN_PROGRESS' })
+      .expect(200);
+    return { developer, code };
+  }
+
+  it('with no one chosen: the requests go back to Under Review, unassigned', async () => {
+    const { developer, code } = await busyDeveloper('Nadia Rahman', 'Kestrel');
+    await as(admin).post(`/team/users/${developer.id}/disable`).expect(200);
+
+    const request = await stored(code);
+    expect(request.assigneeId).toBeNull();
+    expect(request.status).toBe('UNDER_REVIEW');
+    expect(request.messages.at(-1)).toMatchObject({
+      kind: 'SYSTEM',
+      body: "Unassigned because Nadia Rahman's account was disabled",
+    });
+    const audit = await prisma.auditLog.findFirstOrThrow({
+      where: { action: 'user.disabled', entityId: developer.id },
+    });
+    expect(audit.data).toMatchObject({ unassignedRequests: [code] });
+  });
+
+  it('with a developer chosen: the requests move to them, who is told', async () => {
+    const { developer, code } = await busyDeveloper('Leo Grant', 'Osprey');
+    const next = await person('DEVELOPER', 'Maya Chen');
+
+    // Only an active developer, never the person being disabled.
+    const wrong = await as(admin)
+      .post(`/team/users/${developer.id}/disable`, { transferTo: manager.id })
+      .expect(409);
+    expect(wrong.body.code).toBe('NOT_A_DEVELOPER');
+    await as(admin)
+      .post(`/team/users/${developer.id}/disable`, {
+        transferTo: developer.id,
+      })
+      .expect(409);
+    expect((await stored(code)).assigneeId).toBe(developer.id);
+
+    await as(admin)
+      .post(`/team/users/${developer.id}/disable`, { transferTo: next.id })
+      .expect(200);
+    const request = await stored(code);
+    expect(request.assigneeId).toBe(next.id);
+    expect(request.status).toBe('IN_PROGRESS');
+    expect(request.messages.at(-1)).toMatchObject({
+      kind: 'SYSTEM',
+      body: "Transferred from Leo Grant to Maya Chen by Emma Clarke (Leo Grant's account was disabled)",
+    });
+    const told = await prisma.notification.findFirst({
+      where: {
+        userId: next.id,
+        text: '1 request transferred to you from Leo Grant',
+      },
+    });
+    expect(told).not.toBeNull();
+    await as(next).get(`/team/requests/${code}`).expect(200);
+  });
+});
+
 describe('deleting a customer', () => {
   it('ends the contact account, closes open requests, hides the customer and can be restored', async () => {
     // The test database keeps every run's customers: a name of its own.

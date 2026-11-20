@@ -16,6 +16,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Field, Select } from "@/components/ui/field";
 import { LabelPill } from "@/components/ui/pill";
 import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
 import { useToast } from "@/components/ui/toast";
@@ -184,6 +185,12 @@ export function UsersTable({
       {disabling ? (
         <DisableDialog
           user={disabling}
+          developers={rows.filter(
+            (row) =>
+              row.role === "DEVELOPER" &&
+              row.status === "ACTIVE" &&
+              row.id !== disabling.id,
+          )}
           onClose={() => setDisabling(null)}
           onDone={() => {
             toast(`${disabling.name} is disabled`);
@@ -221,25 +228,37 @@ function Person({ user }: { user: TeamUserRow }) {
   );
 }
 
-/** "Disable {name}?" with what happens, then Disable user. */
+/**
+ * "Disable {name}?" with what happens, then Disable user. A developer's
+ * open requests go to the developer chosen here, or back to Under Review
+ * unassigned, so no work waits on someone who has left.
+ */
 function DisableDialog({
   user,
+  developers,
   onClose,
   onDone,
 }: {
   user: TeamUserRow;
+  /** Active developers who could take over (not this person). */
+  developers: TeamUserRow[];
   onClose: () => void;
   onDone: () => void;
 }) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [transferTo, setTransferTo] = React.useState("");
   const first = user.name.split(/\s+/)[0] || user.name;
+  const open = user.openAssigned ?? 0;
 
   async function disable() {
     setBusy(true);
     setError("");
     try {
-      await apiFetch(`/team/users/${user.id}/disable`, { method: "POST" });
+      await apiFetch(`/team/users/${user.id}/disable`, {
+        method: "POST",
+        body: { transferTo: transferTo || null },
+      });
       onDone();
     } catch (failed) {
       setError(apiErrorMessage(failed));
@@ -256,11 +275,30 @@ function DisableDialog({
             ? `Their invitation link stops working and ${first} can't activate the account.`
             : `${first} is signed out at once and can't sign in again.`}
         </DialogDescription>
-        {user.openAssigned ? (
-          <p className="mt-4 rounded-[14px] border border-[#FDE68A] bg-[#FFFBEB] px-3.5 py-3 text-sm leading-[1.55] text-[#92400E]">
-            {plural(user.openAssigned, "open request")} stay assigned to {first}
-            . Transfer them to another developer from each request&apos;s page.
-          </p>
+        {open > 0 ? (
+          <div className="mt-4 flex flex-col gap-3 rounded-[14px] border border-[#FDE68A] bg-[#FFFBEB] px-3.5 py-3">
+            <p className="text-sm leading-[1.55] text-[#92400E]">
+              {first} has {plural(open, "open request")}.{" "}
+              {transferTo
+                ? "They move to the developer chosen below, who is notified."
+                : "They go back to Under Review, unassigned, for the team to pick up."}
+            </p>
+            {developers.length > 0 ? (
+              <Field label="Who takes over">
+                <Select
+                  value={transferTo}
+                  onChange={(event) => setTransferTo(event.target.value)}
+                >
+                  <option value="">Nobody: leave them unassigned</option>
+                  {developers.map((developer) => (
+                    <option key={developer.id} value={developer.id}>
+                      {developer.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ) : null}
+          </div>
         ) : null}
         {error ? (
           <div className="mt-4">

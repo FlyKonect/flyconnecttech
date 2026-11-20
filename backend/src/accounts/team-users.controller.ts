@@ -18,6 +18,11 @@ import { InvitationsService } from './invitations.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { TeamUsersService } from './team-users.service.js';
 
+/** Disable user: who takes over their open requests (none: unassigned). */
+const disableSchema = z
+  .object({ transferTo: z.string().max(36).nullish() })
+  .optional();
+
 const newUserSchema = z.object({
   name: z.string().trim().min(1, 'Enter their name').max(120),
   email: z.email('Enter a valid email address').max(191),
@@ -65,11 +70,16 @@ export class TeamUsersController {
     return this.users.invite(actor, body);
   }
 
+  /** Body (optional): `transferTo`, the developer who takes over their open requests. */
   @Can('users.invite')
   @Post(':id/disable')
   @HttpCode(200)
-  disable(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
-    return this.users.disable(actor, id);
+  disable(
+    @CurrentUser() actor: SignedIn,
+    @Param('id') id: string,
+    @Body({ schema: disableSchema }) body: z.infer<typeof disableSchema>,
+  ) {
+    return this.users.disable(actor, id, body?.transferTo);
   }
 
   /**
