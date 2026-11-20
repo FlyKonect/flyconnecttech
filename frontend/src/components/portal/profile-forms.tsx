@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  BellRing,
+  Check,
+  KeyRound,
+  Lock,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
 import { useNewPassword } from "@/components/auth/new-password-fields";
@@ -91,25 +99,30 @@ export function ProfileForm(props: ProfileFormProps) {
   return (
     <section
       aria-label="Your profile"
-      className="min-w-0 flex-[1.4_1_440px] rounded-[22px] border border-line-2 bg-white p-6"
+      className="min-w-0 flex-[1.4_1_440px] overflow-hidden rounded-[22px] border border-line-2 bg-white shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
     >
-      <div className="flex items-center gap-4">
-        <Avatar
-          name={profile.name}
-          className="size-16 font-heading text-[22px]"
-        />
-        <div className="min-w-0">
-          <h2 className="font-heading text-xl font-bold break-words">
-            {profile.name}
-          </h2>
-          {subtitle ? (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          ) : null}
+      {/* Header band: who this is, at a glance. */}
+      <div className="relative bg-[linear-gradient(120deg,#021A54_0%,#0C3584_100%)] px-6 pt-6 pb-5 text-white">
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar
+            name={profile.name}
+            tone="gold"
+            className="size-16 font-heading text-[22px] ring-4 ring-white/15"
+          />
+          <div className="min-w-0 flex-1">
+            <h2 className="font-heading text-xl font-bold break-words">
+              {profile.name}
+            </h2>
+            {subtitle ? (
+              <p className="text-sm text-on-navy">{subtitle}</p>
+            ) : null}
+          </div>
         </div>
       </div>
 
-      <form onSubmit={save} noValidate>
-        <div className="mt-[22px] grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+      <form onSubmit={save} noValidate className="p-6">
+        <SectionTitle icon={UserRound}>Personal details</SectionTitle>
+        <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
           <Field label="Full name" error={errors.name?.message}>
             <Input
               className="h-12"
@@ -117,12 +130,6 @@ export function ProfileForm(props: ProfileFormProps) {
               {...form.register("name")}
             />
           </Field>
-          {props.area === "team" ? (
-            <ReadOnly label="Role" value={roles[props.profile.role].label} />
-          ) : (
-            <ReadOnly label="Company" value={props.profile.company ?? ""} />
-          )}
-          <ReadOnly label="Email" value={profile.email} />
           <Field label="Phone" error={errors.phone?.message}>
             <Input
               className="h-12"
@@ -148,27 +155,56 @@ export function ProfileForm(props: ProfileFormProps) {
             </Select>
           </Field>
         </div>
-        <p className="mt-3 text-[13px] text-muted-foreground">
-          {isTeam
-            ? "Your email, role and job title were set when your account was created. Ask a super admin or admin if any needs to change."
-            : "Your company and email were set when the FlyConnect Tech team created your account. Ask them if either needs to change."}
-        </p>
+
+        <div className="mt-6 border-t border-line-3 pt-5">
+          <SectionTitle icon={Lock}>Account</SectionTitle>
+          <div className="mt-3.5 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+            <ReadOnly label="Email" value={profile.email} />
+            {props.area === "team" ? (
+              <>
+                <ReadOnly
+                  label="Role"
+                  value={roles[props.profile.role].label}
+                />
+                {props.profile.jobTitle ? (
+                  <ReadOnly label="Job title" value={props.profile.jobTitle} />
+                ) : null}
+              </>
+            ) : (
+              <ReadOnly label="Company" value={props.profile.company ?? ""} />
+            )}
+          </div>
+          <p className="mt-3 text-[13px] text-muted-foreground">
+            {isTeam
+              ? "Your email, role and job title were set when your account was created. Ask a super admin or admin if any needs to change."
+              : "Your company and email were set when the FlyConnect Tech team created your account. Ask them if either needs to change."}
+          </p>
+        </div>
 
         {isTeam ? null : (
-          <fieldset className="mt-[22px]">
-            <legend className="mb-2.5 text-[15px] font-bold">
-              Email me when
-            </legend>
-            <div className="flex flex-col gap-2.5 [&_label]:text-ink-2">
-              <Checkbox {...form.register("emailPrefs.replies")}>
-                The team replies to my request
-              </Checkbox>
-              <Checkbox {...form.register("emailPrefs.statusChanges")}>
-                A status changes or more information is needed
-              </Checkbox>
-              <Checkbox {...form.register("emailPrefs.weeklySummary")}>
-                Weekly summary of my requests
-              </Checkbox>
+          <fieldset className="mt-6 border-t border-line-3 pt-5">
+            <legend className="sr-only">Email me when</legend>
+            <SectionTitle icon={BellRing}>Email me when</SectionTitle>
+            <div className="mt-3.5 flex flex-col gap-2 [&_label]:text-ink-2">
+              {(
+                [
+                  ["replies", "The team replies to my request"],
+                  [
+                    "statusChanges",
+                    "A status changes or more information is needed",
+                  ],
+                  ["weeklySummary", "Weekly summary of my requests"],
+                ] as const
+              ).map(([key, text]) => (
+                <div
+                  key={key}
+                  className="rounded-[14px] border border-line-2 px-4 py-3 transition-colors hover:bg-[#F9FBFE]"
+                >
+                  <Checkbox {...form.register(`emailPrefs.${key}`)}>
+                    {text}
+                  </Checkbox>
+                </div>
+              ))}
             </div>
           </fieldset>
         )}
@@ -178,16 +214,39 @@ export function ProfileForm(props: ProfileFormProps) {
             <FormError>{error}</FormError>
           </div>
         ) : null}
-        <Button
-          type="submit"
-          size="lg"
-          className="mt-[22px]"
-          disabled={form.formState.isSubmitting}
-        >
-          {form.formState.isSubmitting ? "Saving…" : "Save changes"}
-        </Button>
+        <div className="mt-6 flex justify-end border-t border-line-3 pt-5">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={form.formState.isSubmitting}
+          >
+            <Check aria-hidden="true" className="size-4" />
+            {form.formState.isSubmitting ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
       </form>
     </section>
+  );
+}
+
+/** A small section heading inside a profile card, with its icon. */
+function SectionTitle({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: React.ReactNode;
+}) {
+  return (
+    <h3 className="flex items-center gap-2 text-[15px] font-bold">
+      <span
+        aria-hidden="true"
+        className="inline-flex size-7 items-center justify-center rounded-lg bg-tint text-navy-700"
+      >
+        <Icon className="size-4" strokeWidth={2} />
+      </span>
+      {children}
+    </h3>
   );
 }
 
@@ -197,9 +256,13 @@ function ReadOnly({ label, value }: { label: string; value: string }) {
       <p className="text-[13px] font-bold">{label}</p>
       <p
         title={value}
-        className="flex h-12 items-center truncate rounded-[14px] border border-line-2 bg-[#F6F8FC] px-3.5 text-[15px] font-medium text-body"
+        className="flex h-12 items-center gap-2 truncate rounded-[10px] border border-line-2 bg-[#F6F8FC] px-3.5 text-[15px] font-medium text-body"
       >
-        <span className="truncate">{value}</span>
+        <span className="min-w-0 flex-1 truncate">{value}</span>
+        <Lock
+          aria-hidden="true"
+          className="size-3.5 shrink-0 text-muted-foreground"
+        />
       </p>
     </div>
   );
@@ -212,11 +275,24 @@ export function ChangePasswordCard() {
   return (
     <section
       aria-labelledby="change-password"
-      className="min-w-0 flex-[1_1_300px] rounded-[22px] border border-line-2 bg-white p-6"
+      className="min-w-0 flex-[1_1_300px] rounded-[22px] border border-line-2 bg-white p-6 shadow-[0_1px_2px_rgba(2,26,84,0.04)] app:sticky app:top-[96px]"
     >
-      <h2 id="change-password" className="text-[17px] font-bold">
-        Change password
-      </h2>
+      <div className="flex items-start gap-3">
+        <span
+          aria-hidden="true"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gold/15 text-gold-text"
+        >
+          <KeyRound className="size-[21px]" strokeWidth={1.9} />
+        </span>
+        <div>
+          <h2 id="change-password" className="text-[17px] font-bold">
+            Change password
+          </h2>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
+            Changing it signs you out on your other devices.
+          </p>
+        </div>
+      </div>
       <ChangePasswordForm
         key={version}
         onChanged={() => setVersion((v) => v + 1)}
