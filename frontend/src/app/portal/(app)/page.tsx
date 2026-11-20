@@ -4,6 +4,10 @@ import Link from "next/link";
 
 import { PageLoading } from "@/components/shell/page-loading";
 import { Button, TextLink } from "@/components/ui/button";
+import {
+  DashboardHero,
+  StatusBreakdown,
+} from "@/components/team/dashboard-parts";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { LabelPill } from "@/components/ui/pill";
 import { serverApi } from "@/lib/api-server";
@@ -39,35 +43,30 @@ async function PortalOverviewPageContent() {
 
   return (
     <>
-      <section className="relative flex flex-wrap items-center justify-between gap-5 overflow-hidden rounded-3xl bg-[radial-gradient(90%_140%_at_88%_0%,#0C3584_0%,#021A54_55%,#01123D_100%)] p-[clamp(22px,3vw,32px)] text-white">
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-gold">
-            {formatLongDate(now, zone)}
-          </p>
-          <h1 className="mt-1.5 font-heading text-[clamp(26px,3vw,36px)] leading-[1.15] font-bold tracking-[-0.03em]">
-            {greeting(now, zone)}, {firstName}
-          </h1>
-          <p className="mt-2 text-base text-on-navy">
+      <DashboardHero
+        date={formatLongDate(now, zone)}
+        title={`${greeting(now, zone)}, ${firstName}`}
+        subline={
+          <>
             {counts.waiting === 0
               ? "No requests need your response."
-              : `${counts.waiting} request${counts.waiting > 1 ? "s are" : " is"} waiting for your response.`}
-          </p>
-          <Link
-            href={routes.contact}
-            className="mt-2 inline-flex min-h-9 items-center text-sm font-bold text-gold-on-navy hover:underline"
-          >
-            Planning a new project? Request a quote →
-          </Link>
-        </div>
-        <div className="flex flex-wrap gap-2.5">
-          <Button asChild variant="gold" size="lg">
-            <Link href={routes.portalNewRequest}>Create support request</Link>
-          </Button>
-          <Button asChild variant="ghostOnNavy" size="lg">
-            <Link href={routes.portalRequests}>View my requests</Link>
-          </Button>
-        </div>
-      </section>
+              : `${counts.waiting} request${counts.waiting > 1 ? "s are" : " is"} waiting for your response.`}{" "}
+            <Link
+              href={routes.contact}
+              className="font-bold text-gold-text hover:underline"
+            >
+              Planning a new project? Request a quote →
+            </Link>
+          </>
+        }
+      >
+        <Button asChild size="lg">
+          <Link href={routes.portalNewRequest}>Create support request</Link>
+        </Button>
+        <Button asChild variant="outline" size="lg">
+          <Link href={routes.portalRequests}>View my requests</Link>
+        </Button>
+      </DashboardHero>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5 max-app:grid-cols-2">
         <KpiTile label="Total requests" value={counts.total} />
@@ -81,10 +80,10 @@ async function PortalOverviewPageContent() {
         <KpiTile label="Resolved" value={counts.resolved} tone="success" />
       </div>
 
-      <div className="flex flex-wrap items-start gap-5">
+      <div className="grid items-start gap-5 min-[1180px]:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)]">
         <section
           aria-labelledby="recent-requests"
-          className="min-w-0 flex-[1.6_1_480px] rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
+          className="min-w-0 rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
         >
           <div className="flex items-center justify-between gap-3">
             <h2 id="recent-requests" className="text-[17px] font-bold">
@@ -125,41 +124,74 @@ async function PortalOverviewPageContent() {
           )}
         </section>
 
-        <section
-          aria-labelledby="recent-activity"
-          className="min-w-0 flex-[1_1_300px] rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
-        >
-          <h2 id="recent-activity" className="text-[17px] font-bold">
-            Recent activity
-          </h2>
-          {activity.items.length === 0 ? (
-            <p className="mt-3.5 text-sm text-muted-foreground">
-              Nothing new yet.
-            </p>
-          ) : (
-            <ul className="mt-3.5 flex flex-col gap-4">
-              {activity.items.map((item) => (
-                <li key={item.id}>
-                  <Link href={item.href} className="flex gap-3 hover:underline">
-                    <span
-                      aria-hidden="true"
-                      className="mt-[5px] size-2.5 shrink-0 rounded-full"
-                      style={{ background: notificationDots[item.kind] }}
-                    />
-                    <span>
-                      <span className="block text-sm leading-[1.45] font-semibold">
-                        {item.text}
+        <div className="flex min-w-0 flex-col gap-5">
+          <StatusBreakdown
+            title="My requests by status"
+            slices={[
+              {
+                label: "In progress",
+                value: counts.inProgress,
+                colour: "#2563EB",
+              },
+              {
+                label: "Waiting for you",
+                value: counts.waiting,
+                colour: "#EA580C",
+              },
+              {
+                label: "Sent, not started yet",
+                value: Math.max(
+                  0,
+                  counts.open - counts.inProgress - counts.waiting,
+                ),
+                colour: "#0C3584",
+              },
+              {
+                label: "Resolved or closed",
+                value: Math.max(0, counts.total - counts.open),
+                colour: "#16A34A",
+              },
+            ]}
+          />
+          <section
+            aria-labelledby="recent-activity"
+            className="min-w-0 rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
+          >
+            <h2 id="recent-activity" className="text-[17px] font-bold">
+              Recent activity
+            </h2>
+            {activity.items.length === 0 ? (
+              <p className="mt-3.5 text-sm text-muted-foreground">
+                Nothing new yet.
+              </p>
+            ) : (
+              <ul className="mt-3.5 flex flex-col gap-4">
+                {activity.items.map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      href={item.href}
+                      className="flex gap-3 hover:underline"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="mt-[5px] size-2.5 shrink-0 rounded-full"
+                        style={{ background: notificationDots[item.kind] }}
+                      />
+                      <span>
+                        <span className="block text-sm leading-[1.45] font-semibold">
+                          {item.text}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          {formatShortWhen(item.createdAt, zone, now)}
+                        </span>
                       </span>
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
-                        {formatShortWhen(item.createdAt, zone, now)}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
       </div>
     </>
   );

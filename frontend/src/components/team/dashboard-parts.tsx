@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CalendarDays, LayoutDashboard } from "lucide-react";
 
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill, Pill } from "@/components/ui/pill";
@@ -33,25 +34,205 @@ export function TeamHero({
 }) {
   const now = new Date();
   return (
-    <section className="flex flex-wrap items-center justify-between gap-[18px] rounded-3xl bg-[radial-gradient(90%_140%_at_88%_0%,#0C3584_0%,#021A54_55%,#01123D_100%)] p-[clamp(20px,3vw,28px)] text-white">
-      <div className="min-w-0">
-        <p className="flex flex-wrap items-center gap-2.5 text-[13px] font-bold text-on-navy-muted">
-          {formatLongDate(now, timeZone)}
-          <Pill
-            tone={roles[role].tone}
-            className="shadow-[0_0_0_1px_rgba(255,255,255,0.25)]"
-          >
-            {roles[role].label}
-          </Pill>
-        </p>
-        <h1 className="mt-2 font-heading text-[clamp(24px,2.8vw,32px)] leading-[1.15] font-bold tracking-[-0.03em]">
-          {greeting(now, timeZone)}, {name.trim().split(/\s+/)[0]}
-        </h1>
-        <p className="mt-1.5 text-[15px] text-on-navy">{subline}</p>
+    <DashboardHero
+      date={formatLongDate(now, timeZone)}
+      badge={<Pill tone={roles[role].tone}>{roles[role].label}</Pill>}
+      title={`${greeting(now, timeZone)}, ${name.trim().split(/\s+/)[0]}`}
+      subline={subline}
+    >
+      {children}
+    </DashboardHero>
+  );
+}
+
+/**
+ * The top of an overview page (team and client portal): a compact white
+ * card with the date, a badge, the greeting, one line, and the buttons.
+ */
+export function DashboardHero({
+  date,
+  badge,
+  title,
+  subline,
+  children,
+}: {
+  date: string;
+  badge?: React.ReactNode;
+  title: string;
+  subline: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <section className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-[22px] border border-line-2 bg-white p-[clamp(18px,2.5vw,26px)] shadow-[0_1px_2px_rgba(2,26,84,0.04)]">
+      {/* A thin navy-to-gold line along the top edge. */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#021A54_0%,#0C3584_60%,#D4AF37_100%)]"
+      />
+      <div className="flex min-w-0 items-center gap-4">
+        <span
+          aria-hidden="true"
+          className="hidden size-12 shrink-0 items-center justify-center rounded-2xl bg-navy text-gold sm:inline-flex"
+        >
+          <LayoutDashboard className="size-[22px]" strokeWidth={1.9} />
+        </span>
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-muted-foreground">
+            <CalendarDays aria-hidden="true" className="size-3.5" />
+            {date}
+            {badge}
+          </p>
+          <h1 className="mt-1 font-heading text-[clamp(22px,2.4vw,28px)] leading-[1.15] font-bold tracking-[-0.03em]">
+            {title}
+          </h1>
+          <p className="mt-1 text-[15px] text-muted-foreground">{subline}</p>
+        </div>
       </div>
-      <div className="flex flex-wrap gap-2.5">{children}</div>
+      {children ? (
+        <div className="flex flex-wrap gap-2.5">{children}</div>
+      ) : null}
     </section>
   );
+}
+
+/** One status in "Requests by status". */
+export type StatusSlice = {
+  label: string;
+  value: number;
+  colour: string;
+  href?: string;
+};
+
+/**
+ * "Requests by status": one bar split by status, then each status with its
+ * number and share. A status with a link opens the list filtered to it.
+ */
+export function StatusBreakdown({
+  slices,
+  title = "Requests by status",
+}: {
+  slices: StatusSlice[];
+  title?: string;
+}) {
+  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+  return (
+    <DashboardCard title={title}>
+      {total === 0 ? (
+        <p className="mt-3 text-muted-foreground">No requests yet.</p>
+      ) : (
+        <>
+          <div
+            aria-hidden="true"
+            className="mt-4 flex h-3 overflow-hidden rounded-full bg-soft"
+          >
+            {slices
+              .filter((slice) => slice.value > 0)
+              .map((slice) => (
+                <span
+                  key={slice.label}
+                  className="h-full border-r-2 border-white last:border-r-0"
+                  style={{
+                    width: `${(slice.value / total) * 100}%`,
+                    background: slice.colour,
+                  }}
+                />
+              ))}
+          </div>
+          <ul className="mt-4 flex flex-col">
+            {slices.map((slice) => {
+              const line = (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ background: slice.colour }}
+                  />
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-body">
+                    {slice.label}
+                  </span>
+                  <span className="text-sm font-bold text-navy">
+                    {slice.value}
+                  </span>
+                  <span className="w-10 text-right text-xs text-muted-foreground">
+                    {Math.round((slice.value / total) * 100)}%
+                  </span>
+                </>
+              );
+              return (
+                <li
+                  key={slice.label}
+                  className="border-t border-line-3 first:border-t-0"
+                >
+                  {slice.href ? (
+                    <Link
+                      href={slice.href}
+                      className="flex min-h-10 items-center gap-2.5 rounded-lg px-1.5 hover:bg-soft"
+                    >
+                      {line}
+                    </Link>
+                  ) : (
+                    <span className="flex min-h-10 items-center gap-2.5 px-1.5">
+                      {line}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </DashboardCard>
+  );
+}
+
+/** The team's status slices from the request counts, each opening the list. */
+export function teamStatusSlices(counts: {
+  new: number;
+  underReview: number;
+  inProgress: number;
+  waiting: number;
+  resolved: number;
+  closed: number;
+}): StatusSlice[] {
+  const to = (status: string) => `${routes.teamRequests}?status=${status}`;
+  return [
+    {
+      label: "New",
+      value: counts.new,
+      colour: "#0C3584",
+      href: to("submitted"),
+    },
+    {
+      label: "Under review",
+      value: counts.underReview,
+      colour: "#CA8A04",
+      href: to("under-review"),
+    },
+    {
+      label: "In progress",
+      value: counts.inProgress,
+      colour: "#2563EB",
+      href: to("in-progress"),
+    },
+    {
+      label: "Waiting for customer",
+      value: counts.waiting,
+      colour: "#EA580C",
+      href: to("waiting-for-customer"),
+    },
+    {
+      label: "Resolved",
+      value: counts.resolved,
+      colour: "#16A34A",
+      href: to("resolved"),
+    },
+    {
+      label: "Closed",
+      value: counts.closed,
+      colour: "#94A3B8",
+      href: to("closed"),
+    },
+  ];
 }
 
 /** A white card with a title row (and an optional link on the right). */

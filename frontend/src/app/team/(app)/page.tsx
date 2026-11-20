@@ -10,8 +10,10 @@ import {
   DueSoon,
   LatestAlerts,
   RowLink,
+  StatusBreakdown,
   TeamByRole,
   TeamHero,
+  teamStatusSlices,
   WebsiteLeadsCard,
   Workload,
 } from "@/components/team/dashboard-parts";
@@ -56,8 +58,24 @@ async function TeamDashboardContent() {
 
 function Tiles({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5 max-app:grid-cols-2">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3.5 max-app:grid-cols-2">
       {children}
+    </div>
+  );
+}
+
+/** The work on the left, the overview on the right (stacked on narrow screens). */
+function Columns({
+  main,
+  side,
+}: {
+  main: React.ReactNode;
+  side: React.ReactNode;
+}) {
+  return (
+    <div className="grid items-start gap-5 min-[1180px]:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)]">
+      <div className="flex min-w-0 flex-col gap-5">{main}</div>
+      <div className="flex min-w-0 flex-col gap-5">{side}</div>
     </div>
   );
 }
@@ -231,7 +249,7 @@ function StaffView({
             key={button.label}
             asChild
             size="lg"
-            variant={index === 0 ? "gold" : "ghostOnNavy"}
+            variant={index === 0 ? undefined : "outline"}
           >
             <Link href={button.href}>{button.label}</Link>
           </Button>
@@ -240,68 +258,72 @@ function StaffView({
 
       <Tiles>{tiles}</Tiles>
 
-      <WebsiteLeadsCard leads={data.leads} />
-
-      <div className="flex flex-wrap items-start gap-5">
-        <DashboardCard
-          title={manager ? "Unassigned requests" : "New requests to review"}
-          link={{ href: routes.teamRequests, label: "All requests" }}
-          className="flex-[1.5_1_460px]"
-        >
-          {rows.length === 0 ? (
-            <p className="mt-4 text-muted-foreground">
-              {manager
-                ? "Every open request has a developer."
-                : "All new requests have been reviewed."}
-            </p>
-          ) : (
-            <ul>
-              {rows.map((row) => (
-                <DashboardRequestRow
-                  key={row.code}
-                  row={row}
-                  timeZone={timeZone}
-                  action={
-                    manager ? (
-                      <AssignDialog
-                        code={row.code}
-                        title={row.title}
-                        developers={data.workload}
-                      >
-                        <Button
-                          className="h-10 px-4 text-[13px]"
-                          aria-label={`Assign ${row.code}`}
-                        >
-                          Assign
-                        </Button>
-                      </AssignDialog>
-                    ) : (
-                      <RowLink code={row.code} label="Review" />
-                    )
-                  }
-                />
-              ))}
-            </ul>
-          )}
-        </DashboardCard>
-
-        <DashboardCard
-          title={
-            data.role === "SUPER_ADMIN" && data.team
-              ? "Team by role"
-              : "Team workload"
-          }
-          className="flex-[1_1_300px]"
-        >
-          {data.role === "SUPER_ADMIN" && data.team ? (
-            <TeamByRole byRole={data.team.byRole} />
-          ) : (
-            <Workload developers={data.workload} />
-          )}
-        </DashboardCard>
-      </div>
-
-      <LatestAlerts alerts={data.alerts} timeZone={timeZone} />
+      <Columns
+        main={
+          <>
+            <DashboardCard
+              title={manager ? "Unassigned requests" : "New requests to review"}
+              link={{ href: routes.teamRequests, label: "All requests" }}
+            >
+              {rows.length === 0 ? (
+                <p className="mt-4 text-muted-foreground">
+                  {manager
+                    ? "Every open request has a developer."
+                    : "All new requests have been reviewed."}
+                </p>
+              ) : (
+                <ul>
+                  {rows.map((row) => (
+                    <DashboardRequestRow
+                      key={row.code}
+                      row={row}
+                      timeZone={timeZone}
+                      action={
+                        manager ? (
+                          <AssignDialog
+                            code={row.code}
+                            title={row.title}
+                            developers={data.workload}
+                          >
+                            <Button
+                              className="h-10 px-4 text-[13px]"
+                              aria-label={`Assign ${row.code}`}
+                            >
+                              Assign
+                            </Button>
+                          </AssignDialog>
+                        ) : (
+                          <RowLink code={row.code} label="Review" />
+                        )
+                      }
+                    />
+                  ))}
+                </ul>
+              )}
+            </DashboardCard>
+            <WebsiteLeadsCard leads={data.leads} />
+          </>
+        }
+        side={
+          <>
+            <StatusBreakdown slices={teamStatusSlices(counts)} />
+            <DashboardCard
+              title={
+                data.role === "SUPER_ADMIN" && data.team
+                  ? "Team by role"
+                  : "Team workload"
+              }
+            >
+              {data.role === "SUPER_ADMIN" && data.team ? (
+                <TeamByRole byRole={data.team.byRole} />
+              ) : (
+                <Workload developers={data.workload} />
+              )}
+            </DashboardCard>
+            <LatestAlerts alerts={data.alerts} timeZone={timeZone} />
+          </>
+        }
+      />
     </>
   );
 }
@@ -324,7 +346,7 @@ function DeveloperView({
         timeZone={timeZone}
         subline={SUBLINES.DEVELOPER}
       >
-        <Button asChild size="lg" variant="gold">
+        <Button asChild size="lg">
           <Link href={routes.teamRequests}>Open my requests</Link>
         </Button>
       </TeamHero>
@@ -355,35 +377,45 @@ function DeveloperView({
         />
       </Tiles>
 
-      <div className="flex flex-wrap items-start gap-5">
-        <DashboardCard
-          title="My queue"
-          link={{ href: routes.teamRequests, label: "All my requests" }}
-          className="flex-[1.5_1_460px]"
-        >
-          {data.queue.length === 0 ? (
-            <p className="mt-4 text-muted-foreground">
-              Nothing assigned to you right now.
-            </p>
-          ) : (
-            <ul>
-              {data.queue.map((row) => (
-                <DashboardRequestRow
-                  key={row.code}
-                  row={row}
-                  timeZone={timeZone}
-                  action={<RowLink code={row.code} label="Open" />}
-                />
-              ))}
-            </ul>
-          )}
-        </DashboardCard>
-        <DashboardCard title="Due soon" className="flex-[1_1_300px]">
-          <DueSoon rows={data.dueSoon} timeZone={timeZone} />
-        </DashboardCard>
-      </div>
-
-      <LatestAlerts alerts={data.alerts} timeZone={timeZone} />
+      <Columns
+        main={
+          <DashboardCard
+            title="My queue"
+            link={{ href: routes.teamRequests, label: "All my requests" }}
+          >
+            {data.queue.length === 0 ? (
+              <p className="mt-4 text-muted-foreground">
+                Nothing assigned to you right now.
+              </p>
+            ) : (
+              <ul>
+                {data.queue.map((row) => (
+                  <DashboardRequestRow
+                    key={row.code}
+                    row={row}
+                    timeZone={timeZone}
+                    action={<RowLink code={row.code} label="Open" />}
+                  />
+                ))}
+              </ul>
+            )}
+          </DashboardCard>
+        }
+        side={
+          <>
+            <DashboardCard title="Due soon">
+              <DueSoon rows={data.dueSoon} timeZone={timeZone} />
+            </DashboardCard>
+            <StatusBreakdown
+              title="My requests by status"
+              slices={teamStatusSlices(counts).filter(
+                (slice) => slice.label !== "New",
+              )}
+            />
+            <LatestAlerts alerts={data.alerts} timeZone={timeZone} />
+          </>
+        }
+      />
     </>
   );
 }
