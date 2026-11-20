@@ -107,9 +107,6 @@ jobs:
       DEPLOY_BACKEND: ${{ vars.DEPLOY_BACKEND || 'true' }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          # All commits, for the list of changes since the last deploy.
-          fetch-depth: 0
 
       # Stops early, with a clear message, if a setting is missing or unsafe.
       # The folder rules matter: files are copied into these folders, so a
@@ -225,13 +222,6 @@ jobs:
             fi
           done
 
-      # Which commit is live now, for the list of changes in the message.
-      - name: Find the last deployed commit
-        id: last
-        run: |
-          commit="$(ssh live "cat \"\$HOME/$FRONTEND_PATH/.deployed-commit\" 2>/dev/null" || true)"
-          echo "commit=${commit}" >> "$GITHUB_OUTPUT"
-
       # Only dist/ and prisma/ are replaced. The settings file (.env), the
       # installed packages and everything else on the hosting stay as they are.
       - name: Upload the backend
@@ -281,24 +271,6 @@ jobs:
 
           if [ "$DEPLOY_BACKEND" = "true" ]; then check "$API_URL/health"; fi
           check "$SITE_URL/"
-
-      - name: Record the deployed commit
-        run: ssh live "echo '$GITHUB_SHA' > \"\$HOME/$FRONTEND_PATH/.deployed-commit\""
-
-      # After the live site answers. A message that fails never fails the deploy.
-      - name: Send the WhatsApp message
-        continue-on-error: true
-        env:
-          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
-          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
-          WHATSAPP_TO: ${{ secrets.WHATSAPP_TO }}
-          WHATSAPP_TEMPLATE: ${{ vars.WHATSAPP_TEMPLATE }}
-          WHATSAPP_TEMPLATE_LANG: ${{ vars.WHATSAPP_TEMPLATE_LANG }}
-          WHATSAPP_API_VERSION: ${{ vars.WHATSAPP_API_VERSION }}
-          FROM_COMMIT: ${{ steps.last.outputs.commit }}
-          DEPLOYED_PARTS: ${{ env.DEPLOY_BACKEND == 'true' && 'Website and backend' || 'Website only' }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: node .github/scripts/notify-whatsapp.mjs
 
       - name: Remove the login key from this machine
         if: always()
