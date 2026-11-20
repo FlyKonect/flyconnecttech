@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 
 import { PageLoading } from "@/components/shell/page-loading";
 import { DeveloperPerformance } from "@/components/team/developer-performance";
+import { ReportFilters } from "@/components/team/report-filters";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { serverApi } from "@/lib/api-server";
 import { routes } from "@/lib/routes";
-import type { Report } from "@/lib/team/types";
+import type { Report, ReportCard } from "@/lib/team/types";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Reports & Analytics" };
@@ -17,37 +18,51 @@ const card = "rounded-[22px] border border-line-2 bg-white p-[22px]";
  * Reports & Analytics (screen 31): super admins, admins and managers.
  * Every number comes from the backend's /team/reports.
  */
-async function ReportsContent() {
-  const report = await serverApi<Report>("/team/reports", {
-    signIn: routes.teamSignIn,
-  });
+async function ReportsContent({ searchParams }: PageProps<"/team/reports">) {
+  const params = await searchParams;
+  const one = (key: string) => {
+    const value = params[key];
+    return typeof value === "string" ? value : "";
+  };
+  const chosen = {
+    from: one("from"),
+    to: one("to"),
+    customer: one("customer"),
+    developer: one("developer"),
+  };
+  const query = new URLSearchParams(
+    Object.entries(chosen).filter(([, value]) => value),
+  ).toString();
+  const report = await serverApi<Report>(
+    `/team/reports${query ? `?${query}` : ""}`,
+    { signIn: routes.teamSignIn },
+  );
+  const customer = report.filters.customers.find(
+    (c) => c.id === chosen.customer,
+  );
+  const developer = report.filters.developers.find(
+    (d) => d.id === chosen.developer,
+  );
+  const about = [customer?.company, developer?.name]
+    .filter(Boolean)
+    .join(" · ");
   const busiest = Math.max(...report.week.map((day) => day.count));
   const mostRequests = Math.max(1, ...report.projects.map((p) => p.count));
 
   return (
     <>
-      <ul
-        aria-label="This month"
-        className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5"
-      >
-        {report.cards.map((item) => (
-          <li key={item.label}>
-            <KpiTile
-              label={item.label}
-              value={item.value}
-              hint={item.change?.text ?? item.note ?? undefined}
-              hintTone={
-                item.change?.tone === "better"
-                  ? "good"
-                  : item.change?.tone === "worse"
-                    ? "bad"
-                    : undefined
-              }
-              className="h-full"
-            />
-          </li>
-        ))}
-      </ul>
+      <ReportFilters report={report} chosen={chosen} />
+      <h2 className="font-heading text-[19px] font-bold tracking-[-0.01em]">
+        Report for {report.period.words}
+        {about ? (
+          <span className="font-normal text-muted-foreground"> · {about}</span>
+        ) : null}
+      </h2>
+      <Cards
+        label={report.period.custom ? report.period.words : "This month"}
+        items={report.cards}
+      />
+      <Cards label="Service levels" items={report.sla} />
 
       <div className="flex flex-wrap items-stretch gap-5">
         <section
@@ -91,6 +106,9 @@ async function ReportsContent() {
         >
           <h2 id="requests-project" className="text-[17px] font-bold">
             Requests by project
+            <span className="font-normal text-muted-foreground">
+              {report.projectsAllTime ? " · all time" : " · in this period"}
+            </span>
           </h2>
           {report.projects.length ? (
             <ol className="mt-4 flex flex-col gap-3.5">
@@ -128,7 +146,8 @@ async function ReportsContent() {
 
       <section aria-labelledby="developer-performance" className={card}>
         <h2 id="developer-performance" className="text-[17px] font-bold">
-          Developer performance · this month
+          Developer performance ·{" "}
+          {report.period.custom ? "in this period" : "this month"}
         </h2>
         <DeveloperPerformance rows={report.developers} />
       </section>
@@ -136,11 +155,39 @@ async function ReportsContent() {
   );
 }
 
+/** A row of number tiles: the main numbers, then the SLA. */
+function Cards({ label, items }: { label: string; items: ReportCard[] }) {
+  return (
+    <ul
+      aria-label={label}
+      className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5"
+    >
+      {items.map((item) => (
+        <li key={item.label}>
+          <KpiTile
+            label={item.label}
+            value={item.value}
+            hint={item.change?.text ?? item.note ?? undefined}
+            hintTone={
+              item.change?.tone === "better"
+                ? "good"
+                : item.change?.tone === "worse"
+                  ? "bad"
+                  : undefined
+            }
+            className="h-full"
+          />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** Its data loads inside Suspense, so moving between pages is instant. */
-export default function ReportsPage() {
+export default function ReportsPage(props: PageProps<"/team/reports">) {
   return (
     <Suspense fallback={<PageLoading />}>
-      <ReportsContent />
+      <ReportsContent {...props} />
     </Suspense>
   );
 }

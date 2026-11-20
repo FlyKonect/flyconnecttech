@@ -242,7 +242,7 @@ describe('Reports & Analytics', () => {
     }
     await makeRequest({ createdAt: at('2026-11-18T08:00:00Z') }, quietProject);
 
-    const report = await reports.report(now);
+    const report = await reports.report({}, now);
     expect(report.cards).toEqual([
       {
         label: 'Avg. first response',
@@ -295,7 +295,7 @@ describe('Reports & Analytics', () => {
   });
 
   it('says so when a month has no data yet', async () => {
-    const empty = await reports.report(at('2031-03-18T12:00:00Z'));
+    const empty = await reports.report({}, at('2031-03-18T12:00:00Z'));
     expect(empty.cards[0]).toMatchObject({
       value: '—',
       change: null,
@@ -306,6 +306,44 @@ describe('Reports & Analytics', () => {
       value: '0',
       change: { text: 'Same as last month', tone: 'same' },
     });
+  });
+
+  it('a date range, a customer or a developer narrows every number', async () => {
+    const whole = await reports.report({}, now);
+    // The same month as dates: the same counts, compared with the days before.
+    const clock = now.toISOString().slice(0, 7);
+    const lastDay = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0),
+    ).getUTCDate();
+    const ranged = await reports.report(
+      { from: `${clock}-01`, to: `${clock}-${lastDay}` },
+      now,
+    );
+    expect(ranged.cards[2]).toMatchObject({
+      label: 'Resolved',
+      value: whole.cards[2].value,
+    });
+    expect(ranged.period.custom).toBe(true);
+    expect(ranged.projectsAllTime).toBe(false);
+
+    // Nobody's requests: zeros everywhere, and the SLA cards say so.
+    const nobody = await reports.report(
+      { customerId: '00000000-0000-0000-0000-000000000000' },
+      now,
+    );
+    expect(nobody.cards[2].value).toBe('0');
+    expect(nobody.sla.map((card) => card.label)).toEqual([
+      'Reply SLA met',
+      'Fix SLA met',
+    ]);
+    expect(nobody.sla[0]).toMatchObject({ value: '—' });
+    expect(whole.filters.developers.length).toBeGreaterThan(0);
+
+    // A range that makes no sense is refused.
+    const bad = await as(admin)
+      .get('/team/reports?from=2026-11-30&to=2026-11-01')
+      .expect(400);
+    expect(bad.body.code).toBe('BAD_RANGE');
   });
 
   it('super admins, admins and managers see it; developers do not', async () => {

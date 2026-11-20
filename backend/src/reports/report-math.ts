@@ -58,24 +58,35 @@ export function firstResponseChange(
 export function resolutionChange(
   thisMonth: number | null,
   lastMonth: number | null,
+  against = 'last month',
 ): Change | null {
   if (thisMonth === null || lastMonth === null) return null;
   const days = Math.round(((lastMonth - thisMonth) / DAY_MINUTES) * 10) / 10;
   if (days > 0) return { text: `${dayWords(days)} faster`, tone: 'better' };
   if (days < 0) return { text: `${dayWords(-days)} slower`, tone: 'worse' };
-  return { text: 'Same as last month', tone: 'same' };
+  return { text: `Same as ${against}`, tone: 'same' };
 }
 
 /** "+6 vs last month", "−2 vs last month", "Same as last month". */
-export function countChange(thisMonth: number, lastMonth: number): Change {
+export function countChange(
+  thisMonth: number,
+  lastMonth: number,
+  against = 'last month',
+): Change {
   const difference = thisMonth - lastMonth;
   if (difference > 0) {
-    return { text: `+${difference} vs last month`, tone: 'better' };
+    return { text: `+${difference} vs ${against}`, tone: 'better' };
   }
   if (difference < 0) {
-    return { text: `−${-difference} vs last month`, tone: 'worse' };
+    return { text: `−${-difference} vs ${against}`, tone: 'worse' };
   }
-  return { text: 'Same as last month', tone: 'same' };
+  return { text: `Same as ${against}`, tone: 'same' };
+}
+
+/** "92%" of the requests that met a target, or null with none counted. */
+export function metShare(met: number, counted: number): string | null {
+  if (!counted) return null;
+  return `${Math.round((met / counted) * 100)}%`;
 }
 
 /** "5% of resolved", or nothing when nothing was resolved. */

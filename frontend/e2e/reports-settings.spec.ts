@@ -146,3 +146,25 @@ test("phone: Reports and Settings fit the screen", async ({ page }) => {
   ).toBeVisible();
   await expectNoSidewaysScroll(page);
 });
+
+test("Reports: a date range and a customer narrow the report", async ({
+  page,
+}) => {
+  await signInBrowser(page.context(), await createPerson("manager"));
+  await page.goto("/team/reports");
+  const choices = page.getByRole("form", { name: "Report choices" });
+  await choices.getByLabel("From", { exact: true }).fill("2026-11-01");
+  await choices.getByLabel("To", { exact: true }).fill("2026-11-15");
+  await choices.getByRole("button", { name: "Apply" }).click();
+  await expect(page).toHaveURL(/from=2026-11-01&to=2026-11-15/);
+  await expect(
+    page.getByRole("heading", { name: /Report for 1 Nov 2026 to 15 Nov 2026/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("list", { name: "Service levels" }),
+  ).toContainText("Reply SLA met");
+  await expect(
+    page.getByRole("list", { name: "1 Nov 2026 to 15 Nov 2026" }),
+  ).toContainText("Resolved");
+  await expect(page.getByRole("link", { name: "This month" })).toBeVisible();
+});

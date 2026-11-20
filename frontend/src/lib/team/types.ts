@@ -433,14 +433,25 @@ export type ConvertPrefill = {
 // ------------------------------------------------------- reports, settings
 
 /** GET /team/reports (screen 31). The words come from the backend. */
+export type ReportCard = {
+  label: string;
+  value: string;
+  change: { text: string; tone: "better" | "worse" | "same" } | null;
+  /** Shown instead when there is no data yet. */
+  note: string | null;
+};
+
 export type Report = {
-  cards: {
-    label: string;
-    value: string;
-    change: { text: string; tone: "better" | "worse" | "same" } | null;
-    /** Shown instead when there is no data yet. */
-    note: string | null;
-  }[];
+  period: { from: string; to: string; words: string; custom: boolean };
+  cards: ReportCard[];
+  /** Reply SLA met, Fix SLA met. */
+  sla: ReportCard[];
+  /** True: the projects count all time; false: in the period. */
+  projectsAllTime: boolean;
+  filters: {
+    customers: { id: string; company: string }[];
+    developers: { id: string; name: string }[];
+  };
   week: { day: string; count: number }[];
   projects: { id: string; name: string; count: number }[];
   developers: {

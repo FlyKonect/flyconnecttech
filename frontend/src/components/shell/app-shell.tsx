@@ -156,7 +156,7 @@ export function AppShell({
         aria-label={sidebarLabel}
         tabIndex={-1}
         className={cn(
-          "w-[270px] shrink-0 flex-col overflow-y-auto py-[22px] outline-none app:sticky app:top-0 app:flex app:h-screen",
+          "w-[270px] shrink-0 flex-col overflow-y-auto py-[22px] outline-none app:sticky app:top-0 app:flex app:h-screen print:!hidden",
           team ? "bg-navy px-3.5" : "border-r border-line-2 bg-white px-4",
           menuOpen
             ? "max-app:fixed max-app:inset-y-0 max-app:left-0 max-app:z-50 max-app:flex"
@@ -168,7 +168,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col" inert={menuOpen}>
-        <header className="sticky top-0 z-30 flex h-[72px] items-center gap-3 border-b border-line-2 bg-white/95 px-[clamp(16px,3vw,32px)] shadow-[0_1px_2px_rgba(2,26,84,0.04)] backdrop-blur">
+        <header className="sticky top-0 z-30 flex h-[72px] items-center gap-3 border-b border-line-2 bg-white/95 px-[clamp(16px,3vw,32px)] shadow-[0_1px_2px_rgba(2,26,84,0.04)] backdrop-blur print:!hidden">
           <button
             ref={menuButton}
             type="button"
