@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { PageLoading } from "@/components/shell/page-loading";
 import { CustomersList } from "@/components/team/customers-list";
 import { serverApi } from "@/lib/api-server";
+import { pagingQuery } from "@/lib/paging";
 import { routes } from "@/lib/routes";
 import type { CustomerList } from "@/lib/team/types";
 
@@ -13,10 +14,15 @@ export const metadata: Metadata = { title: "Customers" };
 async function CustomersContent({
   searchParams,
 }: PageProps<"/team/customers">) {
-  const { q } = await searchParams;
+  const params = await searchParams;
+  const { q } = params;
   const query = typeof q === "string" ? q.trim().slice(0, 100) : "";
+  const apiQuery = new URLSearchParams({
+    ...(query ? { q: query } : {}),
+    ...pagingQuery(params),
+  }).toString();
   const list = await serverApi<CustomerList>(
-    `/team/customers${query ? `?q=${encodeURIComponent(query)}` : ""}`,
+    `/team/customers${apiQuery ? `?${apiQuery}` : ""}`,
     { signIn: routes.teamSignIn },
   );
   // A new search starts with its own search text.

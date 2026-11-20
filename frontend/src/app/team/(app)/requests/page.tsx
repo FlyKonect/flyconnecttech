@@ -7,6 +7,7 @@ import {
   type TeamFilters,
 } from "@/components/team/team-requests";
 import { serverApi } from "@/lib/api-server";
+import { pagingQuery } from "@/lib/paging";
 import { requireTeamMember } from "@/lib/auth/server";
 import { routes } from "@/lib/routes";
 import type { TeamRequestList } from "@/lib/team/types";
@@ -31,8 +32,12 @@ async function TeamRequestsContent({
   const query = new URLSearchParams(
     Object.entries(filters).filter(([, value]) => value),
   ).toString();
+  const apiQuery = new URLSearchParams({
+    ...Object.fromEntries(new URLSearchParams(query)),
+    ...pagingQuery(params),
+  }).toString();
   const list = await serverApi<TeamRequestList>(
-    `/team/requests${query ? `?${query}` : ""}`,
+    `/team/requests${apiQuery ? `?${apiQuery}` : ""}`,
     { signIn: routes.teamSignIn },
   );
 

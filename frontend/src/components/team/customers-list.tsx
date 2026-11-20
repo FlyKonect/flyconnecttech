@@ -11,6 +11,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { StatCard } from "@/components/ui/stat-card";
 import { LabelPill } from "@/components/ui/pill";
 import { plural } from "@/lib/plural";
+import { withPage } from "@/lib/paging";
 import { routes } from "@/lib/routes";
 import type { CustomerList, CustomerRow } from "@/lib/team/types";
 
@@ -116,6 +117,19 @@ export function CustomersList({
       <DataTable<CustomerRow>
         caption="Customers"
         rows={list.rows}
+        serverPaging={{
+          page: list.page,
+          pageSize: list.pageSize,
+          total: list.total,
+          href: (page, size) =>
+            withPage(
+              query
+                ? `${routes.teamCustomers}?q=${encodeURIComponent(query)}`
+                : routes.teamCustomers,
+              page,
+              size,
+            ),
+        }}
         rowKey={(c) => c.id}
         rowHref={(c) => routes.teamCustomer(c.id)}
         empty={query ? "No customers match your search." : "No customers yet."}

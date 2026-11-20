@@ -1,3 +1,4 @@
+import { pageWindow, type Paging } from '../common/paging.js';
 import {
   BadRequestException,
   Injectable,
@@ -23,7 +24,6 @@ import {
 const TX = { isolationLevel: 'ReadCommitted' } as const;
 
 /** The lists show the newest this many that match. */
-export const LEAD_LIST_LIMIT = 200;
 
 /** The ?status= values of each list, and the status each stands for. */
 export const LEAD_STATUS_SLUGS = {
@@ -60,7 +60,11 @@ export class TeamLeadsService {
 
   // -------------------------------------------------------------- lists
 
-  async list(kind: LeadKind, filters: { status?: string; q?: string }) {
+  async list(
+    kind: LeadKind,
+    filters: { status?: string; q?: string },
+    paging: Paging = { page: 1, pageSize: 25 },
+  ) {
     const slugs: Record<string, string> = LEAD_STATUS_SLUGS[kind];
     const status = filters.status ? slugs[filters.status] : undefined;
     const q = filters.q?.trim().slice(0, 100);
@@ -72,16 +76,18 @@ export class TeamLeadsService {
         ...search(['code', 'name', 'company', 'email']),
         ...(status ? { status: status as never } : {}),
       };
-      const [groups, matching, rows] = await Promise.all([
+      const matching = await this.prisma.demoRequest.count({ where });
+      const window = pageWindow(paging, matching);
+      const [groups, rows] = await Promise.all([
         this.prisma.demoRequest.groupBy({
           by: ['status'],
           _count: { _all: true },
         }),
-        this.prisma.demoRequest.count({ where }),
         this.prisma.demoRequest.findMany({
           where,
           orderBy: [{ createdAt: 'desc' }, { code: 'desc' }],
-          take: LEAD_LIST_LIMIT,
+          skip: window.skip,
+          take: window.take,
           select: {
             code: true,
             createdAt: true,
@@ -96,7 +102,13 @@ export class TeamLeadsService {
           },
         }),
       ]);
-      return { ...this.counts(groups), matching, rows };
+      return {
+        ...this.counts(groups),
+        matching,
+        page: window.page,
+        pageSize: window.pageSize,
+        rows,
+      };
     }
 
     if (kind === 'quote') {
@@ -104,16 +116,18 @@ export class TeamLeadsService {
         ...search(['code', 'name', 'company', 'email', 'requirements']),
         ...(status ? { status: status as never } : {}),
       };
-      const [groups, matching, rows] = await Promise.all([
+      const matching = await this.prisma.quoteRequest.count({ where });
+      const window = pageWindow(paging, matching);
+      const [groups, rows] = await Promise.all([
         this.prisma.quoteRequest.groupBy({
           by: ['status'],
           _count: { _all: true },
         }),
-        this.prisma.quoteRequest.count({ where }),
         this.prisma.quoteRequest.findMany({
           where,
           orderBy: [{ createdAt: 'desc' }, { code: 'desc' }],
-          take: LEAD_LIST_LIMIT,
+          skip: window.skip,
+          take: window.take,
           select: {
             code: true,
             createdAt: true,
@@ -128,23 +142,31 @@ export class TeamLeadsService {
           },
         }),
       ]);
-      return { ...this.counts(groups), matching, rows };
+      return {
+        ...this.counts(groups),
+        matching,
+        page: window.page,
+        pageSize: window.pageSize,
+        rows,
+      };
     }
 
     const where: Prisma.ContactMessageWhereInput = {
       ...search(['code', 'name', 'email', 'message']),
       ...(status ? { status: status as never } : {}),
     };
-    const [groups, matching, rows] = await Promise.all([
+    const matching = await this.prisma.contactMessage.count({ where });
+    const window = pageWindow(paging, matching);
+    const [groups, rows] = await Promise.all([
       this.prisma.contactMessage.groupBy({
         by: ['status'],
         _count: { _all: true },
       }),
-      this.prisma.contactMessage.count({ where }),
       this.prisma.contactMessage.findMany({
         where,
         orderBy: [{ createdAt: 'desc' }, { code: 'desc' }],
-        take: LEAD_LIST_LIMIT,
+        skip: window.skip,
+        take: window.take,
         select: {
           code: true,
           createdAt: true,

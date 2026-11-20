@@ -31,6 +31,7 @@ import type {
   MessageRow,
   QuoteRow,
 } from "@/lib/team/types";
+import { withPage } from "@/lib/paging";
 import { cn } from "@/lib/utils";
 
 type AnyRow = DemoRow | QuoteRow | MessageRow;
@@ -277,6 +278,12 @@ export function LeadsList({
       <DataTable<AnyRow>
         caption={KIND_PLURAL[kind]}
         rows={list.rows}
+        serverPaging={{
+          page: list.page,
+          pageSize: list.pageSize,
+          total: list.matching,
+          href: (page, size) => withPage(hrefFor({}), page, size),
+        }}
         rowKey={(row) => row.code}
         rowHref={(row) => leadHref(kind, row.code)}
         empty="Nothing in this view."

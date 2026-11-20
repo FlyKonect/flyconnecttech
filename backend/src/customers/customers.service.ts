@@ -17,11 +17,11 @@ import { findConvertible, linkConverted } from '../leads/lead-convert.js';
 import { can } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { OPEN_STATUSES } from '../requests/status-rules.js';
+import { pageWindow, type Paging } from '../common/paging.js';
 
 const TX = { isolationLevel: 'ReadCommitted' } as const;
 
 /** The customers list shows the newest this many that match. */
-export const CUSTOMER_LIST_LIMIT = 200;
 
 export type NewCustomer = {
   name: string;
@@ -49,7 +49,11 @@ export class CustomersService {
     private readonly audit: AuditService,
   ) {}
 
-  async list(actor: SignedIn, query: string | undefined) {
+  async list(
+    actor: SignedIn,
+    query: string | undefined,
+    paging: Paging = { page: 1, pageSize: 25 },
+  ) {
     const search = query?.trim();
     // Deleted customers are history only: never in the list or the counts.
     // The database compares text without caring about capitals.
@@ -65,17 +69,19 @@ export class CustomersService {
         }
       : { deletedAt: null };
 
-    const [customers, projects, invited, total, found] = await Promise.all([
+    const total = await this.prisma.customer.count({ where });
+    const window = pageWindow(paging, total);
+    const [customers, projects, invited, found] = await Promise.all([
       this.prisma.customer.count({ where: { deletedAt: null } }),
       this.prisma.project.count({ where: { customer: { deletedAt: null } } }),
       this.prisma.user.count({
         where: { role: 'CUSTOMER', status: 'INVITED' },
       }),
-      this.prisma.customer.count({ where }),
       this.prisma.customer.findMany({
         where,
         orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
-        take: CUSTOMER_LIST_LIMIT,
+        skip: window.skip,
+        take: window.take,
         select: {
           id: true,
           company: true,
@@ -97,6 +103,8 @@ export class CustomersService {
       summary: { customers, projects, invited },
       canManage: can(actor, 'customers.manage'),
       total,
+      page: window.page,
+      pageSize: window.pageSize,
       rows: found.map((customer) => ({
         id: customer.id,
         company: customer.company,

@@ -49,6 +49,7 @@ Loaded when working in `backend/`. The root `CLAUDE.md` has the product, the sha
 - `backend/src/email/previews.tsx`: every email with sample content, grouped by the docs/01 §7 rows; served by `dev-emails.controller.ts` at `/dev/emails` outside production. Add a new email here too (a unit test checks every row has one).
 - `backend/src/cli/`: command-line tools (`invite-user.ts`, `add-project.ts`, `run-job.ts`)
 - `backend/src/<feature>/`: one NestJS module per feature (requests, leads, customers, users, notifications, email, settings), each with its controller, service and policy checks
+- `backend/src/common/paging.ts`: `?page=` and `?size=` (10, 25, 50, 100) for the team lists (requests, customers, leads); each answers `total`, `page`, `pageSize` and one page of `rows`. Users and the client's My Requests are still sent whole.
 - `backend/src/prisma/`: the shared database service
 - `backend/src/config/env.ts`: the settings and their checks
 - `backend/src/config/load-env.ts`: reads `.env` first. Import it as the first line of every entry point (`main.ts`, each `cli/` command): live, `NODE_ENV=production` comes from `.env`, and React must see it before it loads, or every email fails with "dispatcher.getOwner is not a function"

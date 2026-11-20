@@ -121,9 +121,10 @@ export type TeamRequestRow = {
 export type TeamRequestList = {
   tabs: TeamCounts;
   rows: TeamRequestRow[];
-  /** How many match in all; at most `limit` are in `rows`. */
+  /** How many match in all; `rows` is page `page` of them. */
   total: number;
-  limit: number;
+  page: number;
+  pageSize: number;
   projects: { id: string; name: string; company: string }[];
   developers: { id: string; name: string }[];
 };
@@ -190,8 +191,10 @@ export type CustomerList = {
   summary: { customers: number; projects: number; invited: number };
   /** Super admins and admins; managers only look. */
   canManage: boolean;
-  /** How many match the search; rows holds the newest of them. */
+  /** How many match the search; `rows` is page `page` of them. */
   total: number;
+  page: number;
+  pageSize: number;
   rows: CustomerRow[];
 };
 
@@ -294,6 +297,8 @@ export type LeadList<Row> = {
   tabs: Partial<Record<string, number>>;
   /** How many match the tab and search; rows holds the newest of them. */
   matching: number;
+  page: number;
+  pageSize: number;
   rows: Row[];
 };
 

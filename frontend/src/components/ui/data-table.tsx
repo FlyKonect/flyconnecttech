@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -55,7 +56,19 @@ type DataTableProps<Row> = {
   empty?: React.ReactNode;
   /** Rows per page to start with (the person can change it). Default 25. */
   pageSize?: number;
+  /**
+   * When the backend sends one page at a time: `rows` is that page, and the
+   * page buttons are links made by `href` (page 1 for a new page size).
+   */
+  serverPaging?: ServerPaging;
   className?: string;
+};
+
+export type ServerPaging = {
+  page: number;
+  pageSize: number;
+  total: number;
+  href: (page: number, pageSize: number) => string;
 };
 
 function DataTable<Row>({
@@ -68,10 +81,12 @@ function DataTable<Row>({
   card,
   empty = "Nothing to show yet.",
   pageSize: firstPageSize = 25,
+  serverPaging,
   className,
 }: DataTableProps<Row>) {
-  const [pageSize, setPageSize] = React.useState(firstPageSize);
-  const [page, setPage] = React.useState(1);
+  const router = useRouter();
+  const [localSize, setLocalSize] = React.useState(firstPageSize);
+  const [localPage, setLocalPage] = React.useState(1);
 
   // A different list (a new filter or search) starts again on page 1.
   // The same list refreshed after an action keeps its page.
@@ -79,13 +94,15 @@ function DataTable<Row>({
   const [shownKey, setShownKey] = React.useState(listKey);
   if (listKey !== shownKey) {
     setShownKey(listKey);
-    setPage(1);
+    setLocalPage(1);
   }
 
-  const pages = Math.max(1, Math.ceil(rows.length / pageSize));
-  const current = Math.min(page, pages);
+  const total = serverPaging ? serverPaging.total : rows.length;
+  const pageSize = serverPaging ? serverPaging.pageSize : localSize;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const current = Math.min(serverPaging ? serverPaging.page : localPage, pages);
   const start = (current - 1) * pageSize;
-  const pageRows = rows.slice(start, start + pageSize);
+  const pageRows = serverPaging ? rows : rows.slice(start, start + pageSize);
 
   if (rows.length === 0) {
     return (
@@ -121,16 +138,24 @@ function DataTable<Row>({
   const footer = (
     <Pagination
       label={caption}
-      total={rows.length}
+      total={total}
       start={start}
       shown={pageRows.length}
       page={current}
       pages={pages}
       pageSize={pageSize}
-      onPage={setPage}
+      onPage={(page) =>
+        serverPaging
+          ? router.push(serverPaging.href(page, pageSize))
+          : setLocalPage(page)
+      }
       onPageSize={(size) => {
-        setPageSize(size);
-        setPage(1);
+        if (serverPaging) {
+          router.push(serverPaging.href(1, size));
+          return;
+        }
+        setLocalSize(size);
+        setLocalPage(1);
       }}
     />
   );

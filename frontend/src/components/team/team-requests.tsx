@@ -11,6 +11,7 @@ import { Select } from "@/components/ui/field";
 import { LabelPill } from "@/components/ui/pill";
 import { formatWhen } from "@/lib/format-time";
 import { priorities, type Priority } from "@/lib/labels";
+import { withPage } from "@/lib/paging";
 import { routes } from "@/lib/routes";
 import type {
   TeamCounts,
@@ -203,6 +204,12 @@ export function TeamRequests({
       <DataTable<TeamRequestRow>
         caption="Support requests"
         rows={list.rows}
+        serverPaging={{
+          page: list.page,
+          pageSize: list.pageSize,
+          total: list.total,
+          href: (page, size) => withPage(hrefFor(filters), page, size),
+        }}
         rowKey={(r) => r.code}
         rowHref={(r) => routes.teamRequest(r.code)}
         rowLabel={(r) => `${r.code}: ${r.title}`}
@@ -270,13 +277,6 @@ export function TeamRequests({
           </span>
         )}
       />
-
-      {list.total > list.rows.length ? (
-        <p className="text-sm text-muted-foreground">
-          Showing the newest {list.rows.length} of {list.total}. Use the search
-          and filters to find older requests.
-        </p>
-      ) : null}
     </>
   );
 }

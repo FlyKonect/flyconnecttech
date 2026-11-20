@@ -15,6 +15,7 @@ import { LeadActionsService } from './lead-actions.service.js';
 import { CANCEL_REASONS, LOST_REASONS } from './lead-rules.js';
 import type { LeadKind } from './lead-store.js';
 import { TeamLeadsService } from './team-leads.service.js';
+import { parsePaging } from '../common/paging.js';
 
 /** The address part of each list: /team/leads/demos and so on. */
 const KINDS: Record<string, LeadKind> = {
@@ -97,8 +98,14 @@ export class TeamLeadsController {
     @Param('kind') kind: string,
     @Query('status') status?: string,
     @Query('q') q?: string,
+    @Query('page') page?: string,
+    @Query('size') size?: string,
   ) {
-    return this.leads.list(kindOf(kind), { status, q });
+    return this.leads.list(
+      kindOf(kind),
+      { status, q },
+      parsePaging(page, size),
+    );
   }
 
   @Get(':kind/:code')

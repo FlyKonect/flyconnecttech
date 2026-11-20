@@ -2,6 +2,7 @@ import { LeadPage } from "@/components/team/lead-page";
 import { LeadsList } from "@/components/team/leads-list";
 
 import { serverApi } from "@/lib/api-server";
+import { pagingQuery } from "@/lib/paging";
 import { requireTeamMember } from "@/lib/auth/server";
 import { routes } from "@/lib/routes";
 import { LEAD_PATH } from "@/lib/team/leads";
@@ -37,8 +38,12 @@ export async function LeadListContent({
   const query = new URLSearchParams(
     Object.entries({ status, q }).filter(([, value]) => value),
   ).toString();
+  const apiQuery = new URLSearchParams({
+    ...Object.fromEntries(new URLSearchParams(query)),
+    ...pagingQuery(params),
+  }).toString();
   const list = await serverApi<LeadList<DemoRow | QuoteRow | MessageRow>>(
-    `/team/leads/${LEAD_PATH[kind]}${query ? `?${query}` : ""}`,
+    `/team/leads/${LEAD_PATH[kind]}${apiQuery ? `?${apiQuery}` : ""}`,
     { signIn: routes.teamSignIn },
   );
   return (

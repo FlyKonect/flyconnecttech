@@ -12,6 +12,7 @@ import { AccountDeletionService } from '../accounts/account-deletion.service.js'
 import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import { CustomersService } from './customers.service.js';
+import { parsePaging } from '../common/paging.js';
 
 export const PROJECT_TYPES = [
   'WEBSITE',
@@ -79,8 +80,13 @@ export class CustomersController {
 
   @Can('customers.view')
   @Get()
-  list(@CurrentUser() actor: SignedIn, @Query('q') q?: string) {
-    return this.customers.list(actor, q);
+  list(
+    @CurrentUser() actor: SignedIn,
+    @Query('q') q?: string,
+    @Query('page') page?: string,
+    @Query('size') size?: string,
+  ) {
+    return this.customers.list(actor, q, parsePaging(page, size));
   }
 
   @Can('customers.manage')

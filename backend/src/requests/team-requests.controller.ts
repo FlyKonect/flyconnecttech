@@ -17,6 +17,7 @@ import type { Priority } from '../generated/prisma/client.js';
 import { attachmentDisposition } from './portal-requests.controller.js';
 import { TeamDashboardService } from './team-dashboard.service.js';
 import { STATUS_SLUGS, TeamRequestsService } from './team-requests.service.js';
+import { parsePaging } from '../common/paging.js';
 
 const STATUSES = [
   'SUBMITTED',
@@ -89,16 +90,23 @@ export class TeamRequestsController {
     @Query('project') projectId?: string,
     @Query('priority') priority?: string,
     @Query('assignee') assignee?: string,
+    @Query('page') page?: string,
+    @Query('size') size?: string,
   ) {
     const uuid = (value?: string) =>
       value && z.uuid().safeParse(value).success ? value : undefined;
-    return this.requests.list(user, {
-      status: status ? STATUS_SLUGS[status] : undefined,
-      search: search?.slice(0, 100),
-      projectId: uuid(projectId),
-      priority: PRIORITIES.find((p) => p === priority) as Priority | undefined,
-      assignee: assignee === 'unassigned' ? assignee : uuid(assignee),
-    });
+    return this.requests.list(
+      user,
+      {
+        status: status ? STATUS_SLUGS[status] : undefined,
+        search: search?.slice(0, 100),
+        projectId: uuid(projectId),
+        priority: PRIORITIES.find((p) => p === priority) as
+          Priority | undefined,
+        assignee: assignee === 'unassigned' ? assignee : uuid(assignee),
+      },
+      parsePaging(page, size),
+    );
   }
 
   @Can('requests.view')

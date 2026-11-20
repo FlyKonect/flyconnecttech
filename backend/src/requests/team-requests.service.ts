@@ -29,9 +29,9 @@ import {
 } from './request-writes.js';
 import { dueTime } from './sla.js';
 import { TeamDashboardService } from './team-dashboard.service.js';
+import { pageWindow, type Paging } from '../common/paging.js';
 
 /** The newest rows the requests list shows at once. */
-export const LIST_LIMIT = 200;
 
 /** The ?status= values in the team's addresses (lib/team-nav.ts). */
 export const STATUS_SLUGS: Record<string, RequestStatus> = {
@@ -94,8 +94,8 @@ export class TeamRequestsService {
     private readonly dashboard: TeamDashboardService,
   ) {}
 
-  /** The requests list: tab counts, the newest matching rows, filter choices. */
-  async list(actor: SignedIn, filters: ListFilters) {
+  /** The requests list: tab counts, one page of matching rows (newest first), filter choices. */
+  async list(actor: SignedIn, filters: ListFilters, paging: Paging) {
     const search = filters.search?.trim();
     const where: Prisma.SupportRequestWhereInput = {
       AND: [
@@ -123,7 +123,9 @@ export class TeamRequestsService {
       ? { AND: [where, { status: filters.status }] }
       : where;
 
-    const [groups, rows, total, projects, developers] = await Promise.all([
+    const total = await this.prisma.supportRequest.count({ where: shown });
+    const window = pageWindow(paging, total);
+    const [groups, rows, projects, developers] = await Promise.all([
       this.prisma.supportRequest.groupBy({
         by: ['status'],
         where,
@@ -132,10 +134,10 @@ export class TeamRequestsService {
       this.prisma.supportRequest.findMany({
         where: shown,
         orderBy: [{ createdAt: 'desc' }, { code: 'desc' }],
-        take: LIST_LIMIT,
+        skip: window.skip,
+        take: window.take,
         select: rowSelect,
       }),
-      this.prisma.supportRequest.count({ where: shown }),
       this.projectChoices(actor),
       can(actor, 'requests.assign') ? this.dashboard.developers() : [],
     ]);
@@ -158,7 +160,8 @@ export class TeamRequestsService {
         },
       })),
       total,
-      limit: LIST_LIMIT,
+      page: window.page,
+      pageSize: window.pageSize,
       projects,
       developers: developers.map(({ id, name }) => ({ id, name })),
     };
