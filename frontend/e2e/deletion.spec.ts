@@ -25,6 +25,8 @@ test("an admin deletes a team member, then restores their history", async ({
 
   await page.goto("/team/users");
   const table = page.getByRole("table", { name: "Team members" });
+  const search = page.getByRole("searchbox", { name: "Search team members" });
+  await search.fill(developer.email);
   const row = table.getByRole("row").filter({ hasText: developer.email });
   await row.getByRole("button", { name: `Actions for ${name}` }).click();
   await page.getByRole("menuitem", { name: "Delete user" }).click();
@@ -54,6 +56,7 @@ test("an admin deletes a team member, then restores their history", async ({
   await expect(
     toast(page, `Account restored. Invitation sent to ${developer.email}`),
   ).toBeVisible();
+  await search.fill(developer.email);
   await expect(
     table.getByRole("row").filter({ hasText: developer.email }),
   ).toContainText("Invited");

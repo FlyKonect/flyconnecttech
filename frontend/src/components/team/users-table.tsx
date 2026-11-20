@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
 import { Avatar } from "@/components/ui/avatar";
@@ -81,13 +82,37 @@ export function UsersTable({
       </RowMenu>
     ) : null;
 
+  // Search by name, email or job title; the list is long once the team grows.
+  const [query, setQuery] = React.useState("");
+  const needle = query.trim().toLowerCase();
+  const shown = needle
+    ? rows.filter((u) =>
+        [u.name, u.email, u.jobTitle ?? ""].some((text) =>
+          text.toLowerCase().includes(needle),
+        ),
+      )
+    : rows;
+
   return (
     <>
+      <label className="flex h-11 w-full max-w-[380px] items-center gap-2 rounded-xl border border-input bg-white px-3.5 text-muted-foreground focus-within:border-navy">
+        <Search aria-hidden="true" className="size-4 shrink-0" />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          aria-label="Search team members"
+          placeholder="Search by name, email or job title"
+          className="min-w-0 flex-1 bg-transparent text-sm text-navy outline-none placeholder:text-muted-foreground"
+        />
+      </label>
       <DataTable<TeamUserRow>
         caption="Team members"
-        rows={rows}
+        rows={shown}
         rowKey={(u) => u.id}
-        empty="No team members yet."
+        empty={
+          needle ? "No team members match your search." : "No team members yet."
+        }
         columns={[
           {
             header: "Name",

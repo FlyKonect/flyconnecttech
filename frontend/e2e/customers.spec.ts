@@ -289,6 +289,9 @@ test("Add user: admins can't pick super admin; the new developer shows as invite
   const invitation = await waitForEmail(email);
   expect(invitation.text).toContain("Developer");
 
+  await page
+    .getByRole("searchbox", { name: "Search team members" })
+    .fill(email);
   const row = page
     .getByRole("table", { name: "Team members" })
     .getByRole("row")
