@@ -126,6 +126,188 @@ export function ProjectStatusSelect({
   );
 }
 
+/** "Edit company": rename the customer's company (super admins and admins). */
+export function EditCompanyButton({
+  customerId,
+  company,
+}: {
+  customerId: string;
+  company: string;
+}) {
+  const router = useRouter();
+  const toast = useToast();
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState(company);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault();
+    if (!name.trim()) {
+      setError("Enter the company name");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await apiFetch(`/team/customers/${customerId}/details`, {
+        method: "POST",
+        body: { company: name.trim() },
+      });
+      toast("Company name saved");
+      setOpen(false);
+      router.refresh();
+    } catch (failed) {
+      setError(apiErrorMessage(failed));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        onClick={() => {
+          setName(company);
+          setError("");
+          setOpen(true);
+        }}
+      >
+        Edit company
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogTitle>Edit company name</DialogTitle>
+          <DialogDescription>
+            The new name shows everywhere: lists, requests, reports and emails.
+          </DialogDescription>
+          <form noValidate onSubmit={save} className="mt-4 flex flex-col gap-4">
+            <Field label="Company name" required>
+              <Input
+                value={name}
+                maxLength={160}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </Field>
+            {error ? <FormError>{error}</FormError> : null}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={busy}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={busy}>
+                {busy ? "Saving…" : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/** "Edit" on a project row: its name and type (super admins and admins). */
+export function EditProjectButton({
+  customerId,
+  project,
+}: {
+  customerId: string;
+  project: { id: string; code: string; name: string; type: string };
+}) {
+  const router = useRouter();
+  const toast = useToast();
+  const [open, setOpen] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const form = useForm<NewProjectInput>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      name: project.name,
+      type: project.type as NewProjectInput["type"],
+    },
+  });
+
+  const save = form.handleSubmit(async (values) => {
+    setError("");
+    try {
+      await apiFetch(`/team/customers/${customerId}/projects/${project.id}`, {
+        method: "POST",
+        body: values,
+      });
+      toast(`${project.code} saved`);
+      setOpen(false);
+      router.refresh();
+    } catch (failed) {
+      setError(apiErrorMessage(failed));
+    }
+  });
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        aria-label={`Edit ${project.name}`}
+        onClick={() => {
+          form.reset({
+            name: project.name,
+            type: project.type as NewProjectInput["type"],
+          });
+          setError("");
+          setOpen(true);
+        }}
+      >
+        Edit
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogTitle>Edit {project.code}</DialogTitle>
+          <DialogDescription>
+            The customer sees the new name in their portal and on their
+            requests.
+          </DialogDescription>
+          <form noValidate onSubmit={save} className="mt-4 flex flex-col gap-4">
+            <Field
+              label="Project name"
+              required
+              error={form.formState.errors.name?.message}
+            >
+              <Input {...form.register("name")} />
+            </Field>
+            <Field label="Project type">
+              <Select {...form.register("type")}>
+                {Object.entries(projectTypes).map(([value, { label }]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            {error ? <FormError>{error}</FormError> : null}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={form.formState.isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Saving…" : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 /** The "Add project" row under the customer's projects. */
 export function AddProjectRow({
   customerId,

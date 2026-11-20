@@ -250,4 +250,116 @@ export class TeamUsersService {
     }, ACCOUNT_TX);
     return { ok: true };
   }
+
+  /**
+   * Change role: the same limits as adding (canInviteRole for the old and
+   * the new role), never yourself. Only developers hold requests: a
+   * developer who becomes something else hands their open requests back
+   * (Under Review, unassigned); someone who becomes a developer hands back
+   * the leads they owned. It applies from their next click (SessionGuard
+   * reads the role every time).
+   */
+  async changeRole(actor: SignedIn, userId: string, role: TeamRole) {
+    const target = await this.manageable(actor, userId, 'change the role of');
+    if (!canInviteRole(actor, role)) {
+      throw new ForbiddenException({
+        code: 'NOT_ALLOWED',
+        message: 'Only a super admin can make someone a super admin.',
+      });
+    }
+    if (target.role === role) return { ok: true };
+
+    const targets = await this.settings.get('responseTargets');
+    const now = new Date();
+    await this.prisma.$transaction(async (tx) => {
+      const changed = await tx.user.updateMany({
+        where: { id: target.id, role: target.role },
+        data: { role },
+      });
+      if (changed.count !== 1) return;
+      const involvesDeveloper =
+        target.role === 'DEVELOPER' || role === 'DEVELOPER';
+      const unassigned = involvesDeveloper
+        ? await this.deletion.releaseWork(tx, {
+            target,
+            actor,
+            reason: 'notDeveloper',
+            now,
+            targets,
+          })
+        : [];
+      await this.audit.record(
+        {
+          actorId: actor.id,
+          action: 'user.roleChanged',
+          entityType: 'user',
+          entityId: target.id,
+          data: {
+            email: target.email,
+            from: target.role,
+            to: role,
+            unassignedRequests: unassigned,
+          },
+        },
+        tx,
+      );
+    }, ACCOUNT_TX);
+    return { ok: true };
+  }
+
+  /**
+   * Enable a disabled account. Someone who had activated it can sign in
+   * again with their old password; someone who never did goes back to
+   * Invited, and needs Resend invitation (their old link stays revoked).
+   */
+  async enable(actor: SignedIn, userId: string) {
+    const target = await this.manageable(actor, userId, 'enable');
+    if (target.status !== 'DISABLED') return { status: target.status };
+    const activated = await this.prisma.account.count({
+      where: { userId: target.id, providerId: 'credential' },
+    });
+    const status: UserStatus = activated > 0 ? 'ACTIVE' : 'INVITED';
+    await this.prisma.$transaction(async (tx) => {
+      const changed = await tx.user.updateMany({
+        where: { id: target.id, status: 'DISABLED' },
+        data: { status },
+      });
+      if (changed.count !== 1) return;
+      await this.audit.record(
+        {
+          actorId: actor.id,
+          action: 'user.enabled',
+          entityType: 'user',
+          entityId: target.id,
+          data: { email: target.email, role: target.role, now: status },
+        },
+        tx,
+      );
+    }, ACCOUNT_TX);
+    return { status };
+  }
+
+  /** A team user this person may manage: not deleted, not yourself, not above you. */
+  private async manageable(actor: SignedIn, userId: string, what: string) {
+    const target = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, role: true, status: true },
+    });
+    if (!target || target.role === 'CUSTOMER' || target.status === 'DELETED') {
+      throw new NotFoundException();
+    }
+    if (target.id === actor.id) {
+      throw new ConflictException({
+        code: 'NOT_YOURSELF',
+        message: `You can't ${what} your own account.`,
+      });
+    }
+    if (!canInviteRole(actor, target.role)) {
+      throw new ForbiddenException({
+        code: 'NOT_ALLOWED',
+        message: `Only a super admin can ${what} a super admin.`,
+      });
+    }
+    return target as typeof target & { role: TeamRole };
+  }
 }

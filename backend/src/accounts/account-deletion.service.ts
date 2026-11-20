@@ -173,13 +173,18 @@ export class AccountDeletionService {
     work: {
       target: { id: string; name: string };
       actor: SignedIn;
-      reason: 'deleted' | 'disabled';
+      /** notDeveloper: their role changed, and only developers hold requests. */
+      reason: 'deleted' | 'disabled' | 'notDeveloper';
       now: Date;
       targets: ResponseTargets;
       transferTo?: { id: string; name: string } | null;
     },
   ): Promise<string[]> {
     const { target, actor, reason, now, targets, transferTo } = work;
+    const why =
+      reason === 'notDeveloper'
+        ? `${target.name} is no longer a developer`
+        : `${target.name}'s account was ${reason}`;
     const assigned = await tx.supportRequest.findMany({
       where: { assigneeId: target.id, status: { in: [...OPEN_STATUSES] } },
       select: stateSelect,
@@ -190,10 +195,10 @@ export class AccountDeletionService {
         data: { assigneeId: transferTo?.id ?? null },
       });
       if (transferTo) {
-        const line = `Transferred from ${target.name} to ${transferTo.name} by ${actor.name} (${target.name}'s account was ${reason})`;
+        const line = `Transferred from ${target.name} to ${transferTo.name} by ${actor.name} (${why})`;
         await systemLine(tx, request.id, line, now);
       } else {
-        const line = `Unassigned because ${target.name}'s account was ${reason}`;
+        const line = `Unassigned because ${why}`;
         await this.backToReview(tx, request, line, actor.id, now, targets);
       }
     }

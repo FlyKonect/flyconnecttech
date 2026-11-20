@@ -60,6 +60,10 @@ const newCustomerSchema = z.object({
   previous: z.enum(['restore', 'fresh']).optional(),
 });
 
+const customerDetailsSchema = z.object({
+  company: z.string().trim().min(1, 'Enter the company name').max(160),
+});
+
 const projectStatusSchema = z.object({
   status: z.enum(PROJECT_STATUSES, 'Choose a status'),
 });
@@ -124,6 +128,32 @@ export class CustomersController {
     @Body({ schema: projectSchema }) body: z.infer<typeof projectSchema>,
   ) {
     return this.customers.addProject(actor, id, body);
+  }
+
+  /** Edit a project: its name and type. */
+  @Can('customers.manage')
+  @Post(':id/projects/:projectId')
+  @HttpCode(200)
+  updateProject(
+    @CurrentUser() actor: SignedIn,
+    @Param('id') id: string,
+    @Param('projectId') projectId: string,
+    @Body({ schema: projectSchema }) body: z.infer<typeof projectSchema>,
+  ) {
+    return this.customers.updateProject(actor, id, projectId, body);
+  }
+
+  /** Edit the customer: the company name. */
+  @Can('customers.manage')
+  @Post(':id/details')
+  @HttpCode(200)
+  updateDetails(
+    @CurrentUser() actor: SignedIn,
+    @Param('id') id: string,
+    @Body({ schema: customerDetailsSchema })
+    body: z.infer<typeof customerDetailsSchema>,
+  ) {
+    return this.customers.updateDetails(actor, id, body);
   }
 
   @Can('customers.manage')

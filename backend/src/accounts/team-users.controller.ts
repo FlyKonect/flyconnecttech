@@ -18,6 +18,10 @@ import { InvitationsService } from './invitations.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { TeamUsersService } from './team-users.service.js';
 
+const roleSchema = z.object({
+  role: z.enum(TEAM_ROLES, 'Choose a role'),
+});
+
 /** Disable user: who takes over their open requests (none: unassigned). */
 const disableSchema = z
   .object({ transferTo: z.string().max(36).nullish() })
@@ -68,6 +72,26 @@ export class TeamUsersController {
     @Body({ schema: newUserSchema }) body: z.infer<typeof newUserSchema>,
   ) {
     return this.users.invite(actor, body);
+  }
+
+  /** Change a team member's role (same limits as Add user). */
+  @Can('users.invite')
+  @Post(':id/role')
+  @HttpCode(200)
+  changeRole(
+    @CurrentUser() actor: SignedIn,
+    @Param('id') id: string,
+    @Body({ schema: roleSchema }) body: z.infer<typeof roleSchema>,
+  ) {
+    return this.users.changeRole(actor, id, body.role);
+  }
+
+  /** Enable a disabled account: Active again, or Invited if never activated. */
+  @Can('users.invite')
+  @Post(':id/enable')
+  @HttpCode(200)
+  enable(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
+    return this.users.enable(actor, id);
   }
 
   /** Body (optional): `transferTo`, the developer who takes over their open requests. */

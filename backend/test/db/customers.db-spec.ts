@@ -401,6 +401,49 @@ describe('the customers list and the customer page', () => {
       })
       .expect(400);
   });
+
+  it('edits the company name and a project, with audit entries; managers may not', async () => {
+    const { id } = await addCustomer();
+    await as(admin)
+      .post(`/team/customers/${id}/details`, { company: 'Skyline Travel Ltd' })
+      .expect(200);
+    const detail = await as(admin).get(`/team/customers/${id}`).expect(200);
+    expect(detail.body.company).toBe('Skyline Travel Ltd');
+    const renamed = await auditOf('customer.updated', id);
+    expect(renamed?.data).toMatchObject({
+      from: { company: 'Skyline Travel' },
+      to: { company: 'Skyline Travel Ltd' },
+    });
+
+    const project = detail.body.projects[0] as { id: string };
+    await as(admin)
+      .post(`/team/customers/${id}/projects/${project.id}`, {
+        name: 'Skyline booking engine',
+        type: 'WEB_APPLICATION',
+      })
+      .expect(200);
+    const after = await as(admin).get(`/team/customers/${id}`).expect(200);
+    expect(after.body.projects[0]).toMatchObject({
+      name: 'Skyline booking engine',
+      type: 'WEB_APPLICATION',
+    });
+    expect(await auditOf('project.updated', project.id)).toBeTruthy();
+
+    // Checked, scoped to the customer, and admins only.
+    await as(admin)
+      .post(`/team/customers/${id}/details`, { company: '  ' })
+      .expect(400);
+    const other = await addCustomer();
+    await as(admin)
+      .post(`/team/customers/${other.id}/projects/${project.id}`, {
+        name: 'X',
+        type: 'WEBSITE',
+      })
+      .expect(404);
+    await as(manager)
+      .post(`/team/customers/${id}/details`, { company: 'Nope' })
+      .expect(403);
+  });
 });
 
 describe('invitations and reset links from the team', () => {
@@ -574,6 +617,96 @@ describe('Disable user', () => {
     await as(admin).post(`/team/users/${superAdmin.id}/disable`).expect(403);
     await as(admin).post(`/team/users/${superAdmin.id}/invitation`).expect(403);
     await as(manager).post(`/team/users/${developer.id}/disable`).expect(403);
+  });
+});
+
+describe('Change role and Enable user', () => {
+  it('changes a role, which applies at once, with an audit entry', async () => {
+    const person_ = await person('MANAGER', 'Ruth Adeyemi');
+    await as(person_).get('/team/customers').expect(200);
+
+    await as(admin)
+      .post(`/team/users/${person_.id}/role`, { role: 'DEVELOPER' })
+      .expect(200);
+    // A developer sees no customers: the new role counts from the next click.
+    await as(person_).get('/team/customers').expect(403);
+    const log = await auditOf('user.roleChanged', person_.id);
+    expect(log?.data).toMatchObject({ from: 'MANAGER', to: 'DEVELOPER' });
+  });
+
+  it('a developer who becomes a manager hands back their open requests', async () => {
+    const dev = await person('DEVELOPER', 'Kofi Mensah');
+    const { id } = await addCustomer();
+    const detail = await as(admin).get(`/team/customers/${id}`).expect(200);
+    const request = await prisma.$transaction(async (tx) =>
+      tx.supportRequest.create({
+        data: {
+          code: `TKT-ROLE-${Date.now() % 100000}`,
+          title: 'Hotel search slow',
+          description: 'It takes a minute.',
+          type: 'TECHNICAL_ISSUE',
+          priority: 'MEDIUM',
+          status: 'IN_PROGRESS',
+          projectId: detail.body.projects[0].id,
+          customerId: id,
+          assigneeId: dev.id,
+        },
+      }),
+    );
+    await as(admin)
+      .post(`/team/users/${dev.id}/role`, { role: 'MANAGER' })
+      .expect(200);
+    const after = await prisma.supportRequest.findUniqueOrThrow({
+      where: { id: request.id },
+    });
+    expect(after.assigneeId).toBeNull();
+    expect(after.status).toBe('UNDER_REVIEW');
+  });
+
+  it('same limits as Add user: not yourself, admins never to or from super admin', async () => {
+    const target = await person('DEVELOPER', 'Ines Duarte');
+    const self = await as(admin)
+      .post(`/team/users/${admin.id}/role`, { role: 'MANAGER' })
+      .expect(409);
+    expect(self.body.code).toBe('NOT_YOURSELF');
+    await as(admin)
+      .post(`/team/users/${target.id}/role`, { role: 'SUPER_ADMIN' })
+      .expect(403);
+    await as(admin)
+      .post(`/team/users/${superAdmin.id}/role`, { role: 'ADMIN' })
+      .expect(403);
+    await as(manager)
+      .post(`/team/users/${target.id}/role`, { role: 'MANAGER' })
+      .expect(403);
+    await as(admin)
+      .post(`/team/users/${target.id}/role`, { role: 'CUSTOMER' })
+      .expect(400);
+    await as(superAdmin)
+      .post(`/team/users/${target.id}/role`, { role: 'SUPER_ADMIN' })
+      .expect(200);
+  });
+
+  it('enables a disabled account: Active again if activated, Invited if not', async () => {
+    const active = await person('DEVELOPER', 'Tariq Aziz');
+    await as(admin).post(`/team/users/${active.id}/disable`).expect(200);
+    const back = await as(admin)
+      .post(`/team/users/${active.id}/enable`)
+      .expect(200);
+    expect(back.body).toEqual({ status: 'ACTIVE' });
+    expect((await signIn(active.email)).status).toBe(200);
+    expect(await auditOf('user.enabled', active.id)).toBeTruthy();
+
+    const email = uniqueEmail('never');
+    const added = await as(admin)
+      .post('/team/users', { name: 'Never Came', email, role: 'DEVELOPER' })
+      .expect(201);
+    await as(admin).post(`/team/users/${added.body.id}/disable`).expect(200);
+    const invited = await as(admin)
+      .post(`/team/users/${added.body.id}/enable`)
+      .expect(200);
+    expect(invited.body).toEqual({ status: 'INVITED' });
+
+    await as(manager).post(`/team/users/${active.id}/enable`).expect(403);
   });
 });
 

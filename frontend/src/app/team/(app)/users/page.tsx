@@ -61,6 +61,13 @@ async function UsersContent() {
         rows={list.rows}
         timeZone={me.timezone}
         canAdd={me.actions.includes("users.invite")}
+        roleChoices={
+          !me.actions.includes("users.invite")
+            ? []
+            : me.role === "SUPER_ADMIN"
+              ? ["SUPER_ADMIN", "ADMIN", "MANAGER", "DEVELOPER"]
+              : ["ADMIN", "MANAGER", "DEVELOPER"]
+        }
       />
 
       <p className="text-[13px] text-muted-foreground">

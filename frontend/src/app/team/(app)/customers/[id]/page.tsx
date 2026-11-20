@@ -7,6 +7,8 @@ import {
   AccountButton,
   AddProjectRow,
   DeleteCustomerButton,
+  EditCompanyButton,
+  EditProjectButton,
   ProjectStatusSelect,
 } from "@/components/team/customer-actions";
 import { TeamPageTitle } from "@/components/team/team-shell";
@@ -77,6 +79,12 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
         {customer.canManage || customer.canDelete ? (
           <div className="flex flex-wrap items-center gap-2.5">
             {customer.canManage ? (
+              <EditCompanyButton
+                customerId={customer.id}
+                company={customer.company}
+              />
+            ) : null}
+            {customer.canManage ? (
               <AccountButton
                 userId={contact.id}
                 email={contact.email}
@@ -125,10 +133,16 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
                     </span>
                   </span>
                   {customer.canManage ? (
-                    <ProjectStatusSelect
-                      customerId={customer.id}
-                      project={project}
-                    />
+                    <>
+                      <ProjectStatusSelect
+                        customerId={customer.id}
+                        project={project}
+                      />
+                      <EditProjectButton
+                        customerId={customer.id}
+                        project={project}
+                      />
+                    </>
                   ) : (
                     <LabelPill group="projectStatus" value={project.status} />
                   )}

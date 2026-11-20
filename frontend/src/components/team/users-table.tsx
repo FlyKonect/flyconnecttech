@@ -23,6 +23,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { formatDayMonth, formatWhen } from "@/lib/format-time";
 import { routes } from "@/lib/routes";
+import { roles, type TeamRole } from "@/lib/labels";
 import type { TeamUserRow } from "@/lib/team/types";
 
 import { plural } from "@/lib/plural";
@@ -46,17 +47,38 @@ export function UsersTable({
   rows,
   timeZone,
   canAdd = false,
+  roleChoices = [],
 }: {
   rows: TeamUserRow[];
   timeZone: string;
   /** Shows "+ Add user" at the right of the search row. */
   canAdd?: boolean;
+  /** The roles this person may give (Change role). */
+  roleChoices?: TeamRole[];
 }) {
   const router = useRouter();
   const toast = useToast();
   const [disabling, setDisabling] = React.useState<TeamUserRow | null>(null);
   const [deleting, setDeleting] = React.useState<TeamUserRow | null>(null);
+  const [changing, setChanging] = React.useState<TeamUserRow | null>(null);
   const now = new Date();
+
+  async function enable(user: TeamUserRow) {
+    try {
+      const { status } = await apiFetch<{ status: string }>(
+        `/team/users/${user.id}/enable`,
+        { method: "POST" },
+      );
+      toast(
+        status === "INVITED"
+          ? `${user.name} is enabled. Resend the invitation so they can activate it.`
+          : `${user.name} is enabled and can sign in again`,
+      );
+      router.refresh();
+    } catch (failed) {
+      toast(apiErrorMessage(failed));
+    }
+  }
 
   async function resend(user: TeamUserRow) {
     try {
@@ -68,18 +90,25 @@ export function UsersTable({
   }
 
   const menu = (user: TeamUserRow) =>
-    user.canManage && (user.status !== "DISABLED" || user.canDelete) ? (
+    user.canManage ? (
       <RowMenu label={`Actions for ${user.name}`}>
         {user.status === "INVITED" ? (
           <RowMenuItem onSelect={() => resend(user)}>
             Resend invitation
           </RowMenuItem>
         ) : null}
-        {user.status !== "DISABLED" ? (
+        {roleChoices.length > 0 ? (
+          <RowMenuItem onSelect={() => setChanging(user)}>
+            Change role
+          </RowMenuItem>
+        ) : null}
+        {user.status === "DISABLED" ? (
+          <RowMenuItem onSelect={() => enable(user)}>Enable user</RowMenuItem>
+        ) : (
           <RowMenuItem danger onSelect={() => setDisabling(user)}>
             Disable user
           </RowMenuItem>
-        ) : null}
+        )}
         {user.canDelete ? (
           <RowMenuItem danger onSelect={() => setDeleting(user)}>
             Delete user
@@ -199,6 +228,18 @@ export function UsersTable({
           }}
         />
       ) : null}
+      {changing ? (
+        <ChangeRoleDialog
+          user={changing}
+          choices={roleChoices}
+          onClose={() => setChanging(null)}
+          onDone={(role) => {
+            toast(`${changing.name} is now ${roles[role].label}`);
+            setChanging(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
       {deleting ? (
         <DeleteUserDialog
           user={deleting}
@@ -211,6 +252,89 @@ export function UsersTable({
         />
       ) : null}
     </>
+  );
+}
+
+/** "Change {name}'s role": the roles this person may give. */
+function ChangeRoleDialog({
+  user,
+  choices,
+  onClose,
+  onDone,
+}: {
+  user: TeamUserRow;
+  choices: TeamRole[];
+  onClose: () => void;
+  onDone: (role: TeamRole) => void;
+}) {
+  const [role, setRole] = React.useState<TeamRole>(user.role as TeamRole);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const first = user.name.split(/\s+/)[0] || user.name;
+  const handsBack =
+    user.role === "DEVELOPER" &&
+    role !== "DEVELOPER" &&
+    (user.openAssigned ?? 0) > 0;
+
+  async function save() {
+    setBusy(true);
+    setError("");
+    try {
+      await apiFetch(`/team/users/${user.id}/role`, {
+        method: "POST",
+        body: { role },
+      });
+      onDone(role);
+    } catch (failed) {
+      setError(apiErrorMessage(failed));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => (open ? null : onClose())}>
+      <DialogContent>
+        <DialogTitle>Change {user.name}&apos;s role</DialogTitle>
+        <DialogDescription>
+          The new role applies straight away, the next time {first} opens a
+          page.
+        </DialogDescription>
+        <div className="mt-4">
+          <Field label="Role">
+            <Select
+              value={role}
+              onChange={(event) => setRole(event.target.value as TeamRole)}
+            >
+              {choices.map((choice) => (
+                <option key={choice} value={choice}>
+                  {roles[choice].label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+        {handsBack ? (
+          <p className="mt-4 rounded-[14px] border border-[#FDE68A] bg-[#FFFBEB] px-3.5 py-3 text-sm leading-[1.55] text-[#92400E]">
+            Only developers work on requests: {first}&apos;s{" "}
+            {plural(user.openAssigned ?? 0, "open request")} go back to Under
+            Review, unassigned.
+          </p>
+        ) : null}
+        {error ? (
+          <div className="mt-4">
+            <FormError>{error}</FormError>
+          </div>
+        ) : null}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button onClick={save} disabled={busy || role === user.role}>
+            {busy ? "Saving…" : "Change role"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

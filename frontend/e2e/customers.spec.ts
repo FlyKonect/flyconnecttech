@@ -200,6 +200,76 @@ test("the customer page: add a project, change its status, send a reset link", a
   expect(reset.subject).toBe("Reset your FlyConnect Tech password");
 });
 
+test("the customer page: edit the company name and a project", async ({
+  page,
+}) => {
+  const admin = await createPerson("admin");
+  const name = `Harbour ${tag()}`;
+  const { id } = await addCustomer(admin, `${name} booking site`);
+  await signInBrowser(page.context(), admin);
+  await page.goto(`/team/customers/${id}`);
+
+  await page.getByRole("button", { name: "Edit company" }).click();
+  const company = page.getByRole("dialog", { name: "Edit company name" });
+  await company.getByLabel("Company name *").fill(`${name} Travel Ltd`);
+  await company.getByRole("button", { name: "Save" }).click();
+  await expect(toast(page, "Company name saved")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Customer" })).toContainText(
+    `${name} Travel Ltd`,
+  );
+
+  await page.getByRole("button", { name: `Edit ${name} booking site` }).click();
+  const project = page.getByRole("dialog", { name: /^Edit P-\d+$/ });
+  await project.getByLabel("Project name *").fill(`${name} booking engine`);
+  await project.getByLabel("Project type").selectOption("WEB_APPLICATION");
+  await project.getByRole("button", { name: "Save" }).click();
+  await expect(toast(page, /P-\d+ saved/)).toBeVisible();
+  await expect(page.getByText(`${name} booking engine`)).toBeVisible();
+  await expect(page.getByText(/P-\d+ · Web application/)).toBeVisible();
+});
+
+test("Users: change a role, disable, then enable again", async ({ page }) => {
+  const admin = await createPerson("admin");
+  const name = `Role ${tag()}`;
+  const person = await createPerson("developer", name);
+  await signInBrowser(page.context(), admin);
+  await page.goto("/team/users");
+  await page
+    .getByRole("searchbox", { name: "Search team members" })
+    .fill(person.email);
+  const row = page
+    .getByRole("table", { name: "Team members" })
+    .getByRole("row")
+    .filter({ hasText: person.email });
+
+  await row.getByRole("button", { name: `Actions for ${name}` }).click();
+  await page.getByRole("menuitem", { name: "Change role" }).click();
+  const dialog = page.getByRole("dialog", { name: `Change ${name}'s role` });
+  // Admins can't give the super admin role.
+  await expect(dialog.getByRole("option", { name: "Super admin" })).toHaveCount(
+    0,
+  );
+  await dialog.getByLabel("Role").selectOption("MANAGER");
+  await dialog.getByRole("button", { name: "Change role" }).click();
+  await expect(toast(page, `${name} is now Manager`)).toBeVisible();
+  await expect(row).toContainText("Manager");
+
+  await row.getByRole("button", { name: `Actions for ${name}` }).click();
+  await page.getByRole("menuitem", { name: "Disable user" }).click();
+  await page
+    .getByRole("dialog", { name: `Disable ${name}?` })
+    .getByRole("button", { name: "Disable user" })
+    .click();
+  await expect(row).toContainText("Disabled");
+
+  await row.getByRole("button", { name: `Actions for ${name}` }).click();
+  await page.getByRole("menuitem", { name: "Enable user" }).click();
+  await expect(
+    toast(page, `${name} is enabled and can sign in again`),
+  ).toBeVisible();
+  await expect(row).toContainText("Active");
+});
+
 test("a manager only looks: View only, no add, no changes", async ({
   page,
 }) => {

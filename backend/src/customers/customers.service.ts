@@ -281,6 +281,85 @@ export class CustomersService {
     }, TX);
   }
 
+  /** Edit a project's name and type (customers.manage). */
+  async updateProject(
+    actor: SignedIn,
+    customerId: string,
+    projectId: string,
+    input: { name: string; type: ProjectType },
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const project = await tx.project.findFirst({
+        where: { id: projectId, customerId, customer: { deletedAt: null } },
+        select: { id: true, code: true, name: true, type: true },
+      });
+      if (!project) throw new NotFoundException();
+      const name = input.name.trim();
+      if (project.name === name && project.type === input.type) {
+        return { code: project.code };
+      }
+      await tx.project.update({
+        where: { id: project.id },
+        data: { name, type: input.type },
+      });
+      await this.audit.record(
+        {
+          actorId: actor.id,
+          action: 'project.updated',
+          entityType: 'project',
+          entityId: project.id,
+          data: {
+            code: project.code,
+            from: { name: project.name, type: project.type },
+            to: { name, type: input.type },
+          },
+        },
+        tx,
+      );
+      return { code: project.code };
+    }, TX);
+  }
+
+  /**
+   * Edit the customer's company name (customers.manage). The country shown
+   * is the contact's own, from their profile.
+   */
+  async updateDetails(
+    actor: SignedIn,
+    customerId: string,
+    input: { company: string },
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const customer = await tx.customer.findUnique({
+        where: { id: customerId, deletedAt: null },
+        select: { id: true, company: true },
+      });
+      if (!customer) throw new NotFoundException();
+      const company = input.company.trim();
+      if (customer.company === company) {
+        return { ok: true };
+      }
+      await tx.customer.update({
+        where: { id: customer.id },
+        data: { company },
+      });
+      await this.audit.record(
+        {
+          actorId: actor.id,
+          action: 'customer.updated',
+          entityType: 'customer',
+          entityId: customer.id,
+          data: {
+            from: { company: customer.company },
+            to: { company },
+          },
+        },
+        tx,
+      );
+      return { ok: true };
+    }, TX);
+  }
+
   async setProjectStatus(
     actor: SignedIn,
     customerId: string,
