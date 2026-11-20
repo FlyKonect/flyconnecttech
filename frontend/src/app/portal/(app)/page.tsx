@@ -84,7 +84,7 @@ async function PortalOverviewPageContent() {
       <div className="flex flex-wrap items-start gap-5">
         <section
           aria-labelledby="recent-requests"
-          className="min-w-0 flex-[1.6_1_480px] rounded-[22px] border border-line-2 bg-white p-[22px]"
+          className="min-w-0 flex-[1.6_1_480px] rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
         >
           <div className="flex items-center justify-between gap-3">
             <h2 id="recent-requests" className="text-[17px] font-bold">
@@ -127,7 +127,7 @@ async function PortalOverviewPageContent() {
 
         <section
           aria-labelledby="recent-activity"
-          className="min-w-0 flex-[1_1_300px] rounded-[22px] border border-line-2 bg-white p-[22px]"
+          className="min-w-0 flex-[1_1_300px] rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
         >
           <h2 id="recent-activity" className="text-[17px] font-bold">
             Recent activity

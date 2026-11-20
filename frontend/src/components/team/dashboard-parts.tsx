@@ -71,7 +71,7 @@ export function DashboardCard({
     <section
       aria-labelledby={id}
       className={cn(
-        "min-w-0 rounded-[22px] border border-line bg-white p-[22px]",
+        "min-w-0 rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]",
         className,
       )}
     >
