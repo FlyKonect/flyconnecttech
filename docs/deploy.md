@@ -418,6 +418,73 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 - After the first sign-in, look in the backend's `stderr.log` (File Manager > `flyconnect-tech/backend`) for the words **"Rate limiting could not determine a client IP"**. If they appear, tell Claude: the hosting is not passing on visitors' addresses.
 - Passwords are only in `.env` on Krystal (permission `600`). GitHub holds only the login key.
 
+## Step 17. WhatsApp message after each deploy (optional)
+
+After every successful deploy, GitHub can send a WhatsApp message with what went live: new features, improvements, bug fixes and other changes since the last deploy, plus a link to the full list. It uses Meta's official **WhatsApp Cloud API**.
+
+Two limits from Meta:
+- It sends to **individual numbers**, not to a WhatsApp group. Add each person's number (Meta's test mode allows up to 5).
+- A business may message someone first only with an **approved template**, so the message's layout is fixed by the template below.
+
+Until the three secrets in part 6 exist, deploys work as before and simply skip the message.
+
+**1. Create the Meta app**
+1. Go to https://developers.facebook.com, sign in, then **My Apps** > **Create app**.
+2. Choose the use case **Connect with customers through WhatsApp** (or type **Business**), and connect your Meta business account (create one if asked).
+3. In the app, open **WhatsApp** > **API Setup**.
+
+**2. The sending number**
+- Meta gives you a free **test number** to start with. Its **Phone number ID** is shown on the API Setup page. Copy it.
+- Later you can add your own number there (**Add phone number**). It must be a number that is not already used in the WhatsApp app.
+
+**3. Who receives it**
+- On the API Setup page, under **To**, choose **Manage phone number list** and add each person's WhatsApp number. Each person gets a code on WhatsApp to confirm.
+
+**4. A permanent access token** (the one on the API Setup page stops working after 24 hours)
+1. Go to https://business.facebook.com > **Settings** > **Users** > **System users** > **Add**. Name it `github-deploy`, role **Admin**.
+2. **Assign assets**: your app (full control) and your WhatsApp account (full control).
+3. **Generate new token**: choose the app, expiry **Never**, and tick `whatsapp_business_messaging` and `whatsapp_business_management`. Copy the token now: it is shown once.
+
+**5. The message template**
+1. In **WhatsApp Manager** > **Message templates** > **Create template**.
+2. Category **Utility**. Name `deploy_report`. Language **English (UK)**.
+3. Body: copy exactly this (the `{{1}}` to `{{8}}` are filled in by GitHub):
+
+```
+FlyConnect Tech has been deployed to the live site ✅
+When: {{1}}
+Deployed: {{2}}
+Live: {{3}}
+
+New features: {{4}}
+Improvements: {{5}}
+Bug fixes: {{6}}
+Other changes: {{7}}
+
+Full details: {{8}}
+
+This message was sent automatically after a successful deploy.
+```
+
+4. Meta asks for sample values. For example: `20 Nov 2026, 14:30` · `Website and backend` · `https://flyconnecttech.co.uk` · `New request on one page` · `Cleaner dashboards` · `Reports page loads again` · `Notes updated` · `https://github.com/`.
+5. **Submit**. Approval usually takes minutes, sometimes a day. Wait until it says **Active**.
+
+**6. Tell GitHub** (repository > Settings > Secrets and variables > Actions)
+
+| Secret | Value |
+|---|---|
+| `WHATSAPP_TOKEN` | the permanent token from part 4 |
+| `WHATSAPP_PHONE_NUMBER_ID` | the Phone number ID from part 2 |
+| `WHATSAPP_TO` | the numbers from part 3 with the country code and no `+` or spaces, separated by commas, for example `447700900123,447700900456` |
+
+Variables, only if yours differ: `WHATSAPP_TEMPLATE` (default `deploy_report`), `WHATSAPP_TEMPLATE_LANG` (default `en_GB`; it must match the template's language), `WHATSAPP_API_VERSION` (default `v23.0`).
+
+**7. Try it:** Actions > Deploy > **Run workflow**. At the end, the step **Send the WhatsApp message** says "sent" for each number. The run's page (**Summary**) shows the full grouped list.
+
+- Meta may charge a small fee per message, depending on the country. See Meta's WhatsApp pricing page.
+- How changes are sorted: a commit title with "fix", "bug" or "works again" goes under Bug fixes; "add", "new" or "option" under New features; "cleaner", "clearer", "faster", "better", "redesign", "layout" or "design" under Improvements; the rest under Other changes. So write commit titles that say what changed.
+- The list covers the commits since the last deploy. The live website's folder keeps a small file, `.deployed-commit`, to remember it.
+
 ## If something goes wrong
 
 | What you see | What to do |
@@ -443,6 +510,8 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 | "Shell access is not enabled on your account! If you need shell access please contact support." | The key worked, but Krystal has SSH shell access switched off. Ask Krystal support to enable it (Step 1). Meanwhile the website can go live from File Manager ("Without SSH", after Step 7) |
 | A warning about "post-quantum key exchange" | Harmless: the server uses an older SSH version. The login still works |
 | PowerShell says "Corrupted MAC on input" when you test the login | A known fault in the SSH program that comes with Windows. Use **Git Bash** instead (Step 3), or add `-m hmac-sha2-512` after `ssh`. It does not affect GitHub's deploys |
+| The WhatsApp step says "skipped" | The three secrets from Step 17 are not all set |
+| The WhatsApp step says "failed (400)" or "(401)" | 401: the token is wrong or expired (make a permanent one, Step 17 part 4). 400 with "template": the template is not Active yet, or its name or language differs from `WHATSAPP_TEMPLATE` / `WHATSAPP_TEMPLATE_LANG`. 400 with "recipient": the number is not on the list in Step 17 part 3. The deploy itself still worked |
 | "rsync: command not found" | Ask Krystal support to enable `rsync` for SSH on your account |
 | The Checks part is red | A test failed. Nothing was deployed. Open the red step to see which test. The browser tests run in two halves, "Browser tests (1/2)" and "(2/2)"; the failing half keeps a report you can download from the run's page |
 | A package seems missing on the hosting after a deploy | The deploy installs the backend's packages only when `package-lock.json` changed (a new or upgraded package always changes it). To force an install, delete the file `.installed-lock` in the backend folder in File Manager, then run the deploy again (Actions > Deploy > Run workflow) |
