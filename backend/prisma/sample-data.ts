@@ -4,7 +4,10 @@
 // database is on this computer (localhost / 127.0.0.1).
 //
 //   npm run db:sample            add it (once; a second run says it's there)
-//   npm run db:sample -- --remove   take it all out again
+//   npm run db:sample -- --for demo.customer@example.com
+//                                 sample projects and requests for a real
+//                                 customer account (projects "… (sample)")
+//   npm run db:sample -- --remove   take it all out again (both kinds)
 //
 // Every sample email ends in @sample.flyconnecttech.test, so it is easy to
 // tell apart and to remove. One sample customer can sign in to the client
@@ -48,6 +51,10 @@ if (
 
 const prisma = createPrismaClient(databaseUrl);
 const remove = process.argv.includes('--remove');
+// --for someone@example.com: sample projects and requests for that customer.
+const forIndex = process.argv.indexOf('--for');
+const forEmail = forIndex > -1 ? process.argv[forIndex + 1] : undefined;
+const SAMPLE_MARK = ' (sample)';
 
 // ---------------------------------------------------------------- helpers
 
@@ -303,7 +310,112 @@ const PAGES = [
 
 // ---------------------------------------------------------------- remove
 
+/** Projects named "… (sample)" on real customers, with their requests. */
+async function removeFromCustomers() {
+  const projects = await prisma.project.findMany({
+    where: { name: { endsWith: SAMPLE_MARK } },
+    select: { id: true },
+  });
+  const ids = projects.map((p) => p.id);
+  const requests = await prisma.supportRequest.findMany({
+    where: { projectId: { in: ids } },
+    select: { id: true, code: true },
+  });
+  const hrefs = requests.flatMap((r) => [
+    `/team/requests/${r.code}`,
+    `/portal/requests/${r.code}`,
+  ]);
+  await prisma.$transaction(async (tx) => {
+    await tx.notification.deleteMany({ where: { href: { in: hrefs } } });
+    await tx.supportRequest.deleteMany({
+      where: { id: { in: requests.map((r) => r.id) } },
+    });
+    await tx.project.deleteMany({ where: { id: { in: ids } } });
+  });
+  if (ids.length) {
+    console.log(
+      `Removed from real customers: ${ids.length} sample projects, ${requests.length} requests.`,
+    );
+  }
+}
+
+/**
+ * Sample projects and requests for a real customer account (by email), so
+ * that person's client portal has something to show. The projects are
+ * named "… (sample)" and leave with --remove.
+ */
+async function addForCustomer(email: string) {
+  const contact = await prisma.user.findFirst({
+    where: { email: email.trim().toLowerCase(), side: 'CUSTOMER' },
+    select: {
+      id: true,
+      customerId: true,
+      customer: { select: { company: true } },
+    },
+  });
+  if (!contact?.customerId) {
+    console.error(`No customer account with the email ${email}.`);
+    process.exit(1);
+  }
+  const developers = await prisma.user.findMany({
+    where: { side: 'TEAM', role: 'DEVELOPER', status: 'ACTIVE' },
+    select: { id: true, name: true },
+    take: 4,
+  });
+  if (developers.length === 0) {
+    console.error(
+      'Run npm run db:sample first: it adds the sample developers.',
+    );
+    process.exit(1);
+  }
+  const short = contact.customer?.company.split(' ')[0] ?? 'Demo';
+  const plan: [string, ProjectType, ProjectStatus][] = [
+    [`${short} booking website`, 'TRAVEL_BOOKING_PLATFORM', 'LIVE'],
+    [`${short} agent portal`, 'AGENT_PORTAL', 'IN_DEVELOPMENT'],
+    [`${short} company website`, 'WEBSITE', 'LIVE'],
+  ];
+  const codes: string[] = [];
+  for (const [index, [name, type, status]] of plan.entries()) {
+    const project = await prisma.$transaction(async (tx) =>
+      tx.project.create({
+        data: {
+          code: await nextCode(tx, 'project'),
+          name: `${name}${SAMPLE_MARK}`,
+          type,
+          status,
+          customerId: contact.customerId!,
+        },
+      }),
+    );
+    const where = {
+      id: project.id,
+      customerId: contact.customerId!,
+      contactId: contact.id,
+    };
+    for (let r = 0; r < 6; r += 1) {
+      codes.push(await addRequest(where, developers, index === 0 && r < 3));
+    }
+  }
+  await prisma.notification.createMany({
+    data: codes.slice(0, 10).map((code, i) => ({
+      userId: contact.id,
+      kind: (['reply', 'status', 'ok', 'info'] as const)[i % 4],
+      text:
+        i % 2
+          ? `${developers[0].name} replied to ${code}`
+          : `${code} is now In Progress`,
+      href: `/portal/requests/${code}`,
+      readAt: i > 3 ? ago(i * HOUR) : null,
+      createdAt: ago(i * 5 * HOUR),
+    })),
+  });
+  console.log(
+    `Added to ${email}: ${plan.length} sample projects, ${codes.length} requests, 10 notifications.`,
+  );
+}
+
 async function removeAll() {
+  await removeFromCustomers();
   const users = await prisma.user.findMany({
     where: { email: { endsWith: `@${DOMAIN}` } },
     select: { id: true, customerId: true },
@@ -375,6 +487,160 @@ async function removeAll() {
 }
 
 // ---------------------------------------------------------------- add
+
+/** One request with its conversation and status history. Returns its code. */
+async function addRequest(
+  project: { id: string; customerId: string; contactId: string },
+  developers: { id: string; name: string }[],
+  forceActive: boolean,
+): Promise<string> {
+  const [title, type, description] = pick(REQUESTS);
+  const status = forceActive
+    ? pick(['IN_PROGRESS', 'WAITING_FOR_CUSTOMER'] as const)
+    : pick(STATUSES);
+  const priority = pick(PRIORITIES);
+  const createdAt = ago(between(1, 60 * 24) * HOUR);
+  const assigned = status !== 'SUBMITTED';
+  const assignee = assigned ? pick(developers) : null;
+  const replied = !['SUBMITTED', 'UNDER_REVIEW'].includes(status);
+  const firstResponseAt = replied
+    ? new Date(createdAt.getTime() + between(1, 20) * HOUR)
+    : null;
+  const resolvedAt = ['RESOLVED', 'CLOSED'].includes(status)
+    ? new Date(createdAt.getTime() + between(6, 120) * HOUR)
+    : null;
+  const closedAt =
+    status === 'CLOSED' && resolvedAt
+      ? new Date(resolvedAt.getTime() + 2 * DAY)
+      : null;
+
+  const request = await prisma.$transaction(async (tx) => {
+    const code = await nextCode(tx, 'request', createdAt);
+    return tx.supportRequest.create({
+      data: {
+        code,
+        title,
+        description,
+        type,
+        priority,
+        status,
+        projectId: project.id,
+        customerId: project.customerId,
+        assigneeId: assignee?.id ?? null,
+        dueAt: new Date(createdAt.getTime() + TARGET_HOURS[priority] * HOUR),
+        slaPausedAt:
+          status === 'WAITING_FOR_CUSTOMER' ? ago(between(1, 30) * HOUR) : null,
+        firstResponseAt,
+        resolvedAt,
+        closedAt,
+        createdAt,
+      },
+    });
+  });
+
+  const at = (hours: number) => new Date(createdAt.getTime() + hours * HOUR);
+  const lines: {
+    kind: 'CUSTOMER_REPLY' | 'STAFF_REPLY' | 'INTERNAL_NOTE' | 'SYSTEM';
+    authorId: string | null;
+    body: string;
+    createdAt: Date;
+  }[] = [];
+  const history: {
+    from: RequestStatus | null;
+    to: RequestStatus;
+    byId: string | null;
+    createdAt: Date;
+  }[] = [{ from: null, to: 'SUBMITTED', byId: project.contactId, createdAt }];
+  if (assignee) {
+    lines.push({
+      kind: 'SYSTEM',
+      authorId: null,
+      body: `Assigned to ${assignee.name} by Nadia Rahman`,
+      createdAt: at(1),
+    });
+    history.push({
+      from: 'SUBMITTED',
+      to: 'UNDER_REVIEW',
+      byId: null,
+      createdAt: at(1),
+    });
+  }
+  if (replied && assignee) {
+    lines.push({
+      kind: 'STAFF_REPLY',
+      authorId: assignee.id,
+      body: 'Thanks for the details. I can see the problem and I’m looking into it now.',
+      createdAt: firstResponseAt ?? at(2),
+    });
+    lines.push({
+      kind: 'INTERNAL_NOTE',
+      authorId: assignee.id,
+      body: 'Looks related to last week’s release. Checking the logs.',
+      createdAt: at(3),
+    });
+    lines.push({
+      kind: 'CUSTOMER_REPLY',
+      authorId: project.contactId,
+      body: 'Great, thank you. Let me know if you need anything from us.',
+      createdAt: at(4),
+    });
+    history.push({
+      from: 'UNDER_REVIEW',
+      to: 'IN_PROGRESS',
+      byId: assignee.id,
+      createdAt: at(3),
+    });
+  }
+  if (status === 'WAITING_FOR_CUSTOMER' && assignee) {
+    lines.push({
+      kind: 'STAFF_REPLY',
+      authorId: assignee.id,
+      body: 'Could you send a screenshot of the page where this happens?',
+      createdAt: at(6),
+    });
+    history.push({
+      from: 'IN_PROGRESS',
+      to: 'WAITING_FOR_CUSTOMER',
+      byId: assignee.id,
+      createdAt: at(6),
+    });
+  }
+  if (resolvedAt && assignee) {
+    lines.push({
+      kind: 'STAFF_REPLY',
+      authorId: assignee.id,
+      body: 'This is fixed now and live on the site. Please check and confirm.',
+      createdAt: resolvedAt,
+    });
+    history.push({
+      from: 'IN_PROGRESS',
+      to: 'RESOLVED',
+      byId: assignee.id,
+      createdAt: resolvedAt,
+    });
+  }
+  if (closedAt) {
+    lines.push({
+      kind: 'SYSTEM',
+      authorId: null,
+      body: 'Closed automatically 7 days after it was resolved',
+      createdAt: closedAt,
+    });
+    history.push({
+      from: 'RESOLVED',
+      to: 'CLOSED',
+      byId: null,
+      createdAt: closedAt,
+    });
+  }
+  await prisma.requestMessage.createMany({
+    data: lines.map((line) => ({ ...line, requestId: request.id })),
+  });
+  await prisma.requestStatusChange.createMany({
+    data: history.map((h) => ({ ...h, requestId: request.id })),
+  });
+  return request.code;
+}
 
 async function addAll() {
   const already = await prisma.user.count({
@@ -531,161 +797,10 @@ async function addAll() {
     const howMany =
       project.contactId === projects[0].contactId ? 6 : between(1, 4);
     for (let r = 0; r < howMany; r += 1) {
-      const [title, type, description] = pick(REQUESTS);
-      const status =
-        index < 3 && r < 2
-          ? pick(['IN_PROGRESS', 'WAITING_FOR_CUSTOMER'] as const)
-          : pick(STATUSES);
-      const priority = pick(PRIORITIES);
-      const createdAt = ago(between(1, 60 * 24) * HOUR);
-      const assigned = status !== 'SUBMITTED';
-      const assignee = assigned ? pick(developers) : null;
-      const replied = !['SUBMITTED', 'UNDER_REVIEW'].includes(status);
-      const firstResponseAt = replied
-        ? new Date(createdAt.getTime() + between(1, 20) * HOUR)
-        : null;
-      const resolvedAt = ['RESOLVED', 'CLOSED'].includes(status)
-        ? new Date(createdAt.getTime() + between(6, 120) * HOUR)
-        : null;
-      const closedAt =
-        status === 'CLOSED' && resolvedAt
-          ? new Date(resolvedAt.getTime() + 2 * DAY)
-          : null;
-
-      const request = await prisma.$transaction(async (tx) => {
-        const code = await nextCode(tx, 'request', createdAt);
-        return tx.supportRequest.create({
-          data: {
-            code,
-            title,
-            description,
-            type,
-            priority,
-            status,
-            projectId: project.id,
-            customerId: project.customerId,
-            assigneeId: assignee?.id ?? null,
-            dueAt: new Date(
-              createdAt.getTime() + TARGET_HOURS[priority] * HOUR,
-            ),
-            slaPausedAt:
-              status === 'WAITING_FOR_CUSTOMER'
-                ? ago(between(1, 30) * HOUR)
-                : null,
-            firstResponseAt,
-            resolvedAt,
-            closedAt,
-            createdAt,
-          },
-        });
-      });
-      sampleCodes.push(request.code);
+      sampleCodes.push(
+        await addRequest(project, developers, index < 3 && r < 2),
+      );
       requestCount += 1;
-
-      const at = (hours: number) =>
-        new Date(createdAt.getTime() + hours * HOUR);
-      const lines: {
-        kind: 'CUSTOMER_REPLY' | 'STAFF_REPLY' | 'INTERNAL_NOTE' | 'SYSTEM';
-        authorId: string | null;
-        body: string;
-        createdAt: Date;
-      }[] = [];
-      const history: {
-        from: RequestStatus | null;
-        to: RequestStatus;
-        byId: string | null;
-        createdAt: Date;
-      }[] = [
-        { from: null, to: 'SUBMITTED', byId: project.contactId, createdAt },
-      ];
-      if (assignee) {
-        lines.push({
-          kind: 'SYSTEM',
-          authorId: null,
-          body: `Assigned to ${assignee.name} by Nadia Rahman`,
-          createdAt: at(1),
-        });
-        history.push({
-          from: 'SUBMITTED',
-          to: 'UNDER_REVIEW',
-          byId: null,
-          createdAt: at(1),
-        });
-      }
-      if (replied && assignee) {
-        lines.push({
-          kind: 'STAFF_REPLY',
-          authorId: assignee.id,
-          body: 'Thanks for the details. I can see the problem and I’m looking into it now.',
-          createdAt: firstResponseAt ?? at(2),
-        });
-        lines.push({
-          kind: 'INTERNAL_NOTE',
-          authorId: assignee.id,
-          body: 'Looks related to last week’s release. Checking the logs.',
-          createdAt: at(3),
-        });
-        lines.push({
-          kind: 'CUSTOMER_REPLY',
-          authorId: project.contactId,
-          body: 'Great, thank you. Let me know if you need anything from us.',
-          createdAt: at(4),
-        });
-        history.push({
-          from: 'UNDER_REVIEW',
-          to: 'IN_PROGRESS',
-          byId: assignee.id,
-          createdAt: at(3),
-        });
-      }
-      if (status === 'WAITING_FOR_CUSTOMER' && assignee) {
-        lines.push({
-          kind: 'STAFF_REPLY',
-          authorId: assignee.id,
-          body: 'Could you send a screenshot of the page where this happens?',
-          createdAt: at(6),
-        });
-        history.push({
-          from: 'IN_PROGRESS',
-          to: 'WAITING_FOR_CUSTOMER',
-          byId: assignee.id,
-          createdAt: at(6),
-        });
-      }
-      if (resolvedAt && assignee) {
-        lines.push({
-          kind: 'STAFF_REPLY',
-          authorId: assignee.id,
-          body: 'This is fixed now and live on the site. Please check and confirm.',
-          createdAt: resolvedAt,
-        });
-        history.push({
-          from: 'IN_PROGRESS',
-          to: 'RESOLVED',
-          byId: assignee.id,
-          createdAt: resolvedAt,
-        });
-      }
-      if (closedAt) {
-        lines.push({
-          kind: 'SYSTEM',
-          authorId: null,
-          body: 'Closed automatically 7 days after it was resolved',
-          createdAt: closedAt,
-        });
-        history.push({
-          from: 'RESOLVED',
-          to: 'CLOSED',
-          byId: null,
-          createdAt: closedAt,
-        });
-      }
-      await prisma.requestMessage.createMany({
-        data: lines.map((line) => ({ ...line, requestId: request.id })),
-      });
-      await prisma.requestStatusChange.createMany({
-        data: history.map((h) => ({ ...h, requestId: request.id })),
-      });
     }
   }
 
@@ -958,6 +1073,7 @@ async function addAll() {
 
 try {
   if (remove) await removeAll();
+  else if (forEmail) await addForCustomer(forEmail);
   else await addAll();
 } finally {
   await prisma.$disconnect();

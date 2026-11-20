@@ -27,7 +27,7 @@ Loaded when working in `backend/`. The root `CLAUDE.md` has the product, the sha
 - `npm run db:migrate`: apply schema changes in development
 - `npm run db:deploy`: apply migrations on the server
 - `npm run db:seed`: adds the default settings. No sample data. Safe to run again.
-- `npm run db:sample`: sample team, customers, projects, requests, leads and notifications for checking screens locally (stops unless the database is on this computer). `-- --remove` takes it out. One sample customer can sign in to the portal; the script prints the email and password. Emails end in `@sample.flyconnecttech.test`.
+- `npm run db:sample`: sample team, customers, projects, requests, leads and notifications for checking screens locally (stops unless the database is on this computer). `-- --for someone@example.com` adds sample projects ("… (sample)") and requests to a real customer account. `-- --remove` takes both out. One sample customer can sign in to the portal; the script prints the email and password. Emails end in `@sample.flyconnecttech.test`.
 - `npm run db:studio`: browse the data
 - `npm run db:generate`: rebuild the Prisma client (also runs after `npm install`)
 - `npm run auth:schema`: Better Auth's own version of its tables, into `prisma/auth-schema.generated.prisma` (not committed). Run it after upgrading Better Auth and copy any changes into `schema.prisma` by hand.
