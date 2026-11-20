@@ -267,7 +267,7 @@ test("profile: save changes and change the password", async ({ page }) => {
   await expect(page.getByText(customer.email)).toBeVisible();
   await field(page, "Full name").fill("Sarah Mitchell");
   await field(page, "Phone").fill("+44 20 7946 0321");
-  await field(page, "Country").fill("United Kingdom");
+  await field(page, "Country").selectOption("United Kingdom");
   await field(page, "Time zone").selectOption("Asia/Karachi");
   await page.getByLabel("Weekly summary of my requests").check();
   await page.getByRole("button", { name: "Save changes" }).click();

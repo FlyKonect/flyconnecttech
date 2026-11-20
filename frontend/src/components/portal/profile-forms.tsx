@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
+import { countryOptions } from "@/lib/countries";
 import { roles } from "@/lib/labels";
 import type { Profile } from "@/lib/portal/types";
 import type { TeamProfile } from "@/lib/team/types";
@@ -139,11 +140,18 @@ export function ProfileForm(props: ProfileFormProps) {
             />
           </Field>
           <Field label="Country" error={errors.country?.message}>
-            <Input
+            <Select
               className="h-12"
               autoComplete="country-name"
               {...form.register("country")}
-            />
+            >
+              <option value="">Choose a country</option>
+              {countryOptions(profile.country).map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label="Time zone" error={errors.timezone?.message}>
             <Select className="h-12" {...form.register("timezone")}>
