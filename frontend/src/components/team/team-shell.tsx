@@ -4,10 +4,25 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import {
+  ArrowUpRight,
+  Bell,
+  Building2,
+  CalendarClock,
+  ChartColumn,
+  FileText,
+  Globe,
+  Inbox,
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
 import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
-
-import { Avatar } from "@/components/ui/avatar";
+import { UserMenu } from "@/components/shell/user-menu";
 import { roles, type TeamRole } from "@/lib/labels";
 import { routes } from "@/lib/routes";
 import {
@@ -15,6 +30,7 @@ import {
   teamNav,
   type TeamNavCounts,
   type TeamNavItem,
+  type TeamNavKey,
 } from "@/lib/team-nav";
 
 /** The team member shown in the sidebar and header. */
@@ -125,58 +141,71 @@ export function TeamShell({
         }}
         sidebar={(closeMenu) => (
           <>
-            <div className="px-2.5 pt-1 pb-1.5">
+            <div className="px-2.5 pt-1">
               <Logo eager onNavy className="h-[22px]" />
             </div>
-            <p className="mx-2.5 mb-3 text-xs text-on-navy-muted">
-              Team panel ·{" "}
+            <div className="mx-2.5 mt-3 mb-4 flex items-center justify-between gap-2 border-b border-white/10 pb-4 text-xs">
+              <span className="rounded-full bg-white/8 px-2.5 py-1 font-semibold text-on-navy">
+                Team panel
+              </span>
               <Link
                 href={routes.home}
-                className="inline-block py-1 font-bold text-gold-on-navy"
+                className="inline-flex items-center gap-1 rounded-md py-1 font-bold text-gold-on-navy hover:underline"
               >
                 View website
+                <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </Link>
-            </p>
+            </div>
 
             <nav aria-label="Team" className="flex flex-col gap-0.5">
               {teamNav(user.role).map((section, index) => (
                 <React.Fragment key={section.label ?? index}>
                   {section.label ? (
-                    <p className="mx-3 mt-3.5 mb-1.5 text-[11px] font-bold tracking-[0.08em] text-nav-label">
+                    <p className="mx-3 mt-4 mb-1.5 text-[11px] font-bold tracking-[0.1em] text-nav-label">
                       {section.label}
                     </p>
                   ) : null}
-                  {section.items.map((item) => (
-                    <Link
-                      key={item.key}
-                      href={item.href}
-                      onClick={closeMenu}
-                      aria-current={
-                        isTeamNavItemActive(item, pathname, status)
-                          ? "page"
-                          : undefined
-                      }
-                      className={navItem}
-                    >
-                      {item.label}
-                      <NavNumber
-                        item={item}
-                        value={user.counts[item.key] ?? 0}
-                      />
-                    </Link>
-                  ))}
+                  {section.items.map((item) => {
+                    const Icon = navIcons[item.key];
+                    return (
+                      <Link
+                        key={item.key}
+                        href={item.href}
+                        onClick={closeMenu}
+                        aria-current={
+                          isTeamNavItemActive(item, pathname, status)
+                            ? "page"
+                            : undefined
+                        }
+                        className={navItem}
+                      >
+                        <Icon
+                          aria-hidden="true"
+                          className="size-[18px] shrink-0 text-on-navy-muted transition-colors group-hover:text-white group-aria-[current=page]:text-gold"
+                          strokeWidth={1.9}
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.label}
+                        </span>
+                        <NavNumber
+                          item={item}
+                          value={user.counts[item.key] ?? 0}
+                        />
+                      </Link>
+                    );
+                  })}
                 </React.Fragment>
               ))}
             </nav>
 
-            <div className="mt-auto flex items-center gap-2.5 border-t border-white/10 px-2.5 pt-3.5">
-              <Avatar name={user.name} tone="gold" size="sm" />
-              <span className="min-w-0 text-[13px] leading-[1.35] text-white">
-                <strong className="block truncate">{user.name}</strong>
-                <span className="block truncate text-on-navy-muted">
-                  {roleLabel}
-                </span>
-              </span>
+            <div className="mt-auto border-t border-white/10 pt-3">
+              <UserMenu
+                area="team"
+                placement="sidebar"
+                name={user.name}
+                detail={roleLabel}
+                profileHref={routes.teamProfile}
+              />
             </div>
           </>
         )}
@@ -187,14 +216,36 @@ export function TeamShell({
   );
 }
 
+/** One icon per menu item (decorative: the label names the item). */
+const navIcons: Record<TeamNavKey, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  all: Inbox,
+  new: Inbox,
+  underReview: Inbox,
+  inProgress: Inbox,
+  waiting: Inbox,
+  resolved: Inbox,
+  closed: Inbox,
+  demos: CalendarClock,
+  quotes: FileText,
+  messages: MessageSquare,
+  websiteContent: Globe,
+  customers: Building2,
+  users: Users,
+  reports: ChartColumn,
+  notifications: Bell,
+  settings: Settings,
+};
+
+// The current page gets a light panel and a gold bar on its left edge.
 const navItem =
-  "text-on-navy flex min-h-10 w-full items-center gap-2.5 rounded-[10px] px-3 text-left text-sm font-medium hover:bg-white/6 aria-[current=page]:bg-white/12 aria-[current=page]:font-bold aria-[current=page]:text-white";
+  "group relative text-on-navy flex min-h-10 w-full items-center gap-3 rounded-[10px] px-3 text-left text-sm font-medium transition-colors hover:bg-white/6 hover:text-white aria-[current=page]:bg-white/10 aria-[current=page]:font-bold aria-[current=page]:text-white before:absolute before:top-2 before:bottom-2 before:left-0 before:w-[3px] before:rounded-r-full before:bg-gold before:opacity-0 aria-[current=page]:before:opacity-100";
 
 /** The number beside a menu item: a plain count, or a gold badge that hides at zero. */
 function NavNumber({ item, value }: { item: TeamNavItem; value: number }) {
   if (item.number === "count") {
     return (
-      <span className="ml-auto text-xs opacity-80">
+      <span className="inline-flex h-[22px] min-w-[28px] items-center justify-center rounded-full bg-white/10 px-2 text-xs font-semibold text-white">
         <span className="sr-only">, </span>
         {value}
       </span>
@@ -203,7 +254,7 @@ function NavNumber({ item, value }: { item: TeamNavItem; value: number }) {
 
   if (item.number === "badge" && value > 0) {
     return (
-      <span className="ml-auto inline-flex h-[22px] min-w-[34px] items-center justify-center rounded-full bg-gold px-1.5 text-xs font-bold text-navy">
+      <span className="inline-flex h-[22px] min-w-[28px] items-center justify-center rounded-full bg-gold px-1.5 text-xs font-bold text-navy">
         <span className="sr-only">, </span>
         {value}
         <span className="sr-only"> new</span>

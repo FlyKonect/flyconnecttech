@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, LogOut, UserRound } from "lucide-react";
+import { ChevronDown, ChevronsUpDown, LogOut, UserRound } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 
 import { useSignOut } from "@/components/auth/use-sign-out";
@@ -15,6 +15,8 @@ type UserMenuProps = {
   /** "Super admin · Founder" for the team, the company for customers. */
   detail: string;
   profileHref: string;
+  /** "header" (default) or "sidebar": the card at the foot of the navy sidebar. */
+  placement?: "header" | "sidebar";
 };
 
 /**
@@ -29,31 +31,76 @@ export function UserMenu(props: UserMenuProps) {
   return <UserMenuButton key={useVisitKey()} {...props} />;
 }
 
-function UserMenuButton({ area, name, detail, profileHref }: UserMenuProps) {
+function UserMenuButton({
+  area,
+  name,
+  detail,
+  profileHref,
+  placement = "header",
+}: UserMenuProps) {
   const { signOut, signingOut } = useSignOut(area);
+  const inSidebar = placement === "sidebar";
+  // The team's sidebar is navy; the client portal's is white.
+  const onNavy = area === "team";
 
   return (
     <DropdownMenu.Root modal={false}>
-      <DropdownMenu.Trigger className="flex cursor-pointer items-center gap-2.5 rounded-xl p-1 text-left hover:bg-soft data-[state=open]:bg-soft app:pr-2">
-        <span className="sr-only">Account menu: </span>
-        <Avatar name={name} />
-        <span className="text-[13px] leading-[1.3] max-app:hidden">
-          <strong className="block">{name}</strong>
-          <span className="text-muted-foreground">{detail}</span>
-        </span>
-        <ChevronDown
-          aria-hidden="true"
-          className="size-4 text-muted-foreground max-app:hidden"
-        />
-      </DropdownMenu.Trigger>
+      {inSidebar ? (
+        <DropdownMenu.Trigger
+          className={`flex w-full cursor-pointer items-center gap-2.5 rounded-xl p-2 text-left transition-colors ${
+            onNavy
+              ? "hover:bg-white/8 data-[state=open]:bg-white/10"
+              : "hover:bg-soft data-[state=open]:bg-soft"
+          }`}
+        >
+          <span className="sr-only">Your account: </span>
+          <Avatar name={name} tone={onNavy ? "gold" : "navy"} size="sm" />
+          <span className="min-w-0 flex-1 text-[13px] leading-[1.35]">
+            <strong
+              className={`block truncate ${onNavy ? "text-white" : "text-navy"}`}
+            >
+              {name}
+            </strong>
+            <span
+              className={`block truncate ${onNavy ? "text-on-navy-muted" : "text-muted-foreground"}`}
+            >
+              {detail}
+            </span>
+          </span>
+          <ChevronsUpDown
+            aria-hidden="true"
+            className={`size-4 shrink-0 ${onNavy ? "text-on-navy-muted" : "text-muted-foreground"}`}
+          />
+        </DropdownMenu.Trigger>
+      ) : (
+        <DropdownMenu.Trigger className="flex cursor-pointer items-center gap-2.5 rounded-xl p-1 text-left hover:bg-soft data-[state=open]:bg-soft app:pr-2">
+          <span className="sr-only">Account menu: </span>
+          <Avatar name={name} />
+          <span className="text-[13px] leading-[1.3] max-app:hidden">
+            <strong className="block">{name}</strong>
+            <span className="text-muted-foreground">{detail}</span>
+          </span>
+          <ChevronDown
+            aria-hidden="true"
+            className="size-4 text-muted-foreground max-app:hidden"
+          />
+        </DropdownMenu.Trigger>
+      )}
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          align="end"
-          sideOffset={6}
-          className="z-50 min-w-[220px] rounded-[14px] border border-line-2 bg-white p-1.5 shadow-[0_12px_32px_rgba(2,26,84,0.14)]"
+          side={inSidebar ? "top" : "bottom"}
+          align={inSidebar ? "start" : "end"}
+          sideOffset={inSidebar ? 8 : 6}
+          className={`z-50 rounded-[14px] border border-line-2 bg-white p-1.5 shadow-[0_12px_32px_rgba(2,26,84,0.14)] ${
+            inSidebar
+              ? "w-(--radix-dropdown-menu-trigger-width) min-w-[220px]"
+              : "min-w-[220px]"
+          }`}
         >
           {/* On phones the name isn't in the header: show it here. */}
-          <div className="px-3 pt-1.5 pb-2 app:hidden">
+          <div
+            className={`px-3 pt-1.5 pb-2 ${inSidebar ? "hidden" : "app:hidden"}`}
+          >
             <p className="text-sm font-bold text-navy">{name}</p>
             <p className="text-xs text-muted-foreground">{detail}</p>
           </div>

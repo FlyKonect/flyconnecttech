@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bell, Menu, Search } from "lucide-react";
+import {
+  Bell,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
+} from "lucide-react";
 
 import { UserMenu } from "@/components/shell/user-menu";
 import { cn } from "@/lib/utils";
@@ -34,6 +40,39 @@ export type AppShellProps = {
 };
 
 const WIDE = "(min-width: 56.25rem)"; // 900px, the "app" breakpoint
+const COLLAPSED_KEY = "fct.sidebar-hidden";
+
+/**
+ * Whether the wide-screen sidebar is hidden. Kept in localStorage so it is
+ * remembered; if storage is blocked it still works for this visit.
+ */
+const sidebarHidden = (() => {
+  const listeners = new Set<() => void>();
+  let memory: boolean | null = null;
+  return {
+    get(): boolean {
+      if (memory !== null) return memory;
+      try {
+        return localStorage.getItem(COLLAPSED_KEY) === "1";
+      } catch {
+        return false;
+      }
+    },
+    set(hidden: boolean) {
+      memory = hidden;
+      try {
+        localStorage.setItem(COLLAPSED_KEY, hidden ? "1" : "0");
+      } catch {
+        // Not remembered, still works for this visit.
+      }
+      listeners.forEach((listener) => listener());
+    },
+    subscribe(listener: () => void) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+  };
+})();
 
 export function AppShell({
   tone,
@@ -51,6 +90,14 @@ export function AppShell({
   const sidebarId = React.useId();
 
   const closeMenu = React.useCallback(() => setMenuOpen(false), []);
+
+  // On wide screens the sidebar can be hidden; the choice is remembered.
+  const collapsed = React.useSyncExternalStore(
+    sidebarHidden.subscribe,
+    sidebarHidden.get,
+    () => false,
+  );
+  const toggleSidebar = () => sidebarHidden.set(!collapsed);
 
   // When the menu closes, put the keyboard back on the button that opened it.
   // This runs after the page behind the menu is reachable again.
@@ -114,6 +161,7 @@ export function AppShell({
           menuOpen
             ? "max-app:fixed max-app:inset-y-0 max-app:left-0 max-app:z-50 max-app:flex"
             : "max-app:hidden",
+          collapsed && "app:hidden",
         )}
       >
         {sidebar(closeMenu)}
@@ -138,6 +186,30 @@ export function AppShell({
             className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-stroke bg-white text-navy app:hidden"
           >
             <Menu aria-hidden="true" className="size-5" strokeWidth={1.8} />
+          </button>
+
+          <button
+            type="button"
+            aria-label={collapsed ? "Show sidebar" : "Hide sidebar"}
+            title={collapsed ? "Show sidebar" : "Hide sidebar"}
+            aria-expanded={!collapsed}
+            aria-controls={sidebarId}
+            onClick={toggleSidebar}
+            className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-stroke bg-white text-navy hover:bg-soft max-app:hidden"
+          >
+            {collapsed ? (
+              <PanelLeftOpen
+                aria-hidden="true"
+                className="size-5"
+                strokeWidth={1.8}
+              />
+            ) : (
+              <PanelLeftClose
+                aria-hidden="true"
+                className="size-5"
+                strokeWidth={1.8}
+              />
+            )}
           </button>
 
           <p className="min-w-0 flex-1 truncate text-lg font-bold tracking-[-0.02em]">

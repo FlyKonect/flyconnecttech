@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   // Builds a small, ready-to-run copy of the site in .next/standalone.
   // That copy is what gets uploaded to the hosting (see docs/deploy.md).
   output: "standalone",
+  // The development "N" badge sits bottom-right, off the sidebar's account card.
+  devIndicators: { position: "bottom-right" },
   // The browser tests run their own copy of the dev server beside yours,
   // so they build into a separate folder (see playwright.config.ts).
   distDir: process.env.NEXT_DIST_DIR || ".next",

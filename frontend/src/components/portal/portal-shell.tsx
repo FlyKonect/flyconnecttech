@@ -3,12 +3,19 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Globe, LayoutGrid, Ticket, type LucideIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  Bell,
+  LayoutGrid,
+  Plus,
+  Ticket,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
 import { AppShell } from "@/components/shell/app-shell";
-
-import { Avatar } from "@/components/ui/avatar";
+import { UserMenu } from "@/components/shell/user-menu";
 import { routes } from "@/lib/routes";
 
 /** The customer shown in the sidebar, with the numbers beside the menu. */
@@ -76,13 +83,38 @@ export function PortalShell({ user, children }: ShellProps) {
       }}
       sidebar={(closeMenu) => (
         <>
-          <div className="px-2 pt-1 pb-5">
+          <div className="px-2 pt-1">
             <Logo eager className="h-[22px]" />
-            <p className="mt-1.5 text-xs font-semibold text-muted-foreground">
+          </div>
+          <div className="mx-2 mt-3 mb-4 flex items-center justify-between gap-2 border-b border-line-3 pb-4 text-xs">
+            <span className="rounded-full bg-tint px-2.5 py-1 font-semibold text-navy-700">
               Client portal
-            </p>
+            </span>
+            <Link
+              href={routes.home}
+              className="inline-flex items-center gap-1 rounded-md py-1 font-bold text-gold-text hover:underline"
+            >
+              Visit website
+              <ArrowUpRight aria-hidden="true" className="size-3.5" />
+            </Link>
           </div>
 
+          <Link
+            href={routes.portalNewRequest}
+            onClick={closeMenu}
+            className="mx-1 mb-4 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-navy text-sm font-bold text-white transition-colors hover:bg-[#0d2a6b]"
+          >
+            <Plus
+              aria-hidden="true"
+              className="size-[18px]"
+              strokeWidth={2.2}
+            />
+            New request
+          </Link>
+
+          <p className="mx-3 mb-1.5 text-[11px] font-bold tracking-[0.1em] text-muted-foreground">
+            MENU
+          </p>
           <nav aria-label="Customer" className="flex flex-col gap-0.5">
             <NavItem
               href={routes.portal}
@@ -95,11 +127,13 @@ export function PortalShell({ user, children }: ShellProps) {
             <NavItem
               href={routes.portalRequests}
               icon={Ticket}
-              active={under(routes.portalRequests)}
+              active={
+                under(routes.portalRequests) && !under(routes.portalNewRequest)
+              }
               onClick={closeMenu}
             >
               My Requests
-              <span className="ml-auto text-xs font-bold text-muted-foreground">
+              <span className="ml-auto inline-flex h-[22px] min-w-[28px] items-center justify-center rounded-full bg-soft px-2 text-xs font-bold text-navy-700">
                 <span className="sr-only">, </span>
                 {user.requestCount}
               </span>
@@ -119,23 +153,24 @@ export function PortalShell({ user, children }: ShellProps) {
                 </span>
               ) : null}
             </NavItem>
+            <NavItem
+              href={routes.portalProfile}
+              icon={UserRound}
+              active={under(routes.portalProfile)}
+              onClick={closeMenu}
+            >
+              Profile settings
+            </NavItem>
           </nav>
 
-          <div className="mt-auto flex flex-col gap-2 border-t border-line-3 pt-5">
-            <div className="flex items-center gap-2.5 p-2">
-              <Avatar name={user.name} />
-              <span className="min-w-0">
-                <span className="block truncate text-sm font-bold">
-                  {user.name}
-                </span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {user.company}
-                </span>
-              </span>
-            </div>
-            <NavItem href={routes.home} icon={Globe} onClick={closeMenu}>
-              Visit website
-            </NavItem>
+          <div className="mt-auto border-t border-line-3 pt-3">
+            <UserMenu
+              area="portal"
+              placement="sidebar"
+              name={user.name}
+              detail={user.company}
+              profileHref={routes.portalProfile}
+            />
           </div>
         </>
       )}
@@ -145,8 +180,9 @@ export function PortalShell({ user, children }: ShellProps) {
   );
 }
 
+// The current page gets a tinted panel and a navy bar on its left edge.
 const navItem =
-  "text-body hover:bg-soft aria-[current=page]:bg-tint aria-[current=page]:text-navy-700 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold aria-[current=page]:font-bold";
+  "group relative text-body hover:bg-soft hover:text-navy aria-[current=page]:bg-tint aria-[current=page]:text-navy-700 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors aria-[current=page]:font-bold before:absolute before:top-2.5 before:bottom-2.5 before:left-0 before:w-[3px] before:rounded-r-full before:bg-navy before:opacity-0 aria-[current=page]:before:opacity-100";
 
 function NavItem({
   href,
