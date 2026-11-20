@@ -25,6 +25,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:sample": "tsx prisma/sample-data.ts",
     "db:studio": "prisma studio",
     "postinstall": "node -e \"require('fs').existsSync('prisma/schema.prisma') ? require('child_process').execSync('prisma generate', { stdio: 'inherit' }) : console.log('prisma generate skipped: no prisma/schema.prisma in this folder (the live server uses the client built into dist)')\"",
     "auth:schema": "auth generate --config src/auth/auth.schema.ts --adapter prisma --dialect mysql --output prisma/auth-schema.generated.prisma --yes",
