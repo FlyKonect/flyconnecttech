@@ -10,6 +10,7 @@ import {
 import { z } from 'zod';
 import { Public } from '../auth/decorators.js';
 import { RateLimit, RateLimitGuard } from '../rate-limit/rate-limit.js';
+import { EmailChangeService } from './email-change.service.js';
 import { InvitationsService } from './invitations.service.js';
 import { sideFromHeader } from './login-key.js';
 import { newPasswordSchema } from './password-rules.js';
@@ -44,6 +45,7 @@ export class AccountsController {
   constructor(
     private readonly invitations: InvitationsService,
     private readonly passwords: PasswordResetService,
+    private readonly emailChanges: EmailChangeService,
   ) {}
 
   @RateLimit(LOOKUPS)
@@ -80,6 +82,21 @@ export class AccountsController {
   @Get('password/reset/:token')
   resetDetails(@Param('token') token: string) {
     return this.passwords.details(token);
+  }
+
+  /** The confirmation page for a new email address: which address. */
+  @RateLimit(LOOKUPS)
+  @Get('email-change/:token')
+  emailChangeDetails(@Param('token') token: string) {
+    return this.emailChanges.details(token);
+  }
+
+  /** Confirm the new email address (a button press, never just opening the link). */
+  @RateLimit(FEW)
+  @Post('email-change/:token/confirm')
+  @HttpCode(200)
+  confirmEmailChange(@Param('token') token: string) {
+    return this.emailChanges.confirm(token);
   }
 
   @RateLimit(FEW)

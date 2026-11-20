@@ -14,9 +14,14 @@ import type { SignedIn } from '../auth/signed-in.js';
 import { canInviteRole, TEAM_ROLES } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { AccountDeletionService } from './account-deletion.service.js';
+import { EmailChangeService } from './email-change.service.js';
 import { InvitationsService } from './invitations.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { TeamUsersService } from './team-users.service.js';
+
+const emailSchema = z.object({
+  email: z.email('Enter a valid email address').max(191),
+});
 
 const roleSchema = z.object({
   role: z.enum(TEAM_ROLES, 'Choose a role'),
@@ -50,6 +55,7 @@ export class TeamUsersController {
     private readonly passwords: PasswordResetService,
     private readonly users: TeamUsersService,
     private readonly deletion: AccountDeletionService,
+    private readonly emailChanges: EmailChangeService,
   ) {}
 
   @Can('users.view')
@@ -128,6 +134,21 @@ export class TeamUsersController {
     await this.mayManage(actor, id);
     await this.invitations.resendInvitation(id, actor.id);
     return { ok: true };
+  }
+
+  /**
+   * Change their email: at once for someone still invited (with a new
+   * invitation), otherwise a confirmation link to the new address.
+   */
+  @Post(':id/email')
+  @HttpCode(200)
+  async changeEmail(
+    @CurrentUser() actor: SignedIn,
+    @Param('id') id: string,
+    @Body({ schema: emailSchema }) body: z.infer<typeof emailSchema>,
+  ) {
+    await this.mayManage(actor, id);
+    return this.emailChanges.start(actor, id, body.email);
   }
 
   /** Email a password reset link. */

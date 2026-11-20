@@ -11,6 +11,7 @@ import {
   EditProjectButton,
   ProjectStatusSelect,
 } from "@/components/team/customer-actions";
+import { ChangeEmailButton } from "@/components/team/change-email-dialog";
 import { TeamPageTitle } from "@/components/team/team-shell";
 import { Avatar } from "@/components/ui/avatar";
 import { LabelPill } from "@/components/ui/pill";
@@ -84,6 +85,7 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
                 company={customer.company}
               />
             ) : null}
+            {customer.canManage ? <ChangeEmailButton user={contact} /> : null}
             {customer.canManage ? (
               <AccountButton
                 userId={contact.id}

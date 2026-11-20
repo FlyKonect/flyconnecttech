@@ -270,6 +270,50 @@ test("Users: change a role, disable, then enable again", async ({ page }) => {
   await expect(row).toContainText("Active");
 });
 
+test("Users: change an active member's email, confirmed from the new address", async ({
+  page,
+  browser,
+}) => {
+  const admin = await createPerson("admin");
+  const name = `Email ${tag()}`;
+  const person = await createPerson("developer", name);
+  const next = uniqueEmail("moved");
+  await signInBrowser(page.context(), admin);
+  await page.goto("/team/users");
+  await page
+    .getByRole("searchbox", { name: "Search team members" })
+    .fill(person.email);
+  const row = page
+    .getByRole("table", { name: "Team members" })
+    .getByRole("row")
+    .filter({ hasText: person.email });
+  await row.getByRole("button", { name: `Actions for ${name}` }).click();
+  await page.getByRole("menuitem", { name: "Change email" }).click();
+  const dialog = page.getByRole("dialog", { name: `Change ${name}'s email` });
+  await dialog.getByLabel("New email address *").fill(next);
+  await dialog.getByRole("button", { name: "Send link" }).click();
+  await expect(toast(page, `Confirmation link sent to ${next}`)).toBeVisible();
+
+  // The person opens the link from the new address and confirms.
+  const email = await waitForEmail(next, /Confirm your new/);
+  const visitor = await browser.newContext({
+    baseURL: test.info().project.use.baseURL,
+  });
+  const tab = await visitor.newPage();
+  await tab.goto(new URL(linkIn(email, "/confirm-email/")).pathname);
+  await expect(
+    tab.getByRole("heading", { name: "Confirm your new email" }),
+  ).toBeVisible();
+  await tab.getByRole("button", { name: "Confirm new email" }).click();
+  await expect(
+    tab.getByRole("heading", { name: "Your new email is confirmed" }),
+  ).toBeVisible();
+  await visitor.close();
+
+  // The old address hears about it.
+  await waitForEmail(person.email, /email was changed/);
+});
+
 test("a manager only looks: View only, no add, no changes", async ({
   page,
 }) => {

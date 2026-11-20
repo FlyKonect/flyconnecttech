@@ -9,6 +9,7 @@ export type AuditAction =
   | 'user.roleChanged'
   | 'user.disabled'
   | 'user.enabled'
+  | 'user.emailChanged'
   | 'user.deleted'
   | 'user.restored'
   | 'passwordReset.sent'

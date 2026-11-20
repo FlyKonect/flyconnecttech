@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
+import { ChangeEmailDialog } from "@/components/team/change-email-dialog";
 import { Avatar } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -61,6 +62,7 @@ export function UsersTable({
   const [disabling, setDisabling] = React.useState<TeamUserRow | null>(null);
   const [deleting, setDeleting] = React.useState<TeamUserRow | null>(null);
   const [changing, setChanging] = React.useState<TeamUserRow | null>(null);
+  const [emailFor, setEmailFor] = React.useState<TeamUserRow | null>(null);
   const now = new Date();
 
   async function enable(user: TeamUserRow) {
@@ -95,6 +97,11 @@ export function UsersTable({
         {user.status === "INVITED" ? (
           <RowMenuItem onSelect={() => resend(user)}>
             Resend invitation
+          </RowMenuItem>
+        ) : null}
+        {user.status !== "DISABLED" ? (
+          <RowMenuItem onSelect={() => setEmailFor(user)}>
+            Change email
           </RowMenuItem>
         ) : null}
         {roleChoices.length > 0 ? (
@@ -227,6 +234,9 @@ export function UsersTable({
             router.refresh();
           }}
         />
+      ) : null}
+      {emailFor ? (
+        <ChangeEmailDialog user={emailFor} onClose={() => setEmailFor(null)} />
       ) : null}
       {changing ? (
         <ChangeRoleDialog

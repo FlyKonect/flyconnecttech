@@ -3,6 +3,12 @@ import {
   DailyDigestEmail,
   dailyDigestSubject,
 } from './templates/daily-digest.js';
+import {
+  EmailChangedEmail,
+  emailChangedSubject,
+  EmailChangeEmail,
+  emailChangeSubject,
+} from './templates/email-change.js';
 import { InvitationEmail, invitationSubject } from './templates/invitation.js';
 import {
   DemoCancelledEmail,
@@ -159,6 +165,35 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
         link={`${siteUrl}/reset-password/sample`}
         expiresInHours={48}
         sentByTeam
+      />
+    ),
+  },
+
+  {
+    key: 'email-change',
+    row: 'Email address changed by an admin',
+    to: 'The new address of an active account, to confirm it',
+    subject: emailChangeSubject,
+    render: (siteUrl) => (
+      <EmailChangeEmail
+        siteUrl={siteUrl}
+        firstName="Sarah"
+        newEmail="sarah@bluewaveholidays.co.uk"
+        link={`${siteUrl}/confirm-email/sample`}
+        expiresInHours={48}
+      />
+    ),
+  },
+  {
+    key: 'email-changed',
+    row: 'Email address changed by an admin',
+    to: 'The old address, once the new one is confirmed',
+    subject: emailChangedSubject,
+    render: (siteUrl) => (
+      <EmailChangedEmail
+        siteUrl={siteUrl}
+        firstName="Sarah"
+        newEmail="sarah@bluewaveholidays.co.uk"
       />
     ),
   },

@@ -38,6 +38,8 @@ const PUBLIC_ROUTES = [
   'POST /accounts/password/forgot',
   'GET /accounts/password/reset/:token',
   'POST /accounts/password/reset/:token',
+  'GET /accounts/email-change/:token',
+  'POST /accounts/email-change/:token/confirm',
   'GET /leads/demo-slots',
   'POST /leads/demo',
   'POST /leads/quote',

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { RateLimitGuard } from '../rate-limit/rate-limit.js';
 import { AccountDeletionService } from './account-deletion.service.js';
+import { EmailChangeService } from './email-change.service.js';
 import { AccountsController } from './accounts.controller.js';
 import { InvitationsService } from './invitations.service.js';
 import { MeController } from './me.controller.js';
@@ -28,6 +29,7 @@ import { TeamUsersService } from './team-users.service.js';
   ],
   providers: [
     AccountDeletionService,
+    EmailChangeService,
     InvitationsService,
     PasswordResetService,
     ProfileService,

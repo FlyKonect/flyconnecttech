@@ -710,6 +710,84 @@ describe('Change role and Enable user', () => {
   });
 });
 
+describe('Change email', () => {
+  const confirmToken = (to: string) => {
+    const email = [...sent].reverse().find((item) => item.to === to);
+    return JSON.stringify(email?.template.props).match(
+      /\/confirm-email\/([A-Za-z0-9_-]{43})/,
+    )![1];
+  };
+
+  it('someone invited: changes at once and sends a new invitation there', async () => {
+    const email = uniqueEmail('first');
+    const added = await as(admin)
+      .post('/team/users', { name: 'Zara Malik', email, role: 'DEVELOPER' })
+      .expect(201);
+    const oldToken = invitationToken(email);
+    const next = uniqueEmail('second');
+    const changed = await as(admin)
+      .post(`/team/users/${added.body.id}/email`, { email: next })
+      .expect(200);
+    expect(changed.body).toEqual({ result: 'changed' });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: added.body.id },
+    });
+    expect(user.email).toBe(next);
+    expect(invitationToken(next)).toBeTruthy();
+    await http().get(`/accounts/invitations/${oldToken}`).expect(410);
+    expect(await auditOf('user.emailChanged', added.body.id)).toBeTruthy();
+  });
+
+  it('someone active: only once the new address confirms, then signed out everywhere', async () => {
+    const who = await person('DEVELOPER', 'Elif Kaya');
+    const next = uniqueEmail('elif-new');
+    const asked = await as(admin)
+      .post(`/team/users/${who.id}/email`, { email: next })
+      .expect(200);
+    expect(asked.body).toEqual({ result: 'confirmation-sent' });
+
+    // Nothing changes until the link is used.
+    expect(
+      (await prisma.user.findUniqueOrThrow({ where: { id: who.id } })).email,
+    ).toBe(who.email);
+    const token = confirmToken(next);
+    const shown = await http()
+      .get(`/accounts/email-change/${token}`)
+      .expect(200);
+    expect(shown.body).toEqual({ email: next });
+
+    await http().post(`/accounts/email-change/${token}/confirm`).expect(200);
+    const after = await prisma.user.findUniqueOrThrow({
+      where: { id: who.id },
+    });
+    expect(after.email).toBe(next);
+    await as(who).get('/me').expect(401);
+    expect((await signIn(next)).status).toBe(200);
+    expect(sent.some((item) => item.to === who.email)).toBe(true);
+    const log = await auditOf('user.emailChanged', who.id);
+    expect(log).toMatchObject({ actorId: admin.id });
+    expect(log?.data).toMatchObject({ from: who.email, to: next });
+
+    // Once only.
+    await http().post(`/accounts/email-change/${token}/confirm`).expect(410);
+  });
+
+  it('refuses an email another account uses, and managers may not', async () => {
+    const who = await person('DEVELOPER', 'Hugo Laurent');
+    const taken = await as(admin)
+      .post(`/team/users/${who.id}/email`, { email: manager.email })
+      .expect(409);
+    expect(taken.body.code).toBe('EMAIL_TAKEN');
+    await as(admin)
+      .post(`/team/users/${who.id}/email`, { email: 'not-an-email' })
+      .expect(400);
+    await as(manager)
+      .post(`/team/users/${who.id}/email`, { email: uniqueEmail('x') })
+      .expect(403);
+    await http().get('/accounts/email-change/not-a-token').expect(410);
+  });
+});
+
 describe('last active', () => {
   it('is saved when someone uses the app, at most every few minutes', async () => {
     const recent = new Date(Date.now() - 2 * 60 * 1000);
