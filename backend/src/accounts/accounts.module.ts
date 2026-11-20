@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { RateLimitGuard } from '../rate-limit/rate-limit.js';
+import { AccountDeletionService } from './account-deletion.service.js';
 import { AccountsController } from './accounts.controller.js';
 import { InvitationsService } from './invitations.service.js';
 import { MeController } from './me.controller.js';
@@ -26,6 +27,7 @@ import { TeamUsersService } from './team-users.service.js';
     PasswordController,
   ],
   providers: [
+    AccountDeletionService,
     InvitationsService,
     PasswordResetService,
     ProfileService,
@@ -33,6 +35,6 @@ import { TeamUsersService } from './team-users.service.js';
     AuditService,
     RateLimitGuard,
   ],
-  exports: [InvitationsService, PasswordResetService],
+  exports: [AccountDeletionService, InvitationsService, PasswordResetService],
 })
 export class AccountsModule {}

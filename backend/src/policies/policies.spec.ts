@@ -78,6 +78,13 @@ const expected: Record<Action, Record<Role, boolean>> = {
     DEVELOPER: false,
     CUSTOMER: false,
   },
+  'customers.delete': {
+    SUPER_ADMIN: true,
+    ADMIN: true,
+    MANAGER: false,
+    DEVELOPER: false,
+    CUSTOMER: false,
+  },
   'users.view': {
     SUPER_ADMIN: true,
     ADMIN: true,
@@ -86,6 +93,13 @@ const expected: Record<Action, Record<Role, boolean>> = {
     CUSTOMER: false,
   },
   'users.invite': {
+    SUPER_ADMIN: true,
+    ADMIN: true,
+    MANAGER: false,
+    DEVELOPER: false,
+    CUSTOMER: false,
+  },
+  'users.delete': {
     SUPER_ADMIN: true,
     ADMIN: true,
     MANAGER: false,

@@ -28,6 +28,10 @@ export const PERMISSION_ROWS: {
   { label: "Add customers and projects", actions: ["customers.manage"] },
   { label: "Add team users", actions: ["users.invite"] },
   {
+    label: "Delete team users and customers (their history is kept)",
+    actions: ["users.delete", "customers.delete"],
+  },
+  {
     label: "Website leads: demos, quotes, messages",
     actions: ["leads.manage"],
   },

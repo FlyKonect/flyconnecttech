@@ -7,6 +7,13 @@ import { useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-message";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Field, Input, Select } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
@@ -16,6 +23,8 @@ import {
   type ProjectStatus,
   type UserStatus,
 } from "@/lib/labels";
+import { plural } from "@/lib/plural";
+import { routes } from "@/lib/routes";
 import { projectSchema, type NewProjectInput } from "@/lib/team/forms";
 
 import { LineUp } from "./add-customer-form";
@@ -187,5 +196,104 @@ export function AddProjectRow({
       </div>
       {error ? <FormError>{error}</FormError> : null}
     </form>
+  );
+}
+
+/**
+ * The customer page's "Delete customer" (super admins and admins). The
+ * contact's account goes for good, the customer leaves the list and its
+ * open requests are closed; projects and requests stay as history, and
+ * adding the email again offers to restore them.
+ */
+export function DeleteCustomerButton({
+  customerId,
+  company,
+  contactName,
+  email,
+  openRequests,
+}: {
+  customerId: string;
+  company: string;
+  contactName: string;
+  email: string;
+  openRequests: number;
+}) {
+  const router = useRouter();
+  const toast = useToast();
+  const [open, setOpen] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const first = contactName.split(/\s+/)[0] || contactName;
+
+  async function remove() {
+    setBusy(true);
+    setError("");
+    try {
+      await apiFetch(`/team/customers/${customerId}/delete`, {
+        method: "POST",
+      });
+      toast(`${company} is deleted`);
+      router.replace(routes.teamCustomers);
+      router.refresh();
+    } catch (failed) {
+      setError(apiErrorMessage(failed));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <Button variant="dangerOutline" onClick={() => setOpen(true)}>
+        Delete customer
+      </Button>
+      {open ? (
+        <Dialog open onOpenChange={(next) => (next ? null : setOpen(false))}>
+          <DialogContent>
+            <DialogTitle>Delete {company}?</DialogTitle>
+            <DialogDescription>
+              The customer is deleted for good. This can&apos;t be undone.
+            </DialogDescription>
+            <ul className="mt-4 flex list-disc flex-col gap-1.5 pl-5 text-sm leading-[1.55] text-body">
+              <li>
+                {first} can&apos;t sign in to the client portal any more, and
+                their personal details are erased.
+              </li>
+              <li>
+                {company} leaves the Customers list, and {email} can be used
+                again.
+              </li>
+              {openRequests ? (
+                <li>
+                  {plural(openRequests, "open request")}{" "}
+                  {openRequests === 1 ? "is" : "are"} closed, with a note saying
+                  why. {first} is not emailed.
+                </li>
+              ) : null}
+              <li>
+                Its projects and requests stay as history. Adding {email} again
+                later offers to restore them.
+              </li>
+            </ul>
+            {error ? (
+              <div className="mt-4">
+                <FormError>{error}</FormError>
+              </div>
+            ) : null}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={busy}
+              >
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={remove} disabled={busy}>
+                {busy ? "Deleting…" : "Delete customer"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
+    </>
   );
 }

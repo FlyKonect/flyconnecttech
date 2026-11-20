@@ -234,6 +234,8 @@ export type CustomerDetail = {
     assignee: { name: string } | null;
   }[];
   canManage: boolean;
+  /** Delete customer: super admins and admins. */
+  canDelete: boolean;
 };
 
 export type CustomerProject = {
@@ -268,6 +270,8 @@ export type TeamUserRow = {
   openAssigned: number | null;
   /** Whether the "⋯" menu has anything for this person. */
   canManage: boolean;
+  /** Delete user: super admins and admins, never themselves or above their rank. */
+  canDelete: boolean;
 };
 
 /** GET /team/users/roles (screen 30): from the backend's policies.ts. */

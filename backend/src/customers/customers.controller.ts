@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { z } from 'zod';
+import { AccountDeletionService } from '../accounts/account-deletion.service.js';
 import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import { CustomersService } from './customers.service.js';
@@ -54,6 +55,8 @@ const newCustomerSchema = z.object({
     .max(MAX_NEW_PROJECTS, `Add up to ${MAX_NEW_PROJECTS} projects at a time`),
   /** Converting a website lead: its code, for example QUO-2026-040. */
   from: z.string().trim().max(20).optional(),
+  // The answer to "This email belonged to an account that was deleted".
+  previous: z.enum(['restore', 'fresh']).optional(),
 });
 
 const projectStatusSchema = z.object({
@@ -69,7 +72,10 @@ const projectStatusSchema = z.object({
 @Area('team')
 @Controller('team/customers')
 export class CustomersController {
-  constructor(private readonly customers: CustomersService) {}
+  constructor(
+    private readonly customers: CustomersService,
+    private readonly deletion: AccountDeletionService,
+  ) {}
 
   @Can('customers.view')
   @Get()
@@ -91,6 +97,17 @@ export class CustomersController {
   @Get(':id')
   detail(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
     return this.customers.detail(actor, id);
+  }
+
+  /**
+   * Delete customer: its contact's account goes for good, it leaves the
+   * lists, its open requests are closed; projects and requests stay.
+   */
+  @Can('customers.delete')
+  @Post(':id/delete')
+  @HttpCode(200)
+  delete(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
+    return this.deletion.deleteCustomer(actor, id);
   }
 
   @Can('customers.manage')

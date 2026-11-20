@@ -13,6 +13,7 @@ import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import { canInviteRole, TEAM_ROLES } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { AccountDeletionService } from './account-deletion.service.js';
 import { InvitationsService } from './invitations.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { TeamUsersService } from './team-users.service.js';
@@ -22,6 +23,8 @@ const newUserSchema = z.object({
   email: z.email('Enter a valid email address').max(191),
   jobTitle: z.string().trim().max(120).optional(),
   role: z.enum(TEAM_ROLES, 'Choose a role'),
+  // The answer to "This email belonged to an account that was deleted".
+  previous: z.enum(['restore', 'fresh']).optional(),
 });
 
 /**
@@ -37,6 +40,7 @@ export class TeamUsersController {
     private readonly invitations: InvitationsService,
     private readonly passwords: PasswordResetService,
     private readonly users: TeamUsersService,
+    private readonly deletion: AccountDeletionService,
   ) {}
 
   @Can('users.view')
@@ -68,6 +72,18 @@ export class TeamUsersController {
     return this.users.disable(actor, id);
   }
 
+  /**
+   * Delete user: the account goes for good, its history stays (marked
+   * deleted). Same limits as Disable: not yourself, admins never a super
+   * admin.
+   */
+  @Can('users.delete')
+  @Post(':id/delete')
+  @HttpCode(200)
+  delete(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
+    return this.deletion.deleteTeamUser(actor, id);
+  }
+
   /** Resend the invitation. The old link stops working. */
   @Post(':id/invitation')
   @HttpCode(202)
@@ -96,9 +112,9 @@ export class TeamUsersController {
   private async mayManage(actor: SignedIn, targetId: string) {
     const target = await this.prisma.user.findUnique({
       where: { id: targetId },
-      select: { role: true },
+      select: { role: true, status: true },
     });
-    if (!target) throw new NotFoundException();
+    if (!target || target.status === 'DELETED') throw new NotFoundException();
     if (!canInviteRole(actor, target.role)) {
       throw new ForbiddenException({ code: 'NOT_ALLOWED' });
     }

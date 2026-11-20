@@ -48,10 +48,14 @@ export type Action =
   | 'customers.view'
   /** Add customers and projects, resend invitations, send password reset links. */
   | 'customers.manage'
+  /** Delete a customer (its requests and projects stay as history). */
+  | 'customers.delete'
   /** See the team users. */
   | 'users.view'
   /** Add team users (which roles: see canInviteRole). */
   | 'users.invite'
+  /** Delete a team user (which roles: see canInviteRole; never yourself). */
+  | 'users.delete'
   /** See and work on website leads: demos, quotes, messages. */
   | 'leads.manage'
   /** Convert a lead into a customer. */
@@ -77,8 +81,10 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'requests.changeStatus': ALL_TEAM,
   'customers.view': NOT_DEVELOPER,
   'customers.manage': ADMINS,
+  'customers.delete': ADMINS,
   'users.view': ADMINS,
   'users.invite': ADMINS,
+  'users.delete': ADMINS,
   'leads.manage': NOT_DEVELOPER,
   'leads.convert': ADMINS,
   'reports.view': NOT_DEVELOPER,

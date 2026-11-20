@@ -40,6 +40,7 @@ describe("last active on the Users list", () => {
     invitedAt: null,
     openAssigned: 0,
     canManage: true,
+    canDelete: true,
     ...changes,
   });
 

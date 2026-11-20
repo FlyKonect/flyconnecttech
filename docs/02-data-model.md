@@ -47,6 +47,7 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
   - `twoFactorEnabled` (staff must enable it)
   - `emailPrefs Json`: replies, status changes, weekly summary
   - `lastActiveAt?`, `invitedAt?`, `activatedAt?`, `createdById?`
+  - `deletedAt?`, `deletedEmail?`: set when an admin deletes the account (status `DELETED`): sign-in and personal details are erased, `email` and `loginEmail` become a private address, the old email is kept in `deletedEmail` so adding it again can offer to restore the history. Index `deletedEmail, side`.
   - `createdAt`, `updatedAt`
 - **Indexes:** `role, status`; unique `email, side`; unique `loginEmail`.
 
@@ -64,6 +65,7 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
   - `createdById`
   - `sourceLeadType? : LeadType`, `sourceLeadId?`: set when converted from a lead
   - `createdAt`
+  - `deletedAt?`: set when an admin deletes the customer: hidden from lists, projects and requests kept as history.
 - The status shown in the design (Invited or Active) comes from the contact user's status.
 
 ### Project

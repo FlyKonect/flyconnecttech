@@ -8,6 +8,7 @@ import { AuditService } from '../audit/audit.service.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import type { UserStatus } from '../generated/prisma/client.js';
 import {
+  can,
   canInviteRole,
   PERMISSIONS,
   TEAM_ROLES,
@@ -25,6 +26,7 @@ const STATUS_ORDER: Record<UserStatus, number> = {
   ACTIVE: 0,
   INVITED: 1,
   DISABLED: 2,
+  DELETED: 3,
 };
 
 export type NewTeamUser = {
@@ -32,6 +34,8 @@ export type NewTeamUser = {
   email: string;
   jobTitle?: string;
   role: TeamRole;
+  /** The answer to "This email belonged to an account that was deleted". */
+  previous?: 'restore' | 'fresh';
 };
 
 /**
@@ -49,7 +53,8 @@ export class TeamUsersService {
 
   async list(actor: SignedIn) {
     const users = await this.prisma.user.findMany({
-      where: { role: { in: [...TEAM_ROLES] } },
+      // Deleted accounts are history only: never in the list.
+      where: { role: { in: [...TEAM_ROLES] }, status: { not: 'DELETED' } },
       select: {
         id: true,
         name: true,
@@ -89,6 +94,10 @@ export class TeamUsersService {
             : null,
         // The "⋯" menu: never for yourself, never above your own rank.
         canManage: user.id !== actor.id && canInviteRole(actor, user.role),
+        canDelete:
+          user.id !== actor.id &&
+          can(actor, 'users.delete') &&
+          canInviteRole(actor, user.role),
       }));
 
     const count = (role: TeamRole | null, status: UserStatus) =>
@@ -135,6 +144,7 @@ export class TeamUsersService {
         email: input.email,
         role: input.role,
         jobTitle: input.jobTitle,
+        previous: input.previous,
       },
       actor.id,
     );
@@ -151,7 +161,9 @@ export class TeamUsersService {
       where: { id: userId },
       select: { id: true, email: true, role: true, status: true },
     });
-    if (!target || target.role === 'CUSTOMER') throw new NotFoundException();
+    if (!target || target.role === 'CUSTOMER' || target.status === 'DELETED') {
+      throw new NotFoundException();
+    }
     if (target.id === actor.id) {
       throw new ConflictException({
         code: 'CANNOT_DISABLE_SELF',

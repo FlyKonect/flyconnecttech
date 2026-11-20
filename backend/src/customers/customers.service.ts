@@ -31,6 +31,8 @@ export type NewCustomer = {
   projects: { name: string; type: ProjectType }[];
   /** Converting a website lead: its code (docs/01 §6, screen 42). */
   from?: string;
+  /** The answer to "This email belonged to an account that was deleted". */
+  previous?: 'restore' | 'fresh';
 };
 
 /**
@@ -49,9 +51,11 @@ export class CustomersService {
 
   async list(actor: SignedIn, query: string | undefined) {
     const search = query?.trim();
+    // Deleted customers are history only: never in the list or the counts.
     // The database compares text without caring about capitals.
     const where: Prisma.CustomerWhereInput = search
       ? {
+          deletedAt: null,
           OR: [
             { company: { contains: search } },
             { contactUser: { is: { name: { contains: search } } } },
@@ -59,11 +63,11 @@ export class CustomersService {
             { projects: { some: { name: { contains: search } } } },
           ],
         }
-      : {};
+      : { deletedAt: null };
 
     const [customers, projects, invited, total, found] = await Promise.all([
-      this.prisma.customer.count(),
-      this.prisma.project.count(),
+      this.prisma.customer.count({ where: { deletedAt: null } }),
+      this.prisma.project.count({ where: { customer: { deletedAt: null } } }),
       this.prisma.user.count({
         where: { role: 'CUSTOMER', status: 'INVITED' },
       }),
@@ -126,6 +130,7 @@ export class CustomersService {
         company: input.company,
         phone: input.phone,
         projects: input.projects,
+        previous: input.previous,
         sourceLead: lead ? { type: lead.type, id: lead.id } : undefined,
         // The lead is linked in the same save: "Came from" on the customer,
         // "Now a customer" on the lead.
@@ -159,6 +164,7 @@ export class CustomersService {
         country: true,
         createdAt: true,
         sourceLeadType: true,
+        deletedAt: true,
         sourceLeadId: true,
         createdBy: { select: { name: true } },
         contactUser: {
@@ -186,7 +192,9 @@ export class CustomersService {
         },
       },
     });
-    if (!customer?.contactUser) throw new NotFoundException();
+    if (!customer?.contactUser || customer.deletedAt) {
+      throw new NotFoundException();
+    }
 
     const [open, requests, cameFrom] = await Promise.all([
       this.prisma.supportRequest.groupBy({
@@ -226,6 +234,7 @@ export class CustomersService {
       })),
       requests,
       canManage: can(actor, 'customers.manage'),
+      canDelete: can(actor, 'customers.delete'),
     };
   }
 
@@ -237,7 +246,7 @@ export class CustomersService {
   ) {
     return this.prisma.$transaction(async (tx) => {
       const customer = await tx.customer.findUnique({
-        where: { id: customerId },
+        where: { id: customerId, deletedAt: null },
         select: { id: true },
       });
       if (!customer) throw new NotFoundException();
@@ -272,7 +281,7 @@ export class CustomersService {
   ) {
     return this.prisma.$transaction(async (tx) => {
       const project = await tx.project.findFirst({
-        where: { id: projectId, customerId },
+        where: { id: projectId, customerId, customer: { deletedAt: null } },
         select: { id: true, code: true, status: true },
       });
       if (!project) throw new NotFoundException();

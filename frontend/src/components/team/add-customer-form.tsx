@@ -25,6 +25,13 @@ import {
 
 import { plural } from "@/lib/plural";
 
+import {
+  PreviousAccountDialog,
+  previousAccountIn,
+  type PreviousAccount,
+  type PreviousChoice,
+} from "./previous-account-dialog";
+
 const card = "rounded-[22px] border border-line-2 bg-white p-6";
 const newProject = { name: "", type: "WEBSITE" as ProjectType };
 
@@ -76,7 +83,10 @@ export function AddCustomerForm({
   const count = projects.fields.length;
   const first = firstName(name, "the customer");
 
-  const save = form.handleSubmit(async (values) => {
+  // The email belonged to a deleted customer: ask Restore or Start fresh.
+  const [previous, setPrevious] = React.useState<PreviousAccount | null>(null);
+
+  async function submit(values: NewCustomerInput, choice?: PreviousChoice) {
     setError("");
     try {
       const created = await apiFetch<{ id: string; emailSent: boolean }>(
@@ -87,16 +97,26 @@ export function AddCustomerForm({
             ...values,
             phone: values.phone || undefined,
             from: from?.lead.code,
+            previous: choice,
           },
         },
       );
+      setPrevious(null);
       toast(
         created.emailSent
-          ? `Customer added. Invitation sent to ${values.email}`
+          ? choice === "restore"
+            ? `Customer restored. Invitation sent to ${values.email}`
+            : `Customer added. Invitation sent to ${values.email}`
           : "Customer added, but the invitation email could not be sent. Use Resend invitation.",
       );
       router.push(routes.teamCustomer(created.id));
     } catch (failed) {
+      setPrevious(null);
+      const found = previousAccountIn(failed);
+      if (found) {
+        setPrevious(found);
+        return;
+      }
       if (failed instanceof ApiError && failed.code === "EMAIL_TAKEN") {
         form.setError(
           "email",
@@ -107,10 +127,19 @@ export function AddCustomerForm({
       }
       setError(apiErrorMessage(failed));
     }
-  });
+  }
+  const save = form.handleSubmit((values) => submit(values));
 
   return (
     <>
+      {previous ? (
+        <PreviousAccountDialog
+          previous={previous}
+          email={form.getValues("email")}
+          onChoose={(choice) => submit(form.getValues(), choice)}
+          onCancel={() => setPrevious(null)}
+        />
+      ) : null}
       <div>
         <Link
           href={back.href}

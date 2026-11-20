@@ -35,8 +35,8 @@ export function lastActive(user: TeamUserRow, timeZone: string, now: Date) {
 
 /**
  * The team table on the Users screen (screen 29). The "⋯" menu at the end
- * of a row resends an invitation or disables the person; the backend
- * decides who may do that (canManage).
+ * of a row resends an invitation, disables or deletes the person; the
+ * backend decides who may do that (canManage, canDelete).
  */
 export function UsersTable({
   rows,
@@ -48,6 +48,7 @@ export function UsersTable({
   const router = useRouter();
   const toast = useToast();
   const [disabling, setDisabling] = React.useState<TeamUserRow | null>(null);
+  const [deleting, setDeleting] = React.useState<TeamUserRow | null>(null);
   const now = new Date();
 
   async function resend(user: TeamUserRow) {
@@ -60,16 +61,23 @@ export function UsersTable({
   }
 
   const menu = (user: TeamUserRow) =>
-    user.canManage && user.status !== "DISABLED" ? (
+    user.canManage && (user.status !== "DISABLED" || user.canDelete) ? (
       <RowMenu label={`Actions for ${user.name}`}>
         {user.status === "INVITED" ? (
           <RowMenuItem onSelect={() => resend(user)}>
             Resend invitation
           </RowMenuItem>
         ) : null}
-        <RowMenuItem danger onSelect={() => setDisabling(user)}>
-          Disable user
-        </RowMenuItem>
+        {user.status !== "DISABLED" ? (
+          <RowMenuItem danger onSelect={() => setDisabling(user)}>
+            Disable user
+          </RowMenuItem>
+        ) : null}
+        {user.canDelete ? (
+          <RowMenuItem danger onSelect={() => setDeleting(user)}>
+            Delete user
+          </RowMenuItem>
+        ) : null}
       </RowMenu>
     ) : null;
 
@@ -147,6 +155,17 @@ export function UsersTable({
           }}
         />
       ) : null}
+      {deleting ? (
+        <DeleteUserDialog
+          user={deleting}
+          onClose={() => setDeleting(null)}
+          onDone={() => {
+            toast(`${deleting.name} is deleted`);
+            setDeleting(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
     </>
   );
 }
@@ -217,6 +236,81 @@ function DisableDialog({
           </Button>
           <Button variant="danger" onClick={disable} disabled={busy}>
             {busy ? "Disabling…" : "Disable user"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * "Delete {name}?": the account goes for good, the history stays. What
+ * happens is spelled out, because it can't be undone (a restore brings back
+ * the history, with a new invitation).
+ */
+function DeleteUserDialog({
+  user,
+  onClose,
+  onDone,
+}: {
+  user: TeamUserRow;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const first = user.name.split(/\s+/)[0] || user.name;
+
+  async function remove() {
+    setBusy(true);
+    setError("");
+    try {
+      await apiFetch(`/team/users/${user.id}/delete`, { method: "POST" });
+      onDone();
+    } catch (failed) {
+      setError(apiErrorMessage(failed));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => (open ? null : onClose())}>
+      <DialogContent>
+        <DialogTitle>Delete {user.name}?</DialogTitle>
+        <DialogDescription>
+          The account is deleted for good. This can&apos;t be undone.
+        </DialogDescription>
+        <ul className="mt-4 flex list-disc flex-col gap-1.5 pl-5 text-sm leading-[1.55] text-body">
+          <li>
+            {first} can&apos;t sign in any more, and their personal details are
+            erased.
+          </li>
+          <li>
+            They leave the Users list, and {user.email} can be used again.
+          </li>
+          {user.openAssigned ? (
+            <li>
+              {plural(user.openAssigned, "open request")} go back to Under
+              Review, unassigned.
+            </li>
+          ) : null}
+          <li>
+            Their replies and notes stay, shown as &ldquo;{user.name}{" "}
+            (deleted)&rdquo;. Adding the same email later offers to restore
+            them.
+          </li>
+        </ul>
+        {error ? (
+          <div className="mt-4">
+            <FormError>{error}</FormError>
+          </div>
+        ) : null}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={remove} disabled={busy}>
+            {busy ? "Deleting…" : "Delete user"}
           </Button>
         </DialogFooter>
       </DialogContent>

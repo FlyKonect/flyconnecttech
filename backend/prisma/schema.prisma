@@ -35,6 +35,9 @@ enum UserStatus {
   INVITED
   ACTIVE
   DISABLED
+  /// Deleted by an admin: sign-in and personal details are gone, the row
+  /// stays only so their history keeps its author (accounts/account-deletion.ts).
+  DELETED
 }
 
 /// Which sign-in page an account belongs to. Customer accounts and team
@@ -219,6 +222,11 @@ model User {
   lastActiveAt DateTime?
   invitedAt    DateTime?
   activatedAt  DateTime?
+  /// Set when an admin deleted the account (status DELETED).
+  deletedAt    DateTime?
+  /// The email the account had before it was deleted, so adding the same
+  /// email again (on the same side) can offer to restore its history.
+  deletedEmail String?    @db.VarChar(191)
   createdById  String?    @db.Char(36)
   createdBy    User?      @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
@@ -248,6 +256,7 @@ model User {
   testimonials     Testimonial[]
 
   @@unique([email, side])
+  @@index([deletedEmail, side])
   @@index([role, status])
   @@map("users")
 }
@@ -353,6 +362,9 @@ model Customer {
   sourceLeadType LeadType?
   sourceLeadId   String?   @db.Char(36)
   createdAt      DateTime  @default(now())
+  /// Set when an admin deleted the customer: hidden from the lists, its
+  /// projects and requests kept as history (a restore brings it back).
+  deletedAt      DateTime?
 
   projects        Project[]
   requests        SupportRequest[]

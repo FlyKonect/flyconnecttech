@@ -6,6 +6,7 @@ import { PageLoading } from "@/components/shell/page-loading";
 import {
   AccountButton,
   AddProjectRow,
+  DeleteCustomerButton,
   ProjectStatusSelect,
 } from "@/components/team/customer-actions";
 import { TeamPageTitle } from "@/components/team/team-shell";
@@ -73,12 +74,28 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
             </p>
           </div>
         </div>
-        {customer.canManage ? (
-          <AccountButton
-            userId={contact.id}
-            email={contact.email}
-            status={contact.status}
-          />
+        {customer.canManage || customer.canDelete ? (
+          <div className="flex flex-wrap items-center gap-2.5">
+            {customer.canManage ? (
+              <AccountButton
+                userId={contact.id}
+                email={contact.email}
+                status={contact.status}
+              />
+            ) : null}
+            {customer.canDelete ? (
+              <DeleteCustomerButton
+                customerId={customer.id}
+                company={customer.company}
+                contactName={contact.name}
+                email={contact.email}
+                openRequests={customer.projects.reduce(
+                  (sum, project) => sum + project.openRequests,
+                  0,
+                )}
+              />
+            ) : null}
+          </div>
         ) : null}
       </section>
 

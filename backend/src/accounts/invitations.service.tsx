@@ -24,6 +24,7 @@ import type {
   Role,
 } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { withoutDeletedMark } from './deleted-marks.js';
 import { loginKeyFor, normaliseEmail, sideOfRole } from './login-key.js';
 import {
   LINK_LIFETIME_HOURS,
@@ -71,6 +72,12 @@ export type InviteUserInput = {
     customerId: string,
     email: string,
   ) => Promise<void>;
+  /**
+   * When a deleted account had this email on this side: bring its history
+   * back ("restore") or start a new account ("fresh"). Not given: the
+   * answer is PREVIOUS_ACCOUNT, so the screen can ask.
+   */
+  previous?: 'restore' | 'fresh';
 };
 
 export type InvitationDetails = {
@@ -130,18 +137,46 @@ export class InvitationsService {
       });
     }
 
+    // A deleted account had this email on this side: first ask whether to
+    // bring its history back (docs/01, "Delete"), then do as answered.
+    const previous = await this.prisma.user.findFirst({
+      where: { deletedEmail: email, side, status: 'DELETED' },
+      orderBy: { deletedAt: 'desc' },
+      select: { id: true, name: true, deletedAt: true, customerId: true },
+    });
+    if (previous && !input.previous) {
+      throw await previousAccountDetails(this.prisma, previous);
+    }
+    const restoring =
+      previous && input.previous === 'restore' ? previous : null;
+
     const created = this.prisma.$transaction(async (tx) => {
+      if (previous && !restoring) {
+        // Start fresh: the old history stays deleted and is not offered again.
+        await tx.user.update({
+          where: { id: previous.id },
+          data: { deletedEmail: null },
+        });
+      }
+
       let customerId: string | null = null;
       if (input.role === 'CUSTOMER') {
-        const customer = await tx.customer.create({
-          data: {
-            company: input.company!.trim(),
-            country: input.country?.trim() || null,
-            createdById: invitedById,
-            sourceLeadType: input.sourceLead?.type ?? null,
-            sourceLeadId: input.sourceLead?.id ?? null,
-          },
-        });
+        const company = input.company!.trim();
+        const country = input.country?.trim() || null;
+        const lead = input.sourceLead
+          ? {
+              sourceLeadType: input.sourceLead.type,
+              sourceLeadId: input.sourceLead.id,
+            }
+          : {};
+        const customer = restoring?.customerId
+          ? await tx.customer.update({
+              where: { id: restoring.customerId },
+              data: { company, country, deletedAt: null, ...lead },
+            })
+          : await tx.customer.create({
+              data: { company, country, createdById: invitedById, ...lead },
+            });
         customerId = customer.id;
         const codes: string[] = [];
         for (const project of input.projects ?? []) {
@@ -159,7 +194,7 @@ export class InvitationsService {
         await this.audit.record(
           {
             actorId: invitedById,
-            action: 'customer.created',
+            action: restoring ? 'customer.restored' : 'customer.created',
             entityType: 'customer',
             entityId: customer.id,
             data: { company: customer.company, projects: codes },
@@ -169,27 +204,38 @@ export class InvitationsService {
         await input.onCustomer?.(tx, customer.id, email);
       }
 
-      const user = await tx.user.create({
-        data: {
-          name: input.name.trim(),
-          email,
-          side,
-          loginEmail: loginKeyFor(email, side),
-          role: input.role,
-          status: 'INVITED',
-          jobTitle:
-            input.role === 'CUSTOMER' ? null : input.jobTitle?.trim() || null,
-          country: input.country?.trim() || null,
-          phone: input.phone?.trim() || null,
-          customerId,
-          invitedAt: new Date(),
-          createdById: invitedById,
-        },
-      });
+      const details = {
+        name: input.name.trim(),
+        email,
+        side,
+        loginEmail: loginKeyFor(email, side),
+        role: input.role,
+        status: 'INVITED' as const,
+        jobTitle:
+          input.role === 'CUSTOMER' ? null : input.jobTitle?.trim() || null,
+        country: input.country?.trim() || null,
+        phone: input.phone?.trim() || null,
+        customerId,
+        invitedAt: new Date(),
+        createdById: invitedById,
+      };
+      // Restore: the same account comes back, so its history is theirs again.
+      const user = restoring
+        ? await tx.user.update({
+            where: { id: restoring.id },
+            data: {
+              ...details,
+              deletedAt: null,
+              deletedEmail: null,
+              activatedAt: null,
+              emailVerified: false,
+            },
+          })
+        : await tx.user.create({ data: details });
       await this.audit.record(
         {
           actorId: invitedById,
-          action: 'user.invited',
+          action: restoring ? 'user.restored' : 'user.invited',
           entityType: 'user',
           entityId: user.id,
           data: { email, role: input.role },
@@ -406,6 +452,49 @@ export class InvitationsService {
     }
     return invitation;
   }
+}
+
+/**
+ * "This email belonged to an account that was deleted": what Add user and
+ * Add customer show before asking Restore or Start fresh.
+ */
+async function previousAccountDetails(
+  prisma: PrismaService,
+  previous: {
+    id: string;
+    name: string;
+    deletedAt: Date | null;
+    customerId: string | null;
+  },
+) {
+  const customer = previous.customerId
+    ? await prisma.customer.findUnique({
+        where: { id: previous.customerId },
+        select: {
+          company: true,
+          _count: { select: { requests: true, projects: true } },
+        },
+      })
+    : null;
+  // A team member's history: the requests they wrote in.
+  const repliedOn = customer
+    ? []
+    : await prisma.requestMessage.groupBy({
+        by: ['requestId'],
+        where: { authorId: previous.id },
+      });
+  return new ConflictException({
+    code: 'PREVIOUS_ACCOUNT',
+    message:
+      'This email belonged to an account that was deleted. Restore its history, or start fresh?',
+    previous: {
+      name: withoutDeletedMark(previous.name),
+      deletedAt: previous.deletedAt,
+      company: customer ? withoutDeletedMark(customer.company) : null,
+      requests: customer ? customer._count.requests : repliedOn.length,
+      projects: customer ? customer._count.projects : null,
+    },
+  });
 }
 
 /** The email is used on this side already (the other side does not count). */

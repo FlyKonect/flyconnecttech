@@ -16,6 +16,13 @@ import { roleDescriptions, roles, type TeamRole } from "@/lib/labels";
 import { routes } from "@/lib/routes";
 import { firstName, newUserSchema, type NewUserInput } from "@/lib/team/forms";
 
+import {
+  PreviousAccountDialog,
+  previousAccountIn,
+  type PreviousAccount,
+  type PreviousChoice,
+} from "./previous-account-dialog";
+
 const ROLE_ORDER: TeamRole[] = ["SUPER_ADMIN", "ADMIN", "MANAGER", "DEVELOPER"];
 
 /**
@@ -36,23 +43,39 @@ export function AddUserForm({ canInvite }: { canInvite: TeamRole[] }) {
     "them",
   );
 
-  const send = form.handleSubmit(async (values) => {
+  // The email belonged to a deleted team account: ask Restore or Start fresh.
+  const [previous, setPrevious] = React.useState<PreviousAccount | null>(null);
+
+  async function submit(values: NewUserInput, choice?: PreviousChoice) {
     setError("");
     try {
       const created = await apiFetch<{ id: string; emailSent: boolean }>(
         "/team/users",
         {
           method: "POST",
-          body: { ...values, jobTitle: values.jobTitle || undefined },
+          body: {
+            ...values,
+            jobTitle: values.jobTitle || undefined,
+            previous: choice,
+          },
         },
       );
+      setPrevious(null);
       toast(
         created.emailSent
-          ? `Invitation sent to ${values.email}`
+          ? choice === "restore"
+            ? `Account restored. Invitation sent to ${values.email}`
+            : `Invitation sent to ${values.email}`
           : "User added, but the invitation email could not be sent. Use Resend invitation.",
       );
       router.push(routes.teamUsers);
     } catch (failed) {
+      setPrevious(null);
+      const found = previousAccountIn(failed);
+      if (found) {
+        setPrevious(found);
+        return;
+      }
       if (failed instanceof ApiError && failed.code === "EMAIL_TAKEN") {
         form.setError(
           "email",
@@ -63,7 +86,8 @@ export function AddUserForm({ canInvite }: { canInvite: TeamRole[] }) {
       }
       setError(apiErrorMessage(failed));
     }
-  });
+  }
+  const send = form.handleSubmit((values) => submit(values));
 
   return (
     <form
@@ -71,6 +95,14 @@ export function AddUserForm({ canInvite }: { canInvite: TeamRole[] }) {
       onSubmit={send}
       className="flex min-w-0 flex-[1.5_1_520px] flex-col gap-4"
     >
+      {previous ? (
+        <PreviousAccountDialog
+          previous={previous}
+          email={form.getValues("email")}
+          onChoose={(choice) => submit(form.getValues(), choice)}
+          onCancel={() => setPrevious(null)}
+        />
+      ) : null}
       <section
         aria-labelledby="member-card"
         className="rounded-[22px] border border-line-2 bg-white p-6"
