@@ -179,7 +179,10 @@ export function TwoFactorSetup({ name }: { name: string }) {
             Each one works once, if you ever lose your phone. You will not see
             them again.
           </p>
-          <ul className="grid grid-cols-2 gap-2 rounded-xl bg-portal-bg p-4 font-mono text-[15px] font-bold">
+          <ul
+            aria-label="Backup codes"
+            className="grid grid-cols-2 gap-2 rounded-xl bg-portal-bg p-4 font-mono text-[15px] font-bold"
+          >
             {setup.backupCodes.map((code) => (
               <li key={code}>{code}</li>
             ))}

@@ -104,6 +104,7 @@ test.describe("invitations", () => {
   test("a team member sets a password, then sets up two-factor before getting in", async ({
     page,
   }) => {
+    test.slow();
     const email = uniqueEmail("dev");
     inviteWithCommand({
       role: "developer",
@@ -129,7 +130,7 @@ test.describe("invitations", () => {
     await expect(page).toHaveURL(/\/team\/sign-in\?activated=1$/);
     await field(page, "Work email").fill(email);
     await field(page, "Password").fill(PASSWORD);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL(/\/team\/two-factor$/);
 
     // The team panel stays closed until two-factor is on.
@@ -146,6 +147,11 @@ test.describe("invitations", () => {
     await field(page, "6-digit code").fill(totp(secret));
     await page.getByRole("button", { name: "Turn on two-factor" }).click();
     await expect(page.getByText("Two-factor sign-in is on.")).toBeVisible();
+    const backupCode = (await page
+      .getByRole("list", { name: "Backup codes" })
+      .getByRole("listitem")
+      .first()
+      .textContent())!.trim();
     await page
       .getByRole("button", { name: "I have saved them. Continue" })
       .click();
@@ -158,19 +164,66 @@ test.describe("invitations", () => {
       "Developer · Integration engineer",
     );
 
-    // Sign out, then sign in again: now the code is needed.
-    await page.getByRole("button", { name: /^Account menu/ }).click();
-    await page.getByRole("menuitem", { name: "Logout" }).click();
-    await expect(page).toHaveURL(/\/team\/sign-in$/);
-    await field(page, "Work email").fill(email);
-    await field(page, "Password").fill(PASSWORD);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    // Sign out, then sign in again: the code has a step of its own.
+    const signOut = async () => {
+      const logout = page.getByRole("menuitem", { name: "Logout" });
+      // A click before the page is ready does nothing: try until it opens.
+      await expect(async () => {
+        await page.getByRole("button", { name: /^Account menu/ }).click();
+        await expect(logout).toBeVisible({ timeout: 2_000 });
+      }).toPass();
+      await logout.click();
+      await expect(page).toHaveURL(/\/team\/sign-in$/);
+    };
+    const passwordStep = async () => {
+      await field(page, "Work email").fill(email);
+      await field(page, "Password").fill(PASSWORD);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(
+        page.getByRole("heading", { name: "Enter your code" }),
+      ).toBeVisible();
+      await expect(page.getByText(`Signing in as ${email}`)).toBeVisible();
+    };
+    await signOut();
+    await passwordStep();
+    // Pressing the button with no code says what is missing.
+    await page.getByRole("button", { name: "Verify and sign in" }).click();
     await expect(formError(page)).toHaveText(
       "Enter the 6-digit code from your authenticator app.",
     );
-    await field(page, "Two-factor code").fill(totp(secret));
-    await page.getByRole("button", { name: "Sign in" }).click();
+    // A wrong code is refused and the box empties for the next try.
+    await field(page, "6-digit code").fill("000000");
+    await expect(formError(page)).toContainText("That code is not right");
+    await expect(field(page, "6-digit code")).toHaveValue("");
+    // The right code signs in as soon as the sixth digit is typed.
+    await field(page, "6-digit code").fill(totp(secret));
     await expect(page).toHaveURL(/\/team$/);
+
+    // No phone: a backup code works instead, once.
+    await signOut();
+    await passwordStep();
+    await page
+      .getByRole("button", { name: "Use a backup code instead" })
+      .click();
+    await field(page, "Backup code").fill(backupCode);
+    await page.getByRole("button", { name: "Verify and sign in" }).click();
+    await expect(page).toHaveURL(/\/team$/);
+
+    await signOut();
+    await passwordStep();
+    await page
+      .getByRole("button", { name: "Use a backup code instead" })
+      .click();
+    await field(page, "Backup code").fill(backupCode);
+    await page.getByRole("button", { name: "Verify and sign in" }).click();
+    await expect(formError(page)).toHaveText(
+      "That backup code is not right, or it has been used already.",
+    );
+
+    // Start again goes back to the password, with the email kept.
+    await page.getByRole("button", { name: "Start again" }).click();
+    await expect(field(page, "Work email")).toHaveValue(email);
+    await expect(field(page, "Password")).toHaveValue("");
   });
 });
 

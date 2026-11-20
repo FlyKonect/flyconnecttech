@@ -165,9 +165,11 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
   - Text: "No account yet? Accounts are created by the Northstack team and sent to you by email."
   - "Northstack team member? **Team sign in**".
   - Northstack logo and "← Back to website".
-- **Team sign in** (`/team/sign-in`), screen 16:
-  - Fields: work email, password, **Two-factor code**.
-  - "New team member? Use the link in your invitation email to set your password first."
+- **Team sign in** (`/team/sign-in`), screen 16, in two steps (a client change from the design, which had all three fields on one page):
+  - Step 1: work email and password, button **Continue**. "New team member? Use the link in your invitation email to set your password first." and **Forgot password?**
+  - Step 2, only for accounts with two-factor on: **Enter your code**, "Signing in as {email}". One 6-digit box that signs in by itself once six digits are typed (or **Verify and sign in**). **Use a backup code instead** switches to a box for one of the backup codes saved at setup (each works once); **Start again** goes back to step 1 with the email kept.
+  - A wrong code empties the box and says so; too many wrong codes lock the account for a few minutes; a code screen left too long sends you back to step 1.
+  - The very first sign-in (no two-factor yet) goes from step 1 straight to the two-factor setup.
   - "← Back to website".
 - **Forgot password** (screen 04) → email with a reset link → **Reset password** (`/reset-password/[token]`, screen 05) → sign in.
   - Admins can also send a reset link from the customer page.

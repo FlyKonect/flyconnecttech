@@ -38,7 +38,7 @@ Dialogs and form states (there is no separate route for these):
 | 03 | Verify email and set password | `/invite/[token]` | `03-verify-email-and-set-password.jpg` |
 | 04 | Forgot password | `/portal/forgot-password` (and `/team/forgot-password`) | `04-forgot-password.jpg` |
 | 05 | Reset password | `/reset-password/[token]` | `05-reset-password.jpg` |
-| 16 | Team sign in | `/team/sign-in` | `16-team-sign-in.jpg` |
+| 16 | Team sign in (step 1; step 2 "Enter your code" is not designed: it uses the same card) | `/team/sign-in` | `16-team-sign-in.jpg` |
 | — | Two-factor setup (not designed) | `/team/two-factor` | Use the design system |
 | — | Invitation help (not designed) | `/portal/invitation` | Use the design system |
 

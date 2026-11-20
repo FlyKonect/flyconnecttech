@@ -9,13 +9,18 @@ import {
   destinationAfterSignIn,
 } from "@/components/auth/sign-in-messages";
 import { FormError, FormNotice } from "@/components/auth/form-message";
+import { useVisitKey } from "@/components/auth/use-visit-key";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/field";
 import { authClient } from "@/lib/auth/auth-client";
 import { routes } from "@/lib/routes";
 
-/** Customer sign in (screen 01). */
+/** Customer sign in (screen 01). Empty again each time the page is shown. */
 export function SignInForm() {
+  return <SignInFields key={useVisitKey()} />;
+}
+
+function SignInFields() {
   const router = useRouter();
   const params = useSearchParams();
   const [error, setError] = React.useState("");

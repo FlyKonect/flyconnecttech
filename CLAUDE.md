@@ -139,7 +139,7 @@ Ports 3001 and 4000 are used so this project can run next to FlyConnect (3000 an
 - `frontend/src/lib/sla.ts`: the SLA badge words ("Due in 38m", "Due tomorrow", "Paused", "Met", "Overdue"), shown with `<SlaPill>`
 - `frontend/src/lib/format-time.ts`: dates and times as the design writes them ("Today, 08:50", "8 Nov 2026"), in the person's time zone
 - `frontend/src/lib/uploads.ts`: which files can be attached (kept in step with the backend's `upload-rules.ts`)
-- `frontend/src/components/auth/`: sign-in, invitation, password reset and two-factor forms
+- `frontend/src/components/auth/`: sign-in, invitation, password reset and two-factor forms. Team sign in has two steps (`team-sign-in-form.tsx`: password, then the code or a backup code). Next.js keeps pages you leave alive and shows them again as they were, so the sign-in forms and the account menu are keyed on `useVisitKey()` (`use-visit-key.ts`): they come back empty and closed, not with the last person's password or a stuck "Signing out…"
 - `frontend/src/proxy.ts`: sends visitors with no session cookie to the right sign-in page
 - `frontend/e2e/`: Playwright tests
 - `backend/src/auth/`: Better Auth setup, the global `SessionGuard` and its decorators

@@ -15,6 +15,7 @@ import {
 import { e2e } from "./support/e2e-env";
 import { linkIn, waitForEmail } from "./support/mailpit";
 import { addProject, idOf, postAs, sendRequest } from "./support/portal";
+import { totp } from "./support/totp";
 
 // Accessibility (docs/04, Phase 11): axe checks every screen, and the
 // keyboard checks dialogs and menus. "Serious" and "critical" findings fail
@@ -267,9 +268,32 @@ test("sign-in, forgot password, invitation, reset and two-factor screens", async
   await expect(page).toHaveURL(/\/team\/sign-in\?activated=1$/);
   await field(page, "Work email").fill(email);
   await field(page, "Password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/team\/two-factor$/);
   await expectAccessible(page, "Two-factor setup");
+
+  // Team sign in, step 2: the code, then a backup code.
+  await field(page, "Confirm your password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Continue" }).click();
+  const secret = (await page.getByTestId("totp-secret").textContent())!;
+  await field(page, "6-digit code").fill(totp(secret));
+  await page.getByRole("button", { name: "Turn on two-factor" }).click();
+  await page
+    .getByRole("button", { name: "I have saved them. Continue" })
+    .click();
+  await expect(page).toHaveURL(/\/team$/);
+  await page.context().clearCookies();
+  await page.goto("/team/sign-in");
+  await field(page, "Work email").fill(email);
+  await field(page, "Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Enter your code" }),
+  ).toBeVisible();
+  await expectAccessible(page, "Team sign in: code");
+  await page.getByRole("button", { name: "Use a backup code instead" }).click();
+  await expect(field(page, "Backup code")).toBeVisible();
+  await expectAccessible(page, "Team sign in: backup code");
 });
 
 // ---------------------------------------------------------- client portal

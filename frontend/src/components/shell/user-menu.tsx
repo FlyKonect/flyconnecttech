@@ -5,26 +5,31 @@ import { ChevronDown, LogOut, UserRound } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 
 import { useSignOut } from "@/components/auth/use-sign-out";
+import { useVisitKey } from "@/components/auth/use-visit-key";
 import { Avatar } from "@/components/ui/avatar";
 import { RowMenuItem } from "@/components/ui/row-menu";
 
-/**
- * The signed-in person at the right of the header. A click opens a short
- * menu: Profile settings and Logout. On phones only the avatar shows.
- * Arrow keys move through the menu; Escape closes it.
- */
-export function UserMenu({
-  area,
-  name,
-  detail,
-  profileHref,
-}: {
+type UserMenuProps = {
   area: "portal" | "team";
   name: string;
   /** "Super admin · Founder" for the team, the company for customers. */
   detail: string;
   profileHref: string;
-}) {
+};
+
+/**
+ * The signed-in person at the right of the header. A click opens a short
+ * menu: Profile settings and Logout. On phones only the avatar shows.
+ * Arrow keys move through the menu; Escape closes it.
+ *
+ * Next.js keeps a page you leave (for example by Logout) and shows it again
+ * as it was: a fresh key brings the menu back closed, with Logout ready.
+ */
+export function UserMenu(props: UserMenuProps) {
+  return <UserMenuButton key={useVisitKey()} {...props} />;
+}
+
+function UserMenuButton({ area, name, detail, profileHref }: UserMenuProps) {
   const { signOut, signingOut } = useSignOut(area);
 
   return (
