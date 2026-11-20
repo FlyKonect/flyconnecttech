@@ -627,6 +627,34 @@ describe('My requests and the Overview numbers', () => {
       .expect(200);
     expect(after.body.unread).toBe(0);
   });
+
+  it('notifications come 25 a page, newest first, with the total', async () => {
+    await prisma.notification.createMany({
+      data: Array.from({ length: 30 }, (_, i) => ({
+        userId: other.id,
+        kind: 'info' as const,
+        text: `Paging note ${i}`,
+        href: '/portal',
+        createdAt: new Date(Date.now() - i * 60_000),
+      })),
+    });
+    const get = (query: string) =>
+      http()
+        .get(`/notifications${query}`)
+        .set('Cookie', other.cookie)
+        .expect(200);
+    const total = await prisma.notification.count({
+      where: { userId: other.id },
+    });
+    const one = await get('?page=1');
+    expect(one.body).toMatchObject({ page: 1, pageSize: 25, total });
+    expect(one.body.items).toHaveLength(25);
+    const two = await get('?page=2');
+    expect(two.body.items).toHaveLength(total - 25);
+    // A page past the end shows the last one; ?limit= still gives a few.
+    expect((await get('?page=99')).body.page).toBe(2);
+    expect((await get('?limit=5')).body.items).toHaveLength(5);
+  });
 });
 
 describe("the team's emails to the customer follow the customer's choices", () => {

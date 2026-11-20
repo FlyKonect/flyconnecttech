@@ -99,7 +99,13 @@ export type NotificationItem = {
   createdAt: string;
 };
 
-export type NotificationList = { items: NotificationItem[]; unread: number };
+export type NotificationList = {
+  items: NotificationItem[];
+  unread: number;
+  total: number;
+  page: number;
+  pageSize: number;
+};
 
 export type EmailPrefs = {
   replies: boolean;

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, BellOff, CheckCheck } from "lucide-react";
 
@@ -20,10 +21,13 @@ export function NotificationList({
   unread,
   timeZone,
   unreadLabel = "unread",
+  paging,
 }: {
   items: NotificationItem[];
   unread: number;
   timeZone: string;
+  /** Page links under the list: the page, its size, the total, and the address. */
+  paging?: { page: number; pageSize: number; total: number; href: string };
   /** The words after the number: "unread" (portal), "unread alerts" (team). */
   unreadLabel?: string;
 }) {
@@ -141,6 +145,50 @@ export function NotificationList({
           ))}
         </ul>
       )}
+      {paging && paging.total > paging.pageSize ? (
+        <PageLinks {...paging} />
+      ) : null}
     </section>
+  );
+}
+
+/** "Newer" and "Older", with where this page sits. */
+function PageLinks({
+  page,
+  pageSize,
+  total,
+  href,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  href: string;
+}) {
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const first = (page - 1) * pageSize + 1;
+  const last = Math.min(total, page * pageSize);
+  const link =
+    "inline-flex min-h-10 items-center rounded-[10px] border border-line-2 px-3.5 text-sm font-bold text-navy hover:bg-tint";
+  return (
+    <nav
+      aria-label="Notification pages"
+      className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line-3 pt-4"
+    >
+      <span className="text-sm text-muted-foreground">
+        {first}–{last} of {total}
+      </span>
+      <span className="flex gap-2">
+        {page > 1 ? (
+          <Link className={link} href={`${href}?page=${page - 1}`}>
+            ← Newer
+          </Link>
+        ) : null}
+        {page < pages ? (
+          <Link className={link} href={`${href}?page=${page + 1}`}>
+            Older →
+          </Link>
+        ) : null}
+      </span>
+    </nav>
   );
 }

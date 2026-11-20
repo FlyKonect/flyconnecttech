@@ -1,3 +1,4 @@
+import { pageWindow, parsePaging } from '../common/paging.js';
 import {
   Controller,
   Get,
@@ -20,14 +21,38 @@ import { NotificationsService } from './notifications.service.js';
 export class NotificationsController {
   constructor(private readonly notifications: NotificationsService) {}
 
+  /**
+   * ?limit= for the dashboards (the newest few), or ?page= for the
+   * Notifications screen: 25 a page, newest first, with the total.
+   */
   @Get()
-  async list(@CurrentUser() user: SignedIn, @Query('limit') limit?: string) {
-    const take = Math.min(Math.max(Number(limit) || 50, 1), 100);
-    const [items, unread] = await Promise.all([
-      this.notifications.list(user.id, take),
+  async list(
+    @CurrentUser() user: SignedIn,
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const [total, unread] = await Promise.all([
+      this.notifications.count(user.id),
       this.notifications.unreadCount(user.id),
     ]);
-    return { items, unread };
+    if (limit && !page) {
+      const take = Math.min(Math.max(Number(limit) || 50, 1), 100);
+      const items = await this.notifications.list(user.id, take);
+      return { items, unread, total, page: 1, pageSize: take };
+    }
+    const window = pageWindow(parsePaging(page, '25'), total);
+    const items = await this.notifications.list(
+      user.id,
+      window.take,
+      window.skip,
+    );
+    return {
+      items,
+      unread,
+      total,
+      page: window.page,
+      pageSize: window.pageSize,
+    };
   }
 
   @Post('read-all')

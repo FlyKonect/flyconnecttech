@@ -39,11 +39,12 @@ export class NotificationsService {
     });
   }
 
-  async list(userId: string, take = 50): Promise<NotificationItem[]> {
+  async list(userId: string, take = 50, skip = 0): Promise<NotificationItem[]> {
     const rows = await this.prisma.notification.findMany({
       where: { userId },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
+      skip,
     });
     return rows.map((row) => ({
       id: row.id,
@@ -53,6 +54,11 @@ export class NotificationsService {
       read: row.readAt !== null,
       createdAt: row.createdAt,
     }));
+  }
+
+  /** All of this person's notifications, read or not. */
+  count(userId: string) {
+    return this.prisma.notification.count({ where: { userId } });
   }
 
   unreadCount(userId: string): Promise<number> {
