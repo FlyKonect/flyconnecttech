@@ -304,6 +304,8 @@ test("Users: change an active member's email, confirmed from the new address", a
   await expect(
     tab.getByRole("heading", { name: "Confirm your new email" }),
   ).toBeVisible();
+  // Ready first: a click before the page has loaded does nothing.
+  await tab.waitForLoadState("networkidle");
   await tab.getByRole("button", { name: "Confirm new email" }).click();
   await expect(
     tab.getByRole("heading", { name: "Your new email is confirmed" }),

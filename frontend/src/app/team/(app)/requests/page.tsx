@@ -49,6 +49,7 @@ async function TeamRequestsContent({
       filters={filters}
       developerName={me.role === "DEVELOPER" ? me.name : null}
       timeZone={me.timezone}
+      canExport={me.actions.includes("exports.download")}
     />
   );
 }

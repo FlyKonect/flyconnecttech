@@ -16,6 +16,8 @@ import { CANCEL_REASONS, LOST_REASONS } from './lead-rules.js';
 import type { LeadKind } from './lead-store.js';
 import { TeamLeadsService } from './team-leads.service.js';
 import { parsePaging } from '../common/paging.js';
+import { AuditService } from '../audit/audit.service.js';
+import { csvFile } from '../common/csv.js';
 
 /** The address part of each list: /team/leads/demos and so on. */
 const KINDS: Record<string, LeadKind> = {
@@ -78,6 +80,7 @@ export class TeamLeadsController {
   constructor(
     private readonly leads: TeamLeadsService,
     private readonly actions: LeadActionsService,
+    private readonly audit: AuditService,
   ) {}
 
   /** Who can own a lead or host a demo. */
@@ -106,6 +109,30 @@ export class TeamLeadsController {
       { status, q },
       parsePaging(page, size),
     );
+  }
+
+  /** Download CSV: every lead of this kind for these filters, with emails. */
+  @Can('exports.download')
+  @Get(':kind/export.csv')
+  async exportCsv(
+    @CurrentUser() actor: SignedIn,
+    @Param('kind') kind: string,
+    @Query('status') status?: string,
+    @Query('q') q?: string,
+  ) {
+    const lead = kindOf(kind);
+    const csv = await this.leads.exportCsv(lead, {
+      status,
+      q: q?.slice(0, 100),
+    });
+    await this.audit.record({
+      actorId: actor.id,
+      action: 'export.downloaded',
+      entityType: 'export',
+      entityId: `leads-${kind}`,
+      data: { rows: csv.rows, status, q },
+    });
+    return csvFile(`website-${kind}`, csv.text);
   }
 
   @Get(':kind/:code')

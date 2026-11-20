@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { DownloadCsv } from "@/components/team/download-csv";
 import { LabelPill } from "@/components/ui/pill";
 import { demoDayShort, demoTime } from "@/lib/forms/demo-slots";
 import { formatWhen } from "@/lib/format-time";
@@ -60,6 +61,7 @@ export function LeadsList({
   status,
   query,
   timeZone,
+  canExport = false,
 }: {
   kind: LeadKind;
   list: LeadList<AnyRow>;
@@ -67,6 +69,8 @@ export function LeadsList({
   status: string;
   query: string;
   timeZone: string;
+  /** Super admins and admins: Download CSV. */
+  canExport?: boolean;
 }) {
   const router = useRouter();
   const [search, setSearch] = React.useState(query);
@@ -273,6 +277,12 @@ export function LeadsList({
             />
           </label>
         </form>
+        {canExport ? (
+          <DownloadCsv
+            path={`/team/leads/${kind}s/export.csv`}
+            className="h-11"
+          />
+        ) : null}
       </div>
 
       <DataTable<AnyRow>

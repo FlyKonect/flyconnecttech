@@ -13,6 +13,8 @@ import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import { CustomersService } from './customers.service.js';
 import { parsePaging } from '../common/paging.js';
+import { AuditService } from '../audit/audit.service.js';
+import { allPages, csvFile, toCsv } from '../common/csv.js';
 
 export const PROJECT_TYPES = [
   'WEBSITE',
@@ -80,6 +82,7 @@ export class CustomersController {
   constructor(
     private readonly customers: CustomersService,
     private readonly deletion: AccountDeletionService,
+    private readonly audit: AuditService,
   ) {}
 
   @Can('customers.view')
@@ -101,6 +104,36 @@ export class CustomersController {
     body: z.infer<typeof newCustomerSchema>,
   ) {
     return this.customers.create(actor, body);
+  }
+
+  /** Download CSV: every customer the list shows for this search. */
+  @Can('exports.download')
+  @Get('export.csv')
+  async exportCsv(@CurrentUser() actor: SignedIn, @Query('q') q?: string) {
+    const rows = await allPages((paging) =>
+      this.customers.list(actor, q?.slice(0, 100), paging),
+    );
+    await this.audit.record({
+      actorId: actor.id,
+      action: 'export.downloaded',
+      entityType: 'export',
+      entityId: 'customers',
+      data: { rows: rows.length, q },
+    });
+    return csvFile(
+      'customers',
+      toCsv(
+        ['Company', 'Contact', 'Email', 'Account', 'Projects', 'Open requests'],
+        rows.map((row) => [
+          row.company,
+          row.name,
+          row.email,
+          row.status,
+          row.projects.join('; '),
+          row.openRequests,
+        ]),
+      ),
+    );
   }
 
   @Can('customers.view')

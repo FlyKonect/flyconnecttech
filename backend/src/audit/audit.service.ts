@@ -22,6 +22,7 @@ export type AuditAction =
   | 'project.updated'
   | 'project.statusChanged'
   | 'request.updated'
+  | 'export.downloaded'
   | 'settings.changed'
   | 'lead.converted'
   | 'testimonial.added'
@@ -36,6 +37,7 @@ export type AuditEntry = {
     | 'customer'
     | 'project'
     | 'request'
+    | 'export'
     | 'setting'
     | 'lead'
     | 'testimonial';

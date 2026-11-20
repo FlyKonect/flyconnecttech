@@ -1,3 +1,4 @@
+import { MAX_EXPORT_ROWS, toCsv, ukStamp } from '../common/csv.js';
 import { pageWindow, type Paging } from '../common/paging.js';
 import {
   BadRequestException,
@@ -411,4 +412,142 @@ export class TeamLeadsService {
       },
     };
   }
+
+  /**
+   * Download CSV for one kind of lead: the list's own search and status,
+   * every matching lead (with emails), newest first.
+   */
+  async exportCsv(
+    kind: LeadKind,
+    filters: { status?: string; q?: string },
+  ): Promise<{ text: string; rows: number }> {
+    const q = filters.q?.trim();
+    const status = filters.status;
+    const search = (fields: string[]) =>
+      q ? { OR: fields.map((field) => ({ [field]: { contains: q } })) } : {};
+    const order = [{ createdAt: 'desc' as const }, { code: 'desc' as const }];
+    const owner = { select: { name: true } };
+
+    if (kind === 'demo') {
+      const rows = await this.prisma.demoRequest.findMany({
+        where: {
+          ...search(['code', 'name', 'company', 'email']),
+          ...(status ? { status: status as never } : {}),
+        },
+        orderBy: order,
+        take: MAX_EXPORT_ROWS,
+        include: { owner },
+      });
+      return {
+        rows: rows.length,
+        text: toCsv(
+          [
+            'Code',
+            'Received',
+            'Status',
+            'Name',
+            'Email',
+            'Company',
+            'Topic',
+            'Preferred time',
+            'Booked time',
+            'Owner',
+          ],
+          rows.map((row) => [
+            row.code,
+            ukStamp(row.createdAt),
+            words(row.status),
+            row.name,
+            row.email,
+            row.company,
+            words(row.topic),
+            ukStamp(row.preferredStart),
+            ukStamp(row.scheduledStart),
+            row.owner?.name ?? '',
+          ]),
+        ),
+      };
+    }
+    if (kind === 'quote') {
+      const rows = await this.prisma.quoteRequest.findMany({
+        where: {
+          ...search(['code', 'name', 'company', 'email', 'requirements']),
+          ...(status ? { status: status as never } : {}),
+        },
+        orderBy: order,
+        take: MAX_EXPORT_ROWS,
+        include: { owner },
+      });
+      return {
+        rows: rows.length,
+        text: toCsv(
+          [
+            'Code',
+            'Received',
+            'Status',
+            'Name',
+            'Email',
+            'Company',
+            'Project type',
+            'Budget',
+            'Timeline',
+            'Owner',
+          ],
+          rows.map((row) => [
+            row.code,
+            ukStamp(row.createdAt),
+            words(row.status),
+            row.name,
+            row.email,
+            row.company,
+            words(row.projectType),
+            words(row.budget),
+            words(row.timeline),
+            row.owner?.name ?? '',
+          ]),
+        ),
+      };
+    }
+    const rows = await this.prisma.contactMessage.findMany({
+      where: {
+        ...search(['code', 'name', 'email', 'message']),
+        ...(status ? { status: status as never } : {}),
+      },
+      orderBy: order,
+      take: MAX_EXPORT_ROWS,
+      include: { owner },
+    });
+    return {
+      rows: rows.length,
+      text: toCsv(
+        [
+          'Code',
+          'Received',
+          'Status',
+          'Name',
+          'Email',
+          'Topic',
+          'Message',
+          'Owner',
+        ],
+        rows.map((row) => [
+          row.code,
+          ukStamp(row.createdAt),
+          words(row.status),
+          row.name,
+          row.email,
+          words(row.topic),
+          row.message,
+          row.owner?.name ?? '',
+        ]),
+      ),
+    };
+  }
+}
+
+/** "TRAVEL_BOOKING_PLATFORM" as "Travel booking platform", for a download. */
+function words(value: string | null | undefined): string {
+  if (!value) return '';
+  const text = value.toLowerCase().replace(/_/g, ' ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

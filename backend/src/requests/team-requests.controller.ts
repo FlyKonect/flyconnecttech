@@ -24,6 +24,9 @@ import { attachmentDisposition } from './portal-requests.controller.js';
 import { TeamDashboardService } from './team-dashboard.service.js';
 import { STATUS_SLUGS, TeamRequestsService } from './team-requests.service.js';
 import { parsePaging } from '../common/paging.js';
+import { AuditService } from '../audit/audit.service.js';
+import { allPages, csvFile, toCsv, ukStamp } from '../common/csv.js';
+import { PRIORITY_LABELS, STATUS_LABELS } from './labels.js';
 
 const STATUSES = [
   'SUBMITTED',
@@ -94,6 +97,7 @@ export class TeamRequestsController {
   constructor(
     private readonly requests: TeamRequestsService,
     private readonly dashboards: TeamDashboardService,
+    private readonly audit: AuditService,
   ) {}
 
   @Get('summary')
@@ -138,6 +142,78 @@ export class TeamRequestsController {
         assignee: assignee === 'unassigned' ? assignee : uuid(assignee),
       },
       parsePaging(page, size),
+    );
+  }
+
+  /** Download CSV: every request the list shows with these filters. */
+  @Can('exports.download')
+  @Get('requests/export.csv')
+  async exportCsv(
+    @CurrentUser() user: SignedIn,
+    @Query('status') status?: string,
+    @Query('q') search?: string,
+    @Query('project') projectId?: string,
+    @Query('priority') priority?: string,
+    @Query('assignee') assignee?: string,
+  ) {
+    const rows = await allPages((paging) =>
+      this.list(
+        user,
+        status,
+        search,
+        projectId,
+        priority,
+        assignee,
+        String(paging.page),
+        String(paging.pageSize),
+      ),
+    );
+    await this.audit.record({
+      actorId: user.id,
+      action: 'export.downloaded',
+      entityType: 'export',
+      entityId: 'requests',
+      data: {
+        rows: rows.length,
+        status,
+        search,
+        projectId,
+        priority,
+        assignee,
+      },
+    });
+    return csvFile(
+      'support-requests',
+      toCsv(
+        [
+          'Code',
+          'Title',
+          'Status',
+          'Priority',
+          'Customer',
+          'Contact',
+          'Project',
+          'Assigned to',
+          'Created',
+          'Updated',
+          'First reply',
+          'Resolved',
+        ],
+        rows.map((row) => [
+          row.code,
+          row.title,
+          STATUS_LABELS[row.status],
+          PRIORITY_LABELS[row.priority],
+          row.customer.company,
+          row.customer.name,
+          row.project.name,
+          row.assignee?.name ?? 'Unassigned',
+          ukStamp(row.createdAt),
+          ukStamp(row.updatedAt),
+          ukStamp(row.firstResponseAt),
+          ukStamp(row.resolvedAt),
+        ]),
+      ),
     );
   }
 

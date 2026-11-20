@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Building2, FolderKanban, MailCheck, Search } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
+import { DownloadCsv } from "@/components/team/download-csv";
 import { buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { StatCard } from "@/components/ui/stat-card";
@@ -104,9 +105,12 @@ export function CustomersList({
           </form>
         </div>
         {list.canManage ? (
-          <Link href={routes.teamNewCustomer} className={buttonVariants()}>
-            + Add customer
-          </Link>
+          <span className="flex flex-wrap gap-2">
+            <DownloadCsv path="/team/customers/export.csv" className="h-10" />
+            <Link href={routes.teamNewCustomer} className={buttonVariants()}>
+              + Add customer
+            </Link>
+          </span>
         ) : (
           <span className="inline-block rounded-full bg-chip px-3 py-1 text-xs font-bold text-body">
             View only

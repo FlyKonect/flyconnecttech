@@ -1,3 +1,4 @@
+import { AuditService } from '../audit/audit.service.js';
 import { Module } from '@nestjs/common';
 import { RateLimitGuard } from '../rate-limit/rate-limit.js';
 import { LeadActionsService } from './lead-actions.service.js';
@@ -11,6 +12,7 @@ import { TeamLeadsService } from './team-leads.service.js';
 @Module({
   controllers: [PublicLeadsController, TeamLeadsController],
   providers: [
+    AuditService,
     PublicLeadsService,
     TeamLeadsService,
     LeadActionsService,

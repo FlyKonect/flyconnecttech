@@ -55,6 +55,7 @@ export async function LeadListContent({
       status={status}
       query={q}
       timeZone={me.timezone}
+      canExport={me.actions.includes("exports.download")}
     />
   );
 }

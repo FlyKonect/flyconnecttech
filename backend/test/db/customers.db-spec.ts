@@ -849,6 +849,41 @@ describe('sessions: idle team sessions, two-step reset, signed-in devices', () =
   });
 });
 
+describe('Download CSV', () => {
+  it('admins download requests, customers and leads; managers may not', async () => {
+    const { id } = await addCustomer();
+    const customers = await as(admin)
+      .get('/team/customers/export.csv?q=Skyline')
+      .expect(200);
+    expect(customers.headers['content-type']).toContain('text/csv');
+    expect(customers.headers['content-disposition']).toMatch(
+      /attachment; filename="customers-\d{4}-\d{2}-\d{2}\.csv"/,
+    );
+    expect(customers.text.startsWith('﻿"Company","Contact"')).toBe(true);
+    expect(customers.text).toContain('"Skyline Travel"');
+
+    const requests = await as(admin)
+      .get('/team/requests/export.csv?status=submitted')
+      .expect(200);
+    expect(requests.text).toContain('"Code","Title","Status"');
+    const demos = await as(admin)
+      .get('/team/leads/demos/export.csv')
+      .expect(200);
+    expect(demos.text).toContain('"Email"');
+
+    await as(manager).get('/team/customers/export.csv').expect(403);
+    await as(manager).get('/team/requests/export.csv').expect(403);
+    await as(manager).get('/team/leads/quotes/export.csv').expect(403);
+
+    const logged = await prisma.auditLog.findFirst({
+      where: { action: 'export.downloaded', entityId: 'customers' },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(logged?.actorId).toBe(admin.id);
+    expect(id).toBeTruthy();
+  });
+});
+
 describe('last active', () => {
   it('is saved when someone uses the app, at most every few minutes', async () => {
     const recent = new Date(Date.now() - 2 * 60 * 1000);
