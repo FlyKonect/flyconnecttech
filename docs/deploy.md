@@ -336,22 +336,24 @@ node dist/cli/add-project.js --email customer@theircompany.com --name "Bluewave 
 
 ## Step 15. Scheduled jobs (cPanel Cron)
 
-Three small jobs run on a timetable. The hosting has no programs running in the background, so cPanel's **Cron Jobs** starts each one at its time:
+Four small jobs run on a timetable. The hosting has no programs running in the background, so cPanel's **Cron Jobs** starts each one at its time:
 
 | Job | What it does | When |
 |---|---|---|
 | `daily-digest` | Emails the super admins, admins and managers the support requests still waiting for review. Nothing is sent when none are waiting. Settings switch: "Daily digest of requests waiting for review". | Every day, 08:00 |
 | `auto-close` | Closes support requests that have been Resolved for 7 days, and tells the customer. Settings switch: "Auto-close resolved requests after 7 days" (off at the start). | Every day, 02:00 |
 | `weekly-summary` | Emails customers who ticked "Weekly summary of my requests" in their profile a summary of their requests. | Mondays, 08:00 |
+| `send-emails` | Tries again any email the mail server refused (up to 5 tries over about 4 hours). Ones that still fail are listed on the team panel's **Failed emails** screen (super admins and admins). It writes to `jobs.log` only when an email was waiting. | Every 5 minutes |
 
 1. Have the `source … activate` command from Step 11 ready.
-2. cPanel > **Cron Jobs**. Under "Add New Cron Job", fill in the times (minute, hour, day, month, weekday) and the command, then click **Add New Cron Job**. Do this three times:
+2. cPanel > **Cron Jobs**. Under "Add New Cron Job", fill in the times (minute, hour, day, month, weekday) and the command, then click **Add New Cron Job**. Do this four times:
 
    | Minute | Hour | Day | Month | Weekday | Command |
    |---|---|---|---|---|---|
    | `0` | `8` | `*` | `*` | `*` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js daily-digest >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
    | `0` | `2` | `*` | `*` | `*` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js auto-close >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
    | `0` | `8` | `*` | `*` | `1` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js weekly-summary >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
+   | `*/5` | `*` | `*` | `*` | `*` | `<source … activate> && cd ~/flyconnect-tech/backend && node dist/cli/run-job.js send-emails >> ~/flyconnect-tech/backend/jobs.log 2>&1` |
 
    Replace `<source … activate>` with your own command.
 

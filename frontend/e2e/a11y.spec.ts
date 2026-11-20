@@ -449,6 +449,9 @@ test("team: customers, users and website leads, with their dialogs", async ({
 }) => {
   test.slow();
   const admin = await createPerson("admin");
+  // Someone this admin may act on, found by search: the test database keeps
+  // every run's people, so the first page can be all super admins.
+  const teammate = await createPerson("developer");
   const word = tag();
   const days = upcomingDemoDays();
   await sendLead("demo", {
@@ -495,6 +498,7 @@ test("team: customers, users and website leads, with their dialogs", async ({
     "/team/leads/quotes",
     "/team/leads/messages",
     "/team/website-content",
+    "/team/failed-emails",
     "/team/profile",
   ]) {
     await page.goto(path);
@@ -521,6 +525,9 @@ test("team: customers, users and website leads, with their dialogs", async ({
 
   // The users' "⋯" menu, open.
   await page.goto("/team/users");
+  await page
+    .getByRole("searchbox", { name: "Search team members" })
+    .fill(teammate.email);
   await page
     .getByRole("button", { name: /^Actions for / })
     .first()
@@ -615,10 +622,13 @@ test("keyboard: the users' row menu opens, moves with arrows and closes", async 
   page,
 }) => {
   const admin = await createPerson("admin");
-  await createPerson("developer");
+  const teammate = await createPerson("developer");
   await signInBrowser(page.context(), admin);
   await page.goto("/team/users");
   await settled(page);
+  await page
+    .getByRole("searchbox", { name: "Search team members" })
+    .fill(teammate.email);
 
   const button = page.getByRole("button", { name: /^Actions for / }).first();
   await button.focus();

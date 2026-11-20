@@ -480,3 +480,17 @@ export type TeamProfile = {
   country: string | null;
   timezone: string;
 };
+
+/** GET /team/emails: emails still being retried, and those that gave up. */
+export type FailedEmail = {
+  id: string;
+  to: string;
+  subject: string;
+  attempts: number;
+  lastError: string;
+  state: "retrying" | "failed";
+  nextTryAt: string | null;
+  createdAt: string;
+};
+
+export type FailedEmailsView = { items: FailedEmail[] };

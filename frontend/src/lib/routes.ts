@@ -56,5 +56,6 @@ export const routes = {
   teamReports: "/team/reports",
   teamNotifications: "/team/notifications",
   teamSettings: "/team/settings",
+  teamFailedEmails: "/team/failed-emails",
   teamProfile: "/team/profile",
 } as const;

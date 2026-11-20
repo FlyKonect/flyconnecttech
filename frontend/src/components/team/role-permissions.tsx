@@ -48,6 +48,7 @@ export const PERMISSION_ROWS: {
     actions: ["website.manage"],
   },
   { label: "Reports and analytics", actions: ["reports.view"] },
+  { label: "Failed emails: resend or remove", actions: ["emails.manage"] },
   { label: "Settings", actions: ["settings.manage"] },
 ];
 

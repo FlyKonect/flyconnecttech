@@ -4,6 +4,7 @@
 //   npm run job -- daily-digest
 //   npm run job -- auto-close
 //   npm run job -- weekly-summary
+//   npm run job -- send-emails   (every 5 minutes: emails that failed)
 //
 // Live (in the backend folder):
 //   node dist/cli/run-job.js daily-digest
@@ -19,6 +20,7 @@ const JOBS: Record<string, (jobs: JobsService) => Promise<JobResult>> = {
   'daily-digest': (jobs) => jobs.dailyDigest(),
   'auto-close': (jobs) => jobs.autoClose(),
   'weekly-summary': (jobs) => jobs.weeklySummary(),
+  'send-emails': (jobs) => jobs.sendEmails(),
 };
 
 const name = process.argv[2] ?? '';
@@ -36,7 +38,9 @@ const app = await NestFactory.createApplicationContext(AppModule, {
 
 try {
   const result = await job(app.get(JobsService));
-  console.log(`${new Date().toISOString()} ${name}: ${result.done}`);
+  if (result.done) {
+    console.log(`${new Date().toISOString()} ${name}: ${result.done}`);
+  }
 } catch (error) {
   console.error(
     `${new Date().toISOString()} ${name} failed: ${(error as Error).message}`,

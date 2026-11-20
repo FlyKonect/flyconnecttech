@@ -325,6 +325,16 @@ export const testimonialPlaces: Record<TestimonialPlace, WithTone> = {
   CASE_STUDY: { label: "Case Studies", tone: VIOLET },
 };
 
+// ------------------------------------------------------------ Failed emails
+
+/** An email waiting on the Failed emails screen. */
+export type EmailState = "retrying" | "failed";
+
+export const emailStates: Record<EmailState, WithTone> = {
+  retrying: { label: "Retrying", tone: AMBER },
+  failed: { label: "Failed", tone: RED },
+};
+
 // ------------------------------------------------------------- Pill lookup
 
 /** Every group that is shown as a coloured pill. */
@@ -339,6 +349,7 @@ export const pillGroups = {
   quoteStatus: quoteStatuses,
   contactStatus: contactStatuses,
   testimonialPlace: testimonialPlaces,
+  emailState: emailStates,
 } as const;
 
 export type PillGroup = keyof typeof pillGroups;

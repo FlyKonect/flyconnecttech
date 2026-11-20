@@ -20,6 +20,7 @@ export function TeamReplyEmail(props: TeamReplyEmailProps) {
     <EmailLayout
       preview={teamReplySubject(props.authorName, props.code)}
       siteUrl={props.siteUrl}
+      portalNote
     >
       <Heading>New reply</Heading>
       <Paragraph>

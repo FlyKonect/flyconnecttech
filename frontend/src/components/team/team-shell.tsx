@@ -18,6 +18,7 @@ import {
   Settings,
   Users,
   type LucideIcon,
+  MailWarning,
 } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
@@ -53,6 +54,7 @@ const titles: [prefix: string, title: string][] = [
   [routes.teamReports, "Reports & Analytics"],
   [routes.teamNotifications, "Notifications"],
   [routes.teamSettings, "Settings"],
+  [routes.teamFailedEmails, "Failed emails"],
   [routes.teamProfile, "Profile settings"],
 ];
 
@@ -233,6 +235,7 @@ const navIcons: Record<TeamNavKey, LucideIcon> = {
   customers: Building2,
   users: Users,
   reports: ChartColumn,
+  failedEmails: MailWarning,
   notifications: Bell,
   settings: Settings,
 };

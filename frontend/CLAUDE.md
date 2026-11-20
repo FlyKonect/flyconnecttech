@@ -35,6 +35,8 @@ Loaded when working in `frontend/`. The root `CLAUDE.md` has the product, the sh
 - `frontend/src/lib/team/leads.ts`: a lead page's words and rules from the design: banners, fact tiles, suggested emails, "How this works" and the buttons for each status
 - `frontend/src/lib/team/targets.ts`: response targets in words ("4 hours", "1 business day") and their saved short form ("4h", "1bd")
 - `frontend/src/lib/team/website-content.ts`: the Website content screen's rules and words (kept in step with the backend's `website-rules.ts`); the screen is `components/team/website-content.tsx`, its page `app/team/(app)/website-content/` with the `refreshWebsite()` server action
+- `frontend/src/components/team/failed-emails.tsx`: the Failed emails screen (`/team/failed-emails`, super admins and admins): emails the mail server refused, with Resend now and Remove
+- `frontend/src/components/shell/error-panel.tsx`: "Something went wrong" with Try again, used by `app/error.tsx`, `app/global-error.tsx` and the `error.tsx` of `portal/(app)` and `team/(app)`; `app/not-found.tsx` is the website's 404 with the header and footer
 - `frontend/src/lib/site-content.ts`: what the public website shows from Website content (types, checks, fallback); `site-content-cache.ts` has `getSiteContent()`, the cached copy the pages read
 - `frontend/src/lib/contact.ts`: the public email (info@flyconnecttech.co.uk)
 - `frontend/src/components/site/live-project-link.tsx`: every "View live project" link (the saved address); `testimonial-card.tsx`: one Home testimonial

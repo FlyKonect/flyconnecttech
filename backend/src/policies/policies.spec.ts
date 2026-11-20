@@ -141,6 +141,13 @@ const expected: Record<Action, Record<Role, boolean>> = {
     DEVELOPER: false,
     CUSTOMER: false,
   },
+  'emails.manage': {
+    SUPER_ADMIN: true,
+    ADMIN: true,
+    MANAGER: false,
+    DEVELOPER: false,
+    CUSTOMER: false,
+  },
 };
 
 describe('permission table (docs/01, section 1)', () => {

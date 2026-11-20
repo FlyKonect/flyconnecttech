@@ -26,6 +26,7 @@ describe("team menu per role (docs/01, section 5)", () => {
       "customers",
       "users",
       "reports",
+      "failedEmails",
       "notifications",
       "settings",
     ]);
@@ -39,6 +40,7 @@ describe("team menu per role (docs/01, section 5)", () => {
   test("admin sees everything except Settings", () => {
     expect(keys("ADMIN")).toContain("users");
     expect(keys("ADMIN")).toContain("websiteContent");
+    expect(keys("ADMIN")).toContain("failedEmails");
     expect(keys("ADMIN")).not.toContain("settings");
   });
 
@@ -48,6 +50,7 @@ describe("team menu per role (docs/01, section 5)", () => {
     );
     expect(keys("MANAGER")).not.toContain("users");
     expect(keys("MANAGER")).not.toContain("websiteContent");
+    expect(keys("MANAGER")).not.toContain("failedEmails");
     expect(keys("MANAGER")).not.toContain("settings");
   });
 

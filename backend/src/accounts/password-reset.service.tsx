@@ -171,6 +171,7 @@ export class PasswordResetService {
     await this.email.send({
       to: user.email,
       subject: passwordResetSubject,
+      retry: false,
       template: (
         <PasswordResetEmail
           siteUrl={this.siteUrl}

@@ -61,6 +61,7 @@ export function EmailLayout({
   preview,
   siteUrl,
   signOff = true,
+  portalNote = false,
   children,
 }: {
   /** The short line email programs show next to the subject. */
@@ -69,6 +70,11 @@ export function EmailLayout({
   siteUrl: string;
   /** "Kind regards, The FlyConnect Tech team" under the message. */
   signOff?: boolean;
+  /**
+   * For emails about a customer's request: replies sent by email never
+   * reach the request, so say where to reply (above the message).
+   */
+  portalNote?: boolean;
   children: ReactNode;
 }) {
   const host = siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -129,6 +135,22 @@ export function EmailLayout({
           </Section>
 
           <Section style={{ padding: '32px 32px 8px' }}>
+            {portalNote ? (
+              <Text
+                style={{
+                  margin: '0 0 22px',
+                  padding: '10px 14px',
+                  borderRadius: 10,
+                  background: colors.chip,
+                  fontSize: 13,
+                  lineHeight: '20px',
+                  color: colors.body,
+                }}
+              >
+                Please reply in the client portal, not to this email. Replies
+                sent by email don&apos;t reach your request.
+              </Text>
+            ) : null}
             {children}
             {signOff ? (
               <Text

@@ -24,6 +24,7 @@ export function RequestReceivedEmail(props: RequestReceivedEmailProps) {
     <EmailLayout
       preview={requestReceivedSubject(props.code)}
       siteUrl={props.siteUrl}
+      portalNote
     >
       <Heading>We have received your request</Heading>
       <Paragraph>

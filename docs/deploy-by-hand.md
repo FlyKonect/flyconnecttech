@@ -102,7 +102,7 @@ Use Windows' own `tar.exe` as above. Zips made with PowerShell's Compress-Archiv
    - Open the link, choose a password and set up two-factor sign-in, then sign in at `https://flyconnecttech.co.uk/team/sign-in`.
    - Delete `once.log` afterwards: anyone with the link can take the account.
    - Everyone else is added from the team panel (Users, Customers), not with this command.
-8. **Scheduled jobs**: add the three lines in cPanel > Cron Jobs (Step 15).
+8. **Scheduled jobs**: add the four lines in cPanel > Cron Jobs (Step 15).
 9. **Emails out of spam** (Step 16), then the list in deploy.md, "Before you launch".
 
 ## B5. Backend: every update

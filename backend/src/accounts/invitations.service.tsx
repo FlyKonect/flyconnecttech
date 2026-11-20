@@ -425,6 +425,7 @@ export class InvitationsService {
         to: user.email,
         subject: invitationSubject(props),
         template: <InvitationEmail {...props} />,
+        retry: false,
       });
       return { link, emailSent: true };
     } catch (error) {

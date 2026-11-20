@@ -169,6 +169,17 @@ export class JobsService {
   }
 
   /**
+   * Every 5 minutes: emails that failed get another try (EmailService).
+   * Prints how many went and how many still wait; nothing when no email
+   * waits, so the log does not fill with a line every 5 minutes.
+   */
+  async sendEmails(now = new Date()): Promise<JobResult> {
+    const { sent, failed } = await this.email.sendWaiting(now);
+    if (sent + failed === 0) return { done: '' };
+    return { done: `${sent} sent, ${failed} still waiting` };
+  }
+
+  /**
    * The weekly summary, for customers who ticked it: their open requests,
    * and what was resolved or closed in the last 7 days. Nobody gets an
    * empty one.

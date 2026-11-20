@@ -682,3 +682,29 @@ model Counter {
 
   @@map("counters")
 }
+
+/// An email that could not be sent at once. The send-emails job tries it
+/// again (5 tries in all), then it shows as failed on the team's Failed
+/// emails screen. Invitation and reset emails are never kept here: their
+/// links must not be stored readable (Resend invitation sends a new one).
+model EmailOutbox {
+  id              String    @id @default(uuid()) @db.Char(36)
+  to              String    @db.VarChar(191)
+  subject         String    @db.VarChar(255)
+  html            String    @db.MediumText
+  text            String    @db.MediumText
+  calendarMethod  String?   @db.VarChar(16)
+  calendarContent String?   @db.Text
+  attempts        Int       @default(1)
+  lastError       String    @db.VarChar(500)
+  nextTryAt       DateTime
+  sentAt          DateTime?
+  /// Set after the last try failed: the email waits for someone to resend it.
+  gaveUpAt        DateTime?
+  /// Set when someone removed it from the Failed emails list.
+  dismissedAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([sentAt, gaveUpAt, nextTryAt])
+  @@map("email_outbox")
+}

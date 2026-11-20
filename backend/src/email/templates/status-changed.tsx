@@ -58,6 +58,7 @@ export function StatusChangedEmail(props: StatusChangedEmailProps) {
     <EmailLayout
       preview={statusChangedSubject(props.code, props.status)}
       siteUrl={props.siteUrl}
+      portalNote
     >
       <Heading>{words.heading}</Heading>
       <Paragraph>

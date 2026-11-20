@@ -65,7 +65,9 @@ export type Action =
   /** The settings screen. */
   | 'settings.manage'
   /** Website content: testimonials and the live-project link. */
-  | 'website.manage';
+  | 'website.manage'
+  /** Failed emails: see them, resend or remove them. */
+  | 'emails.manage';
 
 const ALL_TEAM: TeamRole[] = ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'DEVELOPER'];
 const NOT_DEVELOPER: TeamRole[] = ['SUPER_ADMIN', 'ADMIN', 'MANAGER'];
@@ -90,6 +92,7 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'reports.view': NOT_DEVELOPER,
   'settings.manage': ['SUPER_ADMIN'],
   'website.manage': ADMINS,
+  'emails.manage': ADMINS,
 };
 
 export function isTeamRole(role: Role): role is TeamRole {

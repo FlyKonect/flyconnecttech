@@ -24,6 +24,7 @@ export type TeamNavKey =
   | "customers"
   | "users"
   | "reports"
+  | "failedEmails"
   | "notifications"
   | "settings";
 
@@ -125,6 +126,13 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
       key: "reports",
       label: "Reports & Analytics",
       href: routes.teamReports,
+    });
+  }
+  if (canSeeUsers) {
+    manage.push({
+      key: "failedEmails",
+      label: "Failed emails",
+      href: routes.teamFailedEmails,
     });
   }
 
