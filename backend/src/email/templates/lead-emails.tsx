@@ -28,8 +28,9 @@ export function DemoReceivedEmail(
     <EmailLayout preview={demoReceivedSubject} siteUrl={props.siteUrl}>
       <Heading>Demo requested</Heading>
       <Paragraph>
-        Thanks, {props.firstName}. We will send a calendar invite to{' '}
-        {props.email} within 1 business day.
+        Thanks, {props.firstName}. We have your demo request. We will confirm
+        the time and send a calendar invite to {props.email} within 1 business
+        day.
       </Paragraph>
       <RequestCard
         code={props.code}
@@ -58,11 +59,11 @@ export function QuoteReceivedEmail(
 ) {
   return (
     <EmailLayout preview={quoteReceivedSubject} siteUrl={props.siteUrl}>
-      <Heading>Your request is in</Heading>
+      <Heading>Thanks for your quote request</Heading>
       <Paragraph>
-        Thanks, {props.firstName}. Your request is in. We will reply to{' '}
-        {props.email} within 5 business days with next steps, a rough scope and
-        an estimate.
+        Thanks, {props.firstName}. We have your project details. We will reply
+        to {props.email} within 5 business days with next steps, a rough scope
+        and an estimate.
       </Paragraph>
       <RequestCard
         code={props.code}
@@ -91,7 +92,11 @@ export function NewLeadAlertEmail(
   },
 ) {
   return (
-    <EmailLayout preview={props.subject} siteUrl={props.siteUrl}>
+    <EmailLayout
+      preview={props.subject}
+      siteUrl={props.siteUrl}
+      signOff={false}
+    >
       <Heading>{props.subject.replace(/ [A-Z]{3}-\d{4}-\d+/, '')}</Heading>
       <Paragraph>
         Hi {props.firstName}, this just came in from the website.
@@ -231,7 +236,8 @@ export function EstimateEmail(
         </>
       ) : null}
       <Paragraph>
-        Reply to this email with any questions, or to go ahead.
+        Questions, or ready to go ahead? Just reply to this email and we will
+        take it from there.
       </Paragraph>
     </EmailLayout>
   );
@@ -253,7 +259,11 @@ export function LeadMessageEmail(
   props: Base & { subject: string; body: string; senderName: string },
 ) {
   return (
-    <EmailLayout preview={props.subject} siteUrl={props.siteUrl}>
+    <EmailLayout
+      preview={props.subject}
+      siteUrl={props.siteUrl}
+      signOff={false}
+    >
       {props.body.split(/\n{2,}/).map((paragraph, index) => (
         <Paragraph key={index}>{paragraph}</Paragraph>
       ))}

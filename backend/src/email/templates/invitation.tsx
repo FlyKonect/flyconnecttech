@@ -37,9 +37,10 @@ export function InvitationEmail(props: InvitationEmailProps) {
       {props.kind === 'customer' ? (
         <>
           <Paragraph>
-            Hi {props.firstName}, {by} created a customer account for{' '}
-            {props.company} so you can send and track support requests
-            {props.projects.length ? ' for these projects:' : '.'}
+            Hi {props.firstName}, {by} set up a client portal account for{' '}
+            {props.company}. Use it to send support requests, follow every reply
+            and see where your work stands
+            {props.projects.length ? ', for these projects:' : '.'}
           </Paragraph>
           {props.projects.length ? (
             <Section style={{ margin: '0 0 6px' }}>
@@ -67,16 +68,17 @@ export function InvitationEmail(props: InvitationEmailProps) {
       ) : (
         <Paragraph>
           Hi {props.firstName}, {by} added you to the FlyConnect Tech team panel
-          as {props.roleLabel}. Set your password, then set up two-factor
-          sign-in with an authenticator app.
+          as {props.roleLabel}. To get started, verify your email and choose a
+          password. You will then set up two-factor sign-in with an
+          authenticator app, which keeps the panel secure.
         </Paragraph>
       )}
       <PrimaryButton href={props.link}>
         Verify email and set password
       </PrimaryButton>
       <SmallPrint href={props.link}>
-        This link expires in {props.expiresInHours} hours. If you were not
-        expecting this email, you can ignore it.
+        This link works once and expires in {props.expiresInHours} hours. If you
+        were not expecting this email, you can safely ignore it.
       </SmallPrint>
     </EmailLayout>
   );

@@ -30,18 +30,18 @@ const content: Partial<
   Record<RequestStatus, { heading: string; text: string; button: string }>
 > = {
   WAITING_FOR_CUSTOMER: {
-    heading: 'We need more information',
-    text: 'The support team is waiting for your reply. Answer to move this request forward.',
+    heading: 'We need a little more information',
+    text: 'the team needs a reply from you to keep working on this request.',
     button: 'Reply to the team',
   },
   RESOLVED: {
-    heading: 'Your request was resolved',
-    text: 'Please check the fix. If everything works, confirm it and the request closes. If not, choose "I still need help" and we will keep working on it.',
+    heading: 'Your request has been resolved',
+    text: 'the team has finished working on this request. Please check that everything works, then confirm the fix. If something still is not right, choose "I still need help" and we will pick it up again. Resolved requests close by themselves after 7 days.',
     button: 'Confirm the fix',
   },
   CLOSED: {
-    heading: 'Your request was closed',
-    text: 'If you still need help with it, you can reopen the request.',
+    heading: 'Your request is closed',
+    text: 'this request is now closed. If you still need help with it, you can reopen it from the client portal.',
     button: 'View request',
   },
 };
@@ -50,8 +50,8 @@ const content: Partial<
 export function StatusChangedEmail(props: StatusChangedEmailProps) {
   const label = STATUS_LABELS[props.status];
   const words = content[props.status] ?? {
-    heading: `Your request moved to ${label}`,
-    text: `The status of your request is now ${label}.`,
+    heading: `Your request is now ${label}`,
+    text: `there is an update on your request: it is now ${label}.`,
     button: 'View request',
   };
   return (

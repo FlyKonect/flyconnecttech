@@ -28,10 +28,15 @@ export const assignedSubject = (code: string) => `${code} was assigned to you`;
 
 export function RequestAssignedEmail(props: Common & { assignedBy: string }) {
   return (
-    <EmailLayout preview={assignedSubject(props.code)} siteUrl={props.siteUrl}>
+    <EmailLayout
+      preview={assignedSubject(props.code)}
+      siteUrl={props.siteUrl}
+      signOff={false}
+    >
       <Heading>A request was assigned to you</Heading>
       <Paragraph>
         Hi {props.firstName}, {props.assignedBy} assigned this request to you.
+        Please review it and reply to the customer from the team panel.
       </Paragraph>
       <RequestCard code={props.code} title={props.title} lines={lines(props)} />
       <PrimaryButton href={props.link}>Open request</PrimaryButton>
@@ -49,6 +54,7 @@ export function CustomerRepliedEmail(
     <EmailLayout
       preview={customerRepliedSubject(props.customerName, props.code)}
       siteUrl={props.siteUrl}
+      signOff={false}
     >
       <Heading>New reply from the customer</Heading>
       <Paragraph>
@@ -70,6 +76,7 @@ export function UrgentRequestEmail(props: Common & { description: string }) {
     <EmailLayout
       preview={urgentSubject(props.code, props.company)}
       siteUrl={props.siteUrl}
+      signOff={false}
     >
       <Heading>New urgent request</Heading>
       <Paragraph>

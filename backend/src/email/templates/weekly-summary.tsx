@@ -59,7 +59,8 @@ export function WeeklySummaryEmail(props: {
     <EmailLayout preview={weeklySummarySubject} siteUrl={props.siteUrl}>
       <Heading>Your week in support</Heading>
       <Paragraph>
-        Hi {props.firstName}, here is where your requests stand.
+        Hi {props.firstName}, here is where your support requests stand this
+        week.
       </Paragraph>
       {props.open.length ? (
         <>

@@ -36,13 +36,14 @@ export function DailyDigestEmail(props: {
     <EmailLayout
       preview={dailyDigestSubject(props.total)}
       siteUrl={props.siteUrl}
+      signOff={false}
     >
       <Heading>Requests waiting for review</Heading>
       <Paragraph>
         Hi {props.firstName},{' '}
         {props.total === 1
-          ? '1 support request still needs reviewing.'
-          : `${props.total} support requests still need reviewing. The oldest come first.`}
+          ? '1 support request is waiting for someone to review it and assign a developer.'
+          : `${props.total} support requests are waiting for someone to review them and assign a developer. The oldest come first.`}
       </Paragraph>
       {props.rows.map((row) => (
         <RequestCard
