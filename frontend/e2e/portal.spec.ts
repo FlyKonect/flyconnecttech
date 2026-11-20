@@ -79,10 +79,10 @@ test("a customer sends a request in four steps, with a file", async ({
     .textContent();
   await project.selectOption({ label: option ?? "" });
   await page.getByRole("radio", { name: /Bug Report/ }).click();
-  await field(page, "Request title").fill(
+  await field(page, "Request title *").fill(
     "Agent commission report shows wrong totals",
   );
-  await field(page, "Detailed description").fill(
+  await field(page, "Detailed description *").fill(
     "Since the October update, the commission report shows totals about 8% higher.",
   );
   await page.getByRole("radio", { name: "High" }).click();

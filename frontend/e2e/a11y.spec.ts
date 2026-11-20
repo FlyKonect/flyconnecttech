@@ -331,8 +331,10 @@ test("every client portal screen", async ({ page }) => {
   await expect(page.getByText("Enter a request title")).toBeVisible();
   await expectAccessible(page, "New request, with errors");
   await page.getByRole("radio", { name: /Bug Report/ }).click();
-  await field(page, "Request title").fill("Prices show in the wrong currency");
-  await field(page, "Detailed description").fill(
+  await field(page, "Request title *").fill(
+    "Prices show in the wrong currency",
+  );
+  await field(page, "Detailed description *").fill(
     "Prices on the search page show in euros, not pounds.",
   );
   await page.getByRole("button", { name: "Submit request" }).click();

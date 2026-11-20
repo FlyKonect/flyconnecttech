@@ -180,10 +180,10 @@ test.describe("client portal layout", () => {
     await expect(
       nav.getByRole("link", { name: /Notifications/ }),
     ).toBeVisible();
-    // Profile settings and Logout are in the menu under the name.
+    // Profile settings is in the menu too (and, with Logout, under the name).
     await expect(
       nav.getByRole("link", { name: /Profile Settings/i }),
-    ).toHaveCount(0);
+    ).toBeVisible();
 
     const sidebar = page.getByRole("complementary", {
       name: "Client portal menu",

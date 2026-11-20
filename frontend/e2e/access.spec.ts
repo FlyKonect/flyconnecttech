@@ -141,7 +141,9 @@ for (const [role, home, label] of [
   }) => {
     await signInBrowser(page.context(), await createPerson(role));
     for (const path of SIGN_IN_PAGES) {
-      await page.goto(path);
+      // "commit": the page sends a signed-in person away at once, which would
+      // cut short a wait for the whole page to load.
+      await page.goto(path, { waitUntil: "commit" });
       await expect(page, `${path} should send a ${role} home`).toHaveURL(
         new RegExp(`${home}$`),
       );

@@ -298,7 +298,7 @@ test("phone: Demo requests fits the screen", async ({ page }) => {
   await page.setViewportSize(phone);
   await page.goto("/team/leads/demos");
   await expect(
-    page.getByText(/demo requests? ·/).filter({ visible: true }),
+    page.getByRole("navigation", { name: "Status" }).filter({ visible: true }),
   ).toBeVisible();
   await expectNoSidewaysScroll(page);
 });

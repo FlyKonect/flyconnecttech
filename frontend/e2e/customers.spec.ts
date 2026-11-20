@@ -132,15 +132,12 @@ test("an admin adds a customer with two projects; the customer activates and see
   await customer.getByRole("button", { name: "Sign in" }).click();
   await expect(customer).toHaveURL(/\/portal$/);
 
-  // New request: exactly those two projects.
+  // New request: exactly those two projects (after "Choose a project").
   await customer.goto("/portal/requests/new");
-  const projects = customer
-    .getByRole("radiogroup")
-    .filter({ visible: true })
-    .getByRole("radio");
-  await expect(projects).toHaveCount(2);
-  await expect(projects.nth(0)).toContainText(`${name} booking website`);
-  await expect(projects.nth(1)).toContainText(`${name} agent portal`);
+  const projects = field(customer, "Project *").locator("option");
+  await expect(projects).toHaveCount(3);
+  await expect(projects.nth(1)).toContainText(`${name} booking website`);
+  await expect(projects.nth(2)).toContainText(`${name} agent portal`);
   await context.close();
 
   // The team sees them as active now.
