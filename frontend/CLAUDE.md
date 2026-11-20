@@ -3,6 +3,7 @@
 Loaded when working in `frontend/`. The root `CLAUDE.md` has the product, the shared rules and how we work. Next.js 16 is newer than most examples: read `frontend/AGENTS.md` and the guide in `node_modules/next/dist/docs/` before using an API you haven't used here. Feature rules (requests, leads, customers and users, emails, website content, browser tests) are in `.claude/rules/` and load with their files.
 
 ## Stack
+
 - Next.js 16 (App Router, React Server Components), TypeScript with `strict`.
 - Tailwind CSS 4 and shadcn/ui (Radix). Theme tokens from `docs/03-design-system.md`, set in `src/app/globals.css`.
 - Inter and Inter Tight through `next/font`.
@@ -11,6 +12,7 @@ Loaded when working in `frontend/`. The root `CLAUDE.md` has the product, the sh
 - It has no database access. It gets everything from the backend (`NEXT_PUBLIC_API_URL`).
 
 ## Commands (in `frontend/`, http://localhost:3001)
+
 - `npm run dev`: start the website
 - `npm run build`, `npm run start`
 - `npm run typecheck`
@@ -20,6 +22,7 @@ Loaded when working in `frontend/`. The root `CLAUDE.md` has the product, the sh
 - `npm run test:e2e`: browser tests. They start their own backend (port 4100, database `flyconnect_tech_e2e`) and website (port 3101, built into `.next-e2e`) and read emails from Mailpit, so `docker compose up -d` must be running. Your own dev servers and database are not touched.
 
 ## Folder layout
+
 - `frontend/src/app/(site)/`: website pages
 - `frontend/src/app/portal/(app)/`: client portal pages that have the sidebar. Sign-in and invitation screens go in `portal/` outside `(app)`, so they get no sidebar.
 - `frontend/src/app/team/(app)/`: team panel pages that have the sidebar. Team sign-in goes outside `(app)`.
@@ -58,6 +61,7 @@ Loaded when working in `frontend/`. The root `CLAUDE.md` has the product, the sh
 - `frontend/e2e/`: Playwright tests
 
 ## Frontend conventions
+
 - **Use the shared components.** Check `/dev/components` (run the frontend, open http://localhost:3001/dev/components) before building a new piece. Add new shared components to that page.
 - **Emails:** `/dev/emails` (development only) shows every email as sent and as plain text, from the backend's `/dev/emails`. The backend must be running.
 - **Pills:** `<LabelPill group="requestStatus" value="IN_PROGRESS" />`. Labels and colours come from `labels.ts`.
@@ -75,10 +79,12 @@ Loaded when working in `frontend/`. The root `CLAUDE.md` has the product, the sh
 - **If styles look stale** after changing `globals.css`, restart `npm run dev`.
 
 ## Signed-in visitors (frontend)
+
 - **The sign-in pages** (sign in, forgot password, invitation help, invitation and reset links) start with `<RedirectIfSignedIn />` (`components/auth/redirect-if-signed-in.tsx`): someone signed in goes to `homeFor(me)`.
 - **The website** is pre-built, so it finds out after loading: `useSignedInArea()` (`lib/auth/signed-in-area.ts`) asks the public `GET /me/status` (always 200, only `{ area }`), once for the header, footer and page. `<AccountLink>` turns "Client login" into "Client portal" / "Team panel"; `<HideWhenSignedIn>` hides "Open my invitation" (`components/site/account-link.tsx`).
 
 ## Logo
+
 - The logo is "Crew Wings": gold wings around a navy node, "FlyConnect" in navy and "Tech" in gold.
 - Always use `<Logo />` from `frontend/src/components/brand/logo.tsx`. Variants: `horizontal` (default), `stacked`, `symbol`. Add `onNavy` on navy backgrounds.
 - Files: `frontend/public/brand/` (copies in `design/assets/flyconnect-tech/`). Browser tab icons: `frontend/src/app/icon.svg`, `favicon.ico`, `apple-icon.png`.
