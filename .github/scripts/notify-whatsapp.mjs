@@ -77,14 +77,65 @@ export function oneLine(items, max = 190) {
   );
   // Whole items only; the rest is counted ("+3 more"). The full list is on
   // the run's page (the Details link).
+  const { text, rest } = firstPart(number(clean), max);
+  return rest.length ? `${text} (continued below)` : text;
+}
+
+/** "1. First • 2. Second": numbers each change, so a long list stays readable. */
+export function number(items) {
+  return items.map((item, index) => `${index + 1}. ${item}`);
+}
+
+/** As many whole items as fit in `max` characters, and the ones left over. */
+export function firstPart(items, max) {
   const shown = [];
-  for (const item of clean) {
+  for (const item of items) {
     const next = [...shown, item].join(" • ");
     if (next.length > max && shown.length) break;
     shown.push(next.length > max ? `${item.slice(0, max - 1)}…` : item);
   }
-  const rest = clean.length - shown.length;
-  return rest ? `${shown.join(" • ")} (+${rest} more)` : shown.join(" • ");
+  return { text: shown.join(" • "), rest: items.slice(shown.length) };
+}
+
+/** The left-over items in pieces of at most `max` characters each. */
+export function pieces(items, max = 850) {
+  const out = [];
+  let left = items;
+  while (left.length) {
+    const { text, rest } = firstPart(left, max);
+    out.push(text);
+    left = rest;
+  }
+  return out;
+}
+
+/**
+ * The extra messages for changes that did not fit in the first one: one or
+ * more per section, each [section and part, the changes].
+ */
+export function continuations(groups, limits) {
+  const sections = [
+    ["New features", groups.features, limits.features],
+    ["Improvements", groups.improvements, limits.improvements],
+    ["Bug fixes", groups.fixes, limits.fixes],
+    ["Other changes", groups.other, limits.other],
+  ];
+  const messages = [];
+  for (const [title, items, max] of sections) {
+    const clean = number(
+      items.map((i) => i.replace(/[\n\t]/g, " ").replace(/ {4,}/g, "   ")),
+    );
+    const { rest } = firstPart(clean, max);
+    const parts = pieces(rest);
+    parts.forEach((text, index) => {
+      const label =
+        parts.length > 1
+          ? `${title}, continued (${index + 1} of ${parts.length})`
+          : `${title}, continued`;
+      messages.push([label, text]);
+    });
+  }
+  return messages;
 }
 
 function londonTime(date = new Date()) {
@@ -98,16 +149,20 @@ function londonTime(date = new Date()) {
 async function main() {
   const titles = commitTitles(env.FROM_COMMIT ?? "");
   const groups = groupChanges(titles);
+  // How much of each list fits in the first message (WhatsApp: 1024
+  // characters in all). The rest follows in "deploy_changes" messages.
+  const limits = { features: 190, improvements: 190, fixes: 190, other: 120 };
   const values = [
     londonTime(),
     env.DEPLOYED_PARTS || "Website and backend",
     `${env.SITE_URL ?? ""} · ${env.API_URL ?? ""}`.trim(),
-    oneLine(groups.features),
-    oneLine(groups.improvements),
-    oneLine(groups.fixes),
-    oneLine(groups.other, 120),
+    oneLine(groups.features, limits.features),
+    oneLine(groups.improvements, limits.improvements),
+    oneLine(groups.fixes, limits.fixes),
+    oneLine(groups.other, limits.other),
     env.RUN_URL || "-",
   ];
+  const more = continuations(groups, limits);
 
   // The full lists on the run's page (the message's Details link).
   if (env.GITHUB_STEP_SUMMARY) {
@@ -138,6 +193,10 @@ async function main() {
         `Bug fixes: ${values[5]}`,
         `Other: ${values[6]}`,
         `Details: ${values[7]}`,
+        ...more.map(
+          ([label, text]) =>
+            `\n(next message, deploy_changes)\n${label}: ${text}`,
+        ),
       ].join("\n"),
     );
     return;
@@ -161,9 +220,9 @@ async function main() {
     .map((n) => n.replace(/[^\d]/g, ""))
     .filter(Boolean);
 
-  let failed = 0;
-  for (const to of recipients) {
-    const response = await fetch(url, {
+  const language = env.WHATSAPP_TEMPLATE_LANG || "en_GB";
+  const send = (to, name, texts) =>
+    fetch(url, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${env.WHATSAPP_TOKEN}`,
@@ -174,27 +233,44 @@ async function main() {
         to,
         type: "template",
         template: {
-          name: env.WHATSAPP_TEMPLATE || "deploy_report",
-          language: { code: env.WHATSAPP_TEMPLATE_LANG || "en_GB" },
+          name,
+          language: { code: language },
           components: [
             {
               type: "body",
-              parameters: values.map((text) => ({ type: "text", text })),
+              parameters: texts.map((text) => ({ type: "text", text })),
             },
           ],
         },
       }),
     });
+
+  let failed = 0;
+  for (const to of recipients) {
     // Only the last 4 digits in the log: the numbers are private.
     const who = `…${to.slice(-4)}`;
-    if (response.ok) {
-      console.log(`WhatsApp message sent to ${who}.`);
-    } else {
-      failed += 1;
-      const detail = await response.text();
-      console.log(
-        `::warning::WhatsApp message to ${who} failed (${response.status}): ${detail.slice(0, 300)}`,
-      );
+    const messages = [
+      [env.WHATSAPP_TEMPLATE || "deploy_report", values],
+      ...more.map((texts) => [
+        env.WHATSAPP_CHANGES_TEMPLATE || "deploy_changes",
+        texts,
+      ]),
+    ];
+    for (const [index, [name, texts]] of messages.entries()) {
+      const response = await send(to, name, texts);
+      if (response.ok) {
+        console.log(
+          `WhatsApp message ${index + 1} of ${messages.length} sent to ${who}.`,
+        );
+      } else {
+        failed += 1;
+        const detail = await response.text();
+        console.log(
+          `::warning::WhatsApp message ${index + 1} of ${messages.length} to ${who} failed (${response.status}): ${detail.slice(0, 300)}`,
+        );
+        // Without the first message the rest makes no sense.
+        if (index === 0) break;
+      }
     }
   }
   if (failed) process.exitCode = 1;

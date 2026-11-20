@@ -420,7 +420,7 @@ Database changes are **not** undone by this. If a deploy changed the database (n
 
 ## Step 17. WhatsApp message after each deploy (optional)
 
-After every successful deploy, GitHub can send a WhatsApp message with what went live: new features, improvements, bug fixes and other changes since the last deploy, plus a link to the full list. It uses Meta's official **WhatsApp Cloud API**.
+After every successful deploy, GitHub can send a WhatsApp message with what went live: new features, improvements, bug fixes and other changes since the last deploy, numbered, plus a link to the run. When the list is too long for one message (WhatsApp allows about 1,000 characters), the rest follows in one or more extra messages, so every change is listed. It uses Meta's official **WhatsApp Cloud API**.
 
 Two limits from Meta:
 - It sends to **individual numbers**, not to a WhatsApp group. Add each person's number (Meta's test mode allows up to 5).
@@ -468,6 +468,16 @@ This message was sent automatically after a successful deploy.
 
 4. Meta asks for sample values. For example: `20 Nov 2026, 14:30` · `Website and backend` · `https://flyconnecttech.co.uk` · `New request on one page` · `Cleaner dashboards` · `Reports page loads again` · `Notes updated` · `https://github.com/`.
 5. **Submit**. Approval usually takes minutes, sometimes a day. Wait until it says **Active**.
+6. Create a second template the same way, for long change lists (when a deploy has more changes than fit in one message, the rest follows in these). Category **Utility**, name `deploy_changes`, language **English (UK)**, body:
+
+```
+More changes in this FlyConnect Tech deploy
+{{1}}: {{2}}
+
+Sent automatically after a successful deploy.
+```
+
+   Sample values: `Improvements, continued` · `4. Cleaner dashboards • 5. Clearer emails`. Submit and wait until it is **Active**.
 
 **6. Tell GitHub** (repository > Settings > Secrets and variables > Actions)
 
@@ -477,7 +487,7 @@ This message was sent automatically after a successful deploy.
 | `WHATSAPP_PHONE_NUMBER_ID` | the Phone number ID from part 2 |
 | `WHATSAPP_TO` | the numbers from part 3 with the country code and no `+` or spaces, separated by commas, for example `447700900123,447700900456` |
 
-Variables, only if yours differ: `WHATSAPP_TEMPLATE` (default `deploy_report`), `WHATSAPP_TEMPLATE_LANG` (default `en_GB`; it must match the template's language), `WHATSAPP_API_VERSION` (default `v23.0`).
+Variables, only if yours differ: `WHATSAPP_TEMPLATE` (default `deploy_report`), `WHATSAPP_CHANGES_TEMPLATE` (default `deploy_changes`), `WHATSAPP_TEMPLATE_LANG` (default `en_GB`; it must match the template's language), `WHATSAPP_API_VERSION` (default `v23.0`).
 
 **7. Try it:** Actions > Deploy > **Run workflow**. At the end, the step **Send the WhatsApp message** says "sent" for each number. The run's page (**Summary**) shows the full grouped list.
 
