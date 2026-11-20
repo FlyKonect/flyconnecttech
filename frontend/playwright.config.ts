@@ -31,7 +31,29 @@ export default defineConfig({
     baseURL: external ?? e2e.siteUrl,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // Safari and an iPhone, for the screens customers see. Only with
+    // E2E_ALL_BROWSERS=1: the nightly run (.github/workflows/nightly-browsers.yml),
+    // so the checks before a deploy stay quick.
+    ...(process.env.E2E_ALL_BROWSERS
+      ? [
+          {
+            name: "webkit",
+            use: { ...devices["Desktop Safari"] },
+            testMatch: /(layouts|portal|website)\.spec\.ts/,
+          },
+          {
+            name: "iphone",
+            use: { ...devices["iPhone 15"] },
+            // The website, where most phone visitors land. The portal's phone
+            // layout has its own test at phone size (portal.spec.ts), and
+            // layouts.spec.ts sets its own screen sizes.
+            testMatch: /website\.spec\.ts/,
+          },
+        ]
+      : []),
+  ],
   webServer: external
     ? undefined
     : [

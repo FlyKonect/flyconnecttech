@@ -168,12 +168,18 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
   );
 
   // The reply moves the request back to In Progress.
-  await field(page, "Reply").fill("The booking reference is BW-58213.");
+  // The file first: once its chip shows, the page is ready for typing
+  // (in Safari, text typed earlier could be reset as the page loads).
   await page.locator("input[type=file]").setInputFiles({
     name: "booking.png",
     mimeType: "image/png",
     buffer: PNG,
   });
+  await expect(page.getByText("booking.png")).toBeVisible();
+  await field(page, "Reply").fill("The booking reference is BW-58213.");
+  await expect(field(page, "Reply")).toHaveValue(
+    "The booking reference is BW-58213.",
+  );
   await page.getByRole("button", { name: "Send reply" }).click();
   await expect(page.getByRole("status")).toContainText(
     "Reply sent to the support team",

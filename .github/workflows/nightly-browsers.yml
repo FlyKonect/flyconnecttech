@@ -1,0 +1,89 @@
+# Nightly browsers: the website and the client portal in Safari (WebKit) and
+# on an iPhone, every night. The checks before a deploy (ci.yml) use only
+# Chrome, to stay quick; this catches what only Safari does differently.
+#
+# When it runs:
+#   - every night at 03:00 UTC, on main
+#   - by hand: GitHub > Actions > Nightly browsers > Run workflow
+#
+# Nothing here touches the live hosting, and a failure here never stops a
+# deploy. Which tests run: the "webkit" and "iphone" projects in
+# frontend/playwright.config.ts (only with E2E_ALL_BROWSERS=1).
+
+name: Nightly browsers
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safari-iphone:
+    name: Safari and iPhone
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # The browser tests start the backend too, with its own database, and read
+    # the emails from Mailpit (the same as ci.yml).
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+      mailpit:
+        image: axllent/mailpit:latest
+        env:
+          MP_SMTP_AUTH_ACCEPT_ANY: 1
+          MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        ports:
+          - 1025:1025
+          - 8025:8025
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ vars.NODE_VERSION || '22' }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      - name: Install packages
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install the backend's packages (the browser tests start it)
+        working-directory: backend
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install Safari's engine (WebKit) for the tests
+        run: npx playwright install --with-deps webkit
+
+      - name: Browser tests in Safari and on an iPhone
+        env:
+          E2E_ALL_BROWSERS: "1"
+          E2E_DATABASE_URL: mysql://root:root@127.0.0.1:3306/flyconnect_tech_e2e
+          E2E_SMTP_HOST: 127.0.0.1
+          E2E_MAILPIT_URL: http://127.0.0.1:8025
+        run: npx playwright test --project=webkit --project=iphone
+
+      - name: Keep the browser test report if a test failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-safari-iphone
+          path: frontend/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore

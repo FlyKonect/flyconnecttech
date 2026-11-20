@@ -294,7 +294,10 @@ test.describe("Book a demo", () => {
     const open = page
       .getByRole("banner")
       .getByRole("button", { name: "Book a demo" });
-    await open.click();
+    // Opened from the keyboard: focus going back to the button is for
+    // keyboard users (Safari does not focus a button that is clicked).
+    await open.focus();
+    await page.keyboard.press("Enter");
 
     const dialog = page.getByRole("dialog", { name: "Book a demo" });
     await dialog
