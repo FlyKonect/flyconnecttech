@@ -1,6 +1,5 @@
 import type { Priority, RequestStatus } from '../generated/prisma/client.js';
-import type { ResponseTargets } from '../settings/defaults.js';
-import { dueTime, resumedDueTime } from './sla.js';
+import { dueTimes, resumedDueTime, type SlaRules } from './sla.js';
 
 /**
  * Support request statuses (docs/01, "Support request statuses").
@@ -79,8 +78,9 @@ export type StatusChange = {
   now: Date;
   priority: Priority;
   dueAt: Date | null;
+  resolveDueAt: Date | null;
   slaPausedAt: Date | null;
-  targets: ResponseTargets;
+  targets: SlaRules;
 };
 
 const finished = (status: RequestStatus) =>
@@ -92,24 +92,32 @@ export function statusChangeFields(change: StatusChange) {
   const fields: {
     status: RequestStatus;
     dueAt?: Date;
+    resolveDueAt?: Date;
     slaPausedAt?: Date | null;
     resolvedAt?: Date | null;
     closedAt?: Date | null;
   } = { status: to };
 
   if (finished(from) && !finished(to)) {
-    // Reopened: a fresh due time, counted from now.
+    // Reopened: fresh due times for both clocks, counted from now.
     fields.resolvedAt = null;
     fields.closedAt = null;
-    fields.dueAt = dueTime(now, change.priority, change.targets);
+    Object.assign(fields, dueTimes(now, change.priority, change.targets));
     fields.slaPausedAt = to === 'WAITING_FOR_CUSTOMER' ? now : null;
     return fields;
   }
 
   if (from === 'WAITING_FOR_CUSTOMER' && to !== from) {
-    // The clock starts again.
+    // The clocks start again, later by the time spent waiting.
     if (change.dueAt && change.slaPausedAt) {
       fields.dueAt = resumedDueTime(change.dueAt, change.slaPausedAt, now);
+    }
+    if (change.resolveDueAt && change.slaPausedAt) {
+      fields.resolveDueAt = resumedDueTime(
+        change.resolveDueAt,
+        change.slaPausedAt,
+        now,
+      );
     }
     fields.slaPausedAt = null;
   }

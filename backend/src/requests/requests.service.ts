@@ -33,7 +33,7 @@ import {
   stateSelect,
   type RequestState,
 } from './request-writes.js';
-import { dueTime } from './sla.js';
+import { dueTimes } from './sla.js';
 import {
   CUSTOMER_ACTIONS,
   CUSTOMER_REPLIED_LINE,
@@ -181,7 +181,7 @@ export class RequestsService {
     const checked = await this.storage.check(files);
     const id = randomUUID();
     const keys = await this.storage.keep(checked, id);
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const company = project.customer.company;
 
     let request: RequestState;
@@ -200,7 +200,7 @@ export class RequestsService {
             status: 'SUBMITTED',
             projectId: project.id,
             customerId: customerScope(actor).customerId,
-            dueAt: dueTime(now, input.priority, targets),
+            ...dueTimes(now, input.priority, targets),
             createdAt: now,
           },
           select: stateSelect,
@@ -324,7 +324,7 @@ export class RequestsService {
 
     const checked = await this.storage.check(files);
     const keys = await this.storage.keep(checked, request.id);
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
 
     let current: RequestState;
     try {
@@ -379,7 +379,7 @@ export class RequestsService {
     const rule = CUSTOMER_ACTIONS[action];
     const request = await this.findOwn(actor, code);
     if (!rule.from.includes(request.status)) throw changedMeanwhile();
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
 
     await this.prisma.$transaction(async (tx) => {
       const changed = await moveStatus(tx, request, rule.to, {

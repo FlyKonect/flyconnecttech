@@ -27,29 +27,53 @@ const SWITCHES: [keyof AppSettings["teamNotifications"], string][] = [
 
 const card = "rounded-[22px] border border-line-2 bg-white p-6";
 
+type Targets = Record<Priority, string>;
+
+const inWords = (saved: AppSettings["responseTargets"]) =>
+  Object.fromEntries(ORDER.map((p) => [p, targetWords(saved[p])])) as Targets;
+
+const toCodes = (targets: Targets) =>
+  Object.fromEntries(ORDER.map((p) => [p, targetCode(targets[p])])) as Record<
+    Priority,
+    string | null
+  >;
+
+/** "25 Dec 2026, Friday" for a saved "2026-12-25". */
+function holidayWords(day: string) {
+  return new Date(`${day}T12:00:00Z`).toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 /**
- * Settings (screen 33): the response target for each priority (used for
- * SLA due times) and the four team notification switches. Save settings
- * saves both.
+ * Settings (screen 33): the SLA targets for each priority (first reply,
+ * and fix), the bank holidays that are not business days, and the four
+ * team notification switches. Save settings saves everything.
  */
 export function SettingsForm({ settings }: { settings: AppSettings }) {
   const router = useRouter();
   const toast = useToast();
-  const [targets, setTargets] = React.useState(
-    () =>
-      Object.fromEntries(
-        ORDER.map((p) => [p, targetWords(settings.responseTargets[p])]),
-      ) as Record<Priority, string>,
+  const [reply, setReply] = React.useState(() =>
+    inWords(settings.responseTargets),
+  );
+  const [fix, setFix] = React.useState(() =>
+    inWords(settings.resolutionTargets),
+  );
+  const [holidays, setHolidays] = React.useState<string[]>(
+    settings.slaCalendar.bankHolidays,
   );
   const [switches, setSwitches] = React.useState(settings.teamNotifications);
   const [tried, setTried] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
 
-  const codes = Object.fromEntries(
-    ORDER.map((p) => [p, targetCode(targets[p])]),
-  ) as Record<Priority, string | null>;
-  const valid = ORDER.every((p) => codes[p]);
+  const replyCodes = toCodes(reply);
+  const fixCodes = toCodes(fix);
+  const valid = ORDER.every((p) => replyCodes[p] && fixCodes[p]);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -60,7 +84,12 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
     try {
       await apiFetch("/team/settings", {
         method: "POST",
-        body: { responseTargets: codes, teamNotifications: switches },
+        body: {
+          responseTargets: replyCodes,
+          resolutionTargets: fixCodes,
+          slaCalendar: { bankHolidays: holidays },
+          teamNotifications: switches,
+        },
       });
       toast("Changes saved");
       router.refresh();
@@ -77,50 +106,27 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
       onSubmit={save}
       className="flex flex-wrap items-start gap-5"
     >
-      <section
-        aria-labelledby="response-targets"
-        className={`${card} min-w-0 flex-[1_1_380px]`}
-      >
-        <h2 id="response-targets" className="text-[17px] font-bold">
-          Response targets
-        </h2>
-        <ul className="mt-3.5 flex flex-col gap-3.5">
-          {ORDER.map((priority) => {
-            const bad = tried && !codes[priority];
-            const id = `target-${priority}`;
-            return (
-              <li key={priority} className="flex flex-col gap-1">
-                <div className="flex items-center justify-between gap-4">
-                  <label htmlFor={id}>
-                    <span className="sr-only">
-                      Response target for {priorities[priority].label}
-                    </span>
-                    <LabelPill group="priority" value={priority} />
-                  </label>
-                  <Input
-                    id={id}
-                    value={targets[priority]}
-                    aria-invalid={bad || undefined}
-                    aria-describedby={bad ? `${id}-error` : undefined}
-                    onChange={(event) =>
-                      setTargets({ ...targets, [priority]: event.target.value })
-                    }
-                    className="h-[46px] w-[166px] font-semibold"
-                  />
-                </div>
-                {bad ? (
-                  <p
-                    id={`${id}-error`}
-                    className="text-right text-xs font-semibold text-danger"
-                  >
-                    Write it like 4 hours or 1 business day
-                  </p>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <TargetsCard
+        id="response-targets"
+        title="Response targets"
+        hint="How soon the first team reply is due. The clock stops at the first reply."
+        what="Response target"
+        targets={reply}
+        codes={replyCodes}
+        tried={tried}
+        onChange={setReply}
+      />
+      <TargetsCard
+        id="resolution-targets"
+        title="Fix targets"
+        hint="How soon a request should be resolved. A request resolved in time shows as Met."
+        what="Fix target"
+        targets={fix}
+        codes={fixCodes}
+        tried={tried}
+        onChange={setFix}
+      />
+      <BankHolidays holidays={holidays} onChange={setHolidays} />
 
       <section
         aria-labelledby="team-notifications"
@@ -154,5 +160,145 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
         </Button>
       </section>
     </form>
+  );
+}
+
+function TargetsCard({
+  id,
+  title,
+  hint,
+  what,
+  targets,
+  codes,
+  tried,
+  onChange,
+}: {
+  id: string;
+  title: string;
+  hint: string;
+  /** "Response target", for each field's name: "Response target for High". */
+  what: string;
+  targets: Targets;
+  codes: Record<Priority, string | null>;
+  tried: boolean;
+  onChange: (next: Targets) => void;
+}) {
+  return (
+    <section
+      aria-labelledby={id}
+      className={`${card} min-w-0 flex-[1_1_380px]`}
+    >
+      <h2 id={id} className="text-[17px] font-bold">
+        {title}
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">{hint}</p>
+      <ul className="mt-3.5 flex flex-col gap-3.5">
+        {ORDER.map((priority) => {
+          const bad = tried && !codes[priority];
+          const field = `${id}-${priority}`;
+          return (
+            <li key={priority} className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-4">
+                <label htmlFor={field}>
+                  <span className="sr-only">
+                    {what} for {priorities[priority].label}
+                  </span>
+                  <LabelPill group="priority" value={priority} />
+                </label>
+                <Input
+                  id={field}
+                  value={targets[priority]}
+                  aria-invalid={bad || undefined}
+                  aria-describedby={bad ? `${field}-error` : undefined}
+                  onChange={(event) =>
+                    onChange({ ...targets, [priority]: event.target.value })
+                  }
+                  className="h-[46px] w-[166px] font-semibold"
+                />
+              </div>
+              {bad ? (
+                <p
+                  id={`${field}-error`}
+                  className="text-right text-xs font-semibold text-danger"
+                >
+                  Write it like 4 hours or 1 business day
+                </p>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** The bank holidays: not business days for the SLA. */
+function BankHolidays({
+  holidays,
+  onChange,
+}: {
+  holidays: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const [day, setDay] = React.useState("");
+  const today = new Date().toISOString().slice(0, 10);
+  const shown = holidays.filter((h) => h >= today.slice(0, 4));
+
+  function add() {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+    onChange([...new Set([...holidays, day])].sort());
+    setDay("");
+  }
+
+  return (
+    <section
+      aria-labelledby="bank-holidays"
+      className={`${card} min-w-0 flex-[1_1_380px]`}
+    >
+      <h2 id="bank-holidays" className="text-[17px] font-bold">
+        Bank holidays
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Not counted as business days. England and Wales, from gov.uk: add each
+        new year&apos;s dates when they are announced.
+      </p>
+      <ul aria-label="Bank holidays" className="mt-3 flex flex-col">
+        {shown.map((holiday) => (
+          <li
+            key={holiday}
+            className="flex items-center justify-between gap-3 border-t border-line-3 py-2 text-sm first:border-t-0"
+          >
+            <span>{holidayWords(holiday)}</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label={`Remove ${holidayWords(holiday)}`}
+              onClick={() => onChange(holidays.filter((h) => h !== holiday))}
+            >
+              Remove
+            </Button>
+          </li>
+        ))}
+        {shown.length === 0 ? (
+          <li className="py-2 text-sm text-muted-foreground">
+            No bank holidays added.
+          </li>
+        ) : null}
+      </ul>
+      <div className="mt-3 flex items-end gap-2.5">
+        <label className="flex flex-1 flex-col gap-1.5 text-[13px] font-bold">
+          Add a bank holiday
+          <Input
+            type="date"
+            value={day}
+            onChange={(event) => setDay(event.target.value)}
+          />
+        </label>
+        <Button type="button" variant="outline" onClick={add} disabled={!day}>
+          Add
+        </Button>
+      </div>
+    </section>
   );
 }

@@ -3,6 +3,7 @@ import {
   addBusinessDays,
   dueTime,
   parseTarget,
+  resolveDueTime,
   resumedDueTime,
 } from './sla.js';
 
@@ -106,5 +107,38 @@ describe('resumedDueTime', () => {
         at('2026-11-14T15:30:00Z'),
       ),
     ).toEqual(at('2026-11-14T16:00:00Z'));
+  });
+});
+
+describe('bank holidays and the fix clock', () => {
+  const at = (iso: string) => new Date(iso);
+  it('skips a bank holiday like a weekend', () => {
+    // Thursday 24 Dec 2026 10:00 + 1: Friday 25 and Monday 28 are holidays.
+    expect(
+      addBusinessDays(at('2026-12-24T10:00:00Z'), 1, [
+        '2026-12-25',
+        '2026-12-28',
+      ]),
+    ).toEqual(at('2026-12-29T10:00:00Z'));
+  });
+
+  it('a start on a bank holiday counts from the next business day at 00:00', () => {
+    expect(
+      addBusinessDays(at('2026-12-25T10:00:00Z'), 1, [
+        '2026-12-25',
+        '2026-12-28',
+      ]),
+    ).toEqual(at('2026-12-30T00:00:00Z'));
+  });
+
+  it('the fix clock uses the resolution targets', () => {
+    // Tuesday 10 Nov 2026, 09:00 UK; High: 3 business days.
+    expect(
+      resolveDueTime(
+        at('2026-11-10T09:00:00Z'),
+        'HIGH',
+        defaultSettings.resolutionTargets,
+      ),
+    ).toEqual(at('2026-11-13T09:00:00Z'));
   });
 });

@@ -47,6 +47,9 @@ export type DashboardRow = {
   priority: Priority;
   createdAt: string;
   dueAt: string | null;
+  /** The SLA fix clock (empty for requests made before it existed). */
+  resolveDueAt?: string | null;
+  firstResponseAt?: string | null;
   slaPausedAt: string | null;
   resolvedAt: string | null;
   project: { name: string };
@@ -111,6 +114,9 @@ export type TeamRequestRow = {
   createdAt: string;
   updatedAt: string;
   dueAt: string | null;
+  /** The SLA fix clock (empty for requests made before it existed). */
+  resolveDueAt?: string | null;
+  firstResponseAt?: string | null;
   slaPausedAt: string | null;
   resolvedAt: string | null;
   project: { name: string };
@@ -158,6 +164,8 @@ export type TeamRequestDetail = {
   createdAt: string;
   updatedAt: string;
   dueAt: string | null;
+  /** The SLA fix clock (empty for requests made before it existed). */
+  resolveDueAt?: string | null;
   slaPausedAt: string | null;
   resolvedAt: string | null;
   firstResponseAt: string | null;
@@ -443,6 +451,9 @@ export type Report = {
 /** GET /team/settings (screen 33). Targets are short: "4h", "1bd". */
 export type AppSettings = {
   responseTargets: Record<"URGENT" | "HIGH" | "MEDIUM" | "LOW", string>;
+  resolutionTargets: Record<"URGENT" | "HIGH" | "MEDIUM" | "LOW", string>;
+  /** Bank holidays, "YYYY-MM-DD": not business days. */
+  slaCalendar: { bankHolidays: string[] };
   teamNotifications: {
     urgentAlert: boolean;
     notifyAssigneeOnReply: boolean;

@@ -202,7 +202,7 @@ export class TeamUsersService {
       });
     }
 
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const changed = await tx.user.updateMany({
@@ -269,7 +269,7 @@ export class TeamUsersService {
     }
     if (target.role === role) return { ok: true };
 
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const changed = await tx.user.updateMany({

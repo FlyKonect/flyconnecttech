@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { SlaRules } from '../requests/sla.js';
 import {
   defaultSettings,
   defaultWebsite,
@@ -29,6 +30,16 @@ export class SettingsService {
         ? row.value
         : {};
     return { ...defaultSettings[key], ...saved } as Settings[K];
+  }
+
+  /** Everything the SLA maths needs (targets for both clocks, bank holidays). */
+  async slaRules(): Promise<SlaRules> {
+    const [response, resolution, calendar] = await Promise.all([
+      this.get('responseTargets'),
+      this.get('resolutionTargets'),
+      this.get('slaCalendar'),
+    ]);
+    return { response, resolution, holidays: calendar.bankHolidays };
   }
 
   /** The website's live-project link (Website content screen). */
@@ -71,11 +82,19 @@ export class SettingsService {
   }
 
   async all(): Promise<Settings> {
-    const [responseTargets, teamNotifications] = await Promise.all([
-      this.get('responseTargets'),
-      this.get('teamNotifications'),
-    ]);
-    return { responseTargets, teamNotifications };
+    const [responseTargets, resolutionTargets, slaCalendar, teamNotifications] =
+      await Promise.all([
+        this.get('responseTargets'),
+        this.get('resolutionTargets'),
+        this.get('slaCalendar'),
+        this.get('teamNotifications'),
+      ]);
+    return {
+      responseTargets,
+      resolutionTargets,
+      slaCalendar,
+      teamNotifications,
+    };
   }
 
   /**
@@ -84,11 +103,12 @@ export class SettingsService {
    * New response targets apply to new requests and priority changes;
    * requests already open keep their due time.
    */
-  async save(actorId: string, next: Settings): Promise<Settings> {
+  async save(actorId: string, next: Partial<Settings>): Promise<Settings> {
     const before = await this.all();
     await this.prisma.$transaction(async (tx) => {
       for (const key of Object.keys(next) as (keyof Settings)[]) {
         const value = next[key];
+        if (value === undefined) continue;
         if (JSON.stringify(before[key]) === JSON.stringify(value)) continue;
         await tx.setting.upsert({
           where: { key },

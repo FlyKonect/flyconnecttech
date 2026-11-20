@@ -133,7 +133,7 @@ export class JobsService {
     if (!autoCloseResolvedAfter7Days) {
       return { done: 'auto-close is switched off' };
     }
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const due = await this.prisma.supportRequest.findMany({
       where: {
         status: 'RESOLVED',

@@ -1,6 +1,6 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import type { Prisma, RequestStatus } from '../generated/prisma/client.js';
-import type { ResponseTargets } from '../settings/defaults.js';
+import type { SlaRules } from './sla.js';
 import type { CheckedFile } from '../uploads/file-storage.service.js';
 import { statusChangeFields } from './status-rules.js';
 
@@ -35,6 +35,7 @@ export const stateSelect = {
   assigneeId: true,
   customerId: true,
   dueAt: true,
+  resolveDueAt: true,
   slaPausedAt: true,
   firstResponseAt: true,
   createdAt: true,
@@ -59,7 +60,7 @@ export async function moveStatus(
     /** A system line in the conversation, or null for none. */
     line: string | null;
     now: Date;
-    targets: ResponseTargets;
+    targets: SlaRules;
   },
 ): Promise<boolean> {
   const fields = statusChangeFields({
@@ -68,6 +69,7 @@ export async function moveStatus(
     now: options.now,
     priority: request.priority,
     dueAt: request.dueAt,
+    resolveDueAt: request.resolveDueAt,
     slaPausedAt: request.slaPausedAt,
     targets: options.targets,
   });

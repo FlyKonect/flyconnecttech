@@ -18,6 +18,8 @@ function SlaPill({
   request: {
     status: RequestStatus;
     dueAt: string | null;
+    resolveDueAt?: string | null;
+    firstResponseAt?: string | null;
     resolvedAt: string | null;
   };
   timeZone: string;

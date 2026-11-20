@@ -9,6 +9,7 @@ import { NotificationsService } from '../notifications/notifications.service.js'
 import { can, requestScope, TEAM_ROLES } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { averageMinutes, byUrgency, ukMonth } from './dashboard-math.js';
+import { activeDueAt } from './sla.js';
 import { ALL_STATUSES, countOf } from './request-writes.js';
 
 /** Not finished yet. */
@@ -34,6 +35,8 @@ export const dashboardRowSelect = {
   priority: true,
   createdAt: true,
   dueAt: true,
+  resolveDueAt: true,
+  firstResponseAt: true,
   slaPausedAt: true,
   resolvedAt: true,
   project: { select: { name: true } },
@@ -134,8 +137,10 @@ export class TeamDashboardService {
       });
       const queue = [...mine].sort(byUrgency).slice(0, LIST_SIZE);
       const dueSoon = mine
-        .filter((row) => row.dueAt && row.status !== 'WAITING_FOR_CUSTOMER')
-        .sort((a, b) => a.dueAt!.getTime() - b.dueAt!.getTime())
+        .filter(
+          (row) => activeDueAt(row) && row.status !== 'WAITING_FOR_CUSTOMER',
+        )
+        .sort((a, b) => activeDueAt(a)!.getTime() - activeDueAt(b)!.getTime())
         .slice(0, LIST_SIZE);
       return { role: actor.role, counts, open, queue, dueSoon, alerts };
     }
@@ -162,7 +167,17 @@ export class TeamDashboardService {
       this.prisma.supportRequest.count({
         where: {
           status: { in: CLOCK_RUNNING },
-          dueAt: { lt: new Date(now.getTime() + HOUR) },
+          // The clock that counts: reply until the first reply, then fix.
+          OR: [
+            {
+              firstResponseAt: null,
+              dueAt: { lt: new Date(now.getTime() + HOUR) },
+            },
+            {
+              firstResponseAt: { not: null },
+              resolveDueAt: { lt: new Date(now.getTime() + HOUR) },
+            },
+          ],
         },
       }),
       this.firstResponses(thisMonth),

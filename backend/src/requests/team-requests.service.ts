@@ -27,7 +27,7 @@ import {
   systemLine,
   type RequestState,
 } from './request-writes.js';
-import { dueTime } from './sla.js';
+import { dueTimes } from './sla.js';
 import { TeamDashboardService } from './team-dashboard.service.js';
 import { pageWindow, type Paging } from '../common/paging.js';
 
@@ -55,6 +55,8 @@ const rowSelect = {
   createdAt: true,
   updatedAt: true,
   dueAt: true,
+  resolveDueAt: true,
+  firstResponseAt: true,
   slaPausedAt: true,
   resolvedAt: true,
   project: { select: { name: true } },
@@ -182,6 +184,7 @@ export class TeamRequestsService {
         createdAt: true,
         updatedAt: true,
         dueAt: true,
+        resolveDueAt: true,
         slaPausedAt: true,
         resolvedAt: true,
         firstResponseAt: true,
@@ -307,7 +310,7 @@ export class TeamRequestsService {
     this.mayMoveTo(actor, to);
     const request = await this.findTeam(actor, code);
     if (request.status === to) return { status: to };
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     await this.prisma.$transaction(async (tx) => {
       const moved = await moveStatus(tx, request, to, {
         actorId: actor.id,
@@ -326,7 +329,7 @@ export class TeamRequestsService {
   async setPriority(actor: SignedIn, code: string, priority: Priority) {
     const request = await this.findTeam(actor, code);
     if (request.priority === priority) return { priority };
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     await this.prisma.$transaction(async (tx) => {
       const now = new Date();
       const changed = await tx.supportRequest.updateMany({
@@ -336,7 +339,7 @@ export class TeamRequestsService {
           updatedAt: now,
           ...(finished(request.status)
             ? {}
-            : { dueAt: dueTime(request.createdAt, priority, targets) }),
+            : dueTimes(request.createdAt, priority, targets)),
         },
       });
       if (changed.count !== 1) throw changedMeanwhile();
@@ -382,7 +385,7 @@ export class TeamRequestsService {
       input.transfer && previous
         ? `Transferred from ${previous.name} to ${developer.name} by ${actor.name}`
         : `Assigned to ${developer.name} by ${actor.name}`;
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
 
     const toReview = await this.prisma.$transaction(async (tx) => {
       const now = new Date();
@@ -416,7 +419,7 @@ export class TeamRequestsService {
   async requestInfo(actor: SignedIn, code: string, body: string) {
     this.mayMoveTo(actor, 'WAITING_FOR_CUSTOMER');
     const request = await this.findTeam(actor, code);
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const waiting = request.status === 'WAITING_FOR_CUSTOMER';
 
     await this.prisma.$transaction(async (tx) => {
@@ -462,7 +465,7 @@ export class TeamRequestsService {
         message: 'This request is already resolved.',
       });
     }
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     await this.prisma.$transaction(async (tx) => {
       const now = new Date();
       if (input.summary) {
@@ -491,7 +494,7 @@ export class TeamRequestsService {
   async close(actor: SignedIn, code: string) {
     const request = await this.findTeam(actor, code);
     if (request.status === 'CLOSED') throw changedMeanwhile();
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     await this.prisma.$transaction(async (tx) => {
       const moved = await moveStatus(tx, request, 'CLOSED', {
         actorId: actor.id,

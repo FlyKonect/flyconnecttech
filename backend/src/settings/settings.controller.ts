@@ -20,13 +20,32 @@ const target = z
       : parsed.minutes <= MAX_MINUTES;
   }, 'Write it like 4 hours or 1 business day');
 
+const targets = z.object({
+  URGENT: target,
+  HIGH: target,
+  MEDIUM: target,
+  LOW: target,
+});
+
+/** A bank holiday: a real date, written YYYY-MM-DD. */
+const day = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Write dates like 2026-12-25')
+  .refine(
+    (text) => new Date(`${text}T00:00:00Z`).toISOString().startsWith(text),
+    'That date does not exist',
+  );
+
 const settingsSchema = z.object({
-  responseTargets: z.object({
-    URGENT: target,
-    HIGH: target,
-    MEDIUM: target,
-    LOW: target,
-  }),
+  responseTargets: targets,
+  /** Optional so an older screen that sends only the first two still saves. */
+  resolutionTargets: targets.optional(),
+  slaCalendar: z
+    .object({ bankHolidays: z.array(day).max(200) })
+    .transform(({ bankHolidays }) => ({
+      bankHolidays: [...new Set(bankHolidays)].sort(),
+    }))
+    .optional(),
   teamNotifications: z.object({
     urgentAlert: z.boolean(),
     notifyAssigneeOnReply: z.boolean(),

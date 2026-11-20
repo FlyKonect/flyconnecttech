@@ -1,7 +1,11 @@
 import { defaultSettings } from '../settings/defaults.js';
 import { customerActionsFor, statusChangeFields } from './status-rules.js';
 
-const targets = defaultSettings.responseTargets;
+const targets = {
+  response: defaultSettings.responseTargets,
+  resolution: defaultSettings.resolutionTargets,
+  holidays: [],
+};
 const now = new Date('2026-11-10T12:00:00Z');
 
 describe("the customer's buttons (screen 13)", () => {
@@ -30,6 +34,7 @@ describe('statusChangeFields', () => {
     now,
     priority: 'HIGH' as const,
     dueAt: new Date('2026-11-10T14:00:00Z'),
+    resolveDueAt: new Date('2026-11-13T12:00:00Z'),
     slaPausedAt: null,
     targets,
   };
@@ -44,7 +49,7 @@ describe('statusChangeFields', () => {
     ).toEqual({ status: 'WAITING_FOR_CUSTOMER', slaPausedAt: now });
   });
 
-  it('starts the SLA again later by the time spent waiting', () => {
+  it('starts both SLA clocks again later by the time spent waiting', () => {
     const fields = statusChangeFields({
       ...base,
       from: 'WAITING_FOR_CUSTOMER',
@@ -55,6 +60,7 @@ describe('statusChangeFields', () => {
       status: 'IN_PROGRESS',
       slaPausedAt: null,
       dueAt: new Date('2026-11-10T15:00:00Z'),
+      resolveDueAt: new Date('2026-11-13T13:00:00Z'),
     });
   });
 
@@ -86,8 +92,9 @@ describe('statusChangeFields', () => {
       resolvedAt: null,
       closedAt: null,
       slaPausedAt: null,
-      // High: 4 hours.
+      // High: reply in 4 hours, fixed in 3 business days.
       dueAt: new Date('2026-11-10T16:00:00Z'),
+      resolveDueAt: new Date('2026-11-13T12:00:00Z'),
     });
   });
 });

@@ -17,7 +17,7 @@ import {
   systemLine,
 } from '../requests/request-writes.js';
 import { OPEN_STATUSES } from '../requests/status-rules.js';
-import type { ResponseTargets } from '../settings/defaults.js';
+import type { SlaRules } from '../requests/sla.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { deletedAddress, markDeleted } from './deleted-marks.js';
 import { RESET_LINK_PREFIX } from './password-reset.service.js';
@@ -69,7 +69,7 @@ export class AccountDeletionService {
       });
     }
 
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const assigned = await this.releaseWork(tx, {
@@ -119,7 +119,7 @@ export class AccountDeletionService {
     });
     if (!customer || customer.deletedAt) throw new NotFoundException();
 
-    const targets = await this.settings.get('responseTargets');
+    const targets = await this.settings.slaRules();
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const open = await tx.supportRequest.findMany({
@@ -176,7 +176,7 @@ export class AccountDeletionService {
       /** notDeveloper: their role changed, and only developers hold requests. */
       reason: 'deleted' | 'disabled' | 'notDeveloper';
       now: Date;
-      targets: ResponseTargets;
+      targets: SlaRules;
       transferTo?: { id: string; name: string } | null;
     },
   ): Promise<string[]> {
@@ -244,7 +244,7 @@ export class AccountDeletionService {
     line: string,
     actorId: string,
     now: Date,
-    targets: ResponseTargets,
+    targets: SlaRules,
   ) {
     if (request.status === 'SUBMITTED' || request.status === 'UNDER_REVIEW') {
       await systemLine(tx, request.id, line, now);

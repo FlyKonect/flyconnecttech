@@ -17,8 +17,17 @@ export type TeamNotifications = {
   autoCloseResolvedAfter7Days: boolean;
 };
 
+/** Days that are not business days, for the SLA. */
+export type SlaCalendar = {
+  /** Bank holidays, "YYYY-MM-DD" (England and Wales). */
+  bankHolidays: string[];
+};
+
 export type Settings = {
   responseTargets: ResponseTargets;
+  /** How quickly a request must be fixed, per priority (SLA fix clock). */
+  resolutionTargets: ResponseTargets;
+  slaCalendar: SlaCalendar;
   teamNotifications: TeamNotifications;
 };
 
@@ -36,6 +45,29 @@ export const defaultWebsite: WebsiteSettings = {
 export const defaultSettings: Settings = {
   // h = hours, bd = business days.
   responseTargets: { URGENT: '1h', HIGH: '4h', MEDIUM: '1bd', LOW: '2bd' },
+  // The owner chose these (audit, Phase 2).
+  resolutionTargets: { URGENT: '1bd', HIGH: '3bd', MEDIUM: '5bd', LOW: '10bd' },
+  // England and Wales bank holidays (gov.uk). Super admins add later years.
+  slaCalendar: {
+    bankHolidays: [
+      '2026-01-01',
+      '2026-04-03',
+      '2026-04-06',
+      '2026-05-04',
+      '2026-05-25',
+      '2026-08-31',
+      '2026-12-25',
+      '2026-12-28',
+      '2027-01-01',
+      '2027-03-26',
+      '2027-03-29',
+      '2027-05-03',
+      '2027-05-31',
+      '2027-08-30',
+      '2027-12-27',
+      '2027-12-28',
+    ],
+  },
   teamNotifications: {
     urgentAlert: true,
     notifyAssigneeOnReply: true,

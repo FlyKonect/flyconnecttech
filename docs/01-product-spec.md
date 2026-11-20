@@ -412,10 +412,13 @@ Transitions:
 Record every change in the status history with who and when.
 
 ### SLA
-- A due time is set from the response target of the request's priority.
-- **Paused** while Waiting for Customer.
-- **At risk** when less than 1 hour is left.
-- **Met** when the request is resolved before the due time.
+- Two due times per request, from the request's priority (changed in the audit, Phase 2):
+  - **Reply:** from the response target. It stops at the first team reply.
+  - **Fix:** from the fix target (Settings; Urgent 1, High 3, Medium 5, Low 10 business days to start).
+- Business days are Monday to Friday in UK time, without the bank holidays listed in Settings.
+- **Paused** while Waiting for Customer (both).
+- **At risk** when less than 1 hour is left on the clock that counts: reply before the first reply, fix after.
+- **Met** when the request is resolved before the fix due time.
 - Show the badge in lists and dashboards: "Due in 38m", "Due tomorrow", "Paused" or "Met".
 
 ---

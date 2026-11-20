@@ -415,6 +415,9 @@ model SupportRequest {
   assignee        User?         @relation("RequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
   /// SLA due time, from the response target of the priority.
   dueAt           DateTime?
+  /// SLA fix clock: from the resolution target of the priority. Empty for
+  /// requests made before it existed.
+  resolveDueAt    DateTime?
   slaPausedAt     DateTime?
   firstResponseAt DateTime?
   resolvedAt      DateTime?

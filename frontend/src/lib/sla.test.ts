@@ -85,3 +85,43 @@ describe("dashboard helpers", () => {
     expect(lastMonthName("2027-01-05T10:00:00Z", UK)).toBe("December");
   });
 });
+
+describe("SLA badges: two clocks", () => {
+  const request = {
+    status: "IN_PROGRESS" as const,
+    dueAt: "2026-11-09T09:00:00Z", // the reply was due 22 minutes ago
+    resolveDueAt: "2026-11-12T09:00:00Z",
+    resolvedAt: null,
+  };
+
+  test("before the first reply, the reply clock counts", () => {
+    expect(slaBadge({ ...request, firstResponseAt: null }, UK, now)).toEqual({
+      state: "AT_RISK",
+      label: "Overdue",
+    });
+  });
+
+  test("after the first reply, the fix clock counts", () => {
+    expect(
+      slaBadge(
+        { ...request, firstResponseAt: "2026-11-09T08:30:00Z" },
+        UK,
+        now,
+      ),
+    ).toEqual({ state: "ON_TRACK", label: "Due in 3 days" });
+  });
+
+  test("Met means fixed before the fix deadline", () => {
+    const done = {
+      ...request,
+      status: "RESOLVED" as const,
+      firstResponseAt: "2026-11-09T08:30:00Z",
+    };
+    expect(
+      slaBadge({ ...done, resolvedAt: "2026-11-11T10:00:00Z" }, UK, now),
+    ).toEqual({ state: "MET", label: "Met" });
+    expect(
+      slaBadge({ ...done, resolvedAt: "2026-11-13T10:00:00Z" }, UK, now),
+    ).toBeNull();
+  });
+});

@@ -1,3 +1,4 @@
+import { activeDueAt } from './sla.js';
 import type { Priority } from '../generated/prisma/client.js';
 import { fromUkWallClock, ukWallClock } from '../time/uk-time.js';
 
@@ -44,12 +45,17 @@ const PRIORITY_ORDER: Record<Priority, number> = {
 };
 
 /** Most urgent first: by priority, then the earliest due time. */
-export function byUrgency<T extends { priority: Priority; dueAt: Date | null }>(
-  a: T,
-  b: T,
-): number {
+export function byUrgency<
+  T extends {
+    priority: Priority;
+    dueAt: Date | null;
+    resolveDueAt?: Date | null;
+    firstResponseAt?: Date | null;
+  },
+>(a: T, b: T): number {
   const byPriority = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
   if (byPriority) return byPriority;
-  const due = (row: T) => row.dueAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  const due = (row: T) =>
+    activeDueAt(row)?.getTime() ?? Number.MAX_SAFE_INTEGER;
   return due(a) - due(b);
 }

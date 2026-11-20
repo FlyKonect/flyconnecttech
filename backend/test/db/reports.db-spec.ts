@@ -10,6 +10,7 @@ import {
   type OutgoingEmail,
 } from '../../src/email/email.service.js';
 import type { Prisma, Role } from '../../src/generated/prisma/client.js';
+import { defaultSettings } from '../../src/settings/defaults.js';
 import { PrismaService } from '../../src/prisma/prisma.service.js';
 import { ReportsService } from '../../src/reports/reports.service.js';
 import { secretFromUri, totp } from '../totp.js';
@@ -317,6 +318,13 @@ describe('Reports & Analytics', () => {
 describe('Settings', () => {
   const defaults = {
     responseTargets: { URGENT: '1h', HIGH: '4h', MEDIUM: '1bd', LOW: '2bd' },
+    resolutionTargets: {
+      URGENT: '1bd',
+      HIGH: '3bd',
+      MEDIUM: '5bd',
+      LOW: '10bd',
+    },
+    slaCalendar: defaultSettings.slaCalendar,
     teamNotifications: {
       urgentAlert: true,
       notifyAssigneeOnReply: true,
@@ -352,7 +360,10 @@ describe('Settings', () => {
 
   it('saving changes the next due time and the switches, with audit entries', async () => {
     const next = {
+      ...defaults,
       responseTargets: { ...defaults.responseTargets, MEDIUM: '2h' },
+      resolutionTargets: { ...defaults.resolutionTargets, MEDIUM: '3bd' },
+      slaCalendar: { bankHolidays: ['2026-12-25', '2026-12-28'] },
       teamNotifications: { ...defaults.teamNotifications, urgentAlert: false },
     };
     const saved = await as(superAdmin).post('/team/settings', next).expect(200);
@@ -362,7 +373,9 @@ describe('Settings', () => {
       where: { action: 'settings.changed', actorId: superAdmin.id },
     });
     expect(logs.map((log) => log.entityId).sort()).toEqual([
+      'resolutionTargets',
       'responseTargets',
+      'slaCalendar',
       'teamNotifications',
     ]);
     expect(logs.find((l) => l.entityId === 'responseTargets')?.data).toEqual({
@@ -375,7 +388,7 @@ describe('Settings', () => {
       await prisma.auditLog.count({
         where: { action: 'settings.changed', actorId: superAdmin.id },
       }),
-    ).toBe(2);
+    ).toBe(4);
 
     // The next Medium request is due 2 hours after it arrives.
     const send = (priority: string, title: string) =>
@@ -395,6 +408,19 @@ describe('Settings', () => {
     expect(stored.dueAt!.getTime() - stored.createdAt.getTime()).toBe(
       2 * 3_600_000,
     );
+    // And its fix is due 3 business days later (the new resolution target).
+    expect(stored.resolveDueAt).not.toBeNull();
+    expect(stored.resolveDueAt!.getTime()).toBeGreaterThan(
+      stored.createdAt.getTime() + 2 * 24 * 3_600_000,
+    );
+
+    // Not a real date: refused.
+    await as(superAdmin)
+      .post('/team/settings', {
+        ...next,
+        slaCalendar: { bankHolidays: ['2026-02-30'] },
+      })
+      .expect(400);
 
     // Urgent alerts are switched off: no alert email.
     sent.length = 0;
