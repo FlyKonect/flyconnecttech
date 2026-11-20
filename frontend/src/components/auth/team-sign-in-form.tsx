@@ -26,7 +26,7 @@ export function TeamSignInHeading() {
     <>
       <AuthHeading size="card">Team sign in</AuthHeading>
       <p className="mt-2 text-[15px] text-muted-foreground">
-        For super admins, admins, managers and developers.
+        Sign in to the FlyConnect Tech team panel.
       </p>
     </>
   );
@@ -143,6 +143,14 @@ function TeamSignInSteps() {
             autoFocus={Boolean(email)}
           />
         </Field>
+        <div className="-mt-1 flex justify-end text-sm">
+          <Link
+            href={routes.teamForgotPassword}
+            className="inline-flex min-h-9 items-center font-bold text-gold-text"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <FormError>{error}</FormError>
         <Button
           type="submit"
@@ -153,16 +161,6 @@ function TeamSignInSteps() {
           {busy ? "Checking…" : "Continue"}
         </Button>
       </form>
-      <p className="mt-4 text-[13px] leading-[1.6] text-muted-foreground">
-        New team member? Use the link in your invitation email to set your
-        password first.{" "}
-        <Link
-          href={routes.teamForgotPassword}
-          className="inline-flex min-h-9 items-center font-bold text-gold-text"
-        >
-          Forgot password?
-        </Link>
-      </p>
     </>
   );
 }

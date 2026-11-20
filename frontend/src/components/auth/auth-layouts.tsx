@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft, Check, Shield } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
 import { routes } from "@/lib/routes";
@@ -71,6 +71,20 @@ export function AuthSplit({ children }: { children: React.ReactNode }) {
               In Progress
             </span>
           </div>
+          <ul className="mt-5 flex flex-col gap-2.5 text-sm text-body">
+            {[
+              "Send a request for any of your projects",
+              "Follow every reply and status change",
+              "Get an email when something changes",
+            ].map((line) => (
+              <li key={line} className="flex items-center gap-2.5">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold-text">
+                  <Check className="size-3.5" strokeWidth={3} />
+                </span>
+                {line}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
@@ -79,24 +93,38 @@ export function AuthSplit({ children }: { children: React.ReactNode }) {
 
 export function TeamAuthCard({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-navy p-6 text-navy">
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[radial-gradient(90%_120%_at_88%_0%,#0C3584_0%,#021A54_52%,#01123D_100%)] p-6 text-navy">
+      <Image
+        src="/images/route-map.svg"
+        alt=""
+        width={1440}
+        height={528}
+        unoptimized
+        loading="eager"
+        className="pointer-events-none absolute top-[18%] -left-[20%] w-[140%] max-w-none opacity-[0.16]"
+      />
+      <Link
+        href={routes.home}
+        aria-label="FlyConnect Tech website"
+        className="relative mb-6"
+      >
+        <Logo eager onNavy className="h-7" />
+      </Link>
       {/* The design: 440px wide plus its padding on both sides. */}
-      <div className="w-full max-w-[calc(440px+2*clamp(24px,4vw,40px))] rounded-[24px] bg-white p-[clamp(24px,4vw,40px)]">
-        <p className="inline-flex items-center gap-2 rounded-full bg-navy px-3 py-1.5 text-xs font-bold text-white">
+      <div className="relative w-full max-w-[calc(440px+2*clamp(24px,4vw,40px))] rounded-[24px] bg-white p-[clamp(24px,4vw,40px)] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.6)]">
+        <p className="inline-flex items-center gap-2 rounded-full bg-tint px-3 py-1.5 text-xs font-bold text-navy-700">
           <Shield aria-hidden="true" className="size-3.5" />
-          FlyConnect Tech · Team panel
+          Team panel · Two-step sign-in
         </p>
         {children}
-        <p className="mt-6 text-center">
-          <Link
-            href={routes.home}
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-body"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            Back to website
-          </Link>
-        </p>
       </div>
+      <Link
+        href={routes.home}
+        className="relative mt-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-on-navy hover:text-white"
+      >
+        <ArrowLeft aria-hidden="true" className="size-4" />
+        Back to website
+      </Link>
     </main>
   );
 }

@@ -107,25 +107,6 @@ function SignInFields() {
           {busy ? "Signing in…" : "Sign in"}
         </Button>
       </form>
-      <p className="mt-6 text-sm leading-[1.6] text-body">
-        No account yet? Accounts are created by the FlyConnect Tech team and
-        sent to you by email.{" "}
-        <Link
-          href={routes.portalInvitation}
-          className="inline-flex min-h-11 items-center font-bold text-gold-text"
-        >
-          Open my invitation
-        </Link>
-      </p>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        FlyConnect Tech team member?{" "}
-        <Link
-          href={routes.teamSignIn}
-          className="inline-flex min-h-11 items-center px-2 font-bold text-navy"
-        >
-          Team sign in
-        </Link>
-      </p>
     </>
   );
 }
