@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import { PageLoading } from "@/components/shell/page-loading";
 import { AddUserForm } from "@/components/team/add-user-form";
-import { RolePermissions } from "@/components/team/role-permissions";
 import { serverApi } from "@/lib/api-server";
 import { routes } from "@/lib/routes";
 import type { RolesInfo } from "@/lib/team/types";
@@ -13,7 +12,7 @@ export const metadata: Metadata = { title: "Add user" };
 
 /**
  * Add user (screen 30): super admins and admins. Which roles may be given,
- * and the permission table, come from the backend.
+ * and the permissions shown for the chosen role, come from the backend.
  */
 async function AddUserContent() {
   const info = await serverApi<RolesInfo>("/team/users/roles", {
@@ -33,10 +32,7 @@ async function AddUserContent() {
           the invitation email.
         </p>
       </div>
-      <div className="flex flex-wrap items-start gap-5">
-        <AddUserForm canInvite={info.canInvite} />
-        <RolePermissions permissions={info.permissions} />
-      </div>
+      <AddUserForm canInvite={info.canInvite} permissions={info.permissions} />
     </>
   );
 }

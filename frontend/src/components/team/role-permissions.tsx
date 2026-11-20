@@ -1,7 +1,14 @@
-import { roles, type TeamRole } from "@/lib/labels";
-import { cn } from "@/lib/utils";
+import {
+  Check,
+  Code2,
+  Crown,
+  ShieldCheck,
+  UsersRound,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 
-const ROLE_ORDER: TeamRole[] = ["SUPER_ADMIN", "ADMIN", "MANAGER", "DEVELOPER"];
+import { roleDescriptions, roles, type TeamRole } from "@/lib/labels";
 
 /**
  * The rows of "What each role can do", each tied to the backend actions it
@@ -58,82 +65,106 @@ export function permissionCell(
   return row.developerOwn && role === "DEVELOPER" ? "own" : "yes";
 }
 
-/** "What each role can do" (screen 30, right). */
-export function RolePermissions({
+/** One icon per team role, used on the role cards and the access panel. */
+export const ROLE_ICONS: Record<TeamRole, LucideIcon> = {
+  SUPER_ADMIN: Crown,
+  ADMIN: ShieldCheck,
+  MANAGER: UsersRound,
+  DEVELOPER: Code2,
+};
+
+/**
+ * What the chosen role can do (Add user, right). Only that role: what it can
+ * do with a tick, then what it can't, greyed. Changes as soon as another
+ * role is picked.
+ */
+export function RoleAccess({
+  role,
   permissions,
 }: {
+  role: TeamRole;
   permissions: Record<string, TeamRole[]>;
 }) {
+  const Icon = ROLE_ICONS[role];
+  const cells = PERMISSION_ROWS.map((row) => ({
+    row,
+    cell: permissionCell(row, role, permissions),
+  }));
+  const can = cells.filter(({ cell }) => cell !== "no");
+  const cannot = cells.filter(({ cell }) => cell === "no");
+  const label = roles[role].label;
+
   return (
     <section
-      aria-labelledby="role-permissions"
-      className="min-w-0 flex-[1_1_340px] overflow-x-auto rounded-[22px] border border-line-2 bg-white p-6"
+      aria-labelledby="role-access"
+      aria-live="polite"
+      className="min-w-0 flex-[1_1_320px] rounded-[22px] border border-line-2 bg-white app:sticky app:top-[96px]"
     >
-      <h2 id="role-permissions" className="text-[17px] font-bold">
-        What each role can do
-      </h2>
-      <table className="mt-3 w-full min-w-[340px] border-collapse text-[13px]">
-        <thead>
-          <tr className="text-[11px] font-bold text-muted-foreground">
-            <th scope="col" className="py-2 pr-1.5 text-left font-bold">
-              PERMISSION
-            </th>
-            {ROLE_ORDER.map((role) => (
-              <th
-                key={role}
-                scope="col"
-                className="px-1 py-2 text-center font-bold uppercase"
-              >
-                {roles[role].label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {PERMISSION_ROWS.map((row) => (
-            <tr key={row.label} className="border-t border-line-3">
-              <th
-                scope="row"
-                className="py-2.5 pr-1.5 text-left font-semibold text-[#23324F]"
-              >
+      <div className="flex items-center gap-3 rounded-t-[22px] bg-navy p-5 text-white">
+        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-gold">
+          <Icon aria-hidden="true" className="size-[22px]" strokeWidth={1.9} />
+        </span>
+        <div className="min-w-0">
+          <h2 id="role-access" className="text-[17px] font-bold">
+            What {/^[AEIOU]/.test(label) ? "an" : "a"} {label} can do
+          </h2>
+          <p className="text-[13px] text-on-navy">{roleDescriptions[role]}</p>
+        </div>
+      </div>
+
+      <div className="p-5">
+        <ul className="flex flex-col gap-2.5 text-sm">
+          {can.map(({ row, cell }) => (
+            <li key={row.label} className="flex items-start gap-2.5">
+              <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-success/12 text-success">
+                <Check
+                  aria-hidden="true"
+                  className="size-3.5"
+                  strokeWidth={3}
+                />
+              </span>
+              <span className="font-semibold text-[#23324F]">
                 {row.label}
-              </th>
-              {ROLE_ORDER.map((role) => {
-                const cell = permissionCell(row, role, permissions);
-                return (
-                  <td
-                    key={role}
-                    className={cn(
-                      "px-1 py-2.5 text-center",
-                      cell === "yes" && "font-bold text-success",
-                      cell === "own" && "text-xs font-bold text-navy-700",
-                      cell === "no" && "text-[#A3AEC2]",
-                    )}
-                  >
-                    {cell === "yes" ? (
-                      <>
-                        <span aria-hidden="true">✓</span>
-                        <span className="sr-only">Yes</span>
-                      </>
-                    ) : cell === "own" ? (
-                      "Own"
-                    ) : (
-                      <>
-                        <span aria-hidden="true">—</span>
-                        <span className="sr-only">No</span>
-                      </>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
+                {cell === "own" ? (
+                  <span className="ml-1.5 rounded-full bg-tint px-2 py-0.5 text-[11px] font-bold text-navy-700">
+                    Only their own
+                  </span>
+                ) : null}
+              </span>
+            </li>
           ))}
-        </tbody>
-      </table>
-      <p className="mt-3 text-xs leading-normal text-muted-foreground">
-        Own: developers only see requests assigned to them. Admins can add every
-        role except super admin.
-      </p>
+        </ul>
+
+        {cannot.length ? (
+          <>
+            <p className="mt-5 mb-2.5 text-[11px] font-bold tracking-[0.1em] text-muted-foreground uppercase">
+              Not included
+            </p>
+            <ul className="flex flex-col gap-2.5 text-sm">
+              {cannot.map(({ row }) => (
+                <li key={row.label} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-soft text-muted-foreground">
+                    <X
+                      aria-hidden="true"
+                      className="size-3.5"
+                      strokeWidth={2.5}
+                    />
+                  </span>
+                  <span className="text-muted-foreground">
+                    <span className="sr-only">Not included: </span>
+                    {row.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+
+        <p className="mt-5 border-t border-line-3 pt-4 text-xs leading-normal text-muted-foreground">
+          Admins can add every role except super admin. The backend checks every
+          action against these permissions.
+        </p>
+      </div>
     </section>
   );
 }

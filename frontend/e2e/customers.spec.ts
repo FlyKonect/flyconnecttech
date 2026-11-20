@@ -272,7 +272,7 @@ test("Add user: admins can't pick super admin; the new developer shows as invite
     page.getByText("Only a super admin can add another super admin"),
   ).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "What each role can do" }),
+    page.getByRole("region", { name: "What a Developer can do" }),
   ).toContainText("Convert a lead to a customer");
 
   await field(page, "Full name").fill(name);
