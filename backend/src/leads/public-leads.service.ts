@@ -174,7 +174,7 @@ export class PublicLeadsService {
     const email = input.email.trim();
     // A message from one of our customers is linked to them (docs/01 §2).
     const customer = await this.prisma.user.findFirst({
-      where: { email: email.toLowerCase(), role: 'CUSTOMER' },
+      where: { email: email.toLowerCase(), side: 'CUSTOMER' },
       select: { customerId: true },
     });
     const message = await this.prisma.$transaction(async (tx) => {

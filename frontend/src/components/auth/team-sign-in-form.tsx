@@ -14,7 +14,7 @@ import { FormError, FormNotice } from "@/components/auth/form-message";
 import { useVisitKey } from "@/components/auth/use-visit-key";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
-import { authClient } from "@/lib/auth/auth-client";
+import { authClient, signInSide } from "@/lib/auth/auth-client";
 import { routes } from "@/lib/routes";
 
 const NO_SERVER =
@@ -79,6 +79,7 @@ function TeamSignInSteps() {
         email: typed,
         password: String(form.get("password")),
         rememberMe: false,
+        fetchOptions: signInSide("team"),
       });
       if (failed) {
         setError(authErrorMessage(failed));

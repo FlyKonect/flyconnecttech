@@ -175,6 +175,7 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
   - Admins can also send a reset link from the customer page.
 - **Resend invitation:** this invalidates the old link.
 - **Sign out:** customers go back to sign in; team members go to team sign in.
+- **Customer and team accounts are separate** (a client decision): one email can have a customer account and a team account, each with its own password, invitation and password reset. Customer sign in and its "Forgot password" reach the customer account; Team sign in and its "Forgot password" reach the team account. "Add user" refuses an email only if another team account has it ("There is already a team account with this email."), and "Add customer" only if another customer account has it ("There is already a client account with this email.").
 - **Wrong area:** a customer who opens `/team` is sent to the portal, and staff who open `/portal` are sent to the team panel.
 
 ---

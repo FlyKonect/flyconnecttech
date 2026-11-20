@@ -166,7 +166,7 @@ describe('invitations', () => {
       .expect(200)
       .expect({ area: 'portal' });
 
-    const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+    const user = await prisma.user.findFirstOrThrow({ where: { email } });
     expect(user).toMatchObject({
       status: 'ACTIVE',
       emailVerified: true,

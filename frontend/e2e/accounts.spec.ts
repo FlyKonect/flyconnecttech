@@ -310,3 +310,62 @@ test.describe("each person lands in their own area", () => {
     await expect(page).toHaveURL(/\/team$/);
   });
 });
+
+test("one email can have a client account and a team account, each with its own password", async ({
+  page,
+}) => {
+  test.slow();
+  const email = uniqueEmail("both");
+  const CLIENT_PASSWORD = "Harbour-Light-9";
+  const clientLink = inviteWithCommand({
+    role: "customer",
+    name: "Sarah Mitchell",
+    email,
+    company: "Bluewave Holidays",
+  });
+  const teamLink = inviteWithCommand({
+    role: "developer",
+    name: "Sarah Mitchell",
+    email,
+    jobTitle: "Tester",
+  });
+
+  // Each invitation activates its own account, with its own password.
+  for (const [link, password, signInPage] of [
+    [clientLink, CLIENT_PASSWORD, /\/portal\/sign-in\?activated=1$/],
+    [teamLink, PASSWORD, /\/team\/sign-in\?activated=1$/],
+  ] as const) {
+    await page.goto(new URL(link).pathname);
+    await field(page, "New password").fill(password);
+    await field(page, "Confirm password").fill(password);
+    await page.getByRole("button", { name: "Activate account" }).click();
+    await expect(page).toHaveURL(signInPage);
+  }
+
+  // The client portal opens the client account with the client password.
+  await page.goto("/portal/sign-in");
+  await field(page, "Email address").fill(email);
+  await field(page, "Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(formError(page)).toHaveText(
+    "The email or password is not right.",
+  );
+  await field(page, "Password").fill(CLIENT_PASSWORD);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/portal$/);
+  await expect(page.getByRole("banner")).toContainText("Bluewave Holidays");
+
+  // The team panel opens the team account with the team password: its
+  // first sign-in goes to the two-factor setup.
+  await page.context().clearCookies();
+  await page.goto("/team/sign-in");
+  await field(page, "Work email").fill(email);
+  await field(page, "Password").fill(CLIENT_PASSWORD);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(formError(page)).toHaveText(
+    "The email or password is not right.",
+  );
+  await field(page, "Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL(/\/team\/two-factor$/);
+});

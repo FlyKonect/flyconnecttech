@@ -27,5 +27,5 @@ async function TwoFactorGate() {
   const me = await getMe();
   if (!me) redirect(routes.teamSignIn);
   if (me.area !== "team" || me.twoFactorEnabled) redirect(homeFor(me));
-  return <TwoFactorSetup name={me.name} />;
+  return <TwoFactorSetup name={me.name} email={me.email} />;
 }

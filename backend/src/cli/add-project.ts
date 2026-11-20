@@ -73,8 +73,9 @@ const app = await NestFactory.createApplicationContext(AppModule, {
 
 try {
   const prisma = app.get(PrismaService);
+  // The customer account with this email (a team account may share it).
   const customer = await prisma.user.findUnique({
-    where: { email },
+    where: { email_side: { email: email.toLowerCase(), side: 'CUSTOMER' } },
     select: { role: true, customer: { select: { id: true, company: true } } },
   });
   if (!customer || customer.role !== 'CUSTOMER' || !customer.customer) {

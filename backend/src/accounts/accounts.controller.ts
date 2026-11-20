@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { Public } from '../auth/decorators.js';
 import { RateLimit, RateLimitGuard } from '../rate-limit/rate-limit.js';
 import { InvitationsService } from './invitations.service.js';
+import { sideFromHeader } from './login-key.js';
 import { newPasswordSchema } from './password-rules.js';
 import { PasswordResetService } from './password-reset.service.js';
 
@@ -22,6 +23,8 @@ const acceptSchema = z.object({
 
 const forgotSchema = z.object({
   email: z.email('Enter a valid email address').max(191),
+  // Which sign-in page asks: customer and team accounts are separate.
+  side: z.enum(['customer', 'team']).optional(),
 });
 
 const resetSchema = z.object({ password: newPasswordSchema });
@@ -65,7 +68,10 @@ export class AccountsController {
   async forgot(
     @Body({ schema: forgotSchema }) body: z.infer<typeof forgotSchema>,
   ) {
-    await this.passwords.requestByEmail(body.email);
+    await this.passwords.requestByEmail(
+      body.email,
+      body.side ? sideFromHeader(body.side) : null,
+    );
     // The same answer whether or not the email has an account.
     return { ok: true };
   }

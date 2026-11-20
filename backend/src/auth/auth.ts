@@ -1,8 +1,14 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { APIError } from 'better-auth/api';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
+import {
+  loginKeyFor,
+  normaliseEmail,
+  SIDE_HEADER,
+  sideFromHeader,
+} from '../accounts/login-key.js';
 import type { Env } from '../config/env.js';
-import type { PrismaClient } from '../generated/prisma/client.js';
+import type { AccountSide, PrismaClient } from '../generated/prisma/client.js';
 import { authOptions } from './auth-options.js';
 
 /** Where Better Auth's own routes live: /api/auth/sign-in/email and so on. */
@@ -90,6 +96,24 @@ export function createAuth(prisma: PrismaClient, env: AuthEnv) {
         ? { enabled: true, domain: env.COOKIE_DOMAIN }
         : undefined,
     },
+    hooks: {
+      // Each sign-in page says its side (header x-fct-side): the typed email
+      // becomes that account's private key before Better Auth looks it up.
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== '/sign-in/email') return;
+        const body = ctx.body as Record<string, unknown> | undefined;
+        if (typeof body?.email !== 'string') return;
+        const email = normaliseEmail(body.email);
+        const side = await signInSide(
+          prisma,
+          email,
+          sideFromHeader(ctx.headers?.get(SIDE_HEADER)),
+        );
+        return {
+          context: { body: { ...body, email: loginKeyFor(email, side) } },
+        };
+      }),
+    },
     databaseHooks: {
       session: {
         create: {
@@ -109,4 +133,36 @@ export function createAuth(prisma: PrismaClient, env: AuthEnv) {
       },
     },
   });
+}
+
+/**
+ * Which account a sign-in is for (customer and team accounts are separate):
+ * - the page's own side, when that side has an account with this email;
+ * - otherwise the other side's, if it has one. The password is still
+ *   checked, and the website then says "This is a team account" (or sends a
+ *   customer to the portal), as it always has;
+ * - with no side said (a script or test), the one side that has it. An
+ *   email on both sides must say which.
+ */
+async function signInSide(
+  prisma: PrismaClient,
+  email: string,
+  asked: AccountSide | null,
+): Promise<AccountSide> {
+  const accounts = await prisma.user.findMany({
+    where: { email },
+    select: { side: true },
+  });
+  const sides = new Set(accounts.map((account) => account.side));
+  if (asked) {
+    if (sides.has(asked)) return asked;
+    const other = asked === 'TEAM' ? 'CUSTOMER' : 'TEAM';
+    return sides.has(other) ? other : asked;
+  }
+  if (sides.size > 1) {
+    throw new APIError('BAD_REQUEST', {
+      message: 'Sign in from the client portal or the team panel.',
+    });
+  }
+  return accounts[0]?.side ?? 'CUSTOMER';
 }

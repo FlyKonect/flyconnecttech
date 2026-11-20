@@ -16,6 +16,11 @@ export const authOptions = {
   },
   plugins: [twoFactor({ issuer: 'FlyConnect Tech' })],
   user: {
+    // Better Auth's "email" is the private sign-in key (accounts/login-key.ts),
+    // so a customer account and a team account can share a real email. The
+    // real address is our own `email` column; auth.ts turns the typed email
+    // into the key before Better Auth looks the person up.
+    fields: { email: 'loginEmail' },
     // Our fields that sign-in needs to know about, so they come back with the
     // signed-in person. The other fields on users (docs/02) are read and
     // written by our own services, not by Better Auth.

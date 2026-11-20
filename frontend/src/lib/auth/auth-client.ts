@@ -15,3 +15,12 @@ export const authClient = createAuthClient({
   fetchOptions: { credentials: "include" },
   plugins: [twoFactorClient()],
 });
+
+/**
+ * Customer accounts and team accounts are separate: one email can have one
+ * of each, with its own password. Each sign-in page says which side it is,
+ * so the backend signs in the right account (backend accounts/login-key.ts).
+ */
+export function signInSide(side: "customer" | "team") {
+  return { headers: { "x-fct-side": side } };
+}

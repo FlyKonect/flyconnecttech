@@ -37,6 +37,13 @@ enum UserStatus {
   DISABLED
 }
 
+/// Which sign-in page an account belongs to. Customer accounts and team
+/// accounts are separate: one email can have one of each.
+enum AccountSide {
+  CUSTOMER
+  TEAM
+}
+
 enum ProjectType {
   WEBSITE
   WEB_APPLICATION
@@ -181,10 +188,18 @@ enum NotificationKind {
 
 /// Team members and customer contacts. Better Auth's user, plus our fields.
 model User {
-  id               String  @id @default(uuid()) @db.Char(36)
-  name             String  @db.VarChar(120)
-  email            String  @unique @db.VarChar(191)
-  emailVerified    Boolean @default(false)
+  id               String      @id @default(uuid()) @db.Char(36)
+  name             String      @db.VarChar(120)
+  /// The real address: what people type to sign in, where emails go.
+  /// Unique within a side, so one email can have a customer account and a
+  /// team account, each with its own password.
+  email            String      @db.VarChar(191)
+  /// The sign-in page this account belongs to (taken from the role).
+  side             AccountSide
+  /// Better Auth's "email": a private key made from the side and the email
+  /// (accounts/login-key.ts), so the two sides never meet at sign-in.
+  loginEmail       String      @unique @db.VarChar(191)
+  emailVerified    Boolean     @default(false)
   image            String? @db.Text
   /// Better Auth's two-factor plugin. Team members must turn it on.
   twoFactorEnabled Boolean @default(false)
@@ -232,6 +247,7 @@ model User {
   auditLogs        AuditLog[]
   testimonials     Testimonial[]
 
+  @@unique([email, side])
   @@index([role, status])
   @@map("users")
 }

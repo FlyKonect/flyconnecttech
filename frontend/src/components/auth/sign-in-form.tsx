@@ -12,7 +12,7 @@ import { FormError, FormNotice } from "@/components/auth/form-message";
 import { useVisitKey } from "@/components/auth/use-visit-key";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/field";
-import { authClient } from "@/lib/auth/auth-client";
+import { authClient, signInSide } from "@/lib/auth/auth-client";
 import { routes } from "@/lib/routes";
 
 /** Customer sign in (screen 01). Empty again each time the page is shown. */
@@ -43,6 +43,7 @@ function SignInFields() {
         email: String(form.get("email")).trim(),
         password: String(form.get("password")),
         rememberMe: form.get("keep") === "on",
+        fetchOptions: signInSide("customer"),
       });
       if (failed) {
         setError(authErrorMessage(failed));

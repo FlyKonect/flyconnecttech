@@ -16,12 +16,29 @@ import { routes } from "@/lib/routes";
 type Setup = { uri: string; secret: string; backupCodes: string[] };
 
 /**
+ * The authenticator app lists the account under the QR code's label. The
+ * backend's sign-in system knows people by a private key (customer and team
+ * accounts are separate), so put the real email there instead.
+ */
+export function withEmailLabel(uri: string, email: string): string {
+  const url = new URL(uri);
+  const issuer = url.searchParams.get("issuer") ?? "FlyConnect Tech";
+  return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(email)}${url.search}`;
+}
+
+/**
  * Two-factor setup for team members (docs/01, section 3). Not in the design,
  * so it is built from the design system:
  * 1. confirm the password, 2. scan the code and type the 6 digits,
  * 3. save the backup codes.
  */
-export function TwoFactorSetup({ name }: { name: string }) {
+export function TwoFactorSetup({
+  name,
+  email,
+}: {
+  name: string;
+  email: string;
+}) {
   const router = useRouter();
   const [setup, setSetup] = React.useState<Setup | null>(null);
   const [done, setDone] = React.useState(false);
@@ -53,7 +70,11 @@ export function TwoFactorSetup({ name }: { name: string }) {
       return;
     }
     const secret = new URL(data.totpURI).searchParams.get("secret") ?? "";
-    setSetup({ uri: data.totpURI, secret, backupCodes: data.backupCodes });
+    setSetup({
+      uri: withEmailLabel(data.totpURI, email),
+      secret,
+      backupCodes: data.backupCodes,
+    });
   }
 
   async function verify(event: React.FormEvent<HTMLFormElement>) {

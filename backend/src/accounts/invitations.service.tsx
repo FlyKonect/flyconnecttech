@@ -18,11 +18,13 @@ import {
 } from '../email/templates/invitation.js';
 import { Prisma } from '../generated/prisma/client.js';
 import type {
+  AccountSide,
   LeadType,
   ProjectType,
   Role,
 } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { loginKeyFor, normaliseEmail, sideOfRole } from './login-key.js';
 import {
   LINK_LIFETIME_HOURS,
   hashToken,
@@ -113,9 +115,14 @@ export class InvitationsService {
     link: string;
     emailSent: boolean;
   }> {
-    const email = input.email.trim().toLowerCase();
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw emailTaken();
+    const email = normaliseEmail(input.email);
+    // Customer and team accounts are separate: the email only has to be
+    // free on this account's own side.
+    const side = sideOfRole(input.role);
+    const existing = await this.prisma.user.findUnique({
+      where: { email_side: { email, side } },
+    });
+    if (existing) throw emailTaken(side);
     if (input.role === 'CUSTOMER' && !input.company?.trim()) {
       throw new ConflictException({
         code: 'COMPANY_REQUIRED',
@@ -166,6 +173,8 @@ export class InvitationsService {
         data: {
           name: input.name.trim(),
           email,
+          side,
+          loginEmail: loginKeyFor(email, side),
           role: input.role,
           status: 'INVITED',
           jobTitle:
@@ -196,7 +205,7 @@ export class InvitationsService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw emailTaken();
+        throw emailTaken(side);
       }
       throw error;
     });
@@ -399,10 +408,14 @@ export class InvitationsService {
   }
 }
 
-function emailTaken() {
+/** The email is used on this side already (the other side does not count). */
+function emailTaken(side: AccountSide) {
   return new ConflictException({
     code: 'EMAIL_TAKEN',
-    message: 'There is already an account with this email.',
+    message:
+      side === 'TEAM'
+        ? 'There is already a team account with this email.'
+        : 'There is already a client account with this email.',
   });
 }
 

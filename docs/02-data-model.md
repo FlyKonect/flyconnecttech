@@ -38,7 +38,9 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
 
 ### User (extends the Better Auth user)
 - **Fields:**
-  - `id`, `email` (unique), `name`, `emailVerified`
+  - `id`, `email`, `name`, `emailVerified`
+  - `side: AccountSide` (`CUSTOMER` or `TEAM`, from the role): which sign-in page the account belongs to. **Customer and team accounts are separate:** one email can have one customer account and one team account, each with its own password, invitation and password reset. `email` is unique within a side (`@@unique([email, side])`).
+  - `loginEmail` (unique): Better Auth's "email", a private key made from the side and the email (`backend/src/accounts/login-key.ts`: "c." or "t.", the SHA-256 of the lower-case email, "@accounts.invalid"). People never see it; each sign-in page sends its side and the backend turns the typed email into this key.
   - `phone?`, `role: Role`, `status: UserStatus`
   - `jobTitle?` (staff), `country?`, `timezone` (default `Europe/London`)
   - `customerId?`: set only for role CUSTOMER, and unique
@@ -46,7 +48,7 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
   - `emailPrefs Json`: replies, status changes, weekly summary
   - `lastActiveAt?`, `invitedAt?`, `activatedAt?`, `createdById?`
   - `createdAt`, `updatedAt`
-- **Index:** `role, status`.
+- **Indexes:** `role, status`; unique `email, side`; unique `loginEmail`.
 
 ### Invitation
 - **Fields:**

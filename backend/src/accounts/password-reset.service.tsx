@@ -8,8 +8,10 @@ import {
   PasswordResetEmail,
   passwordResetSubject,
 } from '../email/templates/password-reset.js';
+import type { AccountSide } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { retryOnConflict } from '../prisma/retry.js';
+import { normaliseEmail } from './login-key.js';
 import {
   LINK_LIFETIME_HOURS,
   hashToken,
@@ -52,9 +54,17 @@ export class PasswordResetService {
    * "Forgot password". Says nothing about whether the email has an account:
    * it quietly does nothing for unknown, invited or disabled accounts.
    */
-  async requestByEmail(rawEmail: string): Promise<void> {
-    const email = rawEmail.trim().toLowerCase();
-    const user = await this.prisma.user.findUnique({ where: { email } });
+  async requestByEmail(
+    rawEmail: string,
+    side: AccountSide | null,
+  ): Promise<void> {
+    const email = normaliseEmail(rawEmail);
+    // Customer and team accounts are separate: the page asking says which.
+    // With no side said, the customer account comes first.
+    const user = await this.prisma.user.findFirst({
+      where: side ? { email, side } : { email },
+      orderBy: { side: 'asc' },
+    });
     if (!user || user.status !== 'ACTIVE') return;
 
     const recent = await this.prisma.verification.findFirst({

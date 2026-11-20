@@ -32,7 +32,8 @@ export function ForgotPasswordForm({ area }: { area: "portal" | "team" }) {
     try {
       await apiFetch("/accounts/password/forgot", {
         method: "POST",
-        body: { email },
+        // Customer and team accounts are separate: say which one.
+        body: { email, side: area === "team" ? "team" : "customer" },
       });
       setSentTo(email);
     } catch (failed) {
