@@ -4,7 +4,7 @@ paths:
   - "frontend/src/lib/site-content*.ts"
   - "frontend/src/lib/team/website-content.ts"
   - "frontend/src/components/team/website-content.tsx"
-  - "frontend/src/app/team/(app)/website-content/**"
+  - "frontend/src/app/team/*/website-content/**"
   - "frontend/src/components/site/**"
 ---
 

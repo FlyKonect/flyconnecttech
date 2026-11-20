@@ -2,8 +2,8 @@
 paths:
   - "backend/src/reports/**"
   - "backend/src/settings/**"
-  - "frontend/src/app/team/(app)/reports/**"
-  - "frontend/src/app/team/(app)/settings/**"
+  - "frontend/src/app/team/*/reports/**"
+  - "frontend/src/app/team/*/settings/**"
   - "frontend/src/lib/team/targets.ts"
 ---
 

@@ -5,7 +5,7 @@ paths:
   - "frontend/src/components/portal/**"
   - "frontend/src/components/team/*request*"
   - "frontend/src/app/portal/**"
-  - "frontend/src/app/team/(app)/requests/**"
+  - "frontend/src/app/team/*/requests/**"
   - "frontend/src/lib/sla.ts"
   - "frontend/src/lib/uploads.ts"
 ---

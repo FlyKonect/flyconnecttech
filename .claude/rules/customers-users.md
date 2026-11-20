@@ -5,8 +5,8 @@ paths:
   - "frontend/src/components/team/*user*"
   - "frontend/src/components/team/*customer*"
   - "frontend/src/components/team/previous-account-dialog.tsx"
-  - "frontend/src/app/team/(app)/customers/**"
-  - "frontend/src/app/team/(app)/users/**"
+  - "frontend/src/app/team/*/customers/**"
+  - "frontend/src/app/team/*/users/**"
   - "frontend/src/lib/team/forms.ts"
 ---
 

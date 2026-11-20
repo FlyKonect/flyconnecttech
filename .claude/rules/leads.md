@@ -3,7 +3,7 @@ paths:
   - "backend/src/leads/**"
   - "frontend/src/lib/team/leads.ts"
   - "frontend/src/components/team/lead*"
-  - "frontend/src/app/team/(app)/leads/**"
+  - "frontend/src/app/team/*/leads/**"
   - "frontend/src/components/site/demo/**"
   - "frontend/src/components/site/forms/**"
   - "frontend/src/lib/forms/**"

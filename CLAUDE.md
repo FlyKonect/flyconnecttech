@@ -78,7 +78,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 
 ## Working efficiently (keep token use low)
 - Search first (Grep/Glob), then read only the lines you need (`offset`/`limit`). Don't re-read a file you just edited or already have in context.
-- Don't open `design/source/` files whole; they are large. Grep them for the copy you need.
+- Don't read big files whole: `docs/01-product-spec.md` (37 KB), `docs/deploy.md` (33 KB), `docs/04-build-plan.md` and `design/source/`. Grep for the heading or copy you need, then read only that part.
 - Run the narrowest check first: one test file (`npx vitest run <file>`, `npx jest <file>`, `npx playwright test <file>`), then the full suites once at the end.
-- Pipe long command output through `tail`/`grep`; never print whole logs, lockfiles, builds or migrations.
+- Pipe long command output through `tail`/`grep`; never print whole logs, lockfiles, builds or migrations. Jest suites are quieter with `--silent` (`npm run test:db -- --silent 2>&1 | tail -30`); the Better Auth "User not found" / "Invalid password" warnings in tests are expected.
 - Use subagents only when the owner asks. Keep replies short: what changed, where, how it was checked.
