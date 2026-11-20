@@ -9,11 +9,17 @@ import {
   Post,
   Query,
   StreamableFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { z } from 'zod';
 import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import type { Priority } from '../generated/prisma/client.js';
+import type { UploadedFile } from '../uploads/file-storage.service.js';
+import { MAX_FILES } from '../uploads/upload-rules.js';
+import { CleanUploadsInterceptor } from '../uploads/uploads.module.js';
 import { attachmentDisposition } from './portal-requests.controller.js';
 import { TeamDashboardService } from './team-dashboard.service.js';
 import { STATUS_SLUGS, TeamRequestsService } from './team-requests.service.js';
@@ -36,9 +42,14 @@ const text = (empty: string) =>
     .min(1, empty)
     .max(10_000, 'Keep it under 10,000 characters');
 
+/** The text may be empty when files are attached (checked in the service). */
 const messageSchema = z.object({
   kind: z.enum(['reply', 'note']),
-  body: text('Write a message'),
+  body: z
+    .string()
+    .trim()
+    .max(10_000, 'Keep it under 10,000 characters')
+    .default(''),
 });
 const statusSchema = z.object({ status: z.enum(STATUSES) });
 const prioritySchema = z.object({ priority: z.enum(PRIORITIES) });
@@ -115,15 +126,21 @@ export class TeamRequestsController {
     return this.requests.detail(user, code);
   }
 
+  /** A reply or an internal note, with up to 5 files (multipart "files"). */
   @Can('requests.reply')
   @Post('requests/:code/messages')
   @HttpCode(200)
+  @UseInterceptors(
+    FilesInterceptor('files', MAX_FILES),
+    CleanUploadsInterceptor,
+  )
   message(
     @CurrentUser() user: SignedIn,
     @Param('code') code: string,
     @Body({ schema: messageSchema }) body: z.infer<typeof messageSchema>,
+    @UploadedFiles() files: UploadedFile[] = [],
   ) {
-    return this.requests.message(user, code, body);
+    return this.requests.message(user, code, body, files);
   }
 
   @Can('requests.changeStatus')

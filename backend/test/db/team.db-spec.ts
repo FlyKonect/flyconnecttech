@@ -338,6 +338,45 @@ describe('the conversation', () => {
     );
   });
 
+  it('files on a reply reach the customer; files on a note never do', async () => {
+    // A request of its own, so the other tests' counts stay as they are.
+    const code = await newRequest('MEDIUM', 'Files both ways');
+    await as(admin)
+      .post(`/team/requests/${code}/assign`, { developerId: dev2.id })
+      .expect(200);
+    const PNG = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      Buffer.from('a small test picture'),
+    ]);
+    const post = (kind: string, body: string, name: string) =>
+      http()
+        .post(`/team/requests/${code}/messages`)
+        .set('Cookie', dev2.cookie)
+        .field('kind', kind)
+        .field('body', body)
+        .attach('files', PNG, name);
+
+    await post('note', '', 'internal-trace.png').expect(200);
+    await post('reply', 'Here is the fixed screen.', 'fixed-screen.png').expect(
+      200,
+    );
+
+    const portal = await as(sarah).get(`/portal/requests/${code}`).expect(200);
+    const names = (portal.body.files as { fileName: string }[]).map(
+      (file) => file.fileName,
+    );
+    expect(names).toContain('fixed-screen.png');
+    expect(names).not.toContain('internal-trace.png');
+
+    // The team sees both; an empty message with no file is refused.
+    const team = await as(admin).get(`/team/requests/${code}`).expect(200);
+    expect(JSON.stringify(team.body)).toContain('internal-trace.png');
+    const empty = await as(dev2)
+      .post(`/team/requests/${code}/messages`, { kind: 'reply', body: ' ' })
+      .expect(400);
+    expect(empty.body.code).toBe('EMPTY_MESSAGE');
+  });
+
   it("a reply sets the first response time and follows the customer's choices", async () => {
     await as(dev2)
       .post(`/team/requests/${code}/messages`, {

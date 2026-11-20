@@ -13,7 +13,10 @@ import type {
 import { allowedStatuses, can, requestScope } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SettingsService } from '../settings/settings.service.js';
-import { FileStorageService } from '../uploads/file-storage.service.js';
+import {
+  FileStorageService,
+  type UploadedFile,
+} from '../uploads/file-storage.service.js';
 import { PRIORITY_LABELS, STATUS_LABELS } from './labels.js';
 import { RequestEventsService } from './request-events.service.js';
 import {
@@ -23,6 +26,7 @@ import {
   moveStatus,
   REQUEST_TX,
   requestNotFound,
+  saveFiles,
   stateSelect,
   systemLine,
   type RequestState,
@@ -273,25 +277,59 @@ export class TeamRequestsService {
     };
   }
 
-  /** "Reply to customer" or "Internal note". */
+  /**
+   * "Reply to customer" or "Internal note", with up to 5 files. Files on
+   * an internal note stay with the note: customers never see them.
+   */
   async message(
     actor: SignedIn,
     code: string,
     input: { kind: 'reply' | 'note'; body: string },
+    files: UploadedFile[] = [],
   ) {
     const request = await this.findTeam(actor, code);
     const reply = input.kind === 'reply';
+    const body = input.body.trim();
+    if (!body && !files.length) {
+      throw new BadRequestException({
+        code: 'EMPTY_MESSAGE',
+        message: 'Write a message or attach a file.',
+      });
+    }
+    const checked = await this.storage.check(files);
+    const keys = await this.storage.keep(checked, request.id);
+    try {
+      await this.saveMessage(actor, request, reply, body, checked, keys);
+    } catch (error) {
+      await this.storage.remove(keys);
+      throw error;
+    }
+    if (reply) {
+      await this.events.emailTeamReply(request, actor.name, body);
+    }
+    return { ok: true };
+  }
+
+  private async saveMessage(
+    actor: SignedIn,
+    request: RequestState,
+    reply: boolean,
+    body: string,
+    checked: Awaited<ReturnType<FileStorageService['check']>>,
+    keys: string[],
+  ) {
     await this.prisma.$transaction(async (tx) => {
       const now = new Date();
-      await tx.requestMessage.create({
+      const message = await tx.requestMessage.create({
         data: {
           requestId: request.id,
           authorId: actor.id,
           kind: reply ? 'STAFF_REPLY' : 'INTERNAL_NOTE',
-          body: input.body,
+          body,
           createdAt: now,
         },
       });
+      await saveFiles(tx, checked, keys, request.id, actor.id, message.id);
       // An internal note changes nothing the customer can see, not even
       // the request's "last updated" time.
       if (reply) {
@@ -299,10 +337,6 @@ export class TeamRequestsService {
         await this.events.teamReplied(tx, request, actor.name);
       }
     }, REQUEST_TX);
-    if (reply) {
-      await this.events.emailTeamReply(request, actor.name, input.body);
-    }
-    return { ok: true };
   }
 
   /** A status chip. Developers only have three statuses (policies.ts). */

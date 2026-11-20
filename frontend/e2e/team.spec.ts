@@ -86,6 +86,15 @@ test("admin: assign, reply and an internal note the customer never sees", async 
   await page
     .getByLabel("Reply to the customer", { exact: true })
     .fill("We are looking at it now.");
+  // With a file: staff replies take attachments too.
+  await page.locator("form[data-mode] input[type=file]").setInputFiles({
+    name: "fixed-checkout.png",
+    mimeType: "image/png",
+    buffer: Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      Buffer.from("a small test picture"),
+    ]),
+  });
   await page.getByRole("button", { name: "Send to customer" }).click();
   await expect(page.getByRole("status")).toContainText(
     "Reply sent to the customer",
@@ -107,6 +116,7 @@ test("admin: assign, reply and an internal note the customer never sees", async 
   await customerPage.goto(`/portal/requests/${code}`);
   const theirs = customerPage.getByRole("list", { name: "Conversation" });
   await expect(theirs).toContainText("We are looking at it now.");
+  await expect(theirs).toContainText("fixed-checkout.png");
   await expect(theirs).toContainText("Assigned to Test developer");
   await expect(customerPage.getByText("SECRET-NOTE")).toHaveCount(0);
   await customerPage.context().close();
