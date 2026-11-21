@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Checkbox,
+  DateInput,
   Field,
   Input,
   Select,
@@ -437,8 +438,7 @@ export function EstimateDialog({
             </Field>
           </div>
           <Field label="Valid until" className="mt-3">
-            <Input
-              type="date"
+            <DateInput
               value={validUntil}
               min={dateInDays(0)}
               onChange={(event) => setValidUntil(event.target.value)}

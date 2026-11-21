@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -43,7 +42,7 @@ export function controlClass(
       : size === "compact"
         ? "h-[46px]"
         : "h-12",
-    kind === "select" && "appearance-none pr-10",
+    kind === "select" && "pr-3 font-normal",
   );
 }
 
@@ -76,17 +75,7 @@ export function SiteField({
       <label htmlFor={id} className="text-[13px] font-semibold text-ink-2">
         {label}
       </label>
-      {kind === "select" ? (
-        <span className="relative block">
-          {control}
-          <ChevronDown
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-navy"
-          />
-        </span>
-      ) : (
-        control
-      )}
+      {control}
       {error ? (
         <span id={errorId} className="text-xs font-medium text-[#B42318]">
           {error}

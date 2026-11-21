@@ -11,6 +11,7 @@ import {
   SiteField,
   SuccessTick,
 } from "@/components/site/forms/site-field";
+import { Select } from "@/components/ui/select";
 import { apiErrorMessage } from "@/lib/api";
 import {
   firstName,
@@ -84,13 +85,13 @@ export function MessageForm() {
       <Honeypot value={honeypot} onChange={setHoneypot} />
       <SiteField label="Topic" kind="select">
         {(props) => (
-          <select {...props} {...form.register("topic")}>
+          <Select {...props} {...form.register("topic")}>
             {(Object.keys(messageTopics) as MessageTopic[]).map((key) => (
               <option key={key} value={key}>
                 {messageTopics[key].label}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </SiteField>
 

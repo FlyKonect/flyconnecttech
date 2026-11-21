@@ -10,6 +10,7 @@ import {
   postAs,
   sendRequest,
 } from "./support/portal";
+import { choose } from "./support/forms";
 
 // The client portal (docs/01, section 4) through the real screens.
 
@@ -73,11 +74,7 @@ test("a customer sends a request in four steps, with a file", async ({
   await expect(page.getByText("Enter a request title")).toBeVisible();
   await expect(field(page, "Project *")).toBeFocused();
 
-  const project = field(page, "Project *");
-  const option = await project
-    .locator("option", { hasText: "Bluewave agent portal" })
-    .textContent();
-  await project.selectOption({ label: option ?? "" });
+  await choose(field(page, "Project *"), /Bluewave agent portal/);
   await page.getByRole("radio", { name: /Bug Report/ }).click();
   await field(page, "Request title *").fill(
     "Agent commission report shows wrong totals",
@@ -278,8 +275,8 @@ test("profile: save changes and change the password", async ({ page }) => {
   await expect(page.getByText(customer.email)).toBeVisible();
   await field(page, "Full name").fill("Sarah Mitchell");
   await field(page, "Phone").fill("+44 20 7946 0321");
-  await field(page, "Country").selectOption("United Kingdom");
-  await field(page, "Time zone").selectOption("Asia/Karachi");
+  await choose(field(page, "Country"), "United Kingdom");
+  await choose(field(page, "Time zone"), "Asia/Karachi");
   await page.getByLabel("Weekly summary of my requests").check();
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByRole("status")).toContainText("Changes saved");

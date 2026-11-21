@@ -16,7 +16,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FileChip } from "@/components/ui/file-chip";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import {
+  DateInput,
+  Field,
+  Input,
+  Select,
+  Textarea,
+} from "@/components/ui/field";
 import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
 import { useToast } from "@/components/ui/toast";
 import { ApiError, apiErrorMessage, apiFetch } from "@/lib/api";
@@ -186,16 +192,16 @@ export function EditDetailsButton({ project }: { project: TeamProjectPage }) {
             </Field>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3.5">
               <Field label="Start" error={errors.startDate?.message}>
-                <Input type="date" {...form.register("startDate")} />
+                <DateInput {...form.register("startDate")} />
               </Field>
               <Field label="Target" error={errors.targetDate?.message}>
-                <Input type="date" {...form.register("targetDate")} />
+                <DateInput {...form.register("targetDate")} />
               </Field>
               <Field label="Went live" error={errors.liveDate?.message}>
-                <Input type="date" {...form.register("liveDate")} />
+                <DateInput {...form.register("liveDate")} />
               </Field>
               <Field label="Support until" error={errors.supportUntil?.message}>
-                <Input type="date" {...form.register("supportUntil")} />
+                <DateInput {...form.register("supportUntil")} />
               </Field>
             </div>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3.5">

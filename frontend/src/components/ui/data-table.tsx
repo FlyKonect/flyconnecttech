@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+import { Select } from "./select";
+
 const PAGE_SIZES = [10, 25, 50, 100];
 
 /**
@@ -335,18 +337,18 @@ function Pagination({
           className="flex items-center gap-2 max-app:hidden"
         >
           Rows per page
-          <select
+          <Select
             id={sizeId}
             value={pageSize}
             onChange={(event) => onPageSize(Number(event.target.value))}
-            className="h-9 cursor-pointer rounded-[10px] border border-input bg-white px-2 text-sm font-semibold text-navy"
+            className="h-9 w-auto gap-1.5 pr-2 pl-3 text-sm font-semibold"
           >
             {PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         {pages > 1 ? (

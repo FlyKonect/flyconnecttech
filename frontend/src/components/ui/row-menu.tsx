@@ -6,6 +6,20 @@ import { DropdownMenu } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
+import {
+  COLLISION_PADDING,
+  floatingItem,
+  floatingMotion,
+  floatingPanel,
+} from "./popover";
+
+/** The menu's panel (popover.tsx), shared with the account menu. */
+export const menuPanel = cn(
+  floatingPanel,
+  floatingMotion,
+  "origin-(--radix-dropdown-menu-content-transform-origin) p-1.5",
+);
+
 /**
  * The "⋯" button at the end of a table row, with a short menu of actions
  * for that row. Arrow keys move through the items; Escape closes it.
@@ -35,7 +49,8 @@ function RowMenu({
         <DropdownMenu.Content
           align="end"
           sideOffset={4}
-          className="z-50 min-w-[200px] rounded-[14px] border border-line-2 bg-white p-1.5 shadow-[0_12px_32px_rgba(2,26,84,0.14)]"
+          collisionPadding={COLLISION_PADDING}
+          className={cn(menuPanel, "min-w-[200px]")}
         >
           {children}
         </DropdownMenu.Content>
@@ -68,19 +83,23 @@ function MenuButton({
     <DropdownMenu.Root modal={false}>
       <DropdownMenu.Trigger
         className={cn(
-          "inline-flex h-[46px] cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-input bg-white px-4 text-sm font-bold text-navy transition-colors hover:bg-soft data-[state=open]:bg-soft [&_svg]:size-4 [&_svg]:shrink-0",
+          "group/menu inline-flex h-[46px] cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-input bg-white px-4 text-sm font-bold text-navy transition-[background-color,border-color,box-shadow] hover:border-[#B4C1D6] hover:bg-soft data-[state=open]:border-navy/45 data-[state=open]:bg-soft data-[state=open]:shadow-[0_0_0_4px_rgba(211,175,52,0.18)] [&_svg]:size-4 [&_svg]:shrink-0",
           className,
         )}
       >
         {icon}
         {label}
-        <ChevronDown aria-hidden="true" className="text-muted-foreground" />
+        <ChevronDown
+          aria-hidden="true"
+          className="text-muted-foreground transition-transform duration-200 group-data-[state=open]/menu:rotate-180 motion-reduce:transition-none"
+        />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           align="end"
           sideOffset={6}
-          className="z-50 min-w-[220px] rounded-[14px] border border-line-2 bg-white p-1.5 shadow-[0_12px_32px_rgba(2,26,84,0.14)]"
+          collisionPadding={COLLISION_PADDING}
+          className={cn(menuPanel, "min-w-[220px]")}
         >
           {children}
         </DropdownMenu.Content>
@@ -105,8 +124,10 @@ function RowMenuItem({
   return (
     <DropdownMenu.Item
       className={cn(
-        "flex min-h-10 cursor-pointer items-center rounded-[10px] px-3 text-sm font-bold text-navy outline-none select-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[highlighted]:bg-soft",
-        danger && "text-danger",
+        floatingItem,
+        "font-bold data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[highlighted]:bg-soft [&_svg]:text-muted-foreground data-[highlighted]:[&_svg]:text-navy",
+        danger &&
+          "text-danger data-[highlighted]:bg-[#FEF3F2] [&_svg]:text-danger data-[highlighted]:[&_svg]:text-danger",
         className,
       )}
       {...props}

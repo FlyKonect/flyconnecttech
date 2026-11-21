@@ -17,6 +17,7 @@ import {
   Checkbox,
   Field,
   Input,
+  MultiSelect,
   Select,
   Textarea,
 } from "@/components/ui/field";
@@ -93,32 +94,18 @@ function AskPicker({
 }) {
   if (!choices.length) return null;
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 text-[13px] font-bold">
-        Ask someone (optional)
-      </legend>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-1.5">
-        {choices.map((person) => (
-          <Checkbox
-            key={person.id}
-            checked={chosen.includes(person.id)}
-            onChange={(event) =>
-              onChange(
-                event.target.checked
-                  ? [...chosen, person.id]
-                  : chosen.filter((id) => id !== person.id),
-              )
-            }
-          >
-            {person.name}
-            <span className="text-muted-foreground">
-              {" "}
-              · {person.jobTitle ?? roles[person.role].label}
-            </span>
-          </Checkbox>
-        ))}
-      </div>
-    </fieldset>
+    <Field label="Ask someone (optional)">
+      <MultiSelect
+        options={choices.map((person) => ({
+          value: person.id,
+          label: person.name,
+          hint: person.jobTitle ?? roles[person.role].label,
+        }))}
+        value={chosen}
+        onChange={onChange}
+        placeholder="Choose people to ask"
+      />
+    </Field>
   );
 }
 

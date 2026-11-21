@@ -146,6 +146,7 @@ Sizes:
 
 ## Components (shadcn/ui based)
 - **Basics:** Button (variants above), Input, Select, Textarea and Checkbox with labels and inline errors (`#B91C1C`, 12–14px), Pill/Badge, Card, Tabs (pill tabs with counts), Chips (priority, status), Dialog, Toast (navy, fully rounded, bottom centre), Banner, Avatar (initials).
+- **Dropdowns, menus and dates** (FlyConnect Tech, added after the design): every dropdown is our own list, not the browser's (`Select`, and `MultiSelect` for choosing several with ticks), and every date box has our own calendar (`DateInput`: typed as DD/MM/YYYY or picked; weeks start on Monday; today in gold, the chosen day navy). Lists, menus and the calendar open in one panel style (`components/ui/popover.tsx`): white, 14px corners, a soft navy shadow, a short fade and grow on opening, above dialogs and kept inside the screen. Lists of 10 or more get a search box; the chosen line has a gold tick.
 - **Shared layout:** KPI tile, data table with mobile cards, stepper (New request), radio cards (roles, lost reasons), sidebar nav item with count or badge, notification row (dot colour by kind, unread background).
 - **Conversation:**
   - Customer bubble: navy, right-aligned, corner radius 18/18/4/18.

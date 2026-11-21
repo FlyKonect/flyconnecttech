@@ -13,6 +13,7 @@ import {
   postAs,
   sendRequest,
 } from "./support/portal";
+import { choose } from "./support/forms";
 
 // The team panel (docs/01, section 5) through the real screens.
 
@@ -258,7 +259,7 @@ test("manager: Edit details corrects the title and type, with a line in the conv
   await page.getByRole("button", { name: "Edit details" }).click();
   const dialog = page.getByRole("dialog", { name: `Edit ${code}` });
   await dialog.getByLabel("Title *").fill("Payment page slow");
-  await dialog.getByLabel("Request type").selectOption("BUG_REPORT");
+  await choose(dialog.getByLabel("Request type"), "BUG_REPORT");
   await dialog.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toContainText(`${code} saved`);
   await expect(

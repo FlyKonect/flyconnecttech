@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { FormError } from "@/components/auth/form-message";
 import { Button } from "@/components/ui/button";
-import { Checkbox, Input } from "@/components/ui/field";
+import { Checkbox, DateInput, Input } from "@/components/ui/field";
 import { LabelPill } from "@/components/ui/pill";
 import { useToast } from "@/components/ui/toast";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
@@ -317,8 +317,7 @@ function BankHolidays({
       <div className="mt-3 flex items-end gap-2.5">
         <label className="flex flex-1 flex-col gap-1.5 text-[13px] font-bold">
           Add a bank holiday
-          <Input
-            type="date"
+          <DateInput
             value={day}
             onChange={(event) => setDay(event.target.value)}
           />

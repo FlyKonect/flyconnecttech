@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { createPerson, signInBrowser } from "./support/accounts";
 import { waitForEmail } from "./support/mailpit";
 import { addProject, postAs } from "./support/portal";
+import { choose } from "./support/forms";
 
 // Modules: an admin puts a developer on the project team; the developer
 // moves a module through Testing to Client review; the customer asks for
@@ -21,7 +22,7 @@ async function moveTo(page: Page, part: string, stage: string) {
   const card = page.getByRole("region", { name: new RegExp(`^${part}`) });
   await card.getByRole("button", { name: "Move to…" }).click();
   const dialog = page.getByRole("dialog", { name: `Move ${part}` });
-  await dialog.getByLabel("New stage").selectOption({ label: stage });
+  await choose(dialog.getByLabel("New stage"), { label: stage });
   await dialog.getByRole("button", { name: "Move" }).click();
   await expect(toast(page, `${part} moved to ${stage}`)).toBeVisible();
 }
@@ -49,9 +50,9 @@ test("a module from development to client review, a round of changes, then appro
   // The admin puts the developer on the project team.
   await signInBrowser(page.context(), admin);
   await page.goto(`/team/projects/${code}`);
-  await page
-    .getByLabel("Add someone")
-    .selectOption({ label: `Dev ${word} · Tester` });
+  await choose(page.getByLabel("Add someone"), {
+    label: `Dev ${word} · Tester`,
+  });
   await page
     .getByRole("form", { name: "Add to the team" })
     .getByRole("button", { name: "Add" })

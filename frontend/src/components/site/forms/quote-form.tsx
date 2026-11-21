@@ -14,6 +14,7 @@ import {
   SuccessTick,
   SummaryRows,
 } from "@/components/site/forms/site-field";
+import { Select } from "@/components/ui/select";
 import { apiErrorMessage } from "@/lib/api";
 import {
   firstName,
@@ -130,7 +131,7 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
           className="flex-[1_1_180px]"
         >
           {(props) => (
-            <select {...props} {...form.register("projectType")}>
+            <Select {...props} {...form.register("projectType")}>
               {(Object.keys(quoteProjectTypes) as QuoteProjectType[]).map(
                 (key) => (
                   <option key={key} value={key}>
@@ -138,7 +139,7 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
                   </option>
                 ),
               )}
-            </select>
+            </Select>
           )}
         </SiteField>
         <SiteField
@@ -147,13 +148,13 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
           className="flex-[1_1_180px]"
         >
           {(props) => (
-            <select {...props} {...form.register("budget")}>
+            <Select {...props} {...form.register("budget")}>
               {(Object.keys(budgets) as Budget[]).map((key) => (
                 <option key={key} value={key}>
                   {budgets[key].label}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
         </SiteField>
       </div>
@@ -161,13 +162,13 @@ export function QuoteForm({ variant }: { variant: "short" | "full" }) {
       {full ? (
         <SiteField label="Timeline" kind="select">
           {(props) => (
-            <select {...props} {...form.register("timeline")}>
+            <Select {...props} {...form.register("timeline")}>
               {(Object.keys(timelines) as Timeline[]).map((key) => (
                 <option key={key} value={key}>
                   {timelines[key].label}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
         </SiteField>
       ) : null}

@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { createPerson, signInBrowser } from "./support/accounts";
 import { waitForEmail } from "./support/mailpit";
 import { asPerson, PNG, postAs, sendRequest } from "./support/portal";
+import { choose } from "./support/forms";
 
 // Projects: an admin adds a project with what it includes, ticks items,
 // posts an update with a file; the customer gets the email and sees the
@@ -41,7 +42,7 @@ test("from Add project to the customer's My Projects, then delete and restore", 
   await signInBrowser(page.context(), admin);
   await page.goto(`/team/projects/new?customer=${row.id}`);
   await field(page, "Project name *").fill(name);
-  await field(page, "Project type").selectOption("TRAVEL_BOOKING_PLATFORM");
+  await choose(field(page, "Project type"), "TRAVEL_BOOKING_PLATFORM");
   await field(page, "What's included (optional)").fill(
     "Flight search\nHotel search\nStripe payments\nAgent portal\nEmails",
   );
@@ -57,7 +58,7 @@ test("from Add project to the customer's My Projects, then delete and restore", 
   await expect(page).toHaveURL(new RegExp(`/team/projects/${code}/modules$`));
   await expect(page.getByRole("heading", { name: /^General/ })).toBeVisible();
   for (const item of ["Flight search", "Hotel search"]) {
-    await page.getByLabel(`Status of ${item}`).selectOption("DONE");
+    await choose(page.getByLabel(`Status of ${item}`), "DONE");
     await expect(toast(page, `${item}: Done`)).toBeVisible();
   }
   await expect(

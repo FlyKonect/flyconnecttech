@@ -251,15 +251,15 @@ function ServicesMenu({ pathname }: { pathname: string }) {
 
       {open ? (
         <div className="absolute top-full -left-6 z-40 pt-[18px]">
-          <div className="w-[360px] rounded-2xl border border-line bg-white p-2 shadow-[0_28px_56px_-24px_rgba(2,26,84,0.35)]">
+          <div className="w-[360px] origin-top-left animate-in rounded-2xl border border-line bg-white p-2 shadow-[0_28px_56px_-24px_rgba(2,26,84,0.35)] duration-150 fade-in-0 slide-in-from-top-1 zoom-in-97 motion-reduce:animate-none">
             {serviceLinks.map((service) => (
               <Link
                 key={service.href}
                 href={service.href}
                 onClick={() => setOpen(false)}
-                className="flex items-start gap-3 rounded-xl p-3 text-navy hover:bg-soft"
+                className="group/service flex items-start gap-3 rounded-xl p-3 text-navy transition-colors duration-100 hover:bg-soft"
               >
-                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-gold/13 text-gold-text">
+                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-gold/13 text-gold-text transition-colors duration-100 group-hover/service:bg-gold/20">
                   <service.icon aria-hidden="true" className="size-[18px]" />
                 </span>
                 <span className="min-w-0">

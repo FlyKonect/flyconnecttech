@@ -10,6 +10,7 @@ import {
 } from "./support/accounts";
 import { linkIn, waitForEmail } from "./support/mailpit";
 import { postAs } from "./support/portal";
+import { choose } from "./support/forms";
 
 // Website leads (docs/01 §2 and §6, screens 34 to 42): from the website's
 // forms to the team panel, with the real emails from Mailpit.
@@ -103,7 +104,7 @@ test("a demo booked on the website: confirm with an invite, complete, convert, a
   // Confirm the time they picked: the invite has the .ics file.
   await page.getByRole("button", { name: "Confirm time" }).click();
   const confirm = page.getByRole("dialog", { name: "Confirm demo time" });
-  await expect(confirm.getByLabel("Time (UK)")).toHaveValue(time);
+  await expect(confirm.getByLabel("Time (UK)")).toHaveText(time);
   await confirm
     .getByLabel("Video call link (optional)")
     .fill("https://meet.example.com/abc-defg");
@@ -180,13 +181,9 @@ test("a quote from the Contact page: review, estimate, won, convert", async ({
 
   await page.goto("/contact");
   const form = page.getByRole("form", { name: "Get a quote" });
-  await form
-    .getByLabel("Project type")
-    .selectOption({ label: "API integration" });
-  await form.getByLabel("Budget range").selectOption({ label: "£15k – £50k" });
-  await form
-    .getByLabel("Timeline")
-    .selectOption({ label: "Within 3–6 months" });
+  await choose(form.getByLabel("Project type"), { label: "API integration" });
+  await choose(form.getByLabel("Budget range"), { label: "£15k – £50k" });
+  await choose(form.getByLabel("Timeline"), { label: "Within 3–6 months" });
   await form.getByLabel("Full name *").fill("Hannah Weber");
   await form.getByLabel("Work email *").fill(email);
   await form.getByLabel("Company (optional)").fill(company);
@@ -261,7 +258,7 @@ test("a message from an existing customer: banner, Open customer, and the reply"
     .getByRole("tab", { name: "Send a message" })
     .click();
   const form = page.getByRole("form", { name: "Send a message" });
-  await form.getByLabel("Topic").selectOption({ label: "An existing project" });
+  await choose(form.getByLabel("Topic"), { label: "An existing project" });
   await form.getByLabel("Full name *").fill("Sarah Mitchell");
   await form.getByLabel("Email *").fill(email);
   await form

@@ -7,7 +7,7 @@ import { DropdownMenu } from "radix-ui";
 import { useSignOut } from "@/components/auth/use-sign-out";
 import { useVisitKey } from "@/components/auth/use-visit-key";
 import { Avatar } from "@/components/ui/avatar";
-import { RowMenuItem } from "@/components/ui/row-menu";
+import { RowMenuItem, menuPanel } from "@/components/ui/row-menu";
 
 type UserMenuProps = {
   area: "portal" | "team";
@@ -91,7 +91,8 @@ function UserMenuButton({
           side={inSidebar ? "top" : "bottom"}
           align={inSidebar ? "start" : "end"}
           sideOffset={inSidebar ? 8 : 6}
-          className={`z-50 rounded-[14px] border border-line-2 bg-white p-1.5 shadow-[0_12px_32px_rgba(2,26,84,0.14)] ${
+          collisionPadding={12}
+          className={`${menuPanel} ${
             inSidebar
               ? "w-(--radix-dropdown-menu-trigger-width) min-w-[220px]"
               : "min-w-[220px]"

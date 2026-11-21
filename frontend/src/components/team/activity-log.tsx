@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { Input, Select } from "@/components/ui/field";
+import { DateInput, Select } from "@/components/ui/field";
 import { formatWhen } from "@/lib/format-time";
 import { withPage } from "@/lib/paging";
 import { routes } from "@/lib/routes";
@@ -86,11 +86,11 @@ export function ActivityLog({
         </label>
         <label className={`${label} flex-[1_1_150px]`}>
           From
-          <Input type="date" name="from" defaultValue={chosen.from} />
+          <DateInput name="from" defaultValue={chosen.from} />
         </label>
         <label className={`${label} flex-[1_1_150px]`}>
           To
-          <Input type="date" name="to" defaultValue={chosen.to} />
+          <DateInput name="to" defaultValue={chosen.to} />
         </label>
         <div className="flex gap-2">
           <Button type="submit" className="h-[46px]">

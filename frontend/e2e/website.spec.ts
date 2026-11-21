@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { choose } from "./support/forms";
 
 const desktop = { width: 1440, height: 900 };
 const phone = { width: 390, height: 844 };
@@ -152,10 +153,8 @@ test.describe("Get a quote", () => {
       "true",
     );
 
-    await card
-      .getByLabel("Project type")
-      .selectOption({ label: "New website" });
-    await card.getByLabel("Budget range").selectOption({ label: "£5k – £15k" });
+    await choose(card.getByLabel("Project type"), { label: "New website" });
+    await choose(card.getByLabel("Budget range"), { label: "£5k – £15k" });
     await card.getByLabel("Full name *").fill("Sarah Mitchell");
     await card.getByLabel("Work email *").fill("sarah@bluewave.co.uk");
     await card.getByLabel("Requirements *").fill("A new booking website.");
@@ -181,9 +180,7 @@ test.describe("Get a quote", () => {
     ).toHaveAttribute("aria-selected", "true");
 
     const form = page.getByRole("form", { name: "Get a quote" });
-    await form
-      .getByLabel("Timeline")
-      .selectOption({ label: "Within 1–3 months" });
+    await choose(form.getByLabel("Timeline"), { label: "Within 1–3 months" });
     await form.getByLabel("Full name *").fill("James Carter");
     await form.getByLabel("Work email *").fill("james@northgate.travel");
     await form.getByLabel("Company (optional)").fill("Northgate Tours");
@@ -215,7 +212,7 @@ test("Contact: Send a message shows its errors, then sends", async ({
   await expect(form.getByText("Enter a valid email")).toBeVisible();
   await expect(form.getByText("Write a short message")).toBeVisible();
 
-  await form.getByLabel("Topic").selectOption({ label: "Partnership" });
+  await choose(form.getByLabel("Topic"), { label: "Partnership" });
   await form.getByLabel("Full name *").fill("Laura Bennett");
   await form.getByLabel("Email *").fill("laura@example.com");
   await form.getByLabel("Message *").fill("Can we talk about a partnership?");

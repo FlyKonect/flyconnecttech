@@ -13,7 +13,13 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import {
+  DateInput,
+  Field,
+  Input,
+  Select,
+  Textarea,
+} from "@/components/ui/field";
 import { LabelPill } from "@/components/ui/pill";
 import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
 import { useToast } from "@/components/ui/toast";
@@ -190,8 +196,7 @@ function ModuleDialog({
   const [error, setError] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const set =
-    (key: keyof ModuleFields) =>
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (key: keyof ModuleFields) => (event: { target: { value: string } }) =>
       setFields({ ...fields, [key]: event.target.value });
 
   return (
@@ -237,15 +242,10 @@ function ModuleDialog({
           </Field>
           <div className="grid grid-cols-2 gap-3.5 max-app:grid-cols-1">
             <Field label="Start (optional)">
-              <Input
-                type="date"
-                value={fields.startDate}
-                onChange={set("startDate")}
-              />
+              <DateInput value={fields.startDate} onChange={set("startDate")} />
             </Field>
             <Field label="Target (optional)">
-              <Input
-                type="date"
+              <DateInput
                 value={fields.targetDate}
                 onChange={set("targetDate")}
               />

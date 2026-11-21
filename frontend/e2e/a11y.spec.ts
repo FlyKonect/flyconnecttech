@@ -16,6 +16,7 @@ import { e2e } from "./support/e2e-env";
 import { linkIn, waitForEmail } from "./support/mailpit";
 import { addProject, idOf, postAs, sendRequest } from "./support/portal";
 import { totp } from "./support/totp";
+import { choose } from "./support/forms";
 
 // Accessibility (docs/04, Phase 11): axe checks every screen, and the
 // keyboard checks dialogs and menus. "Serious" and "critical" findings fail
@@ -183,10 +184,8 @@ test("Contact: Get a quote and Send a message, with errors and sent", async ({
   await quote.getByRole("button", { name: "Request my quote" }).click();
   await expect(quote.getByText("Enter your name")).toBeVisible();
   await expectAccessible(page, "Get a quote with errors");
-  await quote.getByLabel("Project type").selectOption({ label: "New website" });
-  await quote
-    .getByLabel("Budget range")
-    .selectOption({ label: "Not sure yet" });
+  await choose(quote.getByLabel("Project type"), { label: "New website" });
+  await choose(quote.getByLabel("Budget range"), { label: "Not sure yet" });
   await quote.getByLabel("Full name *").fill("Leo Brandt");
   await quote.getByLabel("Work email *").fill(uniqueEmail("leo"));
   await quote.getByLabel("Requirements *").fill("A new website for tours.");
@@ -203,7 +202,7 @@ test("Contact: Get a quote and Send a message, with errors and sent", async ({
   await message.getByRole("button", { name: "Send message" }).click();
   await expect(message.getByText("Enter your name")).toBeVisible();
   await expectAccessible(page, "Send a message with errors");
-  await message.getByLabel("Topic").selectOption({ label: "General question" });
+  await choose(message.getByLabel("Topic"), { label: "General question" });
   await message.getByLabel("Full name *").fill("Leo Brandt");
   await message.getByLabel("Email *").fill(uniqueEmail("leo"));
   await message
@@ -749,6 +748,79 @@ test("keyboard: the users' row menu opens, moves with arrows and closes", async 
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
   await expect(button).toBeFocused();
+});
+
+test("keyboard: our dropdowns and the calendar open, move, choose and close", async ({
+  page,
+}) => {
+  const admin = await createPerson("admin");
+  await signInBrowser(page.context(), admin);
+  await page.goto("/team/projects/new");
+  await settled(page);
+
+  // A dropdown: Enter opens it with the keyboard in the list, the arrows
+  // move, Enter chooses and the keyboard goes back to the box.
+  // (While a list is open its panel has the same name, so read the box
+  // only when it is closed.)
+  const type = page.getByRole("combobox", { name: "Project type" });
+  const before = await type.textContent();
+  await type.focus();
+  await page.keyboard.press("Enter");
+  const list = page.getByRole("listbox", { name: "Project type" });
+  await expect(list).toBeVisible();
+  await expect(list).toBeFocused();
+  await expectAccessible(page, "Add project, the Project type list open");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(list).toBeHidden();
+  await expect(type).toBeFocused();
+  await expect(type).not.toHaveText(before ?? "");
+  // Escape closes it without a change.
+  const chosen = await type.textContent();
+  await page.keyboard.press("ArrowDown");
+  await expect(list).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Escape");
+  await expect(list).toBeHidden();
+  await expect(type).toHaveText(chosen ?? "");
+  await expect(type).toBeFocused();
+
+  // The calendar: from its button the keyboard is on the day, the arrows
+  // move it, Enter chooses it and the box shows it.
+  const start = field(page, "Start date (optional)");
+  await start.fill("16/11/2026");
+  await page
+    .getByRole("button", { name: "Open calendar" })
+    .first()
+    .press("Enter");
+  const calendar = page.getByRole("dialog", { name: "Calendar" });
+  await expect(calendar).toBeVisible();
+  await expect(
+    calendar.getByRole("button", { name: "Monday 16 November 2026" }),
+  ).toBeFocused();
+  await expectAccessible(page, "Add project, the calendar open");
+  await page.keyboard.press("ArrowRight");
+  await expect(
+    calendar.getByRole("button", { name: "Tuesday 17 November 2026" }),
+  ).toBeFocused();
+  await page.keyboard.press("PageDown");
+  await expect(
+    calendar.getByRole("grid", { name: "December 2026" }),
+  ).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(calendar).toBeHidden();
+  await expect(start).toHaveValue("17/12/2026");
+  await expect(start).toBeFocused();
+
+  // On a phone the list and the calendar stay inside the screen.
+  await page.setViewportSize(phone);
+  await field(page, "Target date (optional)").click();
+  await expect(calendar).toBeVisible();
+  const box = await calendar.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(phone.width);
+  await page.keyboard.press("Escape");
+  await expect(calendar).toBeHidden();
 });
 
 test("keyboard: the website's Services menu and phone menu", async ({

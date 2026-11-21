@@ -22,11 +22,15 @@ import {
 } from "@/components/ui/dialog";
 import {
   Checkbox,
+  DateInput,
   Field,
   Input,
+  MultiSelect,
   Select,
   Textarea,
 } from "@/components/ui/field";
+import { Calendar } from "@/components/ui/date-input";
+import { timeZoneOptions } from "@/lib/time-zones";
 import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { StatCard } from "@/components/ui/stat-card";
@@ -193,6 +197,9 @@ const pillGroupTitles: Record<PillGroup, string> = {
 
 export function ComponentGallery() {
   const toast = useToast();
+  const [asked, setAsked] = React.useState<string[]>(["priya"]);
+  const [picked, setPicked] = React.useState("2026-11-21");
+  const zones = React.useMemo(() => timeZoneOptions("Europe/London"), []);
   const [priority, setPriority] = React.useState<Priority>("MEDIUM");
   const [requestType, setRequestType] =
     React.useState<RequestType>("BUG_REPORT");
@@ -329,6 +336,70 @@ export function ComponentGallery() {
           <Checkbox name="keep" defaultChecked>
             Keep me signed in
           </Checkbox>
+        </Section>
+
+        <Section title="Dropdowns and dates">
+          <p className="text-sm text-muted-foreground">
+            Our own list and calendar (select.tsx, date-input.tsx), the same on
+            every screen: open with a click, Enter or the arrows; lists of 10 or
+            more get a search box.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Time zone" hint="A long list: it has a search box.">
+              <Select name="timezone" defaultValue="Europe/London">
+                {zones.map((zone) => (
+                  <option key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Status" error="Choose a status">
+              <Select
+                name="status"
+                defaultValue=""
+                placeholder="Choose a status"
+              >
+                <option value="">Choose a status</option>
+                <option value="OPEN">Open</option>
+                <option value="CLOSED" disabled>
+                  Closed (not now)
+                </option>
+              </Select>
+            </Field>
+            <Field label="Ask someone (optional)">
+              <MultiSelect
+                options={[
+                  { value: "priya", label: "Priya Shah", hint: "Developer" },
+                  { value: "emma", label: "Emma Clarke", hint: "Admin" },
+                  { value: "omar", label: "Omar Haddad", hint: "Manager" },
+                ]}
+                value={asked}
+                onChange={setAsked}
+                placeholder="Choose people to ask"
+              />
+            </Field>
+            <Field label="Start date" hint="Type 21/11/2026 or pick a day.">
+              <DateInput
+                value={picked}
+                onChange={(event) => setPicked(event.target.value)}
+              />
+            </Field>
+            <Field label="Valid until" hint="Days before today are closed.">
+              <DateInput name="validUntil" min="2026-11-21" />
+            </Field>
+            <Field label="Disabled">
+              <DateInput defaultValue="2026-11-21" disabled />
+            </Field>
+          </div>
+          <div className="w-fit rounded-[14px] border border-line-2 bg-white shadow-[0_12px_32px_rgba(2,26,84,0.1)]">
+            <Calendar
+              value={picked}
+              autoFocus={false}
+              onPick={setPicked}
+              onClear={() => setPicked("")}
+            />
+          </div>
         </Section>
 
         <Section title="Tabs">

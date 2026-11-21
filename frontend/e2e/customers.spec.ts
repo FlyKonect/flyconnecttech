@@ -12,6 +12,7 @@ import {
 import { e2e } from "./support/e2e-env";
 import { linkIn, waitForEmail } from "./support/mailpit";
 import { postAs } from "./support/portal";
+import { choose } from "./support/forms";
 
 // Customers and users in the team panel (docs/01, section 5, screens 26 to
 // 30), through the real screens, with the real emails from Mailpit.
@@ -80,12 +81,10 @@ test("an admin adds a customer with two projects; the customer activates and see
   await field(page, "Work email").fill(email);
   await field(page, "Company").fill("Skyline Travel");
   await field(page, "Project 1 name").fill(`${name} booking website`);
-  await field(page, "Project type")
-    .first()
-    .selectOption("TRAVEL_BOOKING_PLATFORM");
+  await choose(field(page, "Project type").first(), "TRAVEL_BOOKING_PLATFORM");
   await page.getByRole("button", { name: "+ Add another project" }).click();
   await field(page, "Project 2 name").fill(`${name} agent portal`);
-  await field(page, "Project type").nth(1).selectOption("AGENT_PORTAL");
+  await choose(field(page, "Project type").nth(1), "AGENT_PORTAL");
   const next = page.getByRole("complementary", { name: "What happens next" });
   await expect(next).toContainText("We email Hassan an invitation link.");
   await expect(next).toContainText("send requests for 2 projects");
@@ -134,10 +133,12 @@ test("an admin adds a customer with two projects; the customer activates and see
 
   // New request: exactly those two projects (after "Choose a project").
   await customer.goto("/portal/requests/new");
-  const projects = field(customer, "Project *").locator("option");
+  await field(customer, "Project *").click();
+  const projects = customer.getByRole("listbox").getByRole("option");
   await expect(projects).toHaveCount(3);
   await expect(projects.nth(1)).toContainText(`${name} booking website`);
   await expect(projects.nth(2)).toContainText(`${name} agent portal`);
+  await customer.keyboard.press("Escape");
   await context.close();
 
   // The team sees them as active now.
@@ -159,7 +160,7 @@ test("the customer page: add a project, change its status, send a reset link", a
 
   // Add project.
   await field(page, "New project name").fill(`${name} mobile app`);
-  await field(page, "Project type").selectOption("WEB_APPLICATION");
+  await choose(field(page, "Project type"), "WEB_APPLICATION");
   await page.getByRole("button", { name: "Add project" }).click();
   await expect(toast(page, "Project added for Skyline Travel")).toBeVisible();
   await expect(
@@ -167,9 +168,10 @@ test("the customer page: add a project, change its status, send a reset link", a
   ).toBeVisible();
 
   // Its status.
-  await page
-    .getByLabel(`Status of ${name} mobile app`)
-    .selectOption("IN_DEVELOPMENT");
+  await choose(
+    page.getByLabel(`Status of ${name} mobile app`),
+    "IN_DEVELOPMENT",
+  );
   await expect(toast(page, /P-\d+ is now In development/)).toBeVisible();
 
   // Invited: Resend invitation.
@@ -221,7 +223,7 @@ test("the customer page: edit the company name and a project", async ({
   await page.getByRole("button", { name: `Edit ${name} booking site` }).click();
   const project = page.getByRole("dialog", { name: /^Edit P-\d+$/ });
   await project.getByLabel("Project name *").fill(`${name} booking engine`);
-  await project.getByLabel("Project type").selectOption("WEB_APPLICATION");
+  await choose(project.getByLabel("Project type"), "WEB_APPLICATION");
   await project.getByRole("button", { name: "Save" }).click();
   await expect(toast(page, /P-\d+ saved/)).toBeVisible();
   await expect(page.getByText(`${name} booking engine`)).toBeVisible();
@@ -246,10 +248,16 @@ test("Users: change a role, disable, then enable again", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Change role" }).click();
   const dialog = page.getByRole("dialog", { name: `Change ${name}'s role` });
   // Admins can't give the super admin role.
-  await expect(dialog.getByRole("option", { name: "Super admin" })).toHaveCount(
-    0,
-  );
-  await dialog.getByLabel("Role").selectOption("MANAGER");
+  await dialog.getByLabel("Role").click();
+  const roleList = page.getByRole("listbox");
+  await expect(
+    roleList.getByRole("option", { name: "Manager", exact: true }),
+  ).toBeVisible();
+  await expect(
+    roleList.getByRole("option", { name: "Super admin" }),
+  ).toHaveCount(0);
+  await roleList.getByRole("option", { name: "Manager", exact: true }).click();
+  await expect(roleList).toBeHidden();
   await dialog.getByRole("button", { name: "Change role" }).click();
   await expect(toast(page, `${name} is now Manager`)).toBeVisible();
   await expect(row).toContainText("Manager");

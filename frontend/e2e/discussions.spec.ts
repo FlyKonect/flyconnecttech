@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { createPerson, signInBrowser } from "./support/accounts";
 import { waitForEmail } from "./support/mailpit";
+import { tick } from "./support/forms";
 import { addProject, idOf, PNG, postAs } from "./support/portal";
 
 // Project discussions: the customer starts a topic with a file; the team
@@ -115,7 +116,10 @@ test("a customer topic and a team topic, from start to close", async ({
   const internal = team.getByRole("dialog", { name: "New team topic" });
   await internal.getByLabel("Title *").fill(secret);
   await internal.getByLabel("Message").fill("Where should the card fee show?");
-  await internal.getByLabel(new RegExp(`^Dev ${word}`)).check();
+  await tick(
+    internal.getByLabel("Ask someone (optional)"),
+    new RegExp(`^Dev ${word}`),
+  );
   await internal.getByRole("button", { name: "Start topic" }).click();
   await expect(team).toHaveURL(
     new RegExp(`/team/projects/${code}/team-discussions/\\d+$`),

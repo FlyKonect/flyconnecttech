@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input, Select } from "@/components/ui/field";
+import { DateInput, Select } from "@/components/ui/field";
 import {
   MenuButton,
   MenuSeparator,
@@ -46,11 +46,11 @@ export function ReportFilters({
     >
       <label className={label}>
         From
-        <Input type="date" name="from" defaultValue={chosen.from} />
+        <DateInput name="from" defaultValue={chosen.from} />
       </label>
       <label className={label}>
         To
-        <Input type="date" name="to" defaultValue={chosen.to} />
+        <DateInput name="to" defaultValue={chosen.to} />
       </label>
       <label className={label}>
         Customer
