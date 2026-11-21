@@ -54,6 +54,14 @@ export type Action =
   | 'customers.delete'
   /** Delete or restore a project (its requests and updates stay as history). */
   | 'projects.delete'
+  /** See projects (developers: only the projects they are on, see projectScope). */
+  | 'projects.view'
+  /** Change a project: details, modules, items, updates, the project team. */
+  | 'projects.manage'
+  /** Move module stages and tick items (developers: on their projects; never Done). */
+  | 'projects.work'
+  /** Take part in a project's discussions (developers: on their projects). */
+  | 'discussions.join'
   /** See the team users. */
   | 'users.view'
   /** Add team users (which roles: see canInviteRole). */
@@ -96,6 +104,10 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'customers.manage': ADMINS,
   'customers.delete': ADMINS,
   'projects.delete': ADMINS,
+  'projects.view': ALL_TEAM,
+  'projects.manage': ADMINS,
+  'projects.work': ['SUPER_ADMIN', 'ADMIN', 'DEVELOPER'],
+  'discussions.join': ALL_TEAM,
   'users.view': ADMINS,
   'users.invite': ADMINS,
   'users.delete': ADMINS,
@@ -164,6 +176,21 @@ export function requestScope(actor: Actor) {
     return { customerId: actor.customerId ?? '__none__' };
   }
   if (actor.role === 'DEVELOPER') return { assigneeId: actor.id };
+  return {};
+}
+
+/**
+ * The projects this person may see: every project for super admins,
+ * admins and managers; only the projects they are on for developers; only
+ * their own company's for customers.
+ */
+export function projectScope(actor: Actor) {
+  if (actor.role === 'CUSTOMER') {
+    return { customerId: actor.customerId ?? '__none__' };
+  }
+  if (actor.role === 'DEVELOPER') {
+    return { members: { some: { userId: actor.id } } };
+  }
   return {};
 }
 

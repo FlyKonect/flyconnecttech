@@ -16,7 +16,7 @@ import type {
   UserStatus,
 } from "@/lib/labels";
 import type { NotificationItem } from "@/lib/portal/types";
-import type { ProjectPage, Progress } from "@/lib/projects";
+import type { ModuleCounts, ProjectPage, Progress } from "@/lib/projects";
 
 /**
  * What the backend's team routes return (backend/src/requests/team-*).
@@ -298,6 +298,7 @@ export type ProjectRow = {
   customer: { id: string; company: string };
   lead: string | null;
   progress: Progress;
+  modules: ModuleCounts;
   openRequests: number;
 };
 
@@ -320,8 +321,17 @@ export type TeamProjectPage = ProjectPage & {
     contactName: string | null;
     contactStatus: UserStatus | null;
   };
-  can: { manage: boolean; delete: boolean };
+  members: (TeamMemberChoice & { role: TeamRole })[];
+  can: {
+    manage: boolean;
+    /** Move stages and tick items (admins and team developers). */
+    work: boolean;
+    delete: boolean;
+    /** Developers can't open customers. */
+    viewCustomer: boolean;
+  };
   leadChoices: TeamMemberChoice[];
+  memberChoices: TeamMemberChoice[];
 };
 
 // ------------------------------------------------------------------ users

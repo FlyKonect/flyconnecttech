@@ -19,7 +19,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { projectTypes } from "@/lib/labels";
 import { withPage } from "@/lib/paging";
 import { plural } from "@/lib/plural";
-import { formatDay } from "@/lib/projects";
+import { formatDay, modulesWords } from "@/lib/projects";
 import { routes } from "@/lib/routes";
 import { PROJECT_TABS, projectsHref } from "@/lib/team/projects";
 import type { ProjectList, ProjectRow } from "@/lib/team/types";
@@ -198,7 +198,19 @@ export function ProjectsList({
           {
             header: "Progress",
             className: "min-w-[160px]",
-            cell: (p) => <ProgressBar progress={p.progress} label={p.name} />,
+            cell: (p) => (
+              <span className="block">
+                <ProgressBar progress={p.progress} label={p.name} />
+                {p.modules.total ? (
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {modulesWords(p.modules.done, p.modules.total)}
+                    {p.modules.inReview
+                      ? ` · ${p.modules.inReview} in client review`
+                      : ""}
+                  </span>
+                ) : null}
+              </span>
+            ),
           },
           {
             header: "Target",

@@ -152,10 +152,17 @@ async function PortalOverviewPageContent() {
                         <span className="min-w-0 truncate text-sm font-bold">
                           {project.name}
                         </span>
-                        <LabelPill
-                          group="projectStatus"
-                          value={project.status}
-                        />
+                        {project.modules.inReview ? (
+                          <LabelPill
+                            group="moduleFlag"
+                            value="REVIEW_WAITING"
+                          />
+                        ) : (
+                          <LabelPill
+                            group="projectStatus"
+                            value={project.status}
+                          />
+                        )}
                       </span>
                       <ProgressBar
                         progress={project.progress}

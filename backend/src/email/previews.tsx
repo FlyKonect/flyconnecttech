@@ -53,6 +53,10 @@ import {
 } from './templates/team-request.js';
 import { TeamReplyEmail, teamReplySubject } from './templates/team-reply.js';
 import {
+  ModuleReviewEmail,
+  moduleReviewSubject,
+} from './templates/module-review.js';
+import {
   ProjectUpdateEmail,
   projectUpdateSubject,
 } from './templates/project-update.js';
@@ -423,6 +427,64 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
         progress="Progress: 6 of 10 done (60%)"
         files={2}
         link={`${siteUrl}/portal/projects/P-0004`}
+      />
+    ),
+  },
+
+  {
+    key: 'module-ready',
+    row: 'Module review',
+    to: 'The customer\'s contact, when a module moves to Client review ("A project update is posted")',
+    subject: moduleReviewSubject('ready', 'Flight booking'),
+    render: (siteUrl) => (
+      <ModuleReviewEmail
+        siteUrl={siteUrl}
+        firstName="Sarah"
+        kind="ready"
+        code="P-0004"
+        projectName="Bluewave booking website"
+        moduleName="Flight booking"
+        round={1}
+        link={`${siteUrl}/portal/projects/P-0004/modules`}
+      />
+    ),
+  },
+  {
+    key: 'module-changes',
+    row: 'Module review',
+    to: 'The project lead and team developers (or super admins and admins), when the customer asks for changes',
+    subject: moduleReviewSubject('changes', 'Flight booking'),
+    render: (siteUrl) => (
+      <ModuleReviewEmail
+        siteUrl={siteUrl}
+        firstName="Priya"
+        kind="changes"
+        code="P-0004"
+        projectName="Bluewave booking website"
+        moduleName="Flight booking"
+        round={2}
+        note="Please show the card fee before the Pay button."
+        byName="Sarah Mitchell"
+        link={`${siteUrl}/team/projects/P-0004/modules`}
+      />
+    ),
+  },
+  {
+    key: 'module-approved',
+    row: 'Module review',
+    to: 'The project lead and team developers, when the customer approves a module',
+    subject: moduleReviewSubject('approved', 'Flight booking'),
+    render: (siteUrl) => (
+      <ModuleReviewEmail
+        siteUrl={siteUrl}
+        firstName="Priya"
+        kind="approved"
+        code="P-0004"
+        projectName="Bluewave booking website"
+        moduleName="Flight booking"
+        round={2}
+        byName="Sarah Mitchell"
+        link={`${siteUrl}/team/projects/P-0004/modules`}
       />
     ),
   },

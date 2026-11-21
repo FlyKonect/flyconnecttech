@@ -15,6 +15,7 @@ const ROWS = [
   'Daily digest of requests waiting for review',
   'Weekly summary of my requests',
   'Project update posted',
+  'Module review',
   'Demo requested',
   'Demo confirmed or rescheduled',
   'Demo cancelled',

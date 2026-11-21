@@ -6,8 +6,12 @@ import {
   itemLinesProblem,
   itemsFromLines,
   MAX_ITEMS,
+  modulesWords,
   progressWords,
   shortAddress,
+  stagesFor,
+  stepperSteps,
+  type ProjectModule,
 } from "@/lib/projects";
 import { addProjectSchema, projectDetailsSchema } from "@/lib/team/forms";
 
@@ -96,5 +100,70 @@ describe("the project forms", () => {
     expect(
       addProjectSchema.safeParse({ ...project, customerId: "c1" }).success,
     ).toBe(true);
+  });
+});
+
+describe("module stages on the stepper", () => {
+  const at = (to: ProjectModule["stage"], day: number) => ({
+    id: `${to}-${day}`,
+    from: null,
+    to,
+    round: 1,
+    note: null,
+    createdAt: `2026-11-${String(day).padStart(2, "0")}T10:00:00.000Z`,
+    by: null,
+  });
+
+  test("done steps, the current one, and the ones to come", () => {
+    const steps = stepperSteps({
+      stage: "TESTING",
+      history: [at("NOT_STARTED", 1), at("DEVELOPMENT", 2), at("TESTING", 5)],
+    });
+    expect(steps.map((s) => [s.stage, s.state])).toEqual([
+      ["DESIGN", "done"],
+      ["DEVELOPMENT", "done"],
+      ["TESTING", "current"],
+      ["CLIENT_REVIEW", "next"],
+      ["DONE", "next"],
+    ]);
+    expect(steps[1].at).toBe("2026-11-02T10:00:00.000Z");
+    expect(steps[3].at).toBeNull();
+  });
+
+  test("rework shows on its step: changes on Development, retest on Testing", () => {
+    const changes = stepperSteps({
+      stage: "CHANGES_REQUESTED",
+      history: [at("CLIENT_REVIEW", 4), at("CHANGES_REQUESTED", 6)],
+    });
+    expect(changes[1]).toMatchObject({
+      stage: "DEVELOPMENT",
+      state: "current",
+      rework: "CHANGES_REQUESTED",
+      at: "2026-11-06T10:00:00.000Z",
+    });
+    const retest = stepperSteps({ stage: "RETEST", history: [] });
+    expect(retest[2]).toMatchObject({ state: "current", rework: "RETEST" });
+  });
+
+  test("Not started has nothing done; Done ticks every step", () => {
+    expect(
+      stepperSteps({ stage: "NOT_STARTED", history: [] }).every(
+        (s) => s.state === "next",
+      ),
+    ).toBe(true);
+    expect(
+      stepperSteps({ stage: "DONE", history: [] }).every(
+        (s) => s.state === "done",
+      ),
+    ).toBe(true);
+  });
+
+  test("who may move a module where", () => {
+    expect(stagesFor("ADMIN")).toContain("DONE");
+    expect(stagesFor("DEVELOPER")).not.toContain("DONE");
+    expect(stagesFor("DEVELOPER")).toContain("CLIENT_REVIEW");
+    expect(stagesFor("MANAGER")).toEqual([]);
+    expect(modulesWords(2, 5)).toBe("2 of 5 modules done");
+    expect(modulesWords(1, 1)).toBe("1 of 1 module done");
   });
 });

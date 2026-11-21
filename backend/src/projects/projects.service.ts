@@ -14,7 +14,7 @@ import type {
   ProjectItemStatus,
   ProjectStatus,
 } from '../generated/prisma/client.js';
-import { can } from '../policies/policies.js';
+import { can, projectScope } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { OPEN_STATUSES } from '../requests/status-rules.js';
 import {
@@ -22,6 +22,8 @@ import {
   type UploadedFile,
 } from '../uploads/file-storage.service.js';
 import { ProjectEventsService } from './project-events.service.js';
+import { isLate } from './module-rules.js';
+import { createModule, GENERAL_MODULE } from './module-writes.js';
 import {
   calendarDay,
   MAX_ITEMS,
@@ -63,14 +65,41 @@ const pageSelect = {
   deletedAt: true,
   customerId: true,
   lead: { select: { id: true, name: true, jobTitle: true } },
-  items: {
+  // Every item, for the project's progress.
+  items: { select: { status: true } },
+  modules: {
     orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
     select: {
       id: true,
-      title: true,
-      detail: true,
-      status: true,
+      name: true,
+      description: true,
+      stage: true,
+      round: true,
+      startDate: true,
+      targetDate: true,
       doneAt: true,
+      items: {
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+        select: {
+          id: true,
+          title: true,
+          detail: true,
+          status: true,
+          doneAt: true,
+        },
+      },
+      stages: {
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        select: {
+          id: true,
+          from: true,
+          to: true,
+          round: true,
+          note: true,
+          createdAt: true,
+          by: { select: { name: true } },
+        },
+      },
     },
   },
   updates: {
@@ -111,7 +140,29 @@ export function sharedPage(project: PageRow) {
     updatedAt: project.updatedAt,
     lead: project.lead,
     progress: progressOf(project.items),
-    items: project.items,
+    modulesDone: project.modules.filter((m) => m.stage === 'DONE').length,
+    modules: project.modules.map((module) => ({
+      id: module.id,
+      name: module.name,
+      description: module.description,
+      stage: module.stage,
+      round: module.round,
+      startDate: calendarDay(module.startDate),
+      targetDate: calendarDay(module.targetDate),
+      doneAt: module.doneAt,
+      late: isLate(module),
+      progress: progressOf(module.items),
+      items: module.items,
+      history: module.stages.map((change) => ({
+        id: change.id,
+        from: change.from,
+        to: change.to,
+        round: change.round,
+        note: change.note,
+        createdAt: change.createdAt,
+        by: change.by?.name ?? null,
+      })),
+    })),
     updates: project.updates.map((update) => ({
       id: update.id,
       body: update.body,
@@ -149,6 +200,7 @@ export class ProjectsService {
   ) {
     const search = options.q?.trim();
     const base: Prisma.ProjectWhereInput = {
+      ...projectScope(actor),
       customer: { deletedAt: null },
       ...(options.customerId ? { customerId: options.customerId } : {}),
     };
@@ -203,6 +255,7 @@ export class ProjectsService {
           customer: { select: { id: true, company: true } },
           lead: { select: { name: true } },
           items: { select: { status: true } },
+          modules: { select: { stage: true } },
         },
       }),
     ]);
@@ -228,17 +281,22 @@ export class ProjectsService {
         deleted,
       },
       can: {
-        manage: can(actor, 'customers.manage'),
+        manage: can(actor, 'projects.manage'),
         delete: can(actor, 'projects.delete'),
       },
       total,
       page: window.page,
       pageSize: window.pageSize,
-      rows: rows.map(({ items, targetDate, ...row }) => ({
+      rows: rows.map(({ items, modules, targetDate, ...row }) => ({
         ...row,
         targetDate: calendarDay(targetDate),
         lead: row.lead?.name ?? null,
         progress: progressOf(items),
+        modules: {
+          done: modules.filter((m) => m.stage === 'DONE').length,
+          total: modules.length,
+          inReview: modules.filter((m) => m.stage === 'CLIENT_REVIEW').length,
+        },
         openRequests:
           open.find((count) => count.projectId === row.id)?._count._all ?? 0,
       })),
@@ -262,10 +320,18 @@ export class ProjectsService {
 
   async detail(actor: SignedIn, code: string) {
     const project = await this.prisma.project.findFirst({
-      where: { code, customer: { deletedAt: null } },
+      where: { code, ...projectScope(actor), customer: { deletedAt: null } },
       select: {
         ...pageSelect,
         teamNotes: true,
+        members: {
+          orderBy: { createdAt: 'asc' },
+          select: {
+            user: {
+              select: { id: true, name: true, jobTitle: true, role: true },
+            },
+          },
+        },
         deletedBy: { select: { name: true } },
         customer: {
           select: {
@@ -277,7 +343,7 @@ export class ProjectsService {
       },
     });
     if (!project) throw notFound();
-    const manage = can(actor, 'customers.manage');
+    const manage = can(actor, 'projects.manage');
     const [open, total] = await Promise.all([
       this.prisma.supportRequest.count({
         where: { projectId: project.id, status: { in: [...OPEN_STATUSES] } },
@@ -296,11 +362,20 @@ export class ProjectsService {
         contactStatus: project.customer.contactUser?.status ?? null,
       },
       requests: { open, total },
+      members: project.members.map((member) => member.user),
       can: {
         manage: manage && !project.deletedAt,
+        work: can(actor, 'projects.work') && !project.deletedAt,
         delete: can(actor, 'projects.delete'),
+        // Developers can't open customers.
+        viewCustomer: can(actor, 'customers.view'),
       },
       leadChoices: manage ? await this.leadChoices() : [],
+      memberChoices: manage
+        ? (await this.leadChoices()).filter(
+            (user) => !project.members.some((m) => m.user.id === user.id),
+          )
+        : [],
     };
   }
 
@@ -328,12 +403,18 @@ export class ProjectsService {
           startDate: input.startDate,
           targetDate: input.targetDate,
           leadId: input.leadId,
-          items: {
-            create: input.items.map((title, position) => ({ title, position })),
-          },
         },
         select: { id: true, code: true },
       });
+      // "What's included" goes into a first module, "General".
+      if (input.items.length) {
+        await createModule(tx, {
+          projectId: project.id,
+          name: GENERAL_MODULE,
+          items: input.items,
+          byId: actor.id,
+        });
+      }
       await this.audit.record(
         {
           actorId: actor.id,
@@ -405,14 +486,19 @@ export class ProjectsService {
 
   // ------------------------------------------------------------ items
 
-  /** Adds items at the end of the list, several lines at once. */
-  async addItems(code: string, titles: string[]) {
+  /** Adds items at the end of a module, several lines at once. */
+  async addItems(code: string, moduleId: string, titles: string[]) {
     return this.prisma.$transaction(async (tx) => {
       const project = await this.findActive(code, tx);
+      const module = await tx.projectModule.findFirst({
+        where: { id: moduleId, projectId: project.id },
+        select: { id: true },
+      });
+      if (!module) throw notFound();
       const [count, last] = await Promise.all([
-        tx.projectItem.count({ where: { projectId: project.id } }),
+        tx.projectItem.count({ where: { moduleId: module.id } }),
         tx.projectItem.findFirst({
-          where: { projectId: project.id },
+          where: { moduleId: module.id },
           orderBy: { position: 'desc' },
           select: { position: true },
         }),
@@ -420,18 +506,42 @@ export class ProjectsService {
       if (count + titles.length > MAX_ITEMS) {
         throw new BadRequestException({
           code: 'TOO_MANY_ITEMS',
-          message: `A project can list up to ${MAX_ITEMS} items. It has ${count}.`,
+          message: `A module can list up to ${MAX_ITEMS} items. It has ${count}.`,
         });
       }
-      const start = (last?.position ?? -1) + 1;
+      const first = (last?.position ?? -1) + 1;
       await tx.projectItem.createMany({
         data: titles.map((title, index) => ({
           projectId: project.id,
+          moduleId: module.id,
           title,
-          position: start + index,
+          position: first + index,
         })),
       });
       return { added: titles.length };
+    }, TX);
+  }
+
+  /**
+   * Ticks an item: its status only. Developers on the project team may do
+   * this (projectScope keeps them to their own projects).
+   */
+  async setItemStatus(
+    actor: SignedIn,
+    code: string,
+    itemId: string,
+    status: ProjectItemStatus,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const item = await this.findItem(code, itemId, tx, actor);
+      await tx.projectItem.update({
+        where: { id: item.id },
+        data: {
+          status,
+          doneAt: status === 'DONE' ? (item.doneAt ?? new Date()) : null,
+        },
+      });
+      return { id: item.id, status };
     }, TX);
   }
 
@@ -466,8 +576,9 @@ export class ProjectsService {
   async moveItem(code: string, itemId: string, direction: 'up' | 'down') {
     return this.prisma.$transaction(async (tx) => {
       const item = await this.findItem(code, itemId, tx);
+      // Within its module.
       const items = await tx.projectItem.findMany({
-        where: { projectId: item.projectId },
+        where: { moduleId: item.moduleId },
         orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         select: { id: true },
       });
@@ -596,9 +707,16 @@ export class ProjectsService {
   }
 
   /** A file on an update, for the team (deleted projects too). */
-  async file(code: string, fileId: string) {
+  async file(actor: SignedIn, code: string, fileId: string) {
     const file = await this.prisma.projectFile.findFirst({
-      where: { id: fileId, project: { code, customer: { deletedAt: null } } },
+      where: {
+        id: fileId,
+        project: {
+          code,
+          ...projectScope(actor),
+          customer: { deletedAt: null },
+        },
+      },
       select: {
         fileName: true,
         contentType: true,
@@ -620,12 +738,14 @@ export class ProjectsService {
   async remove(actor: SignedIn, code: string) {
     return this.prisma.$transaction(async (tx) => {
       const project = await this.findActive(code, tx);
-      const [open, requests, updates] = await Promise.all([
+      const [open, requests, updates, topics, modules] = await Promise.all([
         tx.supportRequest.count({
           where: { projectId: project.id, status: { in: [...OPEN_STATUSES] } },
         }),
         tx.supportRequest.count({ where: { projectId: project.id } }),
         tx.projectUpdate.count({ where: { projectId: project.id } }),
+        tx.projectTopic.count({ where: { projectId: project.id } }),
+        tx.projectModule.count({ where: { projectId: project.id } }),
       ]);
       if (open) {
         throw new ConflictException({
@@ -634,7 +754,8 @@ export class ProjectsService {
           message: `Move or close its ${open} open request${open > 1 ? 's' : ''} first.`,
         });
       }
-      const forGood = !requests && !updates;
+      // Modules and discussions are history too.
+      const forGood = !requests && !updates && !topics && !modules;
       if (forGood) {
         await tx.project.delete({ where: { id: project.id } });
       } else {
@@ -693,8 +814,8 @@ export class ProjectsService {
 
   // ------------------------------------------------------------ helpers
 
-  /** Active team members who can lead a project. */
-  private leadChoices() {
+  /** Active team members who can lead or join a project. */
+  leadChoices() {
     return this.prisma.user.findMany({
       where: { role: { in: [...TEAM_ROLES] }, status: 'ACTIVE' },
       orderBy: { name: 'asc' },
@@ -717,12 +838,19 @@ export class ProjectsService {
   }
 
   /** A project that is not deleted, of a customer that is not deleted. */
-  private async findActive(
+  async findActive(
     code: string,
     tx: Prisma.TransactionClient = this.prisma,
+    /** Keeps a developer to the projects they are on. */
+    actor?: SignedIn,
   ) {
     const project = await tx.project.findFirst({
-      where: { code, deletedAt: null, customer: { deletedAt: null } },
+      where: {
+        code,
+        deletedAt: null,
+        customer: { deletedAt: null },
+        ...(actor ? projectScope(actor) : {}),
+      },
       select: {
         id: true,
         code: true,
@@ -739,8 +867,9 @@ export class ProjectsService {
     code: string,
     itemId: string,
     tx: Prisma.TransactionClient,
+    actor?: SignedIn,
   ) {
-    const project = await this.findActive(code, tx);
+    const project = await this.findActive(code, tx, actor);
     const item = await tx.projectItem.findFirst({
       where: { id: itemId, projectId: project.id },
     });

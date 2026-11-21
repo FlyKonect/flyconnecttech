@@ -31,6 +31,9 @@ import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { StatCard } from "@/components/ui/stat-card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { StageStepper } from "@/components/ui/stage-stepper";
+import { ProjectTimeline } from "@/components/shell/project-timeline";
+import type { ProjectModule } from "@/lib/projects";
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill } from "@/components/ui/pill";
 import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
@@ -93,6 +96,80 @@ const sampleRequests: SampleRequest[] = [
   },
 ];
 
+/** Three sample modules: done, in review, and reworked (round 2). */
+const move = (
+  id: string,
+  to: ProjectModule["stage"],
+  day: number,
+  round = 1,
+): ProjectModule["history"][number] => ({
+  id,
+  from: null,
+  to,
+  round,
+  note: null,
+  createdAt: `2026-11-${String(day).padStart(2, "0")}T10:00:00.000Z`,
+  by: "Priya Nair",
+});
+const sampleModules: ProjectModule[] = [
+  {
+    id: "m1",
+    name: "Design",
+    description: null,
+    stage: "DONE",
+    round: 1,
+    startDate: "2026-11-02",
+    targetDate: "2026-11-13",
+    doneAt: "2026-11-12T10:00:00.000Z",
+    late: false,
+    progress: { done: 2, total: 2, percent: 100 },
+    items: [],
+    history: [
+      move("a", "NOT_STARTED", 2),
+      move("b", "DESIGN", 3),
+      move("c", "DONE", 12),
+    ],
+  },
+  {
+    id: "m2",
+    name: "Flight booking",
+    description: null,
+    stage: "CLIENT_REVIEW",
+    round: 1,
+    startDate: "2026-11-09",
+    targetDate: "2026-11-27",
+    doneAt: null,
+    late: false,
+    progress: { done: 3, total: 3, percent: 100 },
+    items: [],
+    history: [
+      move("d", "NOT_STARTED", 9),
+      move("e", "DEVELOPMENT", 10),
+      move("f", "TESTING", 18),
+      move("g", "CLIENT_REVIEW", 20),
+    ],
+  },
+  {
+    id: "m3",
+    name: "Payments",
+    description: null,
+    stage: "CHANGES_REQUESTED",
+    round: 2,
+    startDate: "2026-11-10",
+    targetDate: "2026-11-19",
+    doneAt: null,
+    late: true,
+    progress: { done: 1, total: 2, percent: 50 },
+    items: [],
+    history: [
+      move("h", "NOT_STARTED", 10),
+      move("i", "DEVELOPMENT", 11),
+      move("j", "CLIENT_REVIEW", 17),
+      move("k", "CHANGES_REQUESTED", 19, 2),
+    ],
+  },
+];
+
 const pillGroupTitles: Record<PillGroup, string> = {
   requestStatus: "Request status",
   priority: "Priority",
@@ -100,6 +177,8 @@ const pillGroupTitles: Record<PillGroup, string> = {
   userStatus: "Account",
   projectStatus: "Project",
   projectItemStatus: "Project item",
+  moduleStage: "Module stage",
+  moduleFlag: "Module flags",
   demoStatus: "Demo requests",
   quoteStatus: "Quote requests",
   contactStatus: "Messages",
@@ -437,6 +516,14 @@ export function ComponentGallery() {
               size="lg"
             />
             <ProgressBar progress={{ done: 0, total: 0, percent: null }} />
+          </div>
+        </Section>
+
+        <Section title="Stage stepper and timeline (modules)">
+          <div className="grid gap-6">
+            <StageStepper module={sampleModules[1]} />
+            <StageStepper module={sampleModules[2]} />
+            <ProjectTimeline modules={sampleModules} zone="Europe/London" />
           </div>
         </Section>
 

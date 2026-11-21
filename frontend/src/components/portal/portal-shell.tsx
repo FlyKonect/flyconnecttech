@@ -50,7 +50,8 @@ export function portalTitle(pathname: string): string {
       : `Request ${decodeURIComponent(request[1])}`;
   }
   // One project: "Project P-0004".
-  const project = /^\/portal\/projects\/([^/]+)\/?$/.exec(pathname);
+  // Its tabs too: /portal/projects/P-0004/modules.
+  const project = /^\/portal\/projects\/([^/]+)(?:\/[^/]+)*\/?$/.exec(pathname);
   if (project) return `Project ${decodeURIComponent(project[1])}`;
   const match = titles.find(
     ([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`),

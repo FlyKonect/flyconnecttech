@@ -31,10 +31,10 @@ export const ITEM_STATUSES = Object.values(ProjectItemStatus) as [
   ...ProjectItemStatus[],
 ];
 
-const tooLong = (max: number) => `Keep this under ${max} characters`;
+export const tooLong = (max: number) => `Keep this under ${max} characters`;
 
 /** Empty means "not given": saved as null. */
-const optionalText = (max: number) =>
+export const optionalText = (max: number) =>
   z
     .string()
     .trim()
@@ -44,7 +44,7 @@ const optionalText = (max: number) =>
     .transform((value) => value || null);
 
 /** A UK calendar date "2026-11-21", or empty. Saved at midnight UTC. */
-const optionalDate = z
+export const optionalDate = z
   .string()
   .trim()
   .optional()
@@ -167,8 +167,15 @@ export const customerProjectSchema = z.object({
   items: itemLinesSchema,
 });
 
+/** Add items to one module, several lines at once. */
 export const addItemsSchema = z.object({
+  moduleId: z.uuid('Choose a module'),
   lines: itemLinesSchema.refine((items) => items.length > 0, 'Add one item'),
+});
+
+/** Tick an item (developers on the project team may do this). */
+export const itemStatusSchema = z.object({
+  status: z.enum(ITEM_STATUSES, 'Choose a status'),
 });
 
 export const itemSchema = z

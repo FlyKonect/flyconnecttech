@@ -37,6 +37,7 @@ describe("the title in the team panel header", () => {
     expect(teamTitle("/team/projects")).toBe("Projects");
     expect(teamTitle("/team/projects/new")).toBe("Add project");
     expect(teamTitle("/team/projects/P-0004")).toBe("Project P-0004");
+    expect(teamTitle("/team/projects/P-0004/modules")).toBe("Project P-0004");
   });
 
   test("a single request shows its code", () => {

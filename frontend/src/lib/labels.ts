@@ -101,6 +101,34 @@ export const projectItemStatuses: Record<ProjectItemStatus, WithTone> = {
   DONE: { label: "Done", tone: GREEN },
 };
 
+/** Where a module has reached (its stage). */
+export type ModuleStage =
+  | "NOT_STARTED"
+  | "DESIGN"
+  | "DEVELOPMENT"
+  | "TESTING"
+  | "CLIENT_REVIEW"
+  | "CHANGES_REQUESTED"
+  | "RETEST"
+  | "DONE";
+
+export const moduleStages: Record<ModuleStage, WithTone> = {
+  NOT_STARTED: { label: "Not started", tone: SLATE },
+  DESIGN: { label: "Design", tone: VIOLET },
+  DEVELOPMENT: { label: "Development", tone: BLUE },
+  TESTING: { label: "Testing", tone: SKY },
+  CLIENT_REVIEW: { label: "Client review", tone: AMBER },
+  CHANGES_REQUESTED: { label: "Changes requested", tone: ORANGE },
+  RETEST: { label: "Retest", tone: SKY },
+  DONE: { label: "Done", tone: GREEN },
+};
+
+/** A module past its target day. */
+export const moduleFlags = {
+  LATE: { label: "Late", tone: RED },
+  REVIEW_WAITING: { label: "Waiting for your review", tone: AMBER },
+} satisfies Record<string, WithTone>;
+
 // ------------------------------------------------------ Support requests
 
 export type RequestType =
@@ -293,7 +321,9 @@ export type NotificationKind =
   | "review"
   | "invite"
   | "lead"
-  | "project";
+  | "project"
+  | "module"
+  | "discussion";
 
 /** Dot colour of a notification row, by kind. */
 export const notificationDots: Record<NotificationKind, string> = {
@@ -309,6 +339,8 @@ export const notificationDots: Record<NotificationKind, string> = {
   review: "#CA8A04",
   lead: "#D3AF34",
   project: "#0369A1",
+  module: "#CA8A04",
+  discussion: "#0C3584",
 };
 
 /** The small heading above a notification's text (screens 14 and 32). */
@@ -325,6 +357,8 @@ export const notificationHeadings: Record<NotificationKind, string> = {
   invite: "Invitation",
   lead: "Website",
   project: "Project update",
+  module: "Module review",
+  discussion: "Discussion",
 };
 
 // ---------------------------------------------------------- Website content
@@ -367,6 +401,8 @@ export const pillGroups = {
   userStatus: userStatuses,
   projectStatus: projectStatuses,
   projectItemStatus: projectItemStatuses,
+  moduleStage: moduleStages,
+  moduleFlag: moduleFlags,
   priority: priorities,
   requestStatus: requestStatuses,
   sla: slaStates,

@@ -2,106 +2,100 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import {
+  loadPortalProject,
+  PortalProjectFrame,
+} from "@/components/portal/portal-project-frame";
 import { PageLoading } from "@/components/shell/page-loading";
 import {
-  ItemRow,
   ProjectFacts,
   projectCard,
   UpdatesList,
 } from "@/components/shell/project-parts";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants, TextLink } from "@/components/ui/button";
 import { LabelPill } from "@/components/ui/pill";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { env } from "@/env";
-import { serverApi } from "@/lib/api-server";
-import { requireCustomer } from "@/lib/auth/server";
-import { projectTypes } from "@/lib/labels";
-import type { PortalProjectPage } from "@/lib/portal/types";
 import { plural } from "@/lib/plural";
+import { formatDay } from "@/lib/projects";
 import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Project" };
 
-/** One of the customer's projects: details, what's included, updates. */
-async function PortalProjectContent({
+/** One of the customer's projects: its modules at a glance and details. */
+async function PortalOverviewContent({
   params,
 }: PageProps<"/portal/projects/[code]">) {
   const { code } = await params;
-  const me = await requireCustomer();
-  const project = await serverApi<PortalProjectPage>(
-    `/portal/projects/${encodeURIComponent(code)}`,
-  );
-  const zone = me.timezone;
-  const fileHref = (id: string) =>
-    `${env.NEXT_PUBLIC_API_URL}/portal/projects/${encodeURIComponent(project.code)}/files/${id}`;
+  const { me, project } = await loadPortalProject(code);
+  const tab = (name: string) => routes.portalProjectTab(project.code, name);
 
   return (
-    <>
-      <div>
-        <Link
-          href={routes.portalProjects}
-          className="inline-flex min-h-9 items-center text-sm font-bold text-gold-text hover:underline"
-        >
-          ← My Projects
-        </Link>
-      </div>
-
-      <section
-        aria-label="Project"
-        className={`${projectCard} flex flex-col gap-4`}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-muted-foreground">
-              {project.code} · {projectTypes[project.type].label}
-            </p>
-            <h1 className="mt-1 flex flex-wrap items-center gap-2.5 font-heading text-[22px] font-bold tracking-[-0.02em]">
-              {project.name}
-              <LabelPill group="projectStatus" value={project.status} />
-            </h1>
-          </div>
-          <Link
-            href={`${routes.portalNewRequest}?project=${encodeURIComponent(project.code)}`}
-            className={buttonVariants()}
-          >
-            Create support request for this project
-          </Link>
-        </div>
-        <ProgressBar
-          progress={project.progress}
-          label={project.name}
-          size="lg"
-          className="max-w-[560px]"
-        />
-      </section>
-
+    <PortalProjectFrame project={project} tab="">
       <div className="flex flex-wrap items-start gap-5">
         <div className="flex min-w-0 flex-[1.6_1_520px] flex-col gap-4">
-          <section aria-labelledby="included-heading" className={projectCard}>
-            <h2 id="included-heading" className="text-[17px] font-bold">
-              What&apos;s included · {project.items.length}
-            </h2>
-            {project.items.length ? (
+          <section aria-labelledby="modules-heading" className={projectCard}>
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="modules-heading" className="text-[17px] font-bold">
+                Modules · {project.modules.length}
+              </h2>
+              <TextLink href={tab("modules")} className="font-bold">
+                Open modules
+              </TextLink>
+            </div>
+            {project.modules.length ? (
               <ul className="mt-2">
-                {project.items.map((item) => (
-                  <ItemRow key={item.id} item={item} zone={zone} />
+                {project.modules.map((module) => (
+                  <li
+                    key={module.id}
+                    className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line-3 py-3 first:border-t-0"
+                  >
+                    <span className="min-w-0 flex-[1_1_200px]">
+                      <span className="block text-[15px] font-bold">
+                        {module.name}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        {module.targetDate
+                          ? `Target ${formatDay(module.targetDate)}`
+                          : "No target date"}
+                      </span>
+                    </span>
+                    <span className="flex flex-wrap gap-1.5">
+                      {module.stage === "CLIENT_REVIEW" ? (
+                        <LabelPill group="moduleFlag" value="REVIEW_WAITING" />
+                      ) : (
+                        <LabelPill group="moduleStage" value={module.stage} />
+                      )}
+                    </span>
+                    <ProgressBar
+                      progress={module.progress}
+                      label={module.name}
+                      className="w-[200px] max-app:w-full"
+                    />
+                  </li>
                 ))}
               </ul>
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">
-                Our team hasn&apos;t listed what this project includes yet.
+                Our team hasn&apos;t set up the modules yet.
               </p>
             )}
           </section>
-
-          <section aria-labelledby="updates-heading" className={projectCard}>
-            <h2 id="updates-heading" className="text-[17px] font-bold">
-              Updates · {project.updates.length}
-            </h2>
+          <section aria-labelledby="latest-heading" className={projectCard}>
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="latest-heading" className="text-[17px] font-bold">
+                Latest update
+              </h2>
+              <TextLink href={tab("updates")} className="font-bold">
+                All updates
+              </TextLink>
+            </div>
             <UpdatesList
-              updates={project.updates}
-              zone={zone}
-              fileHref={fileHref}
+              updates={project.updates.slice(0, 1)}
+              zone={me.timezone}
+              fileHref={(id) =>
+                `${env.NEXT_PUBLIC_API_URL}/portal/projects/${encodeURIComponent(project.code)}/files/${id}`
+              }
               empty="No updates yet. We post one here, and email you, when there is progress to share."
             />
           </section>
@@ -119,7 +113,6 @@ async function PortalProjectContent({
             ) : null}
             <ProjectFacts project={project} lead={project.lead} />
           </section>
-
           <section aria-labelledby="requests-heading" className={projectCard}>
             <h2 id="requests-heading" className="text-[17px] font-bold">
               Support requests
@@ -139,7 +132,7 @@ async function PortalProjectContent({
           </section>
         </div>
       </div>
-    </>
+    </PortalProjectFrame>
   );
 }
 
@@ -149,7 +142,7 @@ export default function PortalProjectPage(
 ) {
   return (
     <Suspense fallback={<PageLoading />}>
-      <PortalProjectContent {...props} />
+      <PortalOverviewContent {...props} />
     </Suspense>
   );
 }

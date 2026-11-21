@@ -82,7 +82,8 @@ export function teamTitle(pathname: string): string {
   if (path === routes.teamNewUser) return "Add user";
   if (path === routes.teamNewProject) return "Add project";
   // One project: "Project P-0004".
-  const project = /^\/team\/projects\/([^/]+)$/.exec(path);
+  // Its tabs too: /team/projects/P-0004/modules.
+  const project = /^\/team\/projects\/([^/]+)(?:\/[^/]+)*$/.exec(path);
   if (project) return `Project ${decodeURIComponent(project[1])}`;
   // One customer. The page adds the company with <TeamPageTitle>.
   if (path.startsWith(`${routes.teamCustomers}/`)) return "Customer";

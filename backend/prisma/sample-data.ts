@@ -18,6 +18,7 @@ import { hashPassword } from 'better-auth/crypto';
 import { loginKeyFor } from '../src/accounts/login-key.js';
 import { nextCode } from '../src/codes/readable-codes.js';
 import type {
+  ModuleStage,
   Budget,
   DemoTopic,
   MessageTopic,
@@ -184,63 +185,142 @@ const PROJECT_NAMES: [string, ProjectType][] = [
   ['support plan', 'MAINTENANCE_PLAN'],
   ['back office system', 'CUSTOM_SOFTWARE'],
 ];
-/** What a sample project includes, and the updates on it. */
-const SAMPLE_ITEMS = [
-  'Discovery and plan',
-  'Designs',
-  'Flight search',
-  'Hotel search',
-  'Stripe payments',
-  'Confirmation emails',
-  'Testing',
-  'Launch',
+/** A sample project's modules and items, and the updates on it. */
+const SAMPLE_MODULES: { name: string; items: string[] }[] = [
+  { name: 'Design', items: ['Discovery and plan', 'Designs'] },
+  { name: 'Flight booking', items: ['Flight search', 'Fare rules', 'Seats'] },
+  { name: 'Payments', items: ['Stripe payments', 'Confirmation emails'] },
+  { name: 'Launch', items: ['Testing', 'Go live'] },
 ];
 const SAMPLE_UPDATES = [
   'Designs are signed off. We start building the search pages this week.',
   'Flight search is ready to try on the test site. Next up: payments.',
 ];
 
+/** The stages each module has passed, by the project's status. */
+const PATHS: Record<ProjectStatus, ModuleStage[][]> = {
+  PLANNING: [
+    ['NOT_STARTED'],
+    ['NOT_STARTED'],
+    ['NOT_STARTED'],
+    ['NOT_STARTED'],
+  ],
+  IN_DESIGN: [
+    ['NOT_STARTED', 'DESIGN'],
+    ['NOT_STARTED'],
+    ['NOT_STARTED'],
+    ['NOT_STARTED'],
+  ],
+  // One module waits for the client's review; one is on its second round.
+  IN_DEVELOPMENT: [
+    ['NOT_STARTED', 'DESIGN', 'CLIENT_REVIEW', 'DONE'],
+    ['NOT_STARTED', 'DEVELOPMENT', 'TESTING', 'CLIENT_REVIEW'],
+    [
+      'NOT_STARTED',
+      'DEVELOPMENT',
+      'TESTING',
+      'CLIENT_REVIEW',
+      'CHANGES_REQUESTED',
+      'DEVELOPMENT',
+    ],
+    ['NOT_STARTED'],
+  ],
+  LIVE: SAMPLE_MODULES.map(() => [
+    'NOT_STARTED',
+    'DEVELOPMENT',
+    'TESTING',
+    'CLIENT_REVIEW',
+    'DONE',
+  ]),
+  COMPLETED: SAMPLE_MODULES.map(() => [
+    'NOT_STARTED',
+    'DEVELOPMENT',
+    'TESTING',
+    'CLIENT_REVIEW',
+    'DONE',
+  ]),
+};
+
 /**
- * Items (the first few Done, how many depends on the status) and one or
- * two updates, so the project pages and My Projects have progress.
+ * Modules at stages that fit the project's status (with their timeline),
+ * their items, a developer on the team and one or two updates, so the
+ * project pages and My Projects have something to show.
  */
 async function addProgress(
   projectId: string,
   status: ProjectStatus,
   authorId: string,
 ) {
-  const done = {
-    PLANNING: 0,
-    IN_DESIGN: 1,
-    IN_DEVELOPMENT: 4,
-    LIVE: 8,
-    COMPLETED: 8,
-  }[status];
-  await prisma.projectItem.createMany({
-    data: SAMPLE_ITEMS.map((title, position) => ({
-      projectId,
-      title,
-      position,
-      status:
-        position < done ? 'DONE' : position === done ? 'IN_PROGRESS' : 'TODO',
-      doneAt: position < done ? new Date() : null,
-    })),
-  });
+  const day = 24 * 60 * 60 * 1000;
+  for (const [index, sample] of SAMPLE_MODULES.entries()) {
+    const path = PATHS[status][index];
+    const stage = path[path.length - 1];
+    const round = path.includes('CHANGES_REQUESTED') ? 2 : 1;
+    const started = Date.now() - 30 * day + index * 5 * day;
+    const module = await prisma.projectModule.create({
+      data: {
+        projectId,
+        name: sample.name,
+        position: index,
+        stage,
+        round,
+        doneAt: stage === 'DONE' ? new Date() : null,
+        targetDate: new Date(
+          new Date(started + 21 * day).toISOString().slice(0, 10),
+        ),
+      },
+    });
+    let lineRound = 1;
+    for (const [step, to] of path.entries()) {
+      if (to === 'CHANGES_REQUESTED') lineRound = 2;
+      await prisma.moduleStageChange.create({
+        data: {
+          moduleId: module.id,
+          from: step === 0 ? null : path[step - 1],
+          to,
+          round: lineRound,
+          note:
+            to === 'CHANGES_REQUESTED'
+              ? 'Please show the card fee before the Pay button.'
+              : null,
+          byId: step === 0 ? null : authorId,
+          createdAt: new Date(started + step * 2 * day),
+        },
+      });
+    }
+    await prisma.projectItem.createMany({
+      data: sample.items.map((title, position) => {
+        const done =
+          stage === 'DONE' || (stage !== 'NOT_STARTED' && position === 0);
+        return {
+          projectId,
+          moduleId: module.id,
+          title,
+          position,
+          status: done
+            ? 'DONE'
+            : stage === 'NOT_STARTED'
+              ? 'TODO'
+              : 'IN_PROGRESS',
+          doneAt: done ? new Date() : null,
+        } as const;
+      }),
+    });
+  }
   await prisma.project.update({
     where: { id: projectId },
     data: {
       description: 'Online booking for flights and hotels, with payments.',
       builtWith: 'Next.js, Amadeus, Stripe',
       leadId: authorId,
+      members: { create: { userId: authorId } },
     },
   });
-  if (done > 0) {
+  if (status !== 'PLANNING') {
     await prisma.projectUpdate.createMany({
-      data: SAMPLE_UPDATES.slice(0, done > 3 ? 2 : 1).map((body) => ({
-        projectId,
-        body,
-        authorId,
-      })),
+      data: SAMPLE_UPDATES.slice(0, status === 'IN_DESIGN' ? 1 : 2).map(
+        (body) => ({ projectId, body, authorId }),
+      ),
     });
   }
 }

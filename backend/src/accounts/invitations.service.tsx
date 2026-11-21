@@ -24,6 +24,7 @@ import type {
   Role,
 } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { createModule, GENERAL_MODULE } from '../projects/module-writes.js';
 import { withoutDeletedMark } from './deleted-marks.js';
 import { loginKeyFor, normaliseEmail, sideOfRole } from './login-key.js';
 import {
@@ -189,21 +190,25 @@ export class InvitationsService {
         const codes: string[] = [];
         for (const project of input.projects ?? []) {
           const code = await nextCode(tx, 'project');
-          await tx.project.create({
+          const created = await tx.project.create({
             data: {
               code,
               name: project.name.trim(),
               type: project.type,
               customerId,
               description: project.description ?? null,
-              items: {
-                create: (project.items ?? []).map((title, position) => ({
-                  title,
-                  position,
-                })),
-              },
             },
+            select: { id: true },
           });
+          // "What's included" goes into a first module, "General".
+          if (project.items?.length) {
+            await createModule(tx, {
+              projectId: created.id,
+              name: GENERAL_MODULE,
+              items: project.items,
+              byId: invitedById,
+            });
+          }
           codes.push(code);
         }
         await this.audit.record(

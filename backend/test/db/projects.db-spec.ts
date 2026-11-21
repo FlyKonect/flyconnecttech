@@ -125,13 +125,20 @@ async function newProject(extra: object = {}) {
   return response.body.code as string;
 }
 
+/** The items of the project's first module ("General"). */
 const items = async (code: string) =>
-  (await as(admin).get(`/team/projects/${code}`).expect(200)).body.items as {
+  (await as(admin).get(`/team/projects/${code}`).expect(200)).body.modules[0]
+    .items as {
     id: string;
     title: string;
     status: string;
     doneAt: string | null;
   }[];
+
+/** The id of the project's first module ("General"). */
+const generalId = async (code: string) =>
+  (await as(admin).get(`/team/projects/${code}`).expect(200)).body.modules[0]
+    .id as string;
 
 const audits = (action: string, code: string) =>
   prisma.auditLog.findMany({
@@ -175,7 +182,12 @@ describe('who may see and change projects', () => {
       .expect(200);
 
     const looked = await as(manager).get(`/team/projects/${code}`).expect(200);
-    expect(looked.body.can).toEqual({ manage: false, delete: false });
+    expect(looked.body.can).toEqual({
+      manage: false,
+      work: false,
+      delete: false,
+      viewCustomer: true,
+    });
     expect(looked.body.leadChoices).toEqual([]);
     const list = await as(manager).get(`/team/projects?q=${code}`).expect(200);
     expect(list.body.rows.map((row: { code: string }) => row.code)).toEqual([
@@ -193,8 +205,12 @@ describe('who may see and change projects', () => {
       .post('/team/projects', { customerId: customer.customerId })
       .expect(403);
 
-    await as(developer).get('/team/projects').expect(403);
-    await as(developer).get(`/team/projects/${code}`).expect(403);
+    // Developers see only the projects they are on: not this one.
+    const theirs = await as(developer).get('/team/projects').expect(200);
+    expect(
+      theirs.body.rows.map((row: { code: string }) => row.code),
+    ).not.toContain(code);
+    await as(developer).get(`/team/projects/${code}`).expect(404);
     await as(customer).get(`/team/projects/${code}`).expect(403);
   });
 });
@@ -231,6 +247,13 @@ describe('details, items and progress', () => {
       'Home page',
       'Booking form',
       'Contact page',
+    ]);
+    // "What's included" goes into a first module, "General".
+    const modules = await prisma.projectModule.findMany({
+      where: { projectId: projects[0].id },
+    });
+    expect(modules.map((m) => [m.name, m.stage])).toEqual([
+      ['General', 'NOT_STARTED'],
     ]);
     expect(projects[1].items).toEqual([]);
     expect(projects[1].description).toBeNull();
@@ -314,7 +337,10 @@ describe('details, items and progress', () => {
       })
       .expect(200);
     await as(admin)
-      .post(`/team/projects/${code}/items`, { lines: 'Reports\nTraining' })
+      .post(`/team/projects/${code}/items`, {
+        moduleId: await generalId(code),
+        lines: 'Reports\nTraining',
+      })
       .expect(200);
     await as(admin)
       .post(`/team/projects/${code}/items/${list[3].id}/remove`)
@@ -535,7 +561,10 @@ describe('delete and restore', () => {
     const page = await as(admin).get(`/team/projects/${code}`).expect(200);
     expect(page.body.can.manage).toBe(false);
     await as(admin)
-      .post(`/team/projects/${code}/items`, { lines: 'More' })
+      .post(`/team/projects/${code}/items`, {
+        moduleId: stored.id,
+        lines: 'More',
+      })
       .expect(404);
 
     await as(admin).post(`/team/projects/${code}/restore`).expect(200);
@@ -549,8 +578,8 @@ describe('delete and restore', () => {
     expect(await audits('project.restored', code)).toHaveLength(1);
   });
 
-  it('removes a project with no requests and no updates for good', async () => {
-    const code = await newProject();
+  it('removes a project with no requests, updates, modules or topics for good', async () => {
+    const code = await newProject({ items: '' });
     const deleted = await as(superAdmin)
       .post(`/team/projects/${code}/delete`)
       .expect(200);

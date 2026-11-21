@@ -1,4 +1,5 @@
 import type {
+  ModuleStage,
   ProjectItemStatus,
   ProjectStatus,
   ProjectType,
@@ -61,10 +62,133 @@ export type ProjectPage = {
   createdAt: string;
   updatedAt: string;
   progress: Progress;
-  items: ProjectItem[];
+  modulesDone: number;
+  modules: ProjectModule[];
   updates: ProjectUpdate[];
   requests: { open: number; total: number };
 };
+
+/** A project's modules in numbers (lists and cards). */
+export type ModuleCounts = { done: number; total: number; inReview: number };
+
+/** One move on a module's timeline. */
+export type StageChange = {
+  id: string;
+  from: ModuleStage | null;
+  to: ModuleStage;
+  round: number;
+  note: string | null;
+  createdAt: string;
+  by: string | null;
+};
+
+/** A part of a project with its own items, stage and timeline. */
+export type ProjectModule = {
+  id: string;
+  name: string;
+  description: string | null;
+  stage: ModuleStage;
+  /** 1, and one more each time the customer asked for changes. */
+  round: number;
+  startDate: string | null;
+  targetDate: string | null;
+  doneAt: string | null;
+  late: boolean;
+  progress: Progress;
+  items: ProjectItem[];
+  history: StageChange[];
+};
+
+/** The usual path, as the stepper shows it. */
+export const MAIN_PATH: ModuleStage[] = [
+  "DESIGN",
+  "DEVELOPMENT",
+  "TESTING",
+  "CLIENT_REVIEW",
+  "DONE",
+];
+
+/** Where each stage sits on the usual path (rework sits on its step). */
+const ON_PATH: Record<ModuleStage, number> = {
+  NOT_STARTED: -1,
+  DESIGN: 0,
+  DEVELOPMENT: 1,
+  CHANGES_REQUESTED: 1,
+  TESTING: 2,
+  RETEST: 2,
+  CLIENT_REVIEW: 3,
+  DONE: 4,
+};
+
+export type Step = {
+  stage: ModuleStage;
+  state: "done" | "current" | "next";
+  /** When it was last reached (done and current steps). */
+  at: string | null;
+  /** Rework shown on its step: "Changes requested" or "Retest". */
+  rework: ModuleStage | null;
+};
+
+/**
+ * The stepper's steps: done ones (with the day they were last reached),
+ * the current one (Changes requested shows on Development, Retest on
+ * Testing), and the ones still to come. Done ticks every step.
+ */
+export function stepperSteps(
+  module: Pick<ProjectModule, "stage" | "history">,
+): Step[] {
+  const here = ON_PATH[module.stage];
+  return MAIN_PATH.map((stage, index) => {
+    const reached = [...module.history]
+      .reverse()
+      .find((change) => change.to === stage);
+    const state =
+      module.stage === "DONE" || index < here
+        ? "done"
+        : index === here
+          ? "current"
+          : "next";
+    const rework =
+      state === "current" &&
+      (module.stage === "CHANGES_REQUESTED" || module.stage === "RETEST")
+        ? module.stage
+        : null;
+    const latest = rework
+      ? ([...module.history].reverse().find((c) => c.to === module.stage)
+          ?.createdAt ?? null)
+      : (reached?.createdAt ?? null);
+    return { stage, state, at: state === "next" ? null : latest, rework };
+  });
+}
+
+/**
+ * The stages a person may move a module to: admins any; developers on
+ * the team the working ones and Client review (kept in step with the
+ * backend's module-rules.ts).
+ */
+export function stagesFor(role: string): ModuleStage[] {
+  if (role === "SUPER_ADMIN" || role === "ADMIN") {
+    return [
+      "NOT_STARTED",
+      "DESIGN",
+      "DEVELOPMENT",
+      "TESTING",
+      "CLIENT_REVIEW",
+      "CHANGES_REQUESTED",
+      "RETEST",
+      "DONE",
+    ];
+  }
+  if (role === "DEVELOPER") {
+    return ["DESIGN", "DEVELOPMENT", "TESTING", "RETEST", "CLIENT_REVIEW"];
+  }
+  return [];
+}
+
+/** "2 of 5 modules done". */
+export function modulesWords(done: number, total: number): string {
+  return `${done} of ${total} module${total === 1 ? "" : "s"} done`;
+}
 
 /**
  * "What's included" typed one per line: blanks dropped, bullets and extra

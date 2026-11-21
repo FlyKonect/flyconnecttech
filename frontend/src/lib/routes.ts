@@ -34,6 +34,8 @@ export const routes = {
   portalNewRequest: "/portal/requests/new",
   portalProjects: "/portal/projects",
   portalProject: (code: string) => `/portal/projects/${code}`,
+  portalProjectTab: (code: string, tab: string) =>
+    `/portal/projects/${code}/${tab}`,
   portalNotifications: "/portal/notifications",
   portalProfile: "/portal/profile",
   portalRequest: (code: string) => `/portal/requests/${code}`,
@@ -57,6 +59,8 @@ export const routes = {
   teamProjects: "/team/projects",
   teamNewProject: "/team/projects/new",
   teamProject: (code: string) => `/team/projects/${code}`,
+  teamProjectTab: (code: string, tab: string) =>
+    `/team/projects/${code}/${tab}`,
   teamUsers: "/team/users",
   teamReports: "/team/reports",
   teamNotifications: "/team/notifications",

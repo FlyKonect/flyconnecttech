@@ -14,6 +14,9 @@ describe("the title in the portal header", () => {
 
   test("a single project shows its code", () => {
     expect(portalTitle("/portal/projects/P-0004")).toBe("Project P-0004");
+    expect(portalTitle("/portal/projects/P-0004/timeline")).toBe(
+      "Project P-0004",
+    );
   });
 
   test("a single request shows its code, and its submitted page says so", () => {

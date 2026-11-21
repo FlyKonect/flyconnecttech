@@ -6,7 +6,7 @@ import type {
   RequestStatus,
   RequestType,
 } from "@/lib/labels";
-import type { ProjectPage, Progress } from "@/lib/projects";
+import type { ModuleCounts, ProjectPage, Progress } from "@/lib/projects";
 
 /**
  * What the backend's client portal routes return
@@ -36,6 +36,7 @@ export type PortalProject = {
   targetDate: string | null;
   lead: string | null;
   progress: Progress;
+  modules: ModuleCounts;
 };
 
 /** GET /portal/projects/:code: one of the customer's projects. */

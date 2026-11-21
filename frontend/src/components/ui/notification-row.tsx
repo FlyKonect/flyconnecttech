@@ -8,6 +8,8 @@ import {
   CircleDot,
   Flag,
   FolderKanban,
+  Layers,
+  MessagesSquare,
   Globe,
   Inbox,
   Lock,
@@ -34,6 +36,8 @@ const ICONS: Record<NotificationKind, LucideIcon> = {
   invite: Mail,
   lead: Globe,
   project: FolderKanban,
+  module: Layers,
+  discussion: MessagesSquare,
 };
 
 /**

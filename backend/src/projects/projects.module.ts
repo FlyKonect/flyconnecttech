@@ -4,6 +4,7 @@ import { uploadMulter } from '../uploads/upload-multer.js';
 import { PortalProjectsController } from './portal-projects.controller.js';
 import { PortalProjectsService } from './portal-projects.service.js';
 import { ProjectEventsService } from './project-events.service.js';
+import { ModulesService } from './modules.service.js';
 import { ProjectsService } from './projects.service.js';
 import { TeamProjectsController } from './team-projects.controller.js';
 
@@ -13,6 +14,7 @@ import { TeamProjectsController } from './team-projects.controller.js';
   controllers: [TeamProjectsController, PortalProjectsController],
   providers: [
     ProjectsService,
+    ModulesService,
     PortalProjectsService,
     ProjectEventsService,
     AuditService,

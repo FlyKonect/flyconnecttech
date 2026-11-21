@@ -101,7 +101,7 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
       ...teamOnly,
       "/team/customers": "not found",
       "/team/customers/new": "not found",
-      "/team/projects": "not found",
+      // Developers see the projects they are on.
       "/team/projects/new": "not found",
       "/team/users": "not found",
       "/team/users/new": "not found",

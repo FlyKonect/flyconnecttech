@@ -119,12 +119,13 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
       label: "Customers",
       href: routes.teamCustomers,
     });
-    manage.push({
-      key: "projects",
-      label: "Projects",
-      href: routes.teamProjects,
-    });
   }
+  // Developers see the projects they are on.
+  manage.push({
+    key: "projects",
+    label: isDeveloper ? "My projects" : "Projects",
+    href: routes.teamProjects,
+  });
   if (canSeeUsers) {
     manage.push({ key: "users", label: "Users", href: routes.teamUsers });
   }
@@ -144,8 +145,8 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
   }
 
   sections.push({
-    // Developers have nothing to manage, so their last group has no heading.
-    label: manage.length > 0 ? "MANAGE" : undefined,
+    // Developers only have their projects here: no heading.
+    label: isDeveloper ? undefined : "MANAGE",
     items: [
       ...manage,
       {

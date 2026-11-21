@@ -351,7 +351,7 @@ test("every client portal screen", async ({ page }) => {
   await expectAccessible(page, `/portal/requests/${code} (phone)`);
 });
 
-test("projects: the team's list, page and dialogs, and My Projects", async ({
+test("projects: the team's list, tabs and dialogs, and My Projects", async ({
   page,
   browser,
 }) => {
@@ -359,8 +359,18 @@ test("projects: the team's list, page and dialogs, and My Projects", async ({
   const admin = await createPerson("admin");
   const customer = await createPerson("customer");
   const code = addProject(customer.email, "Harbour booking platform");
+  const { id: moduleId } = (await postAs(
+    admin,
+    `/team/projects/${code}/modules`,
+    { name: "Flight booking", targetDate: "2027-01-15" },
+  )) as { id: string };
   await postAs(admin, `/team/projects/${code}/items`, {
+    moduleId,
     lines: "Flight search\nHotel search\nPayments",
+  });
+  // In client review, so the customer's review box shows.
+  await postAs(admin, `/team/projects/${code}/modules/${moduleId}/stage`, {
+    stage: "CLIENT_REVIEW",
   });
   await postAs(admin, `/team/projects/${code}/updates`, {
     body: "Designs are signed off. We start on flight search next.",
@@ -371,37 +381,55 @@ test("projects: the team's list, page and dialogs, and My Projects", async ({
     "/team/projects",
     "/team/projects/new",
     `/team/projects/${code}`,
+    `/team/projects/${code}/modules`,
+    `/team/projects/${code}/timeline`,
+    `/team/projects/${code}/updates`,
   ]) {
     await page.goto(path);
     await expectAccessible(page, path);
   }
 
-  await page.getByRole("button", { name: "Edit details" }).click();
+  await page.goto(`/team/projects/${code}/modules`);
+  await page.getByRole("button", { name: "Move to…" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expectAccessible(page, "Edit project details dialog");
+  await expectAccessible(page, "Move module dialog");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Actions for Flight search" }).click();
   await expect(page.getByRole("menuitem", { name: "Move down" })).toBeVisible();
   await expectAccessible(page, "Project item menu open");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Edit details" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expectAccessible(page, "Edit project details dialog");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Delete project" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expectAccessible(page, "Delete project dialog");
   await page.keyboard.press("Escape");
   await page.setViewportSize(phone);
-  await page.goto(`/team/projects/${code}`);
-  await expectAccessible(page, `/team/projects/${code} (phone)`);
+  await page.goto(`/team/projects/${code}/modules`);
+  await expectAccessible(page, `/team/projects/${code}/modules (phone)`);
 
   const context = await browser.newContext();
   const portal = await context.newPage();
   await signInBrowser(context, customer);
-  for (const path of ["/portal/projects", `/portal/projects/${code}`]) {
+  for (const path of [
+    "/portal/projects",
+    `/portal/projects/${code}`,
+    `/portal/projects/${code}/modules`,
+    `/portal/projects/${code}/timeline`,
+  ]) {
     await portal.goto(path);
     await expectAccessible(portal, path);
   }
+  await portal.goto(`/portal/projects/${code}/modules`);
+  await portal.getByRole("button", { name: "Request changes" }).click();
+  await expect(portal.getByRole("dialog")).toBeVisible();
+  await expectAccessible(portal, "Request changes dialog");
+  await portal.keyboard.press("Escape");
   await portal.setViewportSize(phone);
-  await portal.goto(`/portal/projects/${code}`);
-  await expectAccessible(portal, `/portal/projects/${code} (phone)`);
+  await portal.goto(`/portal/projects/${code}/modules`);
+  await expectAccessible(portal, `/portal/projects/${code}/modules (phone)`);
   await context.close();
 });
 

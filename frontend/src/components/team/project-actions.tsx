@@ -43,10 +43,11 @@ import {
 import type { TeamProjectPage } from "@/lib/team/types";
 import { addFiles, FILE_ACCEPT } from "@/lib/uploads";
 
-const base = (code: string) => `/team/projects/${encodeURIComponent(code)}`;
+export const base = (code: string) =>
+  `/team/projects/${encodeURIComponent(code)}`;
 
 /** Calls the backend, shows a toast and refreshes the page. */
-function useAction() {
+export function useAction() {
   const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = React.useState(false);
@@ -275,7 +276,9 @@ export function DeleteProjectButton({ project }: { project: TeamProjectPage }) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
   const { open: openRequests, total } = project.requests;
-  const forGood = total === 0 && project.updates.length === 0;
+  // Modules and discussions are history too (the backend decides).
+  const forGood =
+    total === 0 && project.updates.length === 0 && !project.modules.length;
 
   async function remove() {
     setBusy(true);
@@ -382,17 +385,23 @@ export function RestoreProjectButton({ code }: { code: string }) {
 
 // ------------------------------------------------------------ items
 
-/** An item's status dropdown and its "⋯": Edit, Move up, Move down, Remove. */
+/**
+ * An item's status dropdown (admins and team developers) and, for admins,
+ * its "⋯": Edit, Move up, Move down, Remove.
+ */
 export function ItemControls({
   code,
   item,
   first,
   last,
+  manage,
 }: {
   code: string;
   item: ProjectItem;
   first: boolean;
   last: boolean;
+  /** Edit, move and remove (super admins and admins). */
+  manage: boolean;
 }) {
   const { busy, run } = useAction();
   const [editing, setEditing] = React.useState(false);
@@ -408,7 +417,7 @@ export function ItemControls({
         onChange={(event) => {
           const status = event.target.value as ProjectItemStatus;
           void run(
-            path,
+            `${path}/status`,
             { status },
             `${item.title}: ${projectItemStatuses[status].label}`,
           );
@@ -421,32 +430,34 @@ export function ItemControls({
           </option>
         ))}
       </Select>
-      <RowMenu label={`Actions for ${item.title}`}>
-        <RowMenuItem onSelect={() => setEditing(true)}>Edit</RowMenuItem>
-        <RowMenuItem
-          disabled={first}
-          onSelect={() =>
-            run(`${path}/move`, { direction: "up" }, `${item.title} moved up`)
-          }
-        >
-          Move up
-        </RowMenuItem>
-        <RowMenuItem
-          disabled={last}
-          onSelect={() =>
-            run(
-              `${path}/move`,
-              { direction: "down" },
-              `${item.title} moved down`,
-            )
-          }
-        >
-          Move down
-        </RowMenuItem>
-        <RowMenuItem danger onSelect={() => setRemoving(true)}>
-          Remove
-        </RowMenuItem>
-      </RowMenu>
+      {manage ? (
+        <RowMenu label={`Actions for ${item.title}`}>
+          <RowMenuItem onSelect={() => setEditing(true)}>Edit</RowMenuItem>
+          <RowMenuItem
+            disabled={first}
+            onSelect={() =>
+              run(`${path}/move`, { direction: "up" }, `${item.title} moved up`)
+            }
+          >
+            Move up
+          </RowMenuItem>
+          <RowMenuItem
+            disabled={last}
+            onSelect={() =>
+              run(
+                `${path}/move`,
+                { direction: "down" },
+                `${item.title} moved down`,
+              )
+            }
+          >
+            Move down
+          </RowMenuItem>
+          <RowMenuItem danger onSelect={() => setRemoving(true)}>
+            Remove
+          </RowMenuItem>
+        </RowMenu>
+      ) : null}
       {editing ? (
         <EditItemDialog
           item={item}
@@ -571,28 +582,42 @@ function EditItemDialog({
   );
 }
 
-/** "+ Add items": several lines at once, added at the end. */
-export function AddItemsForm({ code }: { code: string }) {
+/** "+ Add items": several lines at once, added at the end of a module. */
+export function AddItemsForm({
+  code,
+  moduleId,
+  moduleName,
+}: {
+  code: string;
+  moduleId: string;
+  moduleName: string;
+}) {
   const { busy, run } = useAction();
   const [lines, setLines] = React.useState("");
   const [error, setError] = React.useState("");
   return (
     <form
       noValidate
-      aria-label="Add items"
+      aria-label={`Add items to ${moduleName}`}
       className="mt-3 flex flex-col gap-2 rounded-2xl bg-[#F6F8FC] p-3.5"
       onSubmit={async (event) => {
         event.preventDefault();
         const problem = lines.trim() ? itemLinesProblem(lines) : "Add one item";
         setError(problem);
         if (problem) return;
-        if (await run(`${base(code)}/items`, { lines }, "Items added")) {
+        if (
+          await run(
+            `${base(code)}/items`,
+            { moduleId, lines },
+            `Items added to ${moduleName}`,
+          )
+        ) {
           setLines("");
         }
       }}
     >
       <Field
-        label="Add items"
+        label={`Add items to ${moduleName}`}
         hint="One item a line. They start as To do."
         error={error}
       >

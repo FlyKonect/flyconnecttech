@@ -34,13 +34,19 @@ export class PortalProjectsService {
         targetDate: true,
         lead: { select: { name: true } },
         items: { select: { status: true } },
+        modules: { select: { stage: true } },
       },
     });
-    return projects.map(({ items, targetDate, lead, ...project }) => ({
+    return projects.map(({ items, modules, targetDate, lead, ...project }) => ({
       ...project,
       targetDate: calendarDay(targetDate),
       lead: lead?.name ?? null,
       progress: progressOf(items),
+      modules: {
+        done: modules.filter((m) => m.stage === 'DONE').length,
+        total: modules.length,
+        inReview: modules.filter((m) => m.stage === 'CLIENT_REVIEW').length,
+      },
     }));
   }
 

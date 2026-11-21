@@ -4,7 +4,7 @@ import { LabelPill } from "@/components/ui/pill";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { projectTypes } from "@/lib/labels";
 import type { PortalProject } from "@/lib/portal/types";
-import { formatDay } from "@/lib/projects";
+import { formatDay, modulesWords } from "@/lib/projects";
 import { routes } from "@/lib/routes";
 
 /** My Projects: a card per project, with its status and progress. */
@@ -44,6 +44,14 @@ export function MyProjects({ projects }: { projects: PortalProject[] }) {
               </span>
             ) : null}
             <ProgressBar progress={project.progress} label={project.name} />
+            {project.modules.total ? (
+              <span className="flex flex-wrap items-center gap-2 text-[13px] text-body">
+                {modulesWords(project.modules.done, project.modules.total)}
+                {project.modules.inReview ? (
+                  <LabelPill group="moduleFlag" value="REVIEW_WAITING" />
+                ) : null}
+              </span>
+            ) : null}
             <span className="mt-auto flex flex-wrap justify-between gap-2 text-[13px] text-muted-foreground">
               <span>
                 {project.targetDate

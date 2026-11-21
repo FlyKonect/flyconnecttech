@@ -186,6 +186,8 @@ enum NotificationKind {
   invite
   lead
   project
+  module
+  discussion
 }
 
 // ============================================================ people & sign-in
@@ -259,6 +261,16 @@ model User {
   projectsDeleted  Project[]             @relation("ProjectDeletedBy")
   projectUpdates   ProjectUpdate[]
   projectFiles     ProjectFile[]
+  stageChanges     ModuleStageChange[]
+  projectTeams     ProjectMember[]       @relation("ProjectMember")
+  membersAdded     ProjectMember[]       @relation("ProjectMemberAddedBy")
+  topicsStarted    ProjectTopic[]        @relation("TopicAuthor")
+  topicsClosed     ProjectTopic[]        @relation("TopicClosedBy")
+  topicPosts       TopicPost[]           @relation("TopicPostAuthor")
+  proposalsDecided TopicPost[]           @relation("ProposalDecidedBy")
+  topicAsks        TopicAsk[]            @relation("TopicAsked")
+  topicAsksMade    TopicAsk[]            @relation("TopicAskedBy")
+  topicFiles       TopicFile[]           @relation("TopicFileUploadedBy")
 
   /// The account lock (src/auth/sign-in-lock.ts): wrong passwords in a row,
   /// since when, and until when sign-in is refused.
@@ -425,10 +437,207 @@ model Project {
   items    ProjectItem[]
   updates  ProjectUpdate[]
   files    ProjectFile[]
+  modules  ProjectModule[]
+  members  ProjectMember[]
+  topics   ProjectTopic[]
 
   @@index([customerId])
   @@index([deletedAt, status])
   @@map("projects")
+}
+
+/// Where a module has reached. The usual path is Not started → Design →
+/// Development → Testing → Client review → Done; asking for changes goes
+/// to Changes requested, then back through Development and Retest.
+enum ModuleStage {
+  NOT_STARTED
+  DESIGN
+  DEVELOPMENT
+  TESTING
+  CLIENT_REVIEW
+  CHANGES_REQUESTED
+  RETEST
+  DONE
+}
+
+/// A part of a project ("Flight booking", "Agent portal") with its own
+/// items, stage and timeline.
+model ProjectModule {
+  id          String      @id @default(uuid()) @db.Char(36)
+  projectId   String      @db.Char(36)
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String      @db.VarChar(160)
+  description String?     @db.VarChar(1000)
+  stage       ModuleStage @default(NOT_STARTED)
+  /// 1, and one more each time the customer asks for changes.
+  round       Int         @default(1)
+  /// The order in the project, from 0.
+  position    Int
+  startDate   DateTime?   @db.Date
+  targetDate  DateTime?   @db.Date
+  doneAt      DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  items  ProjectItem[]
+  stages ModuleStageChange[]
+  topics ProjectTopic[]
+
+  @@index([projectId, position])
+  @@map("project_modules")
+}
+
+/// A module's timeline: each move from one stage to another.
+model ModuleStageChange {
+  id        String        @id @default(uuid()) @db.Char(36)
+  moduleId  String        @db.Char(36)
+  module    ProjectModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  from      ModuleStage?
+  to        ModuleStage
+  round     Int
+  note      String?       @db.VarChar(500)
+  /// Empty for the first line of a module made by the migration.
+  byId      String?       @db.Char(36)
+  by        User?         @relation(fields: [byId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now())
+
+  @@index([moduleId, createdAt])
+  @@map("module_stage_changes")
+}
+
+/// The project team: team users added to a project. A developer sees only
+/// the projects they are on.
+model ProjectMember {
+  projectId String   @db.Char(36)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String   @db.Char(36)
+  user      User     @relation("ProjectMember", fields: [userId], references: [id], onDelete: Cascade)
+  addedById String?  @db.Char(36)
+  addedBy   User?    @relation("ProjectMemberAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@id([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+/// Customer topics are shared with the customer; internal topics never are.
+enum TopicKind {
+  CUSTOMER
+  INTERNAL
+}
+
+enum TopicStatus {
+  OPEN
+  CLOSED
+}
+
+enum PostKind {
+  MESSAGE
+  PROPOSAL
+  SYSTEM
+}
+
+enum ProposalState {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+/// A discussion about one subject of a project.
+model ProjectTopic {
+  id           String         @id @default(uuid()) @db.Char(36)
+  projectId    String         @db.Char(36)
+  project      Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  /// #1, #2… within the project.
+  number       Int
+  kind         TopicKind
+  moduleId     String?        @db.Char(36)
+  module       ProjectModule? @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  title        String         @db.VarChar(200)
+  status       TopicStatus    @default(OPEN)
+  authorId     String         @db.Char(36)
+  author       User           @relation("TopicAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  /// The reply marked as the answer.
+  answerPostId String?        @unique @db.Char(36)
+  answerPost   TopicPost?     @relation("TopicAnswer", fields: [answerPostId], references: [id], onDelete: SetNull)
+  closedAt     DateTime?
+  closedById   String?        @db.Char(36)
+  closedBy     User?          @relation("TopicClosedBy", fields: [closedById], references: [id], onDelete: SetNull)
+  closeNote    String?        @db.VarChar(500)
+  lastPostAt   DateTime       @default(now())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  posts TopicPost[]   @relation("TopicPosts")
+  asks  TopicAsk[]
+  files TopicFile[]
+
+  @@unique([projectId, number])
+  @@index([projectId, kind, status, lastPostAt])
+  @@map("project_topics")
+}
+
+model TopicPost {
+  id            String         @id @default(uuid()) @db.Char(36)
+  topicId       String         @db.Char(36)
+  topic         ProjectTopic   @relation("TopicPosts", fields: [topicId], references: [id], onDelete: Cascade)
+  /// Empty for system lines ("Emma closed this topic").
+  authorId      String?        @db.Char(36)
+  author        User?          @relation("TopicPostAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  kind          PostKind       @default(MESSAGE)
+  body          String         @db.Text
+  proposalState ProposalState?
+  decidedById   String?        @db.Char(36)
+  decidedBy     User?          @relation("ProposalDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt     DateTime?
+  decisionNote  String?        @db.VarChar(500)
+  editedAt      DateTime?
+  createdAt     DateTime       @default(now())
+
+  answerOf ProjectTopic? @relation("TopicAnswer")
+  files    TopicFile[]
+
+  @@index([topicId, createdAt])
+  @@map("topic_posts")
+}
+
+/// A person asked to answer on an internal topic ("Waiting for: Priya").
+model TopicAsk {
+  topicId    String       @db.Char(36)
+  topic      ProjectTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  userId     String       @db.Char(36)
+  user       User         @relation("TopicAsked", fields: [userId], references: [id], onDelete: Cascade)
+  askedById  String       @db.Char(36)
+  askedBy    User         @relation("TopicAskedBy", fields: [askedById], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  /// Set when they reply; asking again clears it.
+  answeredAt DateTime?
+
+  @@id([topicId, userId])
+  @@index([userId, answeredAt])
+  @@map("topic_asks")
+}
+
+/// A file on a discussion post. The file is on the server disk (storageKey).
+model TopicFile {
+  id           String       @id @default(uuid()) @db.Char(36)
+  topicId      String       @db.Char(36)
+  topic        ProjectTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  postId       String       @db.Char(36)
+  post         TopicPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  fileName     String       @db.VarChar(255)
+  contentType  String       @db.VarChar(127)
+  /// Bytes.
+  size         Int
+  storageKey   String       @unique @db.VarChar(255)
+  uploadedById String       @db.Char(36)
+  uploadedBy   User         @relation("TopicFileUploadedBy", fields: [uploadedById], references: [id], onDelete: Restrict)
+  createdAt    DateTime     @default(now())
+
+  @@index([topicId])
+  @@index([postId])
+  @@map("topic_files")
 }
 
 enum ProjectItemStatus {
@@ -443,6 +652,9 @@ model ProjectItem {
   id        String            @id @default(uuid()) @db.Char(36)
   projectId String            @db.Char(36)
   project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  /// The module it belongs to (existing items went to "General").
+  moduleId  String            @db.Char(36)
+  module    ProjectModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title     String            @db.VarChar(160)
   detail    String?           @db.VarChar(500)
   status    ProjectItemStatus @default(TODO)
@@ -453,6 +665,7 @@ model ProjectItem {
   updatedAt DateTime          @updatedAt
 
   @@index([projectId, position])
+  @@index([moduleId, position])
   @@map("project_items")
 }
 

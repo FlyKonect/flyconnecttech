@@ -51,7 +51,11 @@ test("from Add project to the customer's My Projects, then delete and restore", 
   await expect(page.getByRole("heading", { name })).toBeVisible();
   await expect(page.getByText("Nothing listed yet")).toHaveCount(0);
 
-  // Tick two items Done: the progress follows.
+  // The items went into a first module, "General". Tick two Done: the
+  // progress follows.
+  await page.getByRole("link", { name: /^Modules/ }).click();
+  await expect(page).toHaveURL(new RegExp(`/team/projects/${code}/modules$`));
+  await expect(page.getByRole("heading", { name: /^General/ })).toBeVisible();
   for (const item of ["Flight search", "Hotel search"]) {
     await page.getByLabel(`Status of ${item}`).selectOption("DONE");
     await expect(toast(page, `${item}: Done`)).toBeVisible();
@@ -61,6 +65,7 @@ test("from Add project to the customer's My Projects, then delete and restore", 
   ).toHaveAttribute("aria-valuenow", "40");
 
   // Post an update with a file: the customer is emailed.
+  await page.getByRole("link", { name: /^Updates/ }).click();
   await page.getByLabel("Update for the customer").fill(update);
   await page
     .getByRole("form", { name: "Post an update" })
@@ -95,6 +100,7 @@ test("from Add project to the customer's My Projects, then delete and restore", 
   await expect(
     portal.getByRole("progressbar", { name: `Progress of ${name}` }),
   ).toHaveAttribute("aria-valuenow", "40");
+  // The Overview shows the latest update with its file.
   await expect(portal.getByText(update)).toBeVisible();
   await expect(portal.getByLabel(/Status of/)).toHaveCount(0);
   const download = portal.waitForEvent("download");

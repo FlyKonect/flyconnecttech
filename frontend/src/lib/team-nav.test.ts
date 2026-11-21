@@ -57,7 +57,12 @@ describe("team menu per role (docs/01, section 5)", () => {
   });
 
   test("developer sees only their requests and notifications", () => {
-    expect(keys("DEVELOPER")).toEqual(["dashboard", "all", "notifications"]);
+    expect(keys("DEVELOPER")).toEqual([
+      "dashboard",
+      "all",
+      "projects",
+      "notifications",
+    ]);
     expect(headings("DEVELOPER")).toEqual(["MY REQUESTS"]);
   });
 });
