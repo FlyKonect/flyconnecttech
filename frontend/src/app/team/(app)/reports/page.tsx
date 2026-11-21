@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 import { PageLoading } from "@/components/shell/page-loading";
 import { DeveloperPerformance } from "@/components/team/developer-performance";
-import { ReportFilters } from "@/components/team/report-filters";
+import { ReportExport, ReportFilters } from "@/components/team/report-filters";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { serverApi } from "@/lib/api-server";
 import { routes } from "@/lib/routes";
@@ -52,12 +52,18 @@ async function ReportsContent({ searchParams }: PageProps<"/team/reports">) {
   return (
     <>
       <ReportFilters report={report} chosen={chosen} />
-      <h2 className="font-heading text-[19px] font-bold tracking-[-0.01em]">
-        Report for {report.period.words}
-        {about ? (
-          <span className="font-normal text-muted-foreground"> · {about}</span>
-        ) : null}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-heading text-[19px] font-bold tracking-[-0.01em]">
+          Report for {report.period.words}
+          {about ? (
+            <span className="font-normal text-muted-foreground">
+              {" "}
+              · {about}
+            </span>
+          ) : null}
+        </h2>
+        <ReportExport chosen={chosen} />
+      </div>
       <Cards
         label={report.period.custom ? report.period.words : "This month"}
         items={report.cards}
