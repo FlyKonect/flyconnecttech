@@ -357,11 +357,14 @@ test.describe("components page (development only)", () => {
     ).toBeFocused();
 
     await page.getByRole("button", { name: "Show toast" }).click();
-    // The visible toast, and the copy that screen readers announce.
-    await expect(page.locator('[data-slot="toast"]')).toHaveText(
-      "Settings saved",
-    );
-    await expect(page.getByRole("status")).toContainText("Settings saved");
+    // The visible toast (its title and message), and the copy that screen
+    // readers announce.
+    const shown = page.locator('[data-slot="toast"]');
+    await expect(shown).toContainText("Success");
+    await expect(shown).toContainText("Settings saved");
+    await expect(
+      page.getByRole("status").filter({ hasText: "Settings saved" }),
+    ).toBeVisible();
   });
 
   test("tabs and chips work with the keyboard", async ({ page }) => {

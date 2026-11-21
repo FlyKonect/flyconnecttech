@@ -77,7 +77,7 @@ export function LeadHeaderActions({
       toast(`${lead.code} is now ${statusLabel(lead.kind, answer.status)}`);
       router.refresh();
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     } finally {
       setBusy(null);
     }
@@ -220,7 +220,7 @@ export function OwnerSelect({
       );
       router.refresh();
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     } finally {
       setBusy(false);
     }

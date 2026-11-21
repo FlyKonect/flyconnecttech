@@ -399,7 +399,7 @@ export function PostMenu({
     } catch (failed) {
       const message = apiErrorMessage(failed);
       setError(message);
-      toast(message);
+      toast(message, "error");
       return false;
     } finally {
       setBusy(false);
@@ -701,7 +701,7 @@ export function TopicButtons({
       toast(done);
       return true;
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
       return false;
     } finally {
       setBusy(false);

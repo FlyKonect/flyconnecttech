@@ -18,22 +18,18 @@ async function PortalTimelineContent({
   const { code } = await params;
   const { me, project } = await loadPortalProject(code);
   return (
-    <PortalProjectFrame project={project} tab="timeline">
-      <section aria-labelledby="timeline-heading" className={projectCard}>
-        <h2 id="timeline-heading" className="text-[17px] font-bold">
-          Timeline
-        </h2>
-        <p className="mt-1 mb-3 text-sm text-muted-foreground">
-          Where each part of your project has reached and what remains.
+    <PortalProjectFrame project={project} tab="timeline" zone={me.timezone}>
+      {project.modules.length ? (
+        <ProjectTimeline
+          modules={project.modules}
+          zone={me.timezone}
+          audience="customer"
+        />
+      ) : (
+        <p className={`${projectCard} text-sm text-muted-foreground`}>
+          Our team hasn&apos;t set up the modules yet.
         </p>
-        {project.modules.length ? (
-          <ProjectTimeline modules={project.modules} zone={me.timezone} />
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Our team hasn&apos;t set up the modules yet.
-          </p>
-        )}
-      </section>
+      )}
     </PortalProjectFrame>
   );
 }

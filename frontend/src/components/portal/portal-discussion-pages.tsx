@@ -42,13 +42,14 @@ export async function PortalBoard({
     `${paths.api}${query ? `?${query}` : ""}`,
   );
   return (
-    <PortalProjectFrame project={project} tab="discussions">
+    <PortalProjectFrame project={project} tab="discussions" zone={me.timezone}>
       <DiscussionBoard
         list={list}
         status={status}
         pageHref={paths.page}
         topicHref={paths.topic}
         zone={me.timezone}
+        title="Discussions with our team"
         intro="Ask our team about a specific part of your project, share files and approve proposals. For something broken, create a support request instead."
         start={
           list.can.start ? (
@@ -80,7 +81,7 @@ export async function PortalTopic({
     `${paths.api}/${encodeURIComponent(number)}`,
   );
   return (
-    <PortalProjectFrame project={project} tab="discussions">
+    <PortalProjectFrame project={project} tab="discussions" zone={me.timezone}>
       <DiscussionThread
         topic={topic}
         zone={me.timezone}

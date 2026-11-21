@@ -69,9 +69,9 @@ test.describe("invitations", () => {
 
     // Sign in (screen 01).
     await expect(page).toHaveURL(/\/portal\/sign-in\?activated=1$/);
-    await expect(page.getByRole("status")).toContainText(
-      "Your account is active",
-    );
+    await expect(
+      page.getByRole("status").filter({ hasText: "Your account is active" }),
+    ).toBeVisible();
     await field(page, "Email address").fill(email);
     await field(page, "Password").fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
@@ -235,9 +235,11 @@ test("forgot password: the emailed link sets a new password", async ({
   await page.goto("/portal/forgot-password");
   await field(page, "Email address").fill(customer.email);
   await page.getByRole("button", { name: "Send reset link" }).click();
-  await expect(page.getByRole("status")).toContainText(
-    `If there is an account for ${customer.email}`,
-  );
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: `If there is an account for ${customer.email}` }),
+  ).toBeVisible();
 
   const email = await waitForEmail(customer.email, /Reset your/);
   const link = linkIn(email, "/reset-password/");
@@ -263,9 +265,11 @@ test("forgot password says the same for an email with no account", async ({
   await page.goto("/team/forgot-password");
   await field(page, "Email address").fill(nobody);
   await page.getByRole("button", { name: "Send reset link" }).click();
-  await expect(page.getByRole("status")).toContainText(
-    `If there is an account for ${nobody}`,
-  );
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: `If there is an account for ${nobody}` }),
+  ).toBeVisible();
 });
 
 test("a wrong password is refused without saying which part was wrong", async ({

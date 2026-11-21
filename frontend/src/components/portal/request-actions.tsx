@@ -52,7 +52,7 @@ export function RequestActions({
       toast(`${code} is now ${requestStatuses[result.status].label}`);
       router.refresh();
     } catch (error) {
-      toast(apiErrorMessage(error));
+      toast(apiErrorMessage(error), "error");
     } finally {
       setBusy(null);
     }

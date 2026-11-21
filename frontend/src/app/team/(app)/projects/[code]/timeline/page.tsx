@@ -19,20 +19,23 @@ async function TimelineContent({
   const { me, project } = await loadTeamProject(code);
   return (
     <TeamProjectFrame me={me} project={project} tab="timeline">
-      <section aria-labelledby="timeline-heading" className={projectCard}>
-        <h2 id="timeline-heading" className="text-[17px] font-bold">
-          Timeline
-        </h2>
-        <p className="mt-1 mb-3 text-sm text-muted-foreground">
-          Where each module has reached and what remains. Bars run from the
-          start to the target date; red ones are late.
+      {project.modules.length ? (
+        <ProjectTimeline
+          modules={project.modules}
+          zone={me.timezone}
+          audience="team"
+          datesHint={
+            project.can.manage
+              ? "Set a target date on the Modules tab: ⋯ on the module, then Edit."
+              : undefined
+          }
+        />
+      ) : (
+        <p className={`${projectCard} text-sm text-muted-foreground`}>
+          No modules yet, so there is no timeline.
+          {project.can.manage ? " Add them on the Modules tab." : ""}
         </p>
-        {project.modules.length ? (
-          <ProjectTimeline modules={project.modules} zone={me.timezone} />
-        ) : (
-          <p className="text-sm text-muted-foreground">No modules yet.</p>
-        )}
-      </section>
+      )}
     </TeamProjectFrame>
   );
 }

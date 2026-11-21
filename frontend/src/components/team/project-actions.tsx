@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Paperclip } from "lucide-react";
+import { Paperclip, Plus } from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ import {
 } from "@/lib/team/forms";
 import type { TeamProjectPage } from "@/lib/team/types";
 import { addFiles, FILE_ACCEPT } from "@/lib/uploads";
+import { cn } from "@/lib/utils";
 
 export const base = (code: string) =>
   `/team/projects/${encodeURIComponent(code)}`;
@@ -65,7 +66,7 @@ export function useAction() {
       router.refresh();
       return true;
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
       return false;
     } finally {
       setBusy(false);
@@ -428,7 +429,13 @@ export function ItemControls({
             `${item.title}: ${projectItemStatuses[status].label}`,
           );
         }}
-        className="h-10 w-auto py-0 pr-9 text-[13px] font-bold"
+        className={cn(
+          "h-9 w-auto gap-1.5 rounded-full py-0 pr-2.5 pl-3.5 text-[13px] font-bold",
+          item.status === "DONE" &&
+            "border-[#BBF7D0] bg-[#F0FDF4] text-[#15803D] hover:border-[#86EFAC]",
+          item.status === "IN_PROGRESS" &&
+            "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8] hover:border-[#93C5FD]",
+        )}
       >
         {Object.entries(projectItemStatuses).map(([value, { label }]) => (
           <option key={value} value={value}>
@@ -588,7 +595,10 @@ function EditItemDialog({
   );
 }
 
-/** "+ Add items": several lines at once, added at the end of a module. */
+/**
+ * "+ Add items": opens a box for several lines at once, added at the end
+ * of a module.
+ */
 export function AddItemsForm({
   code,
   moduleId,
@@ -599,13 +609,27 @@ export function AddItemsForm({
   moduleName: string;
 }) {
   const { busy, run } = useAction();
+  const [open, setOpen] = React.useState(false);
   const [lines, setLines] = React.useState("");
   const [error, setError] = React.useState("");
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left text-[13.5px] font-bold text-muted-foreground transition-colors hover:bg-soft hover:text-navy"
+      >
+        <Plus aria-hidden="true" className="size-4" />
+        Add items
+      </button>
+    );
+  }
   return (
     <form
       noValidate
       aria-label={`Add items to ${moduleName}`}
-      className="mt-3 flex flex-col gap-2 rounded-2xl bg-[#F6F8FC] p-3.5"
+      className="flex flex-col gap-2.5 bg-[#F8FAFD] p-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const problem = lines.trim() ? itemLinesProblem(lines) : "Add one item";
@@ -619,6 +643,7 @@ export function AddItemsForm({
           )
         ) {
           setLines("");
+          setOpen(false);
         }
       }}
     >
@@ -628,13 +653,25 @@ export function AddItemsForm({
         error={error}
       >
         <Textarea
-          rows={2}
+          rows={3}
+          autoFocus
           value={lines}
           onChange={(event) => setLines(event.target.value)}
           placeholder={"Flight search\nStripe payments"}
         />
       </Field>
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setOpen(false);
+            setError("");
+          }}
+          disabled={busy}
+        >
+          Cancel
+        </Button>
         <Button type="submit" disabled={busy}>
           {busy ? "Adding…" : "Add items"}
         </Button>

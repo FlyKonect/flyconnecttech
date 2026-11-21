@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
 import { FormError } from "@/components/auth/form-message";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -447,19 +448,24 @@ export function ProjectTeamBox({
   return (
     <div className="mt-3 flex flex-col gap-3">
       {members.length ? (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3">
           {members.map((member) => (
             <li
               key={member.id}
               className="flex items-center justify-between gap-2 text-sm"
             >
-              <span className="min-w-0">
-                <span className="block font-bold">{member.name}</span>
-                {member.jobTitle ? (
-                  <span className="block text-xs text-muted-foreground">
-                    {member.jobTitle}
+              <span className="flex min-w-0 items-center gap-3">
+                <Avatar name={member.name} size="sm" />
+                <span className="min-w-0">
+                  <span className="block truncate font-bold">
+                    {member.name}
                   </span>
-                ) : null}
+                  {member.jobTitle ? (
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {member.jobTitle}
+                    </span>
+                  ) : null}
+                </span>
               </span>
               <span className="flex items-center gap-1.5">
                 <LabelPill group="role" value={member.role} />

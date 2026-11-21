@@ -170,7 +170,9 @@ test("developer: only their own requests, their limits, and resolve", async ({
   await expect(
     statuses.getByRole("radio", { name: "In Progress" }),
   ).toBeEnabled();
-  await expect(page.getByText("Set by your manager")).toBeVisible();
+  await expect(
+    page.getByText("Set by your manager").filter({ visible: true }),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "Close request" })).toHaveCount(
     0,
   );

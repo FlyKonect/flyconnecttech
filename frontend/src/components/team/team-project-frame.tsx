@@ -1,5 +1,13 @@
 import type * as React from "react";
 import Link from "next/link";
+import {
+  Boxes,
+  CalendarRange,
+  LayoutDashboard,
+  LockKeyhole,
+  Megaphone,
+  MessagesSquare,
+} from "lucide-react";
 
 import { ProjectFrame } from "@/components/shell/project-frame";
 import {
@@ -111,22 +119,33 @@ export function TeamProjectFrame({
           ) : null
         }
         tabs={[
-          { label: "Overview", href: href("") },
+          { label: "Overview", href: href(""), icon: LayoutDashboard },
           {
             label: "Modules",
             href: href("modules"),
+            icon: Boxes,
             count: project.modules.length,
           },
-          { label: "Timeline", href: href("timeline") },
-          { label: "Discussions", href: href("discussions") },
-          { label: "Team discussions", href: href("team-discussions") },
+          { label: "Timeline", href: href("timeline"), icon: CalendarRange },
+          {
+            label: "Discussions",
+            href: href("discussions"),
+            icon: MessagesSquare,
+          },
+          {
+            label: "Team discussions",
+            href: href("team-discussions"),
+            icon: LockKeyhole,
+          },
           {
             label: "Updates",
             href: href("updates"),
+            icon: Megaphone,
             count: project.updates.length,
           },
         ]}
         active={href(tab)}
+        zone={me.timezone}
       >
         {children}
       </ProjectFrame>

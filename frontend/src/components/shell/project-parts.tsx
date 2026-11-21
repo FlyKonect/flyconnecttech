@@ -1,6 +1,19 @@
 import type * as React from "react";
-import { ExternalLink } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Code2,
+  ExternalLink,
+  Flag,
+  FlaskConical,
+  Globe,
+  LifeBuoy,
+  Rocket,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 
+import { Avatar } from "@/components/ui/avatar";
 import { FileChip } from "@/components/ui/file-chip";
 import { LabelPill } from "@/components/ui/pill";
 import { formatMessageTime, formatShortWhen } from "@/lib/format-time";
@@ -11,6 +24,7 @@ import {
   type ProjectPage,
   type ProjectUpdate,
 } from "@/lib/projects";
+import { cn } from "@/lib/utils";
 
 /**
  * A project's page parts that the team panel and the client portal share:
@@ -21,7 +35,7 @@ import {
 export const projectCard =
   "rounded-[22px] border border-line-2 bg-white p-6 max-app:p-5";
 
-/** The details as label and value rows. Empty ones are left out. */
+/** The details, one line a fact with its icon. Empty ones are left out. */
 export function ProjectFacts({
   project,
   lead,
@@ -29,39 +43,54 @@ export function ProjectFacts({
   project: ProjectPage;
   lead: { name: string; jobTitle: string | null } | null;
 }) {
-  const rows: [string, React.ReactNode][] = [
-    ["Start", formatDay(project.startDate)],
-    ["Target", formatDay(project.targetDate)],
-    ["Went live", formatDay(project.liveDate)],
-    ["Support until", formatDay(project.supportUntil)],
+  const rows: [string, LucideIcon, React.ReactNode][] = [
+    ["Start", CalendarDays, formatDay(project.startDate)],
+    ["Target", Flag, formatDay(project.targetDate)],
+    ["Went live", Rocket, formatDay(project.liveDate)],
+    ["Support until", LifeBuoy, formatDay(project.supportUntil)],
     [
       "Project lead",
+      UserRound,
       lead
         ? lead.jobTitle
           ? `${lead.name} · ${lead.jobTitle}`
           : lead.name
         : "",
     ],
-    ["Live address", project.liveUrl ? <Address url={project.liveUrl} /> : ""],
-    ["Test address", project.testUrl ? <Address url={project.testUrl} /> : ""],
-    ["Built with", project.builtWith ?? ""],
+    [
+      "Live address",
+      Globe,
+      project.liveUrl ? <Address url={project.liveUrl} /> : "",
+    ],
+    [
+      "Test address",
+      FlaskConical,
+      project.testUrl ? <Address url={project.testUrl} /> : "",
+    ],
+    ["Built with", Code2, project.builtWith ?? ""],
   ];
-  const shown = rows.filter(([, value]) => value);
+  const shown = rows.filter(([, , value]) => value);
   if (!shown.length) {
     return (
-      <p className="mt-3 text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         No dates or addresses added yet.
       </p>
     );
   }
   return (
-    <dl className="mt-3 flex flex-col gap-2.5 text-sm">
-      {shown.map(([label, value]) => (
-        <div key={label} className="flex justify-between gap-3">
-          <dt className="shrink-0 text-muted-foreground">{label}</dt>
-          <dd className="min-w-0 text-right font-bold [overflow-wrap:anywhere]">
-            {value}
-          </dd>
+    <dl className="flex flex-col gap-3.5 text-sm">
+      {shown.map(([label, Icon, value]) => (
+        <div key={label} className="flex items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-soft text-navy-700"
+          >
+            <Icon className="size-[17px]" />
+          </span>
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">{label}</dt>
+            <dd className="font-bold [overflow-wrap:anywhere]">{value}</dd>
+          </div>
         </div>
       ))}
     </dl>
@@ -83,7 +112,7 @@ function Address({ url }: { url: string }) {
   );
 }
 
-/** One item of "What's included": its title, detail and status. */
+/** One item of "What's included": its status, title and detail. */
 export function ItemRow({
   item,
   zone,
@@ -94,15 +123,29 @@ export function ItemRow({
   /** The team's controls (status selector, "⋯"); the pill otherwise. */
   children?: React.ReactNode;
 }) {
+  const done = item.status === "DONE";
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line-3 py-3 first:border-t-0">
-      <span className="min-w-0 flex-[1_1_220px]">
+    <li className="flex items-center gap-3 border-t border-line-3 bg-white px-4 py-3 transition-colors first:border-t-0 hover:bg-[#FAFBFD] max-app:px-3">
+      <span
+        aria-hidden="true"
+        className={cn(
+          "inline-flex size-[22px] shrink-0 items-center justify-center rounded-full",
+          done && "bg-[#22C55E] text-white",
+          item.status === "IN_PROGRESS" &&
+            "border-2 border-[#2563EB] bg-[conic-gradient(#2563EB_0_50%,transparent_50%_100%)]",
+          item.status === "TODO" && "border-2 border-[#C5CFDE] bg-white",
+        )}
+      >
+        {done ? <Check className="size-3.5" strokeWidth={3.2} /> : null}
+      </span>
+      <span className="min-w-0 flex-1">
         <span
-          className={
-            item.status === "DONE"
-              ? "block text-[15px] font-bold text-muted-foreground line-through decoration-1"
-              : "block text-[15px] font-bold"
-          }
+          className={cn(
+            "block text-[15px] font-semibold",
+            done
+              ? "text-muted-foreground line-through decoration-1"
+              : "text-navy",
+          )}
         >
           {item.title}
         </span>
@@ -111,7 +154,7 @@ export function ItemRow({
             {item.detail}
           </span>
         ) : null}
-        {item.status === "DONE" && item.doneAt ? (
+        {done && item.doneAt ? (
           <span className="mt-0.5 block text-xs text-muted-foreground">
             Done {formatShortWhen(item.doneAt, zone)}
           </span>
@@ -122,7 +165,11 @@ export function ItemRow({
   );
 }
 
-/** The updates, newest first, with their files. */
+/**
+ * The updates, newest first: who posted it and when (with a rail of their
+ * initials down the left), the text and its files. The newest is marked
+ * Latest.
+ */
 export function UpdatesList({
   updates,
   zone,
@@ -138,43 +185,68 @@ export function UpdatesList({
   empty: string;
 }) {
   if (!updates.length) {
-    return <p className="mt-3 text-sm text-muted-foreground">{empty}</p>;
+    return (
+      <p className="rounded-[16px] border border-dashed border-line-2 bg-[#F8FAFD] px-4 py-6 text-center text-sm text-muted-foreground">
+        {empty}
+      </p>
+    );
   }
   const now = new Date();
   return (
-    <ol className="mt-2 flex flex-col">
-      {updates.map((update) => (
-        <li
-          key={update.id}
-          className="border-t border-line-3 py-4 first:border-t-0"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-[13px] text-muted-foreground">
-              <strong className="font-bold text-navy">
-                {update.authorName}
-              </strong>{" "}
-              · {formatMessageTime(update.createdAt, zone, now)}
-              {update.editedAt ? " · edited" : ""}
-            </p>
-            {menu?.(update)}
-          </div>
-          {update.body ? (
-            <p className="mt-1.5 text-[15px] leading-[1.6] whitespace-pre-line text-body">
-              {update.body}
-            </p>
-          ) : null}
-          {update.files.length ? (
-            <div className="mt-2.5 flex flex-wrap gap-2">
-              {update.files.map((file) => (
-                <FileChip
-                  key={file.id}
-                  look="link"
-                  name={file.fileName}
-                  href={fileHref(file.id)}
-                />
-              ))}
+    <ol className="relative flex flex-col gap-6">
+      {updates.length > 1 ? (
+        <span
+          aria-hidden="true"
+          className="absolute top-9 bottom-2 left-[17px] w-0.5 rounded bg-line-2"
+        />
+      ) : null}
+      {updates.map((update, index) => (
+        <li key={update.id} className="relative flex gap-3.5">
+          <Avatar
+            name={update.authorName}
+            size="sm"
+            className="relative z-[1] shrink-0 ring-4 ring-white"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-[13px] text-muted-foreground">
+                <strong className="font-bold text-navy">
+                  {update.authorName}
+                </strong>
+                <span>
+                  {formatMessageTime(update.createdAt, zone, now)}
+                  {update.editedAt ? " · edited" : ""}
+                </span>
+                {index === 0 ? (
+                  <span className="rounded-full bg-[#FEF3C7] px-2 py-0.5 text-[11px] font-bold text-[#92400E]">
+                    Latest
+                  </span>
+                ) : null}
+              </p>
+              {menu?.(update)}
             </div>
-          ) : null}
+            <div className="mt-2 rounded-[16px] rounded-tl-[6px] border border-line-2 bg-[#FAFBFD] px-4 py-3.5">
+              {update.body ? (
+                <p className="text-[15px] leading-[1.65] whitespace-pre-line text-body">
+                  {update.body}
+                </p>
+              ) : null}
+              {update.files.length ? (
+                <div
+                  className={cn("flex flex-wrap gap-2", update.body && "mt-3")}
+                >
+                  {update.files.map((file) => (
+                    <FileChip
+                      key={file.id}
+                      look="link"
+                      name={file.fileName}
+                      href={fileHref(file.id)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
         </li>
       ))}
     </ol>

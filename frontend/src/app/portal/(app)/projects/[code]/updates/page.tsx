@@ -18,11 +18,15 @@ async function PortalUpdatesContent({
   const { code } = await params;
   const { me, project } = await loadPortalProject(code);
   return (
-    <PortalProjectFrame project={project} tab="updates">
+    <PortalProjectFrame project={project} tab="updates" zone={me.timezone}>
       <section aria-labelledby="updates-heading" className={projectCard}>
         <h2 id="updates-heading" className="text-[17px] font-bold">
-          Updates · {project.updates.length}
+          Updates from our team · {project.updates.length}
         </h2>
+        <p className="mt-0.5 mb-5 text-[13px] text-muted-foreground">
+          What has been done and what comes next, newest first. We email you
+          each one too.
+        </p>
         <UpdatesList
           updates={project.updates}
           zone={me.timezone}

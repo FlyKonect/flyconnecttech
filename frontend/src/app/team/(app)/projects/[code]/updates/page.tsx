@@ -21,11 +21,22 @@ async function UpdatesContent({
   const manage = project.can.manage;
   return (
     <TeamProjectFrame me={me} project={project} tab="updates">
+      {manage ? (
+        <section aria-labelledby="post-heading" className={projectCard}>
+          <h2 id="post-heading" className="text-[17px] font-bold">
+            Post an update
+          </h2>
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
+            Say what has been done and what comes next. The customer sees it in
+            their portal and gets it by email.
+          </p>
+          <UpdateComposer code={project.code} />
+        </section>
+      ) : null}
       <section aria-labelledby="updates-heading" className={projectCard}>
-        <h2 id="updates-heading" className="text-[17px] font-bold">
-          Updates · {project.updates.length}
+        <h2 id="updates-heading" className="mb-5 text-[17px] font-bold">
+          All updates · {project.updates.length}
         </h2>
-        {manage ? <UpdateComposer code={project.code} /> : null}
         <UpdatesList
           updates={project.updates}
           zone={me.timezone}

@@ -60,7 +60,7 @@ export function AccountButton({
           : `Password reset link sent to ${email}`,
       );
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     } finally {
       setBusy(false);
     }
@@ -103,7 +103,7 @@ export function ProjectStatusSelect({
       toast(`${project.code} is now ${projectStatuses[status].label}`);
       router.refresh();
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     } finally {
       setBusy(false);
     }

@@ -178,9 +178,11 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
     "The booking reference is BW-58213.",
   );
   await page.getByRole("button", { name: "Send reply" }).click();
-  await expect(page.getByRole("status")).toContainText(
-    "Reply sent to the support team",
-  );
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "Reply sent to the support team" }),
+  ).toBeVisible();
   await expect(conversation).toContainText(
     "The booking reference is BW-58213.",
   );
@@ -203,9 +205,9 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
     page.getByRole("button", { name: "Confirm it's fixed" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "I still need help" }).click();
-  await expect(page.getByRole("status")).toContainText(
-    `${code} is now In Progress`,
-  );
+  await expect(
+    page.getByRole("status").filter({ hasText: `${code} is now In Progress` }),
+  ).toBeVisible();
 
   // Close, then reopen.
   await page.getByRole("button", { name: "Close request" }).click();
@@ -279,7 +281,9 @@ test("profile: save changes and change the password", async ({ page }) => {
   await choose(field(page, "Time zone"), "Asia/Karachi");
   await page.getByLabel("Weekly summary of my requests").check();
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByRole("status")).toContainText("Changes saved");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Changes saved" }),
+  ).toBeVisible();
   await expect(sidebar(page)).toContainText("Sarah Mitchell");
   const saved = await asPerson<{ timezone: string; emailPrefs: object }>(
     customer,
@@ -300,7 +304,9 @@ test("profile: save changes and change the password", async ({ page }) => {
   );
   await field(page, "Current password").fill(customer.password);
   await page.getByRole("button", { name: "Update password" }).click();
-  await expect(page.getByRole("status")).toContainText("Password updated");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Password updated" }),
+  ).toBeVisible();
   await expect(field(page, "Current password")).toHaveValue("");
 
   const signIn = await fetch(`${e2e.apiUrl}/api/auth/sign-in/email`, {

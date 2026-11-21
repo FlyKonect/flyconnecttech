@@ -27,12 +27,14 @@ const BOARDS = {
   customer: {
     tab: "discussions",
     label: "Discussions",
+    title: "Discussions with the customer",
     intro:
       "Talk with the customer about a specific part of the project. Post proposals for them to approve; mark the reply that answered a question.",
   },
   team: {
     tab: "team-discussions",
     label: "Team discussions",
+    title: "Team discussions",
     intro:
       "Only the project team sees these, never the customer. Ask someone by name; the topic shows who it is waiting for.",
   },
@@ -69,6 +71,7 @@ export async function TeamBoard({
         pageHref={paths.page}
         topicHref={paths.topic}
         zone={me.timezone}
+        title={words.title}
         intro={words.intro}
         start={
           list.can.start ? (

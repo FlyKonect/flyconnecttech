@@ -120,9 +120,9 @@ test("a module from development to client review, a round of changes, then appro
   ).toHaveAttribute("aria-valuenow", "100");
   await expect(card.getByRole("group", { name: /^Review/ })).toHaveCount(0);
 
-  // The timeline shows every move, with the round and the note.
+  // The timeline tells every step, with the round and the note.
   await portal.goto(`/portal/projects/${code}/timeline`);
-  const moves = portal.getByRole("region", { name: "Every move" });
+  const moves = portal.getByRole("region", { name: "What happened" });
   await expect(moves.getByText("(round 2)").first()).toBeVisible();
   await expect(
     moves.getByText("“Please show the card fee before the Pay button.”"),

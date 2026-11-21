@@ -30,7 +30,6 @@ import {
   Textarea,
 } from "@/components/ui/field";
 import { Calendar } from "@/components/ui/date-input";
-import { timeZoneOptions } from "@/lib/time-zones";
 import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { StatCard } from "@/components/ui/stat-card";
@@ -195,11 +194,29 @@ const pillGroupTitles: Record<PillGroup, string> = {
   jobState: "Scheduled job",
 };
 
+const SAMPLE_ZONES = [
+  "Africa/Cairo",
+  "America/New_York",
+  "America/Toronto",
+  "Asia/Dubai",
+  "Asia/Karachi",
+  "Asia/Kolkata",
+  "Asia/Singapore",
+  "Australia/Sydney",
+  "Europe/Berlin",
+  "Europe/Dublin",
+  "Europe/Istanbul",
+  "Europe/London",
+  "Europe/Madrid",
+  "Europe/Paris",
+];
+
 export function ComponentGallery() {
   const toast = useToast();
   const [asked, setAsked] = React.useState<string[]>(["priya"]);
   const [picked, setPicked] = React.useState("2026-11-21");
-  const zones = React.useMemo(() => timeZoneOptions("Europe/London"), []);
+  // A fixed sample: the real list is worked out on the server (Profile).
+  const zones = SAMPLE_ZONES.map((zone) => ({ value: zone, label: zone }));
   const [priority, setPriority] = React.useState<Priority>("MEDIUM");
   const [requestType, setRequestType] =
     React.useState<RequestType>("BUG_REPORT");
@@ -597,7 +614,11 @@ export function ComponentGallery() {
           <div className="grid gap-6">
             <StageStepper module={sampleModules[1]} />
             <StageStepper module={sampleModules[2]} />
-            <ProjectTimeline modules={sampleModules} zone="Europe/London" />
+            <ProjectTimeline
+              modules={sampleModules}
+              zone="Europe/London"
+              audience="team"
+            />
           </div>
         </Section>
 
@@ -788,6 +809,31 @@ export function ComponentGallery() {
               ]}
             />
           </Card>
+        </Section>
+
+        <Section title="Toasts">
+          <Row label="Top right, under the header (across the top on phones)">
+            <Button
+              variant="outline"
+              onClick={() => toast("Flight search: Done")}
+            >
+              Success
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                toast("The project could not be saved. Try again.", "error")
+              }
+            >
+              Error
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => toast("Nothing to send yet.", "info")}
+            >
+              Note
+            </Button>
+          </Row>
         </Section>
 
         <Section title="Row menu">

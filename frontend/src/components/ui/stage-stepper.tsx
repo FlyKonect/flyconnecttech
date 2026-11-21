@@ -25,10 +25,7 @@ function StageStepper({
     <ol
       data-slot="stage-stepper"
       aria-label={`Stages of ${module.name}`}
-      className={cn(
-        "flex gap-0 max-app:flex-col max-app:gap-2.5 app:items-start",
-        className,
-      )}
+      className={cn("flex items-start", className)}
     >
       {steps.map((step, index) => {
         const last = index === steps.length - 1;
@@ -36,14 +33,14 @@ function StageStepper({
           <li
             key={step.stage}
             aria-current={step.state === "current" ? "step" : undefined}
-            className="relative flex min-w-0 flex-1 gap-2.5 app:flex-col app:items-center app:text-center"
+            className="relative flex min-w-0 flex-1 flex-col items-center text-center"
           >
             {/* The line to the next step (wide screens). */}
             {last ? null : (
               <span
                 aria-hidden="true"
                 className={cn(
-                  "absolute top-[13px] left-[calc(50%+16px)] h-0.5 w-[calc(100%-32px)] max-app:hidden",
+                  "absolute top-[13px] left-[calc(50%+16px)] h-0.5 w-[calc(100%-32px)]",
                   step.state === "done" ? "bg-[#16A34A]" : "bg-line-2",
                 )}
               />
@@ -70,22 +67,27 @@ function StageStepper({
                 index + 1
               )}
             </span>
-            <span className="min-w-0 app:mt-1.5">
+            <span className="mt-1.5 min-w-0">
               <span
                 className={cn(
-                  "block text-[13px] font-bold",
+                  "block text-[13px] leading-tight font-bold max-app:text-[11px]",
                   step.state === "next" ? "text-muted-foreground" : "text-navy",
                 )}
               >
-                {moduleStages[step.stage].label}
+                <span className="max-app:hidden">
+                  {moduleStages[step.stage].label}
+                </span>
+                <span aria-hidden="true" className="app:hidden">
+                  {PHONE_WORDS[step.stage] ?? moduleStages[step.stage].label}
+                </span>
               </span>
               {step.rework ? (
-                <span className="block text-xs font-bold text-[#C2410C]">
+                <span className="block text-xs font-bold text-[#C2410C] max-app:text-[10px]">
                   {moduleStages[step.rework].label} · Round {module.round}
                 </span>
               ) : null}
               {step.at ? (
-                <span className="block text-xs text-muted-foreground">
+                <span className="block text-xs text-muted-foreground max-app:text-[10px]">
                   {dayOf(step.at)}
                 </span>
               ) : null}
@@ -103,6 +105,12 @@ function StageStepper({
     </ol>
   );
 }
+
+/** Shorter words where five steps share a phone's width. */
+const PHONE_WORDS: Partial<Record<string, string>> = {
+  DEVELOPMENT: "Build",
+  CLIENT_REVIEW: "Review",
+};
 
 /** "21 Nov" (the day only: the timeline below shows the full time). */
 function dayOf(when: string): string {

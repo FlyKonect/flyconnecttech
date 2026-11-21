@@ -6,7 +6,7 @@ import {
   loadPortalProject,
   PortalProjectFrame,
 } from "@/components/portal/portal-project-frame";
-import { ModuleCard } from "@/components/shell/module-card";
+import { ModuleCard, ModulesIntro } from "@/components/shell/module-card";
 import { PageLoading } from "@/components/shell/page-loading";
 import { projectCard } from "@/components/shell/project-parts";
 
@@ -23,13 +23,19 @@ async function PortalModulesContent({
   const { code } = await params;
   const { me, project } = await loadPortalProject(code);
   return (
-    <PortalProjectFrame project={project} tab="modules">
+    <PortalProjectFrame project={project} tab="modules" zone={me.timezone}>
+      <ModulesIntro
+        count={project.modules.length}
+        text="Each part of your project goes through Design, Development, Testing and your review before it is done. When one is ready, approve it here or tell us what should change."
+      />
       {project.modules.length ? (
-        project.modules.map((module) => (
+        project.modules.map((module, index) => (
           <ModuleCard
             key={module.id}
             module={module}
+            number={index + 1}
             zone={me.timezone}
+            audience="customer"
             review={
               module.stage === "CLIENT_REVIEW" ? (
                 <ModuleReview

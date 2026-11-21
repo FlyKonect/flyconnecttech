@@ -87,18 +87,16 @@ function EmailRow({ item, timeZone }: { item: FailedEmail; timeZone: string }) {
           `/team/emails/${item.id}/resend`,
           { method: "POST" },
         );
-        toast(
-          sent
-            ? `Email sent to ${item.to}`
-            : "Still not sent. The mail server refused it again.",
-        );
+        if (sent) toast(`Email sent to ${item.to}`);
+        else
+          toast("Still not sent. The mail server refused it again.", "error");
       } else {
         await apiFetch(`/team/emails/${item.id}/dismiss`, { method: "POST" });
         toast("Email removed from the list");
       }
       router.refresh();
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     } finally {
       setBusy(null);
     }

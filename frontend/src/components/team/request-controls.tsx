@@ -48,7 +48,7 @@ function useChange(code: string) {
       toast(done);
       router.refresh();
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     } finally {
       setBusy(false);
     }

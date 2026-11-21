@@ -82,7 +82,7 @@ export function UsersTable({
       );
       router.refresh();
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     }
   }
 
@@ -91,7 +91,7 @@ export function UsersTable({
       await apiFetch(`/team/users/${user.id}/invitation`, { method: "POST" });
       toast(`Invitation sent again to ${user.email}`);
     } catch (failed) {
-      toast(apiErrorMessage(failed));
+      toast(apiErrorMessage(failed), "error");
     }
   }
 

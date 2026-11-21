@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { ModuleCard } from "@/components/shell/module-card";
+import { ModuleCard, ModulesIntro } from "@/components/shell/module-card";
 import { PageLoading } from "@/components/shell/page-loading";
 import { projectCard } from "@/components/shell/project-parts";
 import {
@@ -33,19 +33,19 @@ async function ModulesContent({
 
   return (
     <TeamProjectFrame me={me} project={project} tab="modules">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Each module moves Design → Development → Testing → Client review →
-          Done. The customer approves it or asks for changes in their portal.
-        </p>
-        {manage ? <AddModuleButton code={project.code} /> : null}
-      </div>
+      <ModulesIntro
+        count={project.modules.length}
+        text="Each module moves Design → Development → Testing → Client review → Done. The customer approves it, or asks for changes, in their portal."
+        action={manage ? <AddModuleButton code={project.code} /> : null}
+      />
       {project.modules.length ? (
         project.modules.map((module, index) => (
           <ModuleCard
             key={module.id}
             module={module}
+            number={index + 1}
             zone={me.timezone}
+            audience="team"
             actions={
               work || manage ? (
                 <>

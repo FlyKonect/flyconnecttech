@@ -1,5 +1,12 @@
 import type * as React from "react";
 import Link from "next/link";
+import {
+  Boxes,
+  CalendarRange,
+  LayoutDashboard,
+  Megaphone,
+  MessagesSquare,
+} from "lucide-react";
 
 import { ProjectFrame } from "@/components/shell/project-frame";
 import { buttonVariants } from "@/components/ui/button";
@@ -28,10 +35,13 @@ export async function loadPortalProject(
 export function PortalProjectFrame({
   project,
   tab,
+  zone,
   children,
 }: {
   project: PortalProjectPage;
   tab: PortalProjectTab;
+  /** The customer's time zone, for "12 days to go". */
+  zone?: string;
   children: React.ReactNode;
 }) {
   const href = (name: PortalProjectTab) =>
@@ -61,21 +71,29 @@ export function PortalProjectFrame({
         </Link>
       }
       tabs={[
-        { label: "Overview", href: href("") },
+        { label: "Overview", href: href(""), icon: LayoutDashboard },
         {
-          label: inReview ? "Modules · waiting for you" : "Modules",
+          label: "Modules",
           href: href("modules"),
-          count: inReview || project.modules.length,
+          icon: Boxes,
+          count: project.modules.length,
+          badge: inReview ? `${inReview} to review` : undefined,
         },
-        { label: "Timeline", href: href("timeline") },
-        { label: "Discussions", href: href("discussions") },
+        { label: "Timeline", href: href("timeline"), icon: CalendarRange },
+        {
+          label: "Discussions",
+          href: href("discussions"),
+          icon: MessagesSquare,
+        },
         {
           label: "Updates",
           href: href("updates"),
+          icon: Megaphone,
           count: project.updates.length,
         },
       ]}
       active={href(tab)}
+      zone={zone}
     >
       {children}
     </ProjectFrame>
