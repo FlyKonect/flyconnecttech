@@ -513,6 +513,46 @@ describe("the customer's buttons", () => {
     ).toEqual(['SUBMITTED', 'CLOSED', 'IN_PROGRESS', 'IN_PROGRESS', 'CLOSED']);
   });
 
+  it("Confirm it's fixed takes an optional 1-5 star rating", async () => {
+    const send = async () => {
+      const { body } = await sendRequest(sarah, sarahProject.id).expect(201);
+      await setStatus(body.code as string, 'RESOLVED');
+      return body.code as string;
+    };
+    const confirm = (code: string, body?: object) =>
+      http()
+        .post(`/portal/requests/${code}/confirm`)
+        .set('Cookie', sarah.cookie)
+        .send(body ?? {});
+
+    const rated = await send();
+    await confirm(rated, { rating: 6 }).expect(400);
+    await confirm(rated, {
+      rating: 5,
+      comment: 'Quick and clear, thank you',
+    }).expect(200);
+    const saved = await prisma.supportRequest.findUniqueOrThrow({
+      where: { code: rated },
+    });
+    expect(saved).toMatchObject({
+      status: 'CLOSED',
+      rating: 5,
+      ratingComment: 'Quick and clear, thank you',
+    });
+    expect(saved.ratedAt).not.toBeNull();
+
+    // Skipping the rating is fine.
+    const skipped = await send();
+    await confirm(skipped).expect(200);
+    expect(
+      (
+        await prisma.supportRequest.findUniqueOrThrow({
+          where: { code: skipped },
+        })
+      ).rating,
+    ).toBeNull();
+  });
+
   it('a request closed more than 14 days ago can no longer be reopened', async () => {
     const { body } = await sendRequest(sarah, sarahProject.id).expect(201);
     const code = body.code as string;

@@ -191,6 +191,10 @@ export type TeamRequestDetail = {
     statuses: RequestStatus[];
   };
   projectId: string;
+  /** The customer's stars (1-5) when they confirmed the fix, if they gave any. */
+  rating: number | null;
+  ratingComment: string | null;
+  ratedAt: string | null;
   /** The customer's projects, for Edit details (empty without the right). */
   projectChoices: { id: string; code: string; name: string }[];
   /** The starting text of the "Request more info" dialog. */

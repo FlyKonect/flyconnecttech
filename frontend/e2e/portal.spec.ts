@@ -224,6 +224,11 @@ test("replies, waiting for the customer, resolved, confirm and reopen", async ({
   await resolve();
   await page.reload();
   await page.getByRole("button", { name: "Confirm it's fixed" }).click();
+  // The rating: 5 stars and a comment (both optional).
+  const rate = page.getByRole("dialog", { name: "Confirm it's fixed" });
+  await rate.getByRole("radio", { name: /5 stars/ }).click();
+  await rate.getByLabel("Anything to add? (optional)").fill("Fixed fast.");
+  await rate.getByRole("button", { name: "Confirm it's fixed" }).click();
   await expect(
     page.getByRole("button", { name: "Reopen request" }),
   ).toBeVisible();

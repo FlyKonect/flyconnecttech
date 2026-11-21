@@ -192,6 +192,11 @@ test("developer: only their own requests, their limits, and resolve", async ({
   await customerPage
     .getByRole("button", { name: "Confirm it's fixed" })
     .click();
+  // Skipping the rating.
+  await customerPage
+    .getByRole("dialog", { name: "Confirm it's fixed" })
+    .getByRole("button", { name: "Confirm it's fixed" })
+    .click();
   await expect(customerPage.getByRole("status")).toContainText(
     `${mine} is now Closed`,
   );

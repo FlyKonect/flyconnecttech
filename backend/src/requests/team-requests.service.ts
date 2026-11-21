@@ -196,6 +196,9 @@ export class TeamRequestsService {
         resolvedAt: true,
         firstResponseAt: true,
         projectId: true,
+        rating: true,
+        ratingComment: true,
+        ratedAt: true,
         project: { select: { code: true, name: true, type: true } },
         assignee: { select: { id: true, name: true, jobTitle: true } },
         customer: {

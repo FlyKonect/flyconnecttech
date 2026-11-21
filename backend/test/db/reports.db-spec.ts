@@ -335,6 +335,7 @@ describe('Reports & Analytics', () => {
     expect(nobody.sla.map((card) => card.label)).toEqual([
       'Reply SLA met',
       'Fix SLA met',
+      'Customer rating',
     ]);
     expect(nobody.sla[0]).toMatchObject({ value: '—' });
     expect(whole.filters.developers.length).toBeGreaterThan(0);

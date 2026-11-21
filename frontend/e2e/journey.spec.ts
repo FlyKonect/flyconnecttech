@@ -161,6 +161,10 @@ test("demo → customer → request → assigned → resolved → confirmed", as
   await waitForEmail(email, new RegExp(`${code} was resolved`));
   await customer.goto(`/portal/requests/${code}`);
   await customer.getByRole("button", { name: "Confirm it's fixed" }).click();
+  await customer
+    .getByRole("dialog", { name: "Confirm it's fixed" })
+    .getByRole("button", { name: "Confirm it's fixed" })
+    .click();
   await expect(
     customer.getByRole("button", { name: "Reopen request" }),
   ).toBeVisible();

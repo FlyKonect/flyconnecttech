@@ -53,6 +53,14 @@ const replySchema = z.object({
     .default(''),
 });
 
+/** Confirm it's fixed: the rating is optional (skipping it is fine). */
+const ratingSchema = z
+  .object({
+    rating: z.number().int().min(1).max(5).optional(),
+    comment: z.string().trim().max(500).optional(),
+  })
+  .optional();
+
 /** Takes up to 5 files in the "files" field and always tidies them up. */
 const WithFiles = () =>
   UseInterceptors(
@@ -125,10 +133,15 @@ export class PortalRequestsController {
     return this.requests.act(user, code, 'close');
   }
 
+  /** Confirm it's fixed, with an optional 1-5 star rating and comment. */
   @Post('requests/:code/confirm')
   @HttpCode(200)
-  confirm(@CurrentUser() user: SignedIn, @Param('code') code: string) {
-    return this.requests.act(user, code, 'confirm');
+  confirm(
+    @CurrentUser() user: SignedIn,
+    @Param('code') code: string,
+    @Body({ schema: ratingSchema }) body: z.infer<typeof ratingSchema>,
+  ) {
+    return this.requests.act(user, code, 'confirm', body);
   }
 
   @Post('requests/:code/reopen')

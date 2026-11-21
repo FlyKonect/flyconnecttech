@@ -262,7 +262,7 @@ export class ReportsService {
     month: Month,
     scope: Prisma.SupportRequestWhereInput,
   ): Promise<ReportCard[]> {
-    const [replies, fixes] = await Promise.all([
+    const [replies, fixes, ratings] = await Promise.all([
       this.prisma.supportRequest.findMany({
         where: {
           ...scope,
@@ -278,6 +278,15 @@ export class ReportsService {
           resolveDueAt: { not: null },
         },
         select: { resolvedAt: true, resolveDueAt: true },
+      }),
+      this.prisma.supportRequest.aggregate({
+        where: {
+          ...scope,
+          ratedAt: { gte: month.start, lt: month.end },
+          rating: { not: null },
+        },
+        _avg: { rating: true },
+        _count: { rating: true },
       }),
     ]);
     const replyMet = replies.filter((r) => r.firstResponseAt! <= r.dueAt!);
@@ -301,6 +310,7 @@ export class ReportsService {
     return [
       card('Reply SLA met', replyMet.length, replies.length, 'first replies'),
       card('Fix SLA met', fixMet.length, fixes.length, 'resolved requests'),
+      satisfaction(ratings._avg.rating, ratings._count.rating),
     ];
   }
 
@@ -407,6 +417,27 @@ export class ReportsService {
     ]);
     return { customers, developers };
   }
+}
+
+/** Customer satisfaction: the average of the stars given in the period. */
+function satisfaction(average: number | null, count: number): ReportCard {
+  if (!count || average === null) {
+    return {
+      label: 'Customer rating',
+      value: '—',
+      change: null,
+      note: 'No ratings yet',
+    };
+  }
+  return {
+    label: 'Customer rating',
+    value: `${average.toFixed(1)} / 5`,
+    change: {
+      text: `from ${count} ${count === 1 ? 'rating' : 'ratings'}`,
+      tone: 'same',
+    },
+    note: null,
+  };
 }
 
 function badRange(message: string) {

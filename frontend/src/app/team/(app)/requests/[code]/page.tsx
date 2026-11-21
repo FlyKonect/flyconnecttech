@@ -153,7 +153,25 @@ async function TeamRequestContent({
               <Fact label="Created">
                 {formatWhen(request.createdAt, zone, now)}
               </Fact>
+              {request.rating ? (
+                <Fact label="Customer rating">
+                  <span
+                    aria-label={`${request.rating} out of 5 stars`}
+                    className="text-gold-text"
+                  >
+                    {"★".repeat(request.rating)}
+                    <span className="text-line-2">
+                      {"★".repeat(5 - request.rating)}
+                    </span>
+                  </span>
+                </Fact>
+              ) : null}
             </dl>
+            {request.ratingComment ? (
+              <blockquote className="rounded-xl bg-tint px-3 py-2 text-[13px] text-body italic">
+                “{request.ratingComment}”
+              </blockquote>
+            ) : null}
             {me.actions.includes("customers.view") ? (
               <Link
                 href={routes.teamCustomer(customer.id)}

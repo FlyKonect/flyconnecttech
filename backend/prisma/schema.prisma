@@ -424,6 +424,11 @@ model SupportRequest {
   /// SLA fix clock: from the resolution target of the priority. Empty for
   /// requests made before it existed.
   resolveDueAt    DateTime?
+  /// The customer's rating when confirming the fix: 1 to 5 stars and an
+  /// optional comment. Empty when they skipped it.
+  rating          Int?
+  ratingComment   String?       @db.VarChar(500)
+  ratedAt         DateTime?
   slaPausedAt     DateTime?
   firstResponseAt DateTime?
   resolvedAt      DateTime?

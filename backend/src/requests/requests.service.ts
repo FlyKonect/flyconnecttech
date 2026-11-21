@@ -254,6 +254,8 @@ export class RequestsService {
         createdAt: true,
         updatedAt: true,
         closedAt: true,
+        rating: true,
+        ratingComment: true,
         project: { select: { code: true, name: true, type: true } },
         assignee: { select: { name: true } },
         messages: {
@@ -383,7 +385,12 @@ export class RequestsService {
   }
 
   /** Close request, Confirm it's fixed, I still need help / Reopen request. */
-  async act(actor: SignedIn, code: string, action: CustomerAction) {
+  async act(
+    actor: SignedIn,
+    code: string,
+    action: CustomerAction,
+    rating?: { rating?: number; comment?: string },
+  ) {
     const rule = CUSTOMER_ACTIONS[action];
     const request = await this.findOwn(actor, code);
     if (!rule.from.includes(request.status)) throw changedMeanwhile();
@@ -412,6 +419,16 @@ export class RequestsService {
         targets,
       });
       if (!changed) throw changedMeanwhile();
+      if (action === 'confirm' && rating?.rating) {
+        await tx.supportRequest.update({
+          where: { id: request.id },
+          data: {
+            rating: rating.rating,
+            ratingComment: rating.comment || null,
+            ratedAt: new Date(),
+          },
+        });
+      }
       await this.events.customerActivity(
         tx,
         request,
