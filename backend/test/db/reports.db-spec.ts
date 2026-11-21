@@ -348,6 +348,39 @@ describe('Reports & Analytics', () => {
     expect(bad.body.code).toBe('BAD_RANGE');
   });
 
+  it('a range that is over is kept for 10 minutes; then it is worked out again', async () => {
+    const range = { from: '2025-03-01', to: '2025-03-31' };
+    const later = new Date('2026-11-18T12:00:00Z');
+    const first = await reports.report(range, later);
+    const before = Number(first.cards[2].value);
+
+    // A request resolved in that March, saved afterwards.
+    const project = await prisma.project.findFirstOrThrow({});
+    await prisma.$transaction(async (tx) =>
+      tx.supportRequest.create({
+        data: {
+          code: await nextCode(tx, 'request', new Date('2025-03-10T10:00:00Z')),
+          title: 'Kept report check',
+          description: 'Resolved in March 2025.',
+          type: 'GENERAL_INQUIRY',
+          priority: 'LOW',
+          status: 'RESOLVED',
+          projectId: project.id,
+          customerId: project.customerId,
+          createdAt: new Date('2025-03-10T10:00:00Z'),
+          resolvedAt: new Date('2025-03-12T10:00:00Z'),
+        },
+      }),
+    );
+    const kept = await reports.report(range, later);
+    expect(Number(kept.cards[2].value)).toBe(before);
+    const fresh = await reports.report(
+      range,
+      new Date(later.getTime() + 11 * 60 * 1000),
+    );
+    expect(Number(fresh.cards[2].value)).toBe(before + 1);
+  });
+
   it('super admins, admins and managers see it; developers do not', async () => {
     await as(manager).get('/team/reports').expect(200);
     await as(admin).get('/team/reports').expect(200);

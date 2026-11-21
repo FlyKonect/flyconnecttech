@@ -33,6 +33,10 @@ const MONTHS = [
 ];
 
 const DAY = 24 * 60 * 60 * 1000;
+/** How long a finished range's report is kept, and how many at most. */
+const KEEP_MS = 10 * 60 * 1000;
+const KEEP_REPORTS = 50;
+
 /** The longest range one report covers. */
 const MAX_DAYS = 400;
 
@@ -91,7 +95,31 @@ function dayWords(date: Date): string {
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Reports for a range that is already over don't change, so they are kept
+   * for 10 minutes (per app process); the "this week" chart stays live.
+   * This month, and any range up to today, are always worked out afresh.
+   */
+  private readonly finished = new Map<
+    string,
+    { until: number; value: Awaited<ReturnType<ReportsService['build']>> }
+  >();
+
   async report(query: ReportQuery = {}, now = new Date()) {
+    const key = JSON.stringify(query);
+    const kept = this.finished.get(key);
+    if (kept && kept.until > now.getTime()) {
+      return { ...kept.value, week: await this.thisWeek(now, scopeOf(query)) };
+    }
+    const value = await this.build(query, now);
+    if (value.period.custom && value.period.to.getTime() < now.getTime()) {
+      if (this.finished.size >= KEEP_REPORTS) this.finished.clear();
+      this.finished.set(key, { until: now.getTime() + KEEP_MS, value });
+    }
+    return value;
+  }
+
+  private async build(query: ReportQuery, now: Date) {
     const custom = isDay(query.from) || isDay(query.to);
     let period: Month;
     let previous: Month;
@@ -122,10 +150,7 @@ export class ReportsService {
     }
 
     // Every number below counts only these requests.
-    const scope: Prisma.SupportRequestWhereInput = {
-      ...(query.customerId ? { customerId: query.customerId } : {}),
-      ...(query.developerId ? { assigneeId: query.developerId } : {}),
-    };
+    const scope = scopeOf(query);
 
     const [
       firstThis,
@@ -437,6 +462,14 @@ function satisfaction(average: number | null, count: number): ReportCard {
       tone: 'same',
     },
     note: null,
+  };
+}
+
+/** The requests a report counts: one customer, one developer, or all. */
+function scopeOf(query: ReportQuery): Prisma.SupportRequestWhereInput {
+  return {
+    ...(query.customerId ? { customerId: query.customerId } : {}),
+    ...(query.developerId ? { assigneeId: query.developerId } : {}),
   };
 }
 
