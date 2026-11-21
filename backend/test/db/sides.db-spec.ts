@@ -172,13 +172,31 @@ describe('one email, two separate accounts', () => {
     await signIn(email, TEAM_PASSWORD).expect(400);
   });
 
-  it('a page still finds an account that only exists on the other side', async () => {
+  it('a page never signs in an account from the other side', async () => {
     const teamOnly = uniqueEmail('team-only');
     const teamId = await activated(teamOnly, 'DEVELOPER', TEAM_PASSWORD);
-    // The website then says "This is a team account", as before.
-    expect(
-      await whoSignedIn(teamOnly, TEAM_PASSWORD, 'customer'),
-    ).toMatchObject({ id: teamId, area: 'team' });
+    const customerOnly = uniqueEmail('customer-only');
+    await activated(
+      customerOnly,
+      'CUSTOMER',
+      CUSTOMER_PASSWORD,
+      'Bluewave Holidays',
+    );
+    // The same answer as an unknown email: it never says the other side
+    // has an account.
+    const team = await signIn(teamOnly, TEAM_PASSWORD, 'customer').expect(401);
+    const customer = await signIn(
+      customerOnly,
+      CUSTOMER_PASSWORD,
+      'team',
+    ).expect(401);
+    const nobody = await signIn(
+      uniqueEmail('nobody'),
+      TEAM_PASSWORD,
+      'customer',
+    ).expect(401);
+    expect(team.body).toEqual(nobody.body);
+    expect(customer.body).toEqual(nobody.body);
     // Scripts and tests that say no side get the one account there is.
     expect(await whoSignedIn(teamOnly, TEAM_PASSWORD)).toMatchObject({
       id: teamId,

@@ -39,7 +39,8 @@ function SignInFields() {
     setError("");
     setBusy(true);
     try {
-      const { data, error: failed } = await authClient.signIn.email({
+      // Only customer accounts: a team email answers like an unknown one.
+      const { error: failed } = await authClient.signIn.email({
         email: String(form.get("email")).trim(),
         password: String(form.get("password")),
         rememberMe: form.get("keep") === "on",
@@ -47,11 +48,6 @@ function SignInFields() {
       });
       if (failed) {
         setError(authErrorMessage(failed));
-        return;
-      }
-      if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
-        // A team account with two-factor: its code is asked on Team sign in.
-        router.push(`${routes.teamSignIn}?team=1`);
         return;
       }
       router.replace(await destinationAfterSignIn());

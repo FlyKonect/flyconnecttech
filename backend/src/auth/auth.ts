@@ -196,10 +196,9 @@ export function createAuth(
 
 /**
  * Which account a sign-in is for (customer and team accounts are separate):
- * - the page's own side, when that side has an account with this email;
- * - otherwise the other side's, if it has one. The password is still
- *   checked, and the website then says "This is a team account" (or sends a
- *   customer to the portal), as it always has;
+ * - a sign-in page looks only at its own side. Customer sign in never finds
+ *   a team account (and Team sign in never a customer one): it answers
+ *   "email or password not right", and never says the other side has it;
  * - with no side said (a script or test), the one side that has it. An
  *   email on both sides must say which.
  */
@@ -208,16 +207,12 @@ async function signInSide(
   email: string,
   asked: AccountSide | null,
 ): Promise<AccountSide> {
+  if (asked) return asked;
   const accounts = await prisma.user.findMany({
     where: { email },
     select: { side: true },
   });
   const sides = new Set(accounts.map((account) => account.side));
-  if (asked) {
-    if (sides.has(asked)) return asked;
-    const other = asked === 'TEAM' ? 'CUSTOMER' : 'TEAM';
-    return sides.has(other) ? other : asked;
-  }
   if (sides.size > 1) {
     throw new APIError('BAD_REQUEST', {
       message: 'Sign in from the client portal or the team panel.',

@@ -59,9 +59,7 @@ function TeamSignInSteps() {
       ? "Your account is active. Sign in, then set up your authenticator app."
       : params.get("reset") === "1"
         ? "Your password has been changed. Sign in with your new password."
-        : params.get("team") === "1"
-          ? "This is a team account. Sign in here."
-          : null;
+        : null;
 
   async function finish() {
     router.replace(await destinationAfterSignIn());
@@ -75,6 +73,7 @@ function TeamSignInSteps() {
     setError("");
     setBusy(true);
     try {
+      // Only team accounts: a customer email answers like an unknown one.
       const { data, error: failed } = await authClient.signIn.email({
         email: typed,
         password: String(form.get("password")),
