@@ -104,6 +104,22 @@ function DataTable<Row>({
   const start = (current - 1) * pageSize;
   const pageRows = serverPaging ? rows : rows.slice(start, start + pageSize);
 
+  // A table wider than its card scrolls sideways. Keyboard users can then
+  // reach the scroll area with Tab (and scroll with the arrow keys), even
+  // when no row has a link or button in it.
+  const scroller = React.useRef<HTMLDivElement>(null);
+  const [scrolls, setScrolls] = React.useState(false);
+  React.useEffect(() => {
+    const area = scroller.current;
+    if (!area || typeof ResizeObserver === "undefined") return;
+    const check = () => setScrolls(area.scrollWidth > area.clientWidth + 1);
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(area);
+    if (area.firstElementChild) observer.observe(area.firstElementChild);
+    return () => observer.disconnect();
+  }, [rows.length]);
+
   if (rows.length === 0) {
     return (
       <div
@@ -164,7 +180,17 @@ function DataTable<Row>({
     <div data-slot="data-table" className={className}>
       {/* Wide screens: a real table. */}
       <div className="overflow-hidden rounded-[22px] border border-line-2 bg-white shadow-[0_1px_2px_rgba(2,26,84,0.04)] max-app:hidden">
-        <div className="overflow-x-auto">
+        <div
+          ref={scroller}
+          className="overflow-x-auto focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none focus-visible:ring-inset"
+          {...(scrolls
+            ? {
+                tabIndex: 0,
+                role: "region",
+                "aria-label": `${caption}, scrolls sideways`,
+              }
+            : {})}
+        >
           <table className="w-full border-collapse text-left text-sm">
             <caption className="sr-only">{caption}</caption>
             <thead>
