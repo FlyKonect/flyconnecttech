@@ -14,6 +14,7 @@ const ROWS = [
   'Status changed / needs info / resolved / closed',
   'Daily digest of requests waiting for review',
   'Weekly summary of my requests',
+  'Project update posted',
   'Demo requested',
   'Demo confirmed or rescheduled',
   'Demo cancelled',

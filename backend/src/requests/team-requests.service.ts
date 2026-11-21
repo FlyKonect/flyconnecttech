@@ -297,7 +297,7 @@ export class TeamRequestsService {
       // For Edit details: the customer's other projects.
       projectChoices: can(actor, 'requests.edit')
         ? await this.prisma.project.findMany({
-            where: { customerId: customer.id },
+            where: { customerId: customer.id, deletedAt: null },
             orderBy: { name: 'asc' },
             select: { id: true, code: true, name: true },
           })
@@ -329,7 +329,11 @@ export class TeamRequestsService {
     let projectName: string | null = null;
     if (input.projectId && input.projectId !== before.projectId) {
       const project = await this.prisma.project.findFirst({
-        where: { id: input.projectId, customerId: request.customerId },
+        where: {
+          id: input.projectId,
+          customerId: request.customerId,
+          deletedAt: null,
+        },
         select: { name: true },
       });
       if (!project) {

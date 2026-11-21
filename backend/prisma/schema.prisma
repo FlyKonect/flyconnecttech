@@ -185,6 +185,7 @@ enum NotificationKind {
   review
   invite
   lead
+  project
 }
 
 // ============================================================ people & sign-in
@@ -254,6 +255,10 @@ model User {
   settingsUpdated  Setting[]
   auditLogs        AuditLog[]
   testimonials     Testimonial[]
+  projectsLed      Project[]             @relation("ProjectLead")
+  projectsDeleted  Project[]             @relation("ProjectDeletedBy")
+  projectUpdates   ProjectUpdate[]
+  projectFiles     ProjectFile[]
 
   /// The account lock (src/auth/sign-in-lock.ts): wrong passwords in a row,
   /// since when, and until when sign-in is refused.
@@ -383,20 +388,109 @@ model Customer {
 
 /// A project belongs to exactly one customer.
 model Project {
-  id         String        @id @default(uuid()) @db.Char(36)
+  id           String        @id @default(uuid()) @db.Char(36)
   /// P-0001
-  code       String        @unique @db.VarChar(16)
-  name       String        @db.VarChar(160)
-  type       ProjectType
-  status     ProjectStatus @default(PLANNING)
-  customerId String        @db.Char(36)
-  customer   Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  createdAt  DateTime      @default(now())
+  code         String        @unique @db.VarChar(16)
+  name         String        @db.VarChar(160)
+  type         ProjectType
+  status       ProjectStatus @default(PLANNING)
+  customerId   String        @db.Char(36)
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  /// What the project is, in a few lines (the customer sees it).
+  description  String?       @db.Text
+  /// UK calendar dates, all optional.
+  startDate    DateTime?     @db.Date
+  targetDate   DateTime?     @db.Date
+  liveDate     DateTime?     @db.Date
+  supportUntil DateTime?     @db.Date
+  /// http or https addresses: the live site and where work in progress is.
+  liveUrl      String?       @db.VarChar(500)
+  testUrl      String?       @db.VarChar(500)
+  /// For example "Next.js, Amadeus, Stripe".
+  builtWith    String?       @db.VarChar(300)
+  /// The team member who leads it (the customer sees the name).
+  leadId       String?       @db.Char(36)
+  lead         User?         @relation("ProjectLead", fields: [leadId], references: [id], onDelete: SetNull)
+  /// Only the team sees these: never the portal, emails or data exports.
+  teamNotes    String?       @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  /// Set when an admin deleted it: hidden from the lists, its requests,
+  /// items and updates kept as history (Restore brings it back).
+  deletedAt    DateTime?
+  deletedById  String?       @db.Char(36)
+  deletedBy    User?         @relation("ProjectDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull)
 
   requests SupportRequest[]
+  items    ProjectItem[]
+  updates  ProjectUpdate[]
+  files    ProjectFile[]
 
   @@index([customerId])
+  @@index([deletedAt, status])
   @@map("projects")
+}
+
+enum ProjectItemStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+/// One thing a project includes ("Flight search", "Stripe payments").
+/// Progress is the share of items that are Done.
+model ProjectItem {
+  id        String            @id @default(uuid()) @db.Char(36)
+  projectId String            @db.Char(36)
+  project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String            @db.VarChar(160)
+  detail    String?           @db.VarChar(500)
+  status    ProjectItemStatus @default(TODO)
+  /// The order in the list, from 0.
+  position  Int
+  doneAt    DateTime?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([projectId, position])
+  @@map("project_items")
+}
+
+/// What has been done: a dated note from the team, emailed to the customer.
+model ProjectUpdate {
+  id        String        @id @default(uuid()) @db.Char(36)
+  projectId String        @db.Char(36)
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  body      String        @db.Text
+  authorId  String        @db.Char(36)
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt DateTime      @default(now())
+  editedAt  DateTime?
+  files     ProjectFile[]
+
+  @@index([projectId, createdAt])
+  @@map("project_updates")
+}
+
+/// A file on a project update. The file is on the server disk (storageKey).
+model ProjectFile {
+  id           String        @id @default(uuid()) @db.Char(36)
+  projectId    String        @db.Char(36)
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  updateId     String        @db.Char(36)
+  update       ProjectUpdate @relation(fields: [updateId], references: [id], onDelete: Cascade)
+  fileName     String        @db.VarChar(255)
+  contentType  String        @db.VarChar(127)
+  /// Bytes.
+  size         Int
+  storageKey   String        @unique @db.VarChar(255)
+  uploadedById String        @db.Char(36)
+  uploadedBy   User          @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  createdAt    DateTime      @default(now())
+
+  @@index([projectId])
+  @@index([updateId])
+  @@map("project_files")
 }
 
 // ========================================================= support requests

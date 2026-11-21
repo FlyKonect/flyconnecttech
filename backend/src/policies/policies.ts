@@ -52,6 +52,8 @@ export type Action =
   | 'customers.manage'
   /** Delete a customer (its requests and projects stay as history). */
   | 'customers.delete'
+  /** Delete or restore a project (its requests and updates stay as history). */
+  | 'projects.delete'
   /** See the team users. */
   | 'users.view'
   /** Add team users (which roles: see canInviteRole). */
@@ -93,6 +95,7 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'customers.view': NOT_DEVELOPER,
   'customers.manage': ADMINS,
   'customers.delete': ADMINS,
+  'projects.delete': ADMINS,
   'users.view': ADMINS,
   'users.invite': ADMINS,
   'users.delete': ADMINS,

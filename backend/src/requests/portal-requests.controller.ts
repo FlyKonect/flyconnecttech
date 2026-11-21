@@ -82,10 +82,7 @@ export class PortalRequestsController {
     return this.requests.summary(user);
   }
 
-  @Get('projects')
-  projects(@CurrentUser() user: SignedIn) {
-    return this.requests.projects(user);
-  }
+  // GET /portal/projects (also New request's choices): projects module.
 
   @Get('requests')
   list(

@@ -53,6 +53,10 @@ import {
 } from './templates/team-request.js';
 import { TeamReplyEmail, teamReplySubject } from './templates/team-reply.js';
 import {
+  ProjectUpdateEmail,
+  projectUpdateSubject,
+} from './templates/project-update.js';
+import {
   WeeklySummaryEmail,
   weeklySummarySubject,
 } from './templates/weekly-summary.js';
@@ -398,6 +402,27 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
           },
         ]}
         link={`${siteUrl}/portal/requests`}
+      />
+    ),
+  },
+  {
+    key: 'project-update',
+    row: 'Project update posted',
+    to: 'The customer\'s contact, when they have "A project update is posted" ticked',
+    subject: projectUpdateSubject('Bluewave booking website'),
+    render: (siteUrl) => (
+      <ProjectUpdateEmail
+        siteUrl={siteUrl}
+        firstName="Sarah"
+        authorName="Emma Clarke"
+        code="P-0004"
+        name="Bluewave booking website"
+        body={
+          'Flight search is finished and ready for you to try on the test site. Next we start on the payment step with Stripe.'
+        }
+        progress="Progress: 6 of 10 done (60%)"
+        files={2}
+        link={`${siteUrl}/portal/projects/P-0004`}
       />
     ),
   },

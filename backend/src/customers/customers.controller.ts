@@ -16,6 +16,7 @@ import { CustomersService } from './customers.service.js';
 import { parsePaging } from '../common/paging.js';
 import { AuditService } from '../audit/audit.service.js';
 import { allPages, csvFile, toCsv } from '../common/csv.js';
+import { customerProjectSchema } from '../projects/project-rules.js';
 
 export const PROJECT_TYPES = [
   'WEBSITE',
@@ -53,8 +54,9 @@ const newCustomerSchema = z.object({
   email: z.email('Enter a valid email address').max(191),
   company: z.string().trim().min(1, 'Enter the company name').max(160),
   phone: z.string().trim().max(40).optional(),
+  // Each with an optional description and "What's included" (one per line).
   projects: z
-    .array(projectSchema)
+    .array(customerProjectSchema)
     .min(1, 'Add at least one project')
     .max(MAX_NEW_PROJECTS, `Add up to ${MAX_NEW_PROJECTS} projects at a time`),
   /** Converting a website lead: its code, for example QUO-2026-040. */

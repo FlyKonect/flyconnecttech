@@ -12,6 +12,7 @@ import { HealthModule } from './health/health.module.js';
 import { JobsModule } from './jobs/jobs.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { ProjectsModule } from './projects/projects.module.js';
 import { RequestsModule } from './requests/requests.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 import { UploadsModule } from './uploads/uploads.module.js';
@@ -30,6 +31,7 @@ import { WebsiteModule } from './website/website.module.js';
     AccountsModule,
     RequestsModule,
     CustomersModule,
+    ProjectsModule,
     LeadsModule,
     JobsModule,
     ReportsModule,

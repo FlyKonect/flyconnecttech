@@ -49,6 +49,14 @@ export const ROLE_LABELS: Record<Role, string> = {
   CUSTOMER: 'Customer',
 };
 
+/** A project made with the customer: "What's included" is one item a line. */
+export type NewCustomerProject = {
+  name: string;
+  type: ProjectType;
+  description?: string | null;
+  items?: string[];
+};
+
 export type InviteUserInput = {
   name: string;
   email: string;
@@ -60,7 +68,7 @@ export type InviteUserInput = {
   country?: string;
   phone?: string;
   /** Customers only: their first projects, listed in the invitation email. */
-  projects?: { name: string; type: ProjectType }[];
+  projects?: NewCustomerProject[];
   /** Customers only: the website lead they were converted from. */
   sourceLead?: { type: LeadType; id: string };
   /**
@@ -187,6 +195,13 @@ export class InvitationsService {
               name: project.name.trim(),
               type: project.type,
               customerId,
+              description: project.description ?? null,
+              items: {
+                create: (project.items ?? []).map((title, position) => ({
+                  title,
+                  position,
+                })),
+              },
             },
           });
           codes.push(code);
@@ -381,6 +396,7 @@ export class InvitationsService {
           customer: {
             include: {
               projects: {
+                where: { deletedAt: null },
                 select: { name: true },
                 orderBy: { createdAt: 'asc' },
               },

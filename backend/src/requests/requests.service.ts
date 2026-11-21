@@ -116,15 +116,6 @@ export class RequestsService {
     };
   }
 
-  /** The customer's projects, for step 1 of a new request. */
-  projects(actor: SignedIn) {
-    return this.prisma.project.findMany({
-      where: customerScope(actor),
-      orderBy: { code: 'asc' },
-      select: { id: true, code: true, name: true, type: true, status: true },
-    });
-  }
-
   /** My requests: one tab, an optional search, and every tab's count. */
   async list(
     actor: SignedIn,
@@ -170,7 +161,7 @@ export class RequestsService {
   /** Sends a new request (screens 07 to 11). */
   async create(actor: SignedIn, input: NewRequest, files: UploadedFile[]) {
     const project = await this.prisma.project.findFirst({
-      where: { id: input.projectId, ...customerScope(actor) },
+      where: { id: input.projectId, deletedAt: null, ...customerScope(actor) },
       select: { id: true, name: true, customer: { select: { company: true } } },
     });
     if (!project) {

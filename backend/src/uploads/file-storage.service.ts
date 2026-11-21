@@ -84,8 +84,12 @@ export class FileStorageService {
 
   /** Moves checked files to the request's folder. Returns their storage keys. */
   async keep(files: CheckedFile[], requestId: string): Promise<string[]> {
+    return this.keepIn(files, `requests/${requestId}`);
+  }
+
+  /** The same for another folder: `projects/<project id>` for updates. */
+  async keepIn(files: CheckedFile[], folder: string): Promise<string[]> {
     if (!files.length) return [];
-    const folder = `requests/${requestId}`;
     await mkdir(this.resolve(folder), { recursive: true });
     const keys: string[] = [];
     try {

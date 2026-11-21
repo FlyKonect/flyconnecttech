@@ -15,6 +15,12 @@ import {
   visibleFiles,
 } from '../requests/requests.service.js';
 import { FileStorageService } from '../uploads/file-storage.service.js';
+import type { ProjectItemStatus } from '../generated/prisma/client.js';
+import {
+  calendarDay,
+  progressOf,
+  progressWords,
+} from '../projects/project-rules.js';
 
 const README = `Your data from FlyConnect Tech
 ===============================
@@ -22,16 +28,26 @@ const README = `Your data from FlyConnect Tech
 These files hold what we keep about your account (UK GDPR, the right of
 access):
 
-- profile.csv   your company and contact details
-- projects.csv  your projects
-- requests.csv  your support requests
-- messages.csv  the conversation on each request (your replies, our
-                replies and the status lines)
-- files/        the files on your requests, one folder per request
+- profile.csv          your company and contact details
+- projects.csv         your projects and their details
+- project-items.csv    what each project includes, and how far it is
+- project-updates.csv  the updates we posted on your projects
+- requests.csv         your support requests
+- messages.csv         the conversation on each request (your replies, our
+                       replies and the status lines)
+- files/               the files on your requests (one folder per request)
+                       and on project updates (files/projects/<code>/)
 
-Our team's internal notes are not part of your data and are not included.
+Our team's internal notes (on requests and projects) are not part of your
+data and are not included.
 Questions: info@flyconnecttech.co.uk
 `;
+
+const ITEM_WORDS: Record<ProjectItemStatus, string> = {
+  TODO: 'To do',
+  IN_PROGRESS: 'In progress',
+  DONE: 'Done',
+};
 
 const KIND_WORDS: Record<string, string> = {
   CUSTOMER_REPLY: 'Your reply',
@@ -82,12 +98,39 @@ export class CustomerExportService {
         },
         projects: {
           orderBy: { code: 'asc' },
+          // Never teamNotes: they are the team's, not the customer's.
           select: {
             code: true,
             name: true,
             type: true,
             status: true,
+            description: true,
+            startDate: true,
+            targetDate: true,
+            liveDate: true,
+            supportUntil: true,
+            liveUrl: true,
+            testUrl: true,
+            builtWith: true,
+            deletedAt: true,
             createdAt: true,
+            lead: { select: { name: true } },
+            items: {
+              orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+              select: { title: true, detail: true, status: true, doneAt: true },
+            },
+            updates: {
+              orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+              select: {
+                body: true,
+                createdAt: true,
+                author: { select: { name: true } },
+                files: {
+                  orderBy: { createdAt: 'asc' },
+                  select: { fileName: true, storageKey: true },
+                },
+              },
+            },
           },
         },
         requests: {
@@ -161,14 +204,72 @@ export class CustomerExportService {
     add(
       'projects.csv',
       toCsv(
-        ['Code', 'Name', 'Type', 'Status', 'Added'],
+        [
+          'Code',
+          'Name',
+          'Type',
+          'Status',
+          'Description',
+          'Start',
+          'Target',
+          'Went live',
+          'Support until',
+          'Live address',
+          'Test address',
+          'Built with',
+          'Lead',
+          'Progress',
+          'Added',
+          'Deleted',
+        ],
         customer.projects.map((p) => [
           p.code,
           p.name,
           p.type,
           p.status,
+          p.description,
+          calendarDay(p.startDate),
+          calendarDay(p.targetDate),
+          calendarDay(p.liveDate),
+          calendarDay(p.supportUntil),
+          p.liveUrl,
+          p.testUrl,
+          p.builtWith,
+          p.lead?.name ?? '',
+          progressWords(progressOf(p.items)),
           ukStamp(p.createdAt),
+          ukStamp(p.deletedAt),
         ]),
+      ),
+    );
+    add(
+      'project-items.csv',
+      toCsv(
+        ['Project', 'Item', 'Detail', 'Status', 'Done'],
+        customer.projects.flatMap((p) =>
+          p.items.map((item) => [
+            p.code,
+            item.title,
+            item.detail,
+            ITEM_WORDS[item.status],
+            ukStamp(item.doneAt),
+          ]),
+        ),
+      ),
+    );
+    add(
+      'project-updates.csv',
+      toCsv(
+        ['Project', 'When', 'From', 'Update', 'Files'],
+        customer.projects.flatMap((p) =>
+          p.updates.map((update) => [
+            p.code,
+            ukStamp(update.createdAt),
+            update.author.name,
+            update.body,
+            update.files.map((file) => file.fileName).join(', '),
+          ]),
+        ),
       ),
     );
     add(
@@ -235,6 +336,20 @@ export class CustomerExportService {
         zip.addReadStream(
           this.storage.read(file.storageKey),
           `files/${request.code}/${name}`,
+        );
+        files += 1;
+      }
+    }
+    for (const project of customer.projects) {
+      const used = new Set<string>();
+      for (const file of project.updates.flatMap((u) => u.files)) {
+        let name = safeName(file.fileName);
+        for (let n = 2; used.has(name); n += 1)
+          name = `${n}-${safeName(file.fileName)}`;
+        used.add(name);
+        zip.addReadStream(
+          this.storage.read(file.storageKey),
+          `files/projects/${project.code}/${name}`,
         );
         files += 1;
       }

@@ -18,6 +18,8 @@ import { can } from '../policies/policies.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { OPEN_STATUSES } from '../requests/status-rules.js';
 import { pageWindow, type Paging } from '../common/paging.js';
+import { progressOf } from '../projects/project-rules.js';
+import type { NewCustomerProject } from '../accounts/invitations.service.js';
 
 const TX = { isolationLevel: 'ReadCommitted' } as const;
 
@@ -28,7 +30,7 @@ export type NewCustomer = {
   email: string;
   company: string;
   phone?: string;
-  projects: { name: string; type: ProjectType }[];
+  projects: NewCustomerProject[];
   /** Converting a website lead: its code (docs/01 §6, screen 42). */
   from?: string;
   /** The answer to "This email belonged to an account that was deleted". */
@@ -73,7 +75,9 @@ export class CustomersService {
     const window = pageWindow(paging, total);
     const [customers, projects, invited, found] = await Promise.all([
       this.prisma.customer.count({ where: { deletedAt: null } }),
-      this.prisma.project.count({ where: { customer: { deletedAt: null } } }),
+      this.prisma.project.count({
+        where: { deletedAt: null, customer: { deletedAt: null } },
+      }),
       this.prisma.user.count({
         where: { role: 'CUSTOMER', status: 'INVITED' },
       }),
@@ -86,7 +90,11 @@ export class CustomersService {
           id: true,
           company: true,
           contactUser: { select: { name: true, email: true, status: true } },
-          projects: { orderBy: { createdAt: 'asc' }, select: { name: true } },
+          projects: {
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'asc' },
+            select: { name: true },
+          },
         },
       }),
     ]);
@@ -189,6 +197,7 @@ export class CustomersService {
           },
         },
         projects: {
+          where: { deletedAt: null },
           orderBy: { createdAt: 'asc' },
           select: {
             id: true,
@@ -196,6 +205,7 @@ export class CustomersService {
             name: true,
             type: true,
             status: true,
+            items: { select: { status: true } },
           },
         },
       },
@@ -235,8 +245,9 @@ export class CustomersService {
         ...contact,
         country: contact.country ?? customer.country,
       },
-      projects: customer.projects.map((project) => ({
+      projects: customer.projects.map(({ items, ...project }) => ({
         ...project,
+        progress: progressOf(items),
         openRequests:
           open.find((row) => row.projectId === project.id)?._count._all ?? 0,
       })),
@@ -290,7 +301,12 @@ export class CustomersService {
   ) {
     return this.prisma.$transaction(async (tx) => {
       const project = await tx.project.findFirst({
-        where: { id: projectId, customerId, customer: { deletedAt: null } },
+        where: {
+          id: projectId,
+          customerId,
+          deletedAt: null,
+          customer: { deletedAt: null },
+        },
         select: { id: true, code: true, name: true, type: true },
       });
       if (!project) throw new NotFoundException();
@@ -368,7 +384,12 @@ export class CustomersService {
   ) {
     return this.prisma.$transaction(async (tx) => {
       const project = await tx.project.findFirst({
-        where: { id: projectId, customerId, customer: { deletedAt: null } },
+        where: {
+          id: projectId,
+          customerId,
+          deletedAt: null,
+          customer: { deletedAt: null },
+        },
         select: { id: true, code: true, status: true },
       });
       if (!project) throw new NotFoundException();
