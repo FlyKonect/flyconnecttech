@@ -168,4 +168,19 @@ test("Reports: a date range and a customer narrow the report", async ({
     page.getByRole("list", { name: "1 Nov 2026 to 15 Nov 2026" }),
   ).toContainText("Resolved");
   await expect(page.getByRole("link", { name: "This month" })).toBeVisible();
+
+  // The three downloads: real files, for these same dates.
+  const files = page.getByRole("group", { name: "Download the report" });
+  for (const [name, ending] of [
+    ["PDF", ".pdf"],
+    ["Excel", ".xlsx"],
+    ["CSV", ".csv"],
+  ] as const) {
+    const waiting = page.waitForEvent("download");
+    await files.getByRole("link", { name }).click();
+    const file = await waiting;
+    expect(file.suggestedFilename()).toBe(
+      `flyconnect-tech-report-1-nov-2026-to-15-nov-2026${ending}`,
+    );
+  }
 });

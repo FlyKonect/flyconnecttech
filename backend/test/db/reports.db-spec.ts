@@ -381,6 +381,55 @@ describe('Reports & Analytics', () => {
     expect(Number(fresh.cards[2].value)).toBe(before + 1);
   });
 
+  it('downloads as PDF, Excel and CSV for everyone who sees Reports', async () => {
+    const download = (format: string, who = manager) =>
+      as(who)
+        .get(`/team/reports/export.${format}?from=2026-11-01&to=2026-11-30`)
+        .buffer(true)
+        .parse((res, done) => {
+          const chunks: Buffer[] = [];
+          res.on('data', (chunk: Buffer) => chunks.push(chunk));
+          res.on('end', () => done(null, Buffer.concat(chunks)));
+        });
+
+    const pdf = await download('pdf').expect(200);
+    expect(pdf.headers['content-type']).toContain('application/pdf');
+    expect(pdf.headers['content-disposition']).toContain(
+      'flyconnect-tech-report-1-nov-2026-to-30-nov-2026.pdf',
+    );
+    expect((pdf.body as Buffer).subarray(0, 5).toString('latin1')).toBe(
+      '%PDF-',
+    );
+    if (process.env.REPORT_SAMPLE_DIR) {
+      const { writeFileSync } = await import('node:fs');
+      writeFileSync(`${process.env.REPORT_SAMPLE_DIR}/report.pdf`, pdf.body);
+    }
+
+    const xlsx = await download('xlsx').expect(200);
+    expect(xlsx.headers['content-type']).toContain('spreadsheetml');
+    expect((xlsx.body as Buffer).subarray(0, 2).toString('latin1')).toBe('PK');
+
+    const csv = await download('csv').expect(200);
+    const text = (csv.body as Buffer).toString('utf8');
+    expect(text.startsWith('﻿"FlyConnect Tech report"')).toBe(true);
+    for (const part of [
+      '"Summary"',
+      '"Requests this week"',
+      '"Developer performance"',
+      '"Reply SLA met"',
+    ]) {
+      expect(text).toContain(part);
+    }
+
+    await download('docx').expect(400);
+    await download('pdf', developer).expect(403);
+    expect(
+      await prisma.auditLog.count({
+        where: { action: 'export.downloaded', entityId: 'report-pdf' },
+      }),
+    ).toBeGreaterThan(0);
+  });
+
   it('super admins, admins and managers see it; developers do not', async () => {
     await as(manager).get('/team/reports').expect(200);
     await as(admin).get('/team/reports').expect(200);

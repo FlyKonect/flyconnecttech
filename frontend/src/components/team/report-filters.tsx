@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Printer } from "lucide-react";
+import { FileSpreadsheet, FileText, Printer, Table2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/field";
+import { env } from "@/env";
 import { routes } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import type { Report } from "@/lib/team/types";
 
 /**
@@ -22,6 +24,13 @@ export function ReportFilters({
   chosen: { from: string; to: string; customer: string; developer: string };
 }) {
   const any = chosen.from || chosen.to || chosen.customer || chosen.developer;
+  // The files use the same choices as the report on screen.
+  const query = new URLSearchParams(
+    Object.entries(chosen).filter(([, value]) => value),
+  ).toString();
+  const file = (format: string) =>
+    `${env.NEXT_PUBLIC_API_URL}/team/reports/export.${format}${query ? `?${query}` : ""}`;
+  const download = cn(buttonVariants({ variant: "outline" }), "h-[46px]");
   const label = "flex min-w-0 flex-col gap-1.5 text-[13px] font-bold";
   return (
     <form
@@ -78,6 +87,27 @@ export function ReportFilters({
           <Printer aria-hidden="true" className="size-4" />
           Print
         </Button>
+      </div>
+      <div
+        role="group"
+        aria-label="Download the report"
+        className="flex flex-wrap items-center gap-2"
+      >
+        <span className="text-[13px] font-bold text-muted-foreground">
+          Download
+        </span>
+        <a href={file("pdf")} download className={download}>
+          <FileText aria-hidden="true" className="size-4" />
+          PDF
+        </a>
+        <a href={file("xlsx")} download className={download}>
+          <FileSpreadsheet aria-hidden="true" className="size-4" />
+          Excel
+        </a>
+        <a href={file("csv")} download className={download}>
+          <Table2 aria-hidden="true" className="size-4" />
+          CSV
+        </a>
       </div>
     </form>
   );
