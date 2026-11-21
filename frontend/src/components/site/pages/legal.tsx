@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 import { contactEmail, contactEmailHref } from "@/lib/contact";
 import { routes } from "@/lib/routes";
 
-export const LEGAL_UPDATED = "17 November 2026";
+export const LEGAL_UPDATED = "21 November 2026";
 
 function LegalPage({
   title,
