@@ -419,6 +419,27 @@ describe('the conversation', () => {
   });
 });
 
+describe('searching requests', () => {
+  it('finds words in the description and the start of a word in the title', async () => {
+    const code = await newRequest('LOW', 'Quarterly invoices export');
+    await prisma.supportRequest.update({
+      where: { code },
+      data: { description: 'The flamingoreport button does nothing.' },
+    });
+    const search = async (q: string) => {
+      const res = await as(admin)
+        .get(`/team/requests?q=${encodeURIComponent(q)}`)
+        .expect(200);
+      return (res.body.rows as { code: string }[]).map((row) => row.code);
+    };
+    expect(await search('flamingoreport')).toContain(code);
+    expect(await search('quarterl invoic')).toContain(code);
+    expect(await search('flamingoreport nonsenseword')).not.toContain(code);
+    // The code still works, as before.
+    expect(await search(code)).toContain(code);
+  });
+});
+
 describe('Edit details', () => {
   it('admins and managers correct the title, type and project; developers may not', async () => {
     const code = await newRequest('MEDIUM', 'Chekout fails');

@@ -33,6 +33,7 @@ import {
   systemLine,
   type RequestState,
 } from './request-writes.js';
+import { fullTextQuery } from './search-words.js';
 import { dueTimes } from './sla.js';
 import { TeamDashboardService } from './team-dashboard.service.js';
 import { pageWindow, type Paging } from '../common/paging.js';
@@ -106,6 +107,16 @@ export class TeamRequestsService {
   /** The requests list: tab counts, one page of matching rows (newest first), filter choices. */
   async list(actor: SignedIn, filters: ListFilters, paging: Paging) {
     const search = filters.search?.trim();
+    // Words in the title or description, from the full-text index.
+    const words = search ? fullTextQuery(search) : null;
+    const wordMatches = words
+      ? (
+          await this.prisma.$queryRaw<{ id: string }[]>`
+            SELECT id FROM support_requests
+            WHERE MATCH(title, description) AGAINST (${words} IN BOOLEAN MODE)
+            LIMIT 5000`
+        ).map((row) => row.id)
+      : [];
     const where: Prisma.SupportRequestWhereInput = {
       AND: [
         requestScope(actor),
@@ -113,7 +124,9 @@ export class TeamRequestsService {
           ? {
               OR: [
                 { code: { contains: search } },
-                { title: { contains: search } },
+                words
+                  ? { id: { in: wordMatches } }
+                  : { title: { contains: search } },
                 { customer: { company: { contains: search } } },
                 { customer: { contactUser: { name: { contains: search } } } },
               ],

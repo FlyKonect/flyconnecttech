@@ -445,6 +445,8 @@ model SupportRequest {
   @@index([customerId])
   @@index([projectId])
   @@index([priority])
+  /// The team's search: words in the title or the description.
+  @@fulltext([title, description])
   @@map("support_requests")
 }
 
