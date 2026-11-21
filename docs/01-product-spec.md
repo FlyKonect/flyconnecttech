@@ -189,7 +189,7 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
   - Logo with "Client portal".
   - No "Create support request" button here (removed at the client's request); it is on the Overview, and My Requests has **New request**.
   - Menu: Overview, My Requests (count), My Projects, Notifications (unread badge).
-  - At the bottom: user card (name, company) and **Visit website**.
+  - At the bottom: user card (name, company). No "Visit website" link (removed at the client's request).
 - **Header:** page title, a search box (searches the customer's requests), the notifications button, and the customer's name and company. A click on the name opens a menu: **Profile settings** and **Logout** (moved out of the left menu at the client's request; on phones only the avatar shows).
 - **Phone:** the sidebar becomes a slide-in menu.
 
@@ -277,11 +277,11 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
 
 ### Layout
 - **Navy sidebar:**
-  - Logo, then "Team panel · **View website**".
+  - Logo, then "Team panel". No "View website" link (removed at the client's request).
   - **Dashboard**.
   - **SUPPORT REQUESTS** (labelled **MY REQUESTS** for developers): All requests (count) only. The per-status shortcuts (New requests, Under review, In progress, Waiting for customer, Resolved, Closed) were removed at the client's request: All requests has them as filter tabs, and stays highlighted on every tab.
   - **WEBSITE** (Super admin, Admin, Manager): Demo requests, Quote requests, Messages, each with a gold badge for new items; then Website content (Super admin, Admin).
-  - **MANAGE:** Customers (Super admin, Admin, Manager), Users (Super admin, Admin), Reports & Analytics (Super admin, Admin, Manager).
+  - **MANAGE:** Customers (Super admin, Admin, Manager), Projects (Super admin, Admin, Manager), Users (Super admin, Admin), Reports & Analytics (Super admin, Admin, Manager).
   - Notifications (badge), Settings (Super admin).
   - User card (gold avatar, name, role).
 - **Header:** page title, search (requests and customers), notifications, and the user's name with role · job title. A click on the name opens a menu: **Profile settings** and **Logout** (Logout moved out of the left menu at the client's request).

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import {
-  ArrowUpRight,
   Bell,
   Building2,
   CalendarClock,
@@ -154,17 +153,10 @@ export function TeamShell({
             <div className="px-2.5 pt-1">
               <Logo eager onNavy className="h-[22px]" />
             </div>
-            <div className="mx-2.5 mt-3 mb-4 flex items-center justify-between gap-2 border-b border-white/10 pb-4 text-xs">
+            <div className="mx-2.5 mt-3 mb-4 flex items-center gap-2 border-b border-white/10 pb-4 text-xs">
               <span className="rounded-full bg-white/8 px-2.5 py-1 font-semibold text-on-navy">
                 Team panel
               </span>
-              <Link
-                href={routes.home}
-                className="inline-flex items-center gap-1 rounded-md py-1 font-bold text-gold-on-navy hover:underline"
-              >
-                View website
-                <ArrowUpRight aria-hidden="true" className="size-3.5" />
-              </Link>
             </div>
 
             <nav aria-label="Team" className="flex flex-col gap-0.5">

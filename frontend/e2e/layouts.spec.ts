@@ -196,9 +196,10 @@ test.describe("client portal layout", () => {
     await expect(
       sidebar.getByRole("link", { name: "Create support request" }),
     ).toHaveCount(0);
+    // No "Visit website" in the menu (removed at the client's request).
     await expect(
       sidebar.getByRole("link", { name: "Visit website" }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(sidebar.getByRole("button", { name: "Logout" })).toHaveCount(
       0,
     );

@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ArrowUpRight,
   Bell,
   FolderKanban,
   LayoutGrid,
@@ -91,17 +90,10 @@ export function PortalShell({ user, children }: ShellProps) {
           <div className="px-2 pt-1">
             <Logo eager className="h-[22px]" />
           </div>
-          <div className="mx-2 mt-3 mb-4 flex items-center justify-between gap-2 border-b border-line-3 pb-4 text-xs">
+          <div className="mx-2 mt-3 mb-4 flex items-center gap-2 border-b border-line-3 pb-4 text-xs">
             <span className="rounded-full bg-tint px-2.5 py-1 font-semibold text-navy-700">
               Client portal
             </span>
-            <Link
-              href={routes.home}
-              className="inline-flex items-center gap-1 rounded-md py-1 font-bold text-gold-text hover:underline"
-            >
-              Visit website
-              <ArrowUpRight aria-hidden="true" className="size-3.5" />
-            </Link>
           </div>
 
           <Link
