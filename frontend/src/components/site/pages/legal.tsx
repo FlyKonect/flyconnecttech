@@ -190,11 +190,29 @@ export function PrivacyPage() {
       </Section>
 
       <Section title="How long we keep it">
+        <ul>
+          <li>
+            <strong>Enquiries</strong> (demo, quote and contact forms) that did
+            not lead to working together: deleted automatically 3 years after
+            they were closed.
+          </li>
+          <li>
+            <strong>Notifications</strong> in the client portal: deleted 12
+            months after you read them.
+          </li>
+          <li>
+            <strong>Client accounts and support requests</strong>: kept while we
+            work together, and afterwards for as long as we need them for our
+            records and legal duties. Then we delete them.
+          </li>
+          <li>
+            <strong>Our record of account changes</strong> (for security): kept
+            for 6 years.
+          </li>
+        </ul>
         <p>
-          We keep enquiries for as long as we need them to reply and follow up.
-          Client accounts and support requests are kept while we work together,
-          and afterwards for as long as we need them for our records and legal
-          duties. Then we delete them.
+          You can ask us for a copy of the data we hold about you at any time:
+          write to the email address below.
         </p>
       </Section>
 

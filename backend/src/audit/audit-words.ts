@@ -78,6 +78,9 @@ export function auditSubject(
   data: Data,
 ): string {
   const d = data ?? {};
+  if (action === 'export.downloaded' && entityId === 'customer-data') {
+    return `the data of ${text(d.company)} (ZIP)`;
+  }
   if (action === 'export.downloaded') {
     return `${entityId.replace('leads-', 'website ')} (${text(d.rows)} rows)`;
   }

@@ -39,7 +39,7 @@ There is **no public sign-up**. Staff create every account; people activate it f
 ## Stack (short)
 
 - **Frontend:** Next.js 16 App Router, TypeScript strict, Tailwind 4 + shadcn/ui, Zod, react-hook-form, Vitest, Playwright + axe. No database access; everything comes from the backend (`NEXT_PUBLIC_API_URL`).
-- **Backend:** NestJS 12 (ESM), MariaDB 10.11 + Prisma 7, Zod, Better Auth (TOTP two-factor for the team), React Email + nodemailer, files on disk (`UPLOAD_DIR`), Jest.
+- **Backend:** NestJS 12 (ESM), MariaDB 10.11 + Prisma 7, Zod, Better Auth (TOTP two-factor for the team), React Email + nodemailer, files on disk (`UPLOAD_DIR`), `yazl` (ZIP files), Jest.
 - **Both:** npm (not pnpm). Docker Compose runs MariaDB and Mailpit in development.
 - **Live:** cPanel shared hosting (Krystal): website `flyconnecttech.co.uk`, backend `api.flyconnecttech.co.uk`. A push to `main` deploys and runs migrations, so never push without the owner's OK.
 

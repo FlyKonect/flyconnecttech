@@ -23,6 +23,7 @@ import {
 import { OPEN_STATUSES } from '../requests/status-rules.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { dueWords, waitingFor } from './job-words.js';
+import { KEEP, monthsAgo } from './retention.js';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -166,6 +167,66 @@ export class JobsService {
       }
     }
     return { done: `closed ${closed} of ${due.length}` };
+  }
+
+  /**
+   * Every night (with auto-close): old data goes, as KEEP in retention.ts
+   * says. Each delete is a plain where; running it again changes nothing.
+   */
+  async retention(now = new Date()): Promise<JobResult> {
+    const notesBefore = monthsAgo(now, KEEP.readNotificationsMonths);
+    const leadsBefore = monthsAgo(now, KEEP.closedLeadsMonths);
+    const auditBefore = monthsAgo(now, KEEP.auditYears * 12);
+    const old = { createdAt: { lt: leadsBefore }, customerId: null };
+
+    const notifications = await this.prisma.notification.deleteMany({
+      where: { readAt: { lt: notesBefore } },
+    });
+    // Leads: their notes and emails (lead activities) go with them.
+    const [demos, quotes, messages] = await Promise.all([
+      this.prisma.demoRequest.findMany({
+        where: { ...old, status: { in: ['COMPLETED', 'CANCELLED'] } },
+        select: { id: true },
+      }),
+      this.prisma.quoteRequest.findMany({
+        where: { ...old, status: { in: ['WON', 'LOST'] } },
+        select: { id: true },
+      }),
+      this.prisma.contactMessage.findMany({
+        where: { ...old, status: 'CLOSED' },
+        select: { id: true },
+      }),
+    ]);
+    const ids = (rows: { id: string }[]) => rows.map((row) => row.id);
+    await this.prisma.$transaction([
+      this.prisma.leadActivity.deleteMany({
+        where: {
+          OR: [
+            { leadType: 'DEMO', leadId: { in: ids(demos) } },
+            { leadType: 'QUOTE', leadId: { in: ids(quotes) } },
+            { leadType: 'MESSAGE', leadId: { in: ids(messages) } },
+          ],
+        },
+      }),
+      this.prisma.demoRequest.deleteMany({ where: { id: { in: ids(demos) } } }),
+      this.prisma.quoteRequest.deleteMany({
+        where: { id: { in: ids(quotes) } },
+      }),
+      this.prisma.contactMessage.deleteMany({
+        where: { id: { in: ids(messages) } },
+      }),
+    ]);
+    const audit = await this.prisma.auditLog.deleteMany({
+      where: { createdAt: { lt: auditBefore } },
+    });
+    // Sign-in limits older than a day count nothing any more.
+    await this.prisma.rateLimit.deleteMany({
+      where: { lastRequest: { lt: BigInt(now.getTime() - DAY) } },
+    });
+    const leads = demos.length + quotes.length + messages.length;
+    return {
+      done: `removed ${notifications.count} old notifications, ${leads} old leads, ${audit.count} old log entries`,
+    };
   }
 
   /**

@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { AccountDeletionService } from '../accounts/account-deletion.service.js';
 import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
+import { CustomerExportService } from './customer-export.service.js';
 import { CustomersService } from './customers.service.js';
 import { parsePaging } from '../common/paging.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -83,6 +84,7 @@ export class CustomersController {
     private readonly customers: CustomersService,
     private readonly deletion: AccountDeletionService,
     private readonly audit: AuditService,
+    private readonly exporter: CustomerExportService,
   ) {}
 
   @Can('customers.view')
@@ -134,6 +136,16 @@ export class CustomersController {
         ]),
       ),
     );
+  }
+
+  /**
+   * The customer's data as one ZIP (UK GDPR): profile, projects, requests,
+   * the conversation they can see and their files. Never internal notes.
+   */
+  @Can('customers.manage')
+  @Get(':id/export.zip')
+  exportZip(@CurrentUser() actor: SignedIn, @Param('id') id: string) {
+    return this.exporter.zip(actor, id);
   }
 
   @Can('customers.view')

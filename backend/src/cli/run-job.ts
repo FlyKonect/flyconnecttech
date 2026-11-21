@@ -18,7 +18,14 @@ import { JobsService, type JobResult } from '../jobs/jobs.service.js';
 
 const JOBS: Record<string, (jobs: JobsService) => Promise<JobResult>> = {
   'daily-digest': (jobs) => jobs.dailyDigest(),
-  'auto-close': (jobs) => jobs.autoClose(),
+  // Every night: auto-close, then the clean-up of old data (retention.ts),
+  // so the hosting needs no extra cron line.
+  'auto-close': async (jobs) => {
+    const closed = await jobs.autoClose();
+    const cleaned = await jobs.retention();
+    return { done: `${closed.done}; ${cleaned.done}` };
+  },
+  retention: (jobs) => jobs.retention(),
   'weekly-summary': (jobs) => jobs.weeklySummary(),
   'send-emails': (jobs) => jobs.sendEmails(),
 };

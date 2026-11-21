@@ -9,6 +9,7 @@ Loaded when working in `backend/`. The root `CLAUDE.md` has the product, the sha
 - Swagger API docs at `/api-docs` (not in production).
 - Email: React Email templates sent with nodemailer over SMTP (`backend/src/email/`). Mailpit in development, the hosting's mailbox live. Every email in docs/01 §7 exists (see "Notifications and emails" below), with a plain-text version; the demo invite carries an `.ics` file (`src/leads/ics.ts`). The sender is `EMAIL_FROM` ("FlyConnect Tech Support <info@flyconnecttech.co.uk>", the client's mailbox). Every email can be previewed at `/dev/emails` in development.
 - File uploads: a private folder on the server disk (`UPLOAD_DIR`), served only through the backend after a permission check. multer (part of `@nestjs/platform-express`) writes them to `UPLOAD_DIR/tmp` first. See "Support requests" below.
+- ZIP files: `yazl` (only for the customer data export).
 - Jest for unit and whole-app tests, in ES-module mode (`jest.config.mjs`, `jest.config.e2e.mjs`). A test that needs `jest.fn()` imports `jest` from `@jest/globals`. Oxlint, Prettier.
 - Sign-in: Better Auth (email and password, sessions in the database, TOTP two-factor required for team accounts, sign-up switched off). Invitations and password resets are our own code in `backend/src/accounts/`. See "Sign-in and permissions" below.
 

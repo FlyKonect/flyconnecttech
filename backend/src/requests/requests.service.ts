@@ -46,14 +46,14 @@ import {
 } from './status-rules.js';
 
 /** The only messages a customer ever sees. Internal notes never. */
-const CUSTOMER_VISIBLE: MessageKind[] = [
+export const CUSTOMER_VISIBLE: MessageKind[] = [
   'CUSTOMER_REPLY',
   'STAFF_REPLY',
   'SYSTEM',
 ];
 
 /** Files a customer may see: the request's own, or on a visible message. */
-const visibleFiles: Prisma.AttachmentWhereInput = {
+export const visibleFiles: Prisma.AttachmentWhereInput = {
   OR: [{ messageId: null }, { message: { kind: { in: CUSTOMER_VISIBLE } } }],
 };
 

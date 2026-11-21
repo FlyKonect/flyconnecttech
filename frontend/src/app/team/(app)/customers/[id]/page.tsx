@@ -14,6 +14,8 @@ import {
 import { ChangeEmailButton } from "@/components/team/change-email-dialog";
 import { TeamPageTitle } from "@/components/team/team-shell";
 import { Avatar } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
+import { env } from "@/env";
 import { LabelPill } from "@/components/ui/pill";
 import { serverApi } from "@/lib/api-server";
 import { requireTeamMember } from "@/lib/auth/server";
@@ -86,6 +88,16 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
               />
             ) : null}
             {customer.canManage ? <ChangeEmailButton user={contact} /> : null}
+            {customer.canManage ? (
+              // Their data for a UK GDPR request: never our internal notes.
+              <a
+                href={`${env.NEXT_PUBLIC_API_URL}/team/customers/${customer.id}/export.zip`}
+                download
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Download data (ZIP)
+              </a>
+            ) : null}
             {customer.canManage ? (
               <AccountButton
                 userId={contact.id}

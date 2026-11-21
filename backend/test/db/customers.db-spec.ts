@@ -884,6 +884,44 @@ describe('Download CSV', () => {
   });
 });
 
+describe("A customer's data as a ZIP", () => {
+  it('admins download it from the customer page; managers may not', async () => {
+    const { id } = await addCustomer();
+    const zip = await as(admin)
+      .get(`/team/customers/${id}/export.zip`)
+      .buffer(true)
+      .parse((res, done) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (chunk: Buffer) => chunks.push(chunk));
+        res.on('end', () => done(null, Buffer.concat(chunks)));
+      })
+      .expect(200);
+    expect(zip.headers['content-type']).toContain('application/zip');
+    expect(zip.headers['content-disposition']).toMatch(
+      /attachment; filename="skyline-travel-data-\d{4}-\d{2}-\d{2}\.zip"/,
+    );
+    const bytes = zip.body as Buffer;
+    expect(bytes.subarray(0, 2).toString('latin1')).toBe('PK');
+    // The names inside are stored as plain text in the ZIP's index.
+    const names = bytes.toString('latin1');
+    for (const file of [
+      'README.txt',
+      'profile.csv',
+      'projects.csv',
+      'requests.csv',
+      'messages.csv',
+    ]) {
+      expect(names).toContain(file);
+    }
+    expect(
+      await prisma.auditLog.count({
+        where: { action: 'export.downloaded', entityId: 'customer-data' },
+      }),
+    ).toBeGreaterThan(0);
+    await as(manager).get(`/team/customers/${id}/export.zip`).expect(403);
+  });
+});
+
 describe('Activity log', () => {
   it('super admins read who changed what, filtered and paged; admins may not', async () => {
     const who = await person('DEVELOPER', 'Logged Lena');

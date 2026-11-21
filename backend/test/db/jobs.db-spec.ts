@@ -395,3 +395,79 @@ describe('who hears about a customer reply', () => {
     ).toBe(0);
   });
 });
+
+describe('the nightly clean-up (retention)', () => {
+  it('removes only old read notifications, old closed leads and old log entries', async () => {
+    const now = new Date();
+    const monthsBack = (months: number) => {
+      const date = new Date(now);
+      date.setUTCMonth(date.getUTCMonth() - months);
+      return date;
+    };
+    const note = (readAt: Date | null) =>
+      prisma.notification.create({
+        data: {
+          userId: admin.id,
+          kind: 'info',
+          text: 'Retention test',
+          href: '/team',
+          readAt,
+        },
+      });
+    const oldRead = await note(monthsBack(13));
+    const recentRead = await note(monthsBack(2));
+    const oldUnread = await note(null);
+    await prisma.notification.update({
+      where: { id: oldUnread.id },
+      data: { createdAt: monthsBack(20) },
+    });
+
+    const demo = (code: string, extra: object) =>
+      prisma.demoRequest.create({
+        data: {
+          code,
+          topic: 'API_INTEGRATIONS',
+          preferredStart: monthsBack(37),
+          name: 'Old Lead',
+          email: `old-${code}@jobs.test`,
+          company: 'Old Co',
+          sourcePage: '/',
+          createdAt: monthsBack(37),
+          ...extra,
+        },
+      });
+    const stamp = Date.now() % 100000;
+    const gone = await demo(`DEM-RT-${stamp}`, { status: 'CANCELLED' });
+    const open = await demo(`DEM-RO-${stamp}`, { status: 'NEW' });
+    const converted = await demo(`DEM-RC-${stamp}`, {
+      status: 'COMPLETED',
+      customerId: sarah.customerId,
+    });
+    const oldLog = await prisma.auditLog.create({
+      data: {
+        actorId: null,
+        action: 'settings.changed',
+        entityType: 'setting',
+        entityId: 'retention-test',
+        data: {},
+        createdAt: monthsBack(6 * 12 + 1),
+      },
+    });
+
+    const result = await jobs.retention(now);
+    expect(result.done).toMatch(/removed \d+ old notifications/);
+
+    const exists = {
+      note: (id: string) => prisma.notification.count({ where: { id } }),
+      demo: (id: string) => prisma.demoRequest.count({ where: { id } }),
+    };
+    expect(await exists.note(oldRead.id)).toBe(0);
+    expect(await exists.note(recentRead.id)).toBe(1);
+    // Never read: kept, however old.
+    expect(await exists.note(oldUnread.id)).toBe(1);
+    expect(await exists.demo(gone.id)).toBe(0);
+    expect(await exists.demo(open.id)).toBe(1);
+    expect(await exists.demo(converted.id)).toBe(1);
+    expect(await prisma.auditLog.count({ where: { id: oldLog.id } })).toBe(0);
+  });
+});
