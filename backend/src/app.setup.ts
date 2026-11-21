@@ -5,6 +5,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { AUTH } from './auth/auth.constants.js';
 import { AUTH_BASE_PATH, type Auth } from './auth/auth.js';
 import type { Env } from './config/env.js';
+import { sameOrigin } from './security/same-origin.js';
 import { securityHeaders } from './security/security-headers.js';
 
 /**
@@ -28,6 +29,8 @@ export function configureApp(app: NestExpressApplication): void {
 
   // Only the website may call the backend from a browser, with its cookies.
   app.enableCors({ origin: config.get('FRONTEND_URL'), credentials: true });
+  // And no page on another site may send a change (security/same-origin.ts).
+  app.use(sameOrigin([config.get('FRONTEND_URL'), config.get('BACKEND_URL')]));
 
   // Better Auth reads the raw request itself, so its routes are mounted
   // before the body readers that every other route uses.

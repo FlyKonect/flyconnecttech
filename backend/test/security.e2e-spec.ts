@@ -156,6 +156,31 @@ describe('Security (e2e)', () => {
     }
   });
 
+  it('refuses a change sent from another site', async () => {
+    const server = app.getHttpServer();
+    const evil = await request(server)
+      .post('/leads/message')
+      .set('Origin', 'https://evil.example')
+      .send({})
+      .expect(403);
+    expect(evil.body.code).toBe('BAD_ORIGIN');
+    await request(server)
+      .post('/api/auth/sign-in/email')
+      .set('Origin', 'https://evil.example')
+      .send({ email: 'a@b.test', password: 'x' })
+      .expect(403);
+    // Reading is fine from anywhere; the website itself may send changes.
+    await request(server)
+      .get('/health')
+      .set('Origin', 'https://evil.example')
+      .expect((res) => expect(res.status).not.toBe(403));
+    const own = await request(server)
+      .post('/leads/message')
+      .set('Origin', process.env.FRONTEND_URL ?? 'http://localhost:3001')
+      .send({});
+    expect(own.status).not.toBe(403);
+  });
+
   it('every other route answers "signed out" without a session', async () => {
     const http = request(app.getHttpServer());
     for (const route of routes.filter((r) => !r.isPublic)) {
