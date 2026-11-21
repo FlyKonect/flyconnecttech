@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { Banner } from "@/components/ui/banner";
-import { DownloadCsv } from "@/components/team/download-csv";
+import { ExportMenu } from "@/components/team/export-menu";
 import { DataTable } from "@/components/ui/data-table";
 import { Select } from "@/components/ui/field";
 import { LabelPill } from "@/components/ui/pill";
@@ -68,7 +68,7 @@ export function TeamRequests({
   /** Set for developers, who only see their own requests. */
   developerName: string | null;
   timeZone: string;
-  /** Super admins and admins: Download CSV. */
+  /** Super admins and admins: the Export menu (Excel, CSV). */
   canExport?: boolean;
 }) {
   const router = useRouter();
@@ -203,7 +203,7 @@ export function TeamRequests({
             </Link>
           ) : null}
           {canExport ? (
-            <DownloadCsv path="/team/requests/export.csv" className="h-11" />
+            <ExportMenu path="/team/requests/export" className="h-11" />
           ) : null}
         </div>
       </div>

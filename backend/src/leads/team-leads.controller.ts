@@ -17,7 +17,7 @@ import type { LeadKind } from './lead-store.js';
 import { TeamLeadsService } from './team-leads.service.js';
 import { parsePaging } from '../common/paging.js';
 import { AuditService } from '../audit/audit.service.js';
-import { csvFile } from '../common/csv.js';
+import { tableFile, tableFormat } from '../common/table-file.js';
 
 /** The address part of each list: /team/leads/demos and so on. */
 const KINDS: Record<string, LeadKind> = {
@@ -111,17 +111,19 @@ export class TeamLeadsController {
     );
   }
 
-  /** Download CSV: every lead of this kind for these filters, with emails. */
+  /** Export (CSV or Excel): every lead of this kind for these filters, with emails. */
   @Can('exports.download')
-  @Get(':kind/export.csv')
-  async exportCsv(
+  @Get(':kind/export.:format')
+  async exportList(
     @CurrentUser() actor: SignedIn,
     @Param('kind') kind: string,
+    @Param('format') format: string,
     @Query('status') status?: string,
     @Query('q') q?: string,
   ) {
     const lead = kindOf(kind);
-    const csv = await this.leads.exportCsv(lead, {
+    const as = tableFormat(format);
+    const table = await this.leads.exportTable(lead, {
       status,
       q: q?.slice(0, 100),
     });
@@ -130,9 +132,14 @@ export class TeamLeadsController {
       action: 'export.downloaded',
       entityType: 'export',
       entityId: `leads-${kind}`,
-      data: { rows: csv.rows, status, q },
+      data: { rows: table.rows.length, status, q, format: as },
     });
-    return csvFile(`website-${kind}`, csv.text);
+    const sheet = {
+      demo: 'Demo requests',
+      quote: 'Quote requests',
+      message: 'Messages',
+    };
+    return tableFile(`website-${kind}`, as, table, sheet[lead]);
   }
 
   @Get(':kind/:code')

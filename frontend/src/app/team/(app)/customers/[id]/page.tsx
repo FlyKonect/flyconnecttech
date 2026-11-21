@@ -14,7 +14,9 @@ import {
 import { ChangeEmailButton } from "@/components/team/change-email-dialog";
 import { TeamPageTitle } from "@/components/team/team-shell";
 import { Avatar } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
+import { Download, FileArchive } from "lucide-react";
+
+import { MenuButton, RowMenuItem } from "@/components/ui/row-menu";
 import { env } from "@/env";
 import { LabelPill } from "@/components/ui/pill";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -91,13 +93,20 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
             {customer.canManage ? <ChangeEmailButton user={contact} /> : null}
             {customer.canManage ? (
               // Their data for a UK GDPR request: never our internal notes.
-              <a
-                href={`${env.NEXT_PUBLIC_API_URL}/team/customers/${customer.id}/export.zip`}
-                download
-                className={buttonVariants({ variant: "outline" })}
-              >
-                Download data (ZIP)
-              </a>
+              <MenuButton label="Export" icon={<Download aria-hidden="true" />}>
+                <RowMenuItem
+                  asChild
+                  className="gap-2.5 [&_svg]:size-4 [&_svg]:text-muted-foreground"
+                >
+                  <a
+                    href={`${env.NEXT_PUBLIC_API_URL}/team/customers/${customer.id}/export.zip`}
+                    download
+                  >
+                    <FileArchive aria-hidden="true" />
+                    Download all data (ZIP)
+                  </a>
+                </RowMenuItem>
+              </MenuButton>
             ) : null}
             {customer.canManage ? (
               <AccountButton

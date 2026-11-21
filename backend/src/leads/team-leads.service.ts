@@ -1,4 +1,5 @@
-import { MAX_EXPORT_ROWS, toCsv, ukStamp } from '../common/csv.js';
+import { MAX_EXPORT_ROWS, ukStamp, type Cell } from '../common/csv.js';
+import type { Table } from '../common/table-file.js';
 import { pageWindow, type Paging } from '../common/paging.js';
 import {
   BadRequestException,
@@ -414,13 +415,13 @@ export class TeamLeadsService {
   }
 
   /**
-   * Download CSV for one kind of lead: the list's own search and status,
-   * every matching lead (with emails), newest first.
+   * The Export (CSV or Excel) of one kind of lead: the list's own search
+   * and status, every matching lead (with emails), newest first.
    */
-  async exportCsv(
+  async exportTable(
     kind: LeadKind,
     filters: { status?: string; q?: string },
-  ): Promise<{ text: string; rows: number }> {
+  ): Promise<Table> {
     const q = filters.q?.trim();
     const status = filters.status;
     const search = (fields: string[]) =>
@@ -438,35 +439,32 @@ export class TeamLeadsService {
         take: MAX_EXPORT_ROWS,
         include: { owner },
       });
-      return {
-        rows: rows.length,
-        text: toCsv(
-          [
-            'Code',
-            'Received',
-            'Status',
-            'Name',
-            'Email',
-            'Company',
-            'Topic',
-            'Preferred time',
-            'Booked time',
-            'Owner',
-          ],
-          rows.map((row) => [
-            row.code,
-            ukStamp(row.createdAt),
-            words(row.status),
-            row.name,
-            row.email,
-            row.company,
-            words(row.topic),
-            ukStamp(row.preferredStart),
-            ukStamp(row.scheduledStart),
-            row.owner?.name ?? '',
-          ]),
-        ),
-      };
+      return table(
+        [
+          'Code',
+          'Received',
+          'Status',
+          'Name',
+          'Email',
+          'Company',
+          'Topic',
+          'Preferred time',
+          'Booked time',
+          'Owner',
+        ],
+        rows.map((row) => [
+          row.code,
+          ukStamp(row.createdAt),
+          words(row.status),
+          row.name,
+          row.email,
+          row.company,
+          words(row.topic),
+          ukStamp(row.preferredStart),
+          ukStamp(row.scheduledStart),
+          row.owner?.name ?? '',
+        ]),
+      );
     }
     if (kind === 'quote') {
       const rows = await this.prisma.quoteRequest.findMany({
@@ -478,35 +476,32 @@ export class TeamLeadsService {
         take: MAX_EXPORT_ROWS,
         include: { owner },
       });
-      return {
-        rows: rows.length,
-        text: toCsv(
-          [
-            'Code',
-            'Received',
-            'Status',
-            'Name',
-            'Email',
-            'Company',
-            'Project type',
-            'Budget',
-            'Timeline',
-            'Owner',
-          ],
-          rows.map((row) => [
-            row.code,
-            ukStamp(row.createdAt),
-            words(row.status),
-            row.name,
-            row.email,
-            row.company,
-            words(row.projectType),
-            words(row.budget),
-            words(row.timeline),
-            row.owner?.name ?? '',
-          ]),
-        ),
-      };
+      return table(
+        [
+          'Code',
+          'Received',
+          'Status',
+          'Name',
+          'Email',
+          'Company',
+          'Project type',
+          'Budget',
+          'Timeline',
+          'Owner',
+        ],
+        rows.map((row) => [
+          row.code,
+          ukStamp(row.createdAt),
+          words(row.status),
+          row.name,
+          row.email,
+          row.company,
+          words(row.projectType),
+          words(row.budget),
+          words(row.timeline),
+          row.owner?.name ?? '',
+        ]),
+      );
     }
     const rows = await this.prisma.contactMessage.findMany({
       where: {
@@ -517,33 +512,33 @@ export class TeamLeadsService {
       take: MAX_EXPORT_ROWS,
       include: { owner },
     });
-    return {
-      rows: rows.length,
-      text: toCsv(
-        [
-          'Code',
-          'Received',
-          'Status',
-          'Name',
-          'Email',
-          'Topic',
-          'Message',
-          'Owner',
-        ],
-        rows.map((row) => [
-          row.code,
-          ukStamp(row.createdAt),
-          words(row.status),
-          row.name,
-          row.email,
-          words(row.topic),
-          row.message,
-          row.owner?.name ?? '',
-        ]),
-      ),
-    };
+    return table(
+      [
+        'Code',
+        'Received',
+        'Status',
+        'Name',
+        'Email',
+        'Topic',
+        'Message',
+        'Owner',
+      ],
+      rows.map((row) => [
+        row.code,
+        ukStamp(row.createdAt),
+        words(row.status),
+        row.name,
+        row.email,
+        words(row.topic),
+        row.message,
+        row.owner?.name ?? '',
+      ]),
+    );
   }
 }
+
+/** The header and rows of a download. */
+const table = (header: string[], rows: Cell[][]): Table => ({ header, rows });
 
 /** "TRAVEL_BOOKING_PLATFORM" as "Travel booking platform", for a download. */
 function words(value: string | null | undefined): string {

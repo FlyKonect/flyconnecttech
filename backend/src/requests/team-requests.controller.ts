@@ -25,7 +25,8 @@ import { TeamDashboardService } from './team-dashboard.service.js';
 import { STATUS_SLUGS, TeamRequestsService } from './team-requests.service.js';
 import { parsePaging } from '../common/paging.js';
 import { AuditService } from '../audit/audit.service.js';
-import { allPages, csvFile, toCsv, ukStamp } from '../common/csv.js';
+import { allPages, ukStamp } from '../common/csv.js';
+import { tableFile, tableFormat } from '../common/table-file.js';
 import { PRIORITY_LABELS, STATUS_LABELS } from './labels.js';
 
 const STATUSES = [
@@ -145,17 +146,19 @@ export class TeamRequestsController {
     );
   }
 
-  /** Download CSV: every request the list shows with these filters. */
+  /** Export (CSV or Excel): every request the list shows with these filters. */
   @Can('exports.download')
-  @Get('requests/export.csv')
-  async exportCsv(
+  @Get('requests/export.:format')
+  async exportList(
     @CurrentUser() user: SignedIn,
+    @Param('format') format: string,
     @Query('status') status?: string,
     @Query('q') search?: string,
     @Query('project') projectId?: string,
     @Query('priority') priority?: string,
     @Query('assignee') assignee?: string,
   ) {
+    const as = tableFormat(format);
     const rows = await allPages((paging) =>
       this.list(
         user,
@@ -180,12 +183,14 @@ export class TeamRequestsController {
         projectId,
         priority,
         assignee,
+        format: as,
       },
     });
-    return csvFile(
+    return tableFile(
       'support-requests',
-      toCsv(
-        [
+      as,
+      {
+        header: [
           'Code',
           'Title',
           'Status',
@@ -199,7 +204,7 @@ export class TeamRequestsController {
           'First reply',
           'Resolved',
         ],
-        rows.map((row) => [
+        rows: rows.map((row) => [
           row.code,
           row.title,
           STATUS_LABELS[row.status],
@@ -213,7 +218,8 @@ export class TeamRequestsController {
           ukStamp(row.firstResponseAt),
           ukStamp(row.resolvedAt),
         ]),
-      ),
+      },
+      'Support requests',
     );
   }
 

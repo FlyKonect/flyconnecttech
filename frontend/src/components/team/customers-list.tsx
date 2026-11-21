@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Building2, FolderKanban, MailCheck, Search } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
-import { DownloadCsv } from "@/components/team/download-csv";
+import { ExportMenu } from "@/components/team/export-menu";
 import { buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { StatCard } from "@/components/ui/stat-card";
@@ -106,7 +106,7 @@ export function CustomersList({
         </div>
         {list.canManage ? (
           <span className="flex flex-wrap gap-2">
-            <DownloadCsv path="/team/customers/export.csv" className="h-10" />
+            <ExportMenu path="/team/customers/export" className="h-10" />
             <Link href={routes.teamNewCustomer} className={buttonVariants()}>
               + Add customer
             </Link>

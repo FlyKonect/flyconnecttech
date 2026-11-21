@@ -871,6 +871,30 @@ describe('Download CSV', () => {
       .expect(200);
     expect(demos.text).toContain('"Email"');
 
+    // The same lists as Excel; any other format is refused.
+    for (const path of [
+      '/team/customers/export.xlsx?q=Skyline',
+      '/team/requests/export.xlsx?status=submitted',
+      '/team/leads/quotes/export.xlsx',
+    ]) {
+      const excel = await as(admin)
+        .get(path)
+        .buffer(true)
+        .parse((res, done) => {
+          const chunks: Buffer[] = [];
+          res.on('data', (chunk: Buffer) => chunks.push(chunk));
+          res.on('end', () => done(null, Buffer.concat(chunks)));
+        })
+        .expect(200);
+      expect(excel.headers['content-type']).toContain('spreadsheetml');
+      expect(excel.headers['content-disposition']).toMatch(/\.xlsx"$/);
+      expect((excel.body as Buffer).subarray(0, 2).toString('latin1')).toBe(
+        'PK',
+      );
+    }
+    await as(admin).get('/team/customers/export.pdf').expect(400);
+    await as(manager).get('/team/customers/export.xlsx').expect(403);
+
     await as(manager).get('/team/customers/export.csv').expect(403);
     await as(manager).get('/team/requests/export.csv').expect(403);
     await as(manager).get('/team/leads/quotes/export.csv').expect(403);

@@ -15,7 +15,8 @@ import { CustomerExportService } from './customer-export.service.js';
 import { CustomersService } from './customers.service.js';
 import { parsePaging } from '../common/paging.js';
 import { AuditService } from '../audit/audit.service.js';
-import { allPages, csvFile, toCsv } from '../common/csv.js';
+import { allPages } from '../common/csv.js';
+import { tableFile, tableFormat } from '../common/table-file.js';
 import { customerProjectSchema } from '../projects/project-rules.js';
 
 export const PROJECT_TYPES = [
@@ -110,10 +111,15 @@ export class CustomersController {
     return this.customers.create(actor, body);
   }
 
-  /** Download CSV: every customer the list shows for this search. */
+  /** Export (CSV or Excel): every customer the list shows for this search. */
   @Can('exports.download')
-  @Get('export.csv')
-  async exportCsv(@CurrentUser() actor: SignedIn, @Query('q') q?: string) {
+  @Get('export.:format')
+  async exportList(
+    @CurrentUser() actor: SignedIn,
+    @Param('format') format: string,
+    @Query('q') q?: string,
+  ) {
+    const as = tableFormat(format);
     const rows = await allPages((paging) =>
       this.customers.list(actor, q?.slice(0, 100), paging),
     );
@@ -122,13 +128,21 @@ export class CustomersController {
       action: 'export.downloaded',
       entityType: 'export',
       entityId: 'customers',
-      data: { rows: rows.length, q },
+      data: { rows: rows.length, q, format: as },
     });
-    return csvFile(
+    return tableFile(
       'customers',
-      toCsv(
-        ['Company', 'Contact', 'Email', 'Account', 'Projects', 'Open requests'],
-        rows.map((row) => [
+      as,
+      {
+        header: [
+          'Company',
+          'Contact',
+          'Email',
+          'Account',
+          'Projects',
+          'Open requests',
+        ],
+        rows: rows.map((row) => [
           row.company,
           row.name,
           row.email,
@@ -136,7 +150,8 @@ export class CustomersController {
           row.projects.join('; '),
           row.openRequests,
         ]),
-      ),
+      },
+      'Customers',
     );
   }
 

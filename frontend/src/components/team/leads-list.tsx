@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
-import { DownloadCsv } from "@/components/team/download-csv";
+import { ExportMenu } from "@/components/team/export-menu";
 import { LabelPill } from "@/components/ui/pill";
 import { demoDayShort, demoTime } from "@/lib/forms/demo-slots";
 import { formatWhen } from "@/lib/format-time";
@@ -69,7 +69,7 @@ export function LeadsList({
   status: string;
   query: string;
   timeZone: string;
-  /** Super admins and admins: Download CSV. */
+  /** Super admins and admins: the Export menu (Excel, CSV). */
   canExport?: boolean;
 }) {
   const router = useRouter();
@@ -278,10 +278,7 @@ export function LeadsList({
           </label>
         </form>
         {canExport ? (
-          <DownloadCsv
-            path={`/team/leads/${kind}s/export.csv`}
-            className="h-11"
-          />
+          <ExportMenu path={`/team/leads/${kind}s/export`} className="h-11" />
         ) : null}
       </div>
 
