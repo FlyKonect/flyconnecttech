@@ -7,6 +7,7 @@ import {
   ChevronRight,
   CircleDot,
   Flag,
+  FolderKanban,
   Globe,
   Inbox,
   Lock,
@@ -32,6 +33,7 @@ const ICONS: Record<NotificationKind, LucideIcon> = {
   review: UserCheck,
   invite: Mail,
   lead: Globe,
+  project: FolderKanban,
 };
 
 /**

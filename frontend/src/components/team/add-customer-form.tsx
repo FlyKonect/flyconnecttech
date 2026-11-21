@@ -9,7 +9,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { FormError } from "@/components/auth/form-message";
 import { Banner } from "@/components/ui/banner";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Field, Input, Select } from "@/components/ui/field";
+import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { ApiError, apiErrorMessage, apiFetch } from "@/lib/api";
 import { projectTypes, type ProjectType } from "@/lib/labels";
@@ -33,7 +33,12 @@ import {
 } from "./previous-account-dialog";
 
 const card = "rounded-[22px] border border-line-2 bg-white p-6";
-const newProject = { name: "", type: "WEBSITE" as ProjectType };
+const newProject = {
+  name: "",
+  type: "WEBSITE" as ProjectType,
+  description: "",
+  items: "",
+};
 
 /**
  * Add customer (screen 27): the contact, one or more projects, and the
@@ -57,7 +62,7 @@ export function AddCustomerForm({
           email: from.email,
           company: from.company,
           phone: from.phone,
-          projects: [from.project],
+          projects: [{ ...from.project, description: "", items: "" }],
         }
       : {
           name: "",
@@ -208,6 +213,8 @@ export function AddCustomerForm({
             {projects.fields.map((field, index) => (
               <div
                 key={field.id}
+                role="group"
+                aria-label={`Project ${index + 1}`}
                 className="mt-3 flex flex-wrap items-start gap-3 rounded-2xl bg-[#F6F8FC] p-3.5"
               >
                 <Field
@@ -240,6 +247,28 @@ export function AddCustomerForm({
                     </Button>
                   </LineUp>
                 ) : null}
+                <div className="grid basis-full grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
+                  <Field
+                    label="Description (optional)"
+                    hint="What the project is, in a few lines. The customer sees it."
+                    error={errors.projects?.[index]?.description?.message}
+                  >
+                    <Textarea
+                      rows={3}
+                      {...form.register(`projects.${index}.description`)}
+                    />
+                  </Field>
+                  <Field
+                    label="What's included (optional)"
+                    hint="One item a line, for example: Flight search. You tick them off as the work is done."
+                    error={errors.projects?.[index]?.items?.message}
+                  >
+                    <Textarea
+                      rows={3}
+                      {...form.register(`projects.${index}.items`)}
+                    />
+                  </Field>
+                </div>
               </div>
             ))}
             {count < MAX_NEW_PROJECTS ? (

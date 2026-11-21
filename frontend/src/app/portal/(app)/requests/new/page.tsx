@@ -9,16 +9,26 @@ import type { PortalProject } from "@/lib/portal/types";
 export const metadata: Metadata = { title: "Create Support Request" };
 
 /** Create support request: one page (replaces the four steps of screens 07 to 10). */
-async function NewRequestPageContent() {
+async function NewRequestPageContent({
+  searchParams,
+}: PageProps<"/portal/requests/new">) {
+  const { project } = await searchParams;
   const projects = await serverApi<PortalProject[]>("/portal/projects");
-  return <NewRequestForm projects={projects} />;
+  return (
+    <NewRequestForm
+      projects={projects}
+      projectCode={typeof project === "string" ? project : undefined}
+    />
+  );
 }
 
 /** Its data loads inside Suspense, so moving between pages is instant. */
-export default function NewRequestPage() {
+export default function NewRequestPage(
+  props: PageProps<"/portal/requests/new">,
+) {
   return (
     <Suspense fallback={<PageLoading />}>
-      <NewRequestPageContent />
+      <NewRequestPageContent {...props} />
     </Suspense>
   );
 }

@@ -22,6 +22,7 @@ export type TeamNavKey =
   | "messages"
   | "websiteContent"
   | "customers"
+  | "projects"
   | "users"
   | "reports"
   | "failedEmails"
@@ -117,6 +118,11 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
       key: "customers",
       label: "Customers",
       href: routes.teamCustomers,
+    });
+    manage.push({
+      key: "projects",
+      label: "Projects",
+      href: routes.teamProjects,
     });
   }
   if (canSeeUsers) {

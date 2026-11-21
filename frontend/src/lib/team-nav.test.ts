@@ -24,6 +24,7 @@ describe("team menu per role (docs/01, section 5)", () => {
       "messages",
       "websiteContent",
       "customers",
+      "projects",
       "users",
       "reports",
       "failedEmails",
@@ -47,7 +48,7 @@ describe("team menu per role (docs/01, section 5)", () => {
 
   test("manager sees customers and reports, but not users, website content or settings", () => {
     expect(keys("MANAGER")).toEqual(
-      expect.arrayContaining(["customers", "reports", "demos"]),
+      expect.arrayContaining(["customers", "projects", "reports", "demos"]),
     );
     expect(keys("MANAGER")).not.toContain("users");
     expect(keys("MANAGER")).not.toContain("websiteContent");

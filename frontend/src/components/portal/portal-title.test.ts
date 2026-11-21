@@ -9,6 +9,11 @@ describe("the title in the portal header", () => {
     expect(portalTitle("/portal/requests/new")).toBe("Create Support Request");
     expect(portalTitle("/portal/notifications")).toBe("Notifications");
     expect(portalTitle("/portal/profile")).toBe("Profile Settings");
+    expect(portalTitle("/portal/projects")).toBe("My Projects");
+  });
+
+  test("a single project shows its code", () => {
+    expect(portalTitle("/portal/projects/P-0004")).toBe("Project P-0004");
   });
 
   test("a single request shows its code, and its submitted page says so", () => {

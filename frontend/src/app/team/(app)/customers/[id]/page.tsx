@@ -17,6 +17,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { env } from "@/env";
 import { LabelPill } from "@/components/ui/pill";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { serverApi } from "@/lib/api-server";
 import { requireTeamMember } from "@/lib/auth/server";
 import { formatDayMonth, formatMonthYear, formatWhen } from "@/lib/format-time";
@@ -142,9 +143,17 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
                     <span className="block text-xs font-bold text-muted-foreground">
                       {project.code} · {projectTypes[project.type].label}
                     </span>
-                    <span className="mt-0.5 block text-[15px] font-bold">
+                    <Link
+                      href={routes.teamProject(project.code)}
+                      className="mt-0.5 block text-[15px] font-bold hover:underline"
+                    >
                       {project.name}
-                    </span>
+                    </Link>
+                    <ProgressBar
+                      progress={project.progress}
+                      label={project.name}
+                      className="mt-1.5 max-w-[260px]"
+                    />
                   </span>
                   {customer.canManage ? (
                     <>
@@ -167,10 +176,18 @@ async function CustomerContent({ params }: PageProps<"/team/customers/[id]">) {
               ))}
             </ul>
             {customer.canManage ? (
-              <AddProjectRow
-                customerId={customer.id}
-                company={customer.company}
-              />
+              <>
+                <AddProjectRow
+                  customerId={customer.id}
+                  company={customer.company}
+                />
+                <Link
+                  href={`${routes.teamNewProject}?customer=${customer.id}`}
+                  className="mt-2.5 inline-flex min-h-9 items-center text-sm font-bold text-gold-text hover:underline"
+                >
+                  Or add a project with its details and what it includes →
+                </Link>
+              </>
             ) : null}
           </section>
 

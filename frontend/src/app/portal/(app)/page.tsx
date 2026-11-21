@@ -21,9 +21,11 @@ import {
 import { notificationDots } from "@/lib/labels";
 import type {
   NotificationList,
+  PortalProject,
   PortalSummary,
   RequestList,
 } from "@/lib/portal/types";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -31,10 +33,11 @@ export const metadata: Metadata = { title: "Overview" };
 /** The customer's Overview (screen 06, phone M2). */
 async function PortalOverviewPageContent() {
   const me = await requireCustomer();
-  const [summary, recent, activity] = await Promise.all([
+  const [summary, recent, activity, projects] = await Promise.all([
     serverApi<PortalSummary>("/portal/summary"),
     serverApi<RequestList>("/portal/requests?limit=5"),
     serverApi<NotificationList>("/notifications?limit=5"),
+    serverApi<PortalProject[]>("/portal/projects"),
   ]);
   const zone = me.timezone;
   const now = new Date();
@@ -125,6 +128,46 @@ async function PortalOverviewPageContent() {
         </section>
 
         <div className="flex min-w-0 flex-col gap-5">
+          {projects.length ? (
+            <section
+              aria-labelledby="my-projects"
+              className="min-w-0 rounded-[22px] border border-line-2 bg-white p-[22px] shadow-[0_1px_2px_rgba(2,26,84,0.04)]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h2 id="my-projects" className="text-[17px] font-bold">
+                  My projects
+                </h2>
+                <TextLink href={routes.portalProjects} className="font-bold">
+                  View all
+                </TextLink>
+              </div>
+              <ul className="mt-3 flex flex-col gap-3.5">
+                {projects.slice(0, 4).map((project) => (
+                  <li key={project.id}>
+                    <Link
+                      href={routes.portalProject(project.code)}
+                      className="block rounded-xl hover:bg-[#F9FBFE]"
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="min-w-0 truncate text-sm font-bold">
+                          {project.name}
+                        </span>
+                        <LabelPill
+                          group="projectStatus"
+                          value={project.status}
+                        />
+                      </span>
+                      <ProgressBar
+                        progress={project.progress}
+                        label={project.name}
+                        className="mt-1.5"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <StatusBreakdown
             title="My requests by status"
             slices={[

@@ -28,8 +28,9 @@ Each project belongs to exactly one customer.
 | Assign or transfer requests to developers | Yes | Yes | Yes | No |
 | Change priority, close requests | Yes | Yes | Yes | No |
 | Change status | Any | Any | Any | In Progress, Waiting for Customer, Resolved only |
-| View customers and projects | Yes | Yes | View only | No |
-| Add customers and projects, resend invitations, send reset links | Yes | Yes | No | No |
+| View customers and projects (with their progress) | Yes | Yes | View only | No |
+| Add customers and projects, edit project details, items and updates, resend invitations, send reset links | Yes | Yes | No | No |
+| Delete and restore projects | Yes | Yes | No | No |
 | Add team users | Any role | Admin, Manager, Developer | No | No |
 | Website leads (demos, quotes, messages) | Yes | Yes | Yes | No |
 | Convert a lead to a customer | Yes | Yes | No | No |
@@ -187,7 +188,7 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
 - **White sidebar:**
   - Logo with "Client portal".
   - No "Create support request" button here (removed at the client's request); it is on the Overview, and My Requests has **New request**.
-  - Menu: Overview, My Requests (count), Notifications (unread badge).
+  - Menu: Overview, My Requests (count), My Projects, Notifications (unread badge).
   - At the bottom: user card (name, company) and **Visit website**.
 - **Header:** page title, a search box (searches the customer's requests), the notifications button, and the customer's name and company. A click on the name opens a menu: **Profile settings** and **Logout** (moved out of the left menu at the client's request; on phones only the avatar shows).
 - **Phone:** the sidebar becomes a slide-in menu.
@@ -250,6 +251,16 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
 - **Mark all as read**.
 - Clicking a notification opens its request.
 
+### My Projects (added after the design)
+- **List** (`/portal/projects`): a card per project: code · type, name, status, the description, the progress bar ("60% · 6 of 10 done"), the target date and the project lead.
+- **Project page** (`/portal/projects/[code]`), view only:
+  - Header: name, status, the progress bar, and **Create support request for this project** (New request with the project already chosen).
+  - **What's included:** each item with its status (To do, In progress, Done, and the day it was done).
+  - **Updates** from the team, newest first, with their files to download.
+  - **Details:** description, start, target, went live, support until, project lead, live and test addresses, built with. Never the team notes.
+  - Support requests: open and total, with a link to My Requests.
+- The Overview shows a "My projects" card with each project's progress. Deleted projects are not shown. Another customer's project answers "not found".
+
 ### Profile and password (screen 15)
 - **Editable:** Full name, Phone, Country, Time zone.
 - **Read-only:** Company and Email, with the note that the Northstack team set them.
@@ -257,6 +268,7 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
   - The team replies (on).
   - A status changes or more information is needed (on).
   - Weekly summary of my requests (off).
+  - A project update is posted (on).
 - **Change password:** current password, new password, confirm. Same password rules as above.
 
 ---
@@ -355,6 +367,25 @@ Each tile opens its list, filtered.
   - Support requests for this customer.
   - Contact: Email, Phone, Country, Customer since, Added by, and **Came from** (a link to the lead they were converted from).
   - Account access note: invited, or active with last sign-in.
+
+### Projects (added after the design)
+- **Menu:** Projects, under MANAGE after Customers (super admins, admins and managers; managers see "View only").
+- **List** (`/team/projects`): every customer's projects.
+  - Stat cards: all projects, planning or design, in development, live or completed.
+  - Tabs: All, Planning, In design, In development, Live, Completed, Deleted (each with its count). Search by code, project name, company or contact.
+  - Columns: project (code · type, name), customer, status, progress, target date, lead, open requests, View →.
+  - **+ Add project** (super admins and admins).
+- **Add project** (`/team/projects/new`, also "Or add a project with its details" on a customer's page): customer, name, type, project lead, start and target dates, description and **What's included** (one item a line, up to 50).
+- **Add customer** asks the same description and "What's included" on each project row (both optional).
+- **Project page** (`/team/projects/[code]`):
+  - Header: code · type · company, name, the status dropdown, **Edit details**, **Delete project**, and the progress bar.
+  - **What's included:** each item with its status dropdown (To do, In progress, Done) and a "⋯" menu: Edit, Move up, Move down, Remove. **Add items** takes several lines at once. Progress is the share of items Done. Changing an item sends nothing to the customer.
+  - **Updates:** the team writes what has been done, with up to 5 files. The customer gets an in-app notice and the email "Update on {project}" (unless they untick it). Each update's "⋯": Edit (no new email) and Remove (with its files).
+  - **Details:** description, start, target, went live, support until, project lead (a team member), live and test addresses (http/https only), built with.
+  - **Team notes** (amber box, "Only the team sees this"): never shown in the portal, emails or the customer's data export.
+  - Support requests: open and total, with "View its requests".
+- **Delete project:** refused while the project has open requests ("Move or close its 2 open requests first"). With no requests and no updates the project is removed for good; otherwise it is hidden: it leaves the lists, the portal and New request, its name gets "(deleted)", and its requests, items and updates stay as history. The Deleted tab lists it; its page shows **Restore project**.
+- The customer page links each project to its page and shows its progress.
 
 ### Users (screens 29–30)
 - **List:**
@@ -504,6 +535,7 @@ In-app notifications go to the people listed; emails respect each person's prefe
 | Customer reply | Assignee (or admins if unassigned) | Assignee, if the setting is on |
 | Status changed / needs info / resolved / closed | Customer | Customer. "Resolved" asks them to confirm |
 | Daily digest of requests waiting for review | — | Admins, Managers (setting) |
+| Project update posted (added after the design) | Customer | Customer ("Update on {project}", with the progress), if "A project update is posted" is ticked |
 | Demo requested | Super admins, Admins, Managers | Visitor confirmation. Team alert |
 | Demo confirmed or rescheduled | Owner and host | Visitor, with `.ics` |
 | Demo cancelled | — | Visitor, if chosen |

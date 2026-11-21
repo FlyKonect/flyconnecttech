@@ -51,6 +51,8 @@ Dialogs and form states (there is no separate route for these):
 | 11 | Request submitted | `/portal/requests/[code]/submitted` | `11-request-submitted.jpg` |
 | 12 | My requests | `/portal/requests` | `12-my-requests.jpg` |
 | 13 | Request conversation | `/portal/requests/[code]` | `13-request-conversation.jpg`, `m4-mobile-request.jpg` |
+| — | My Projects: each project's status and progress | `/portal/projects` | none (built from the portal's cards and pills) |
+| — | One project, view only: what's included, updates, details | `/portal/projects/[code]` | none (built like the customer details screen) |
 | 14 | Notifications | `/portal/notifications` | `14-notifications.jpg` |
 | 15 | Profile and password | `/portal/profile` | `15-profile-and-password.jpg` |
 
@@ -67,6 +69,9 @@ Dialogs and form states (there is no separate route for these):
 | 26 | Customers | `/team/customers` | `26-customers.jpg` |
 | 27 | Add customer | `/team/customers/new` | `27-add-customer.jpg` |
 | 28 | Customer details | `/team/customers/[id]` | `28-customer-details.jpg` |
+| — | Projects: every customer's projects, with tabs and progress | `/team/projects` | none (built from the Customers screen's parts) |
+| — | Add project | `/team/projects/new` (`?customer=<id>` from a customer's page) | none (built from Add customer's parts) |
+| — | Project page: details, what's included, updates, team notes, delete and restore | `/team/projects/[code]` | none (built from the customer details screen's parts) |
 | 29 | Users | `/team/users` | `29-users.jpg` |
 | 30 | Add user | `/team/users/new` | `30-add-user.jpg` |
 | 31 | Reports and analytics | `/team/reports` | `31-reports-and-analytics.jpg` |

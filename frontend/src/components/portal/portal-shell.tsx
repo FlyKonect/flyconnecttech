@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   ArrowUpRight,
   Bell,
+  FolderKanban,
   LayoutGrid,
   Plus,
   Ticket,
@@ -32,6 +33,7 @@ type ShellProps = { user: PortalUser; children: React.ReactNode };
 const titles: [prefix: string, title: string][] = [
   [routes.portalNewRequest, "Create Support Request"],
   [routes.portalRequests, "My Requests"],
+  [routes.portalProjects, "My Projects"],
   [routes.portalNotifications, "Notifications"],
   [routes.portalProfile, "Profile Settings"],
   [routes.portal, "Overview"],
@@ -48,6 +50,9 @@ export function portalTitle(pathname: string): string {
       ? "Request submitted"
       : `Request ${decodeURIComponent(request[1])}`;
   }
+  // One project: "Project P-0004".
+  const project = /^\/portal\/projects\/([^/]+)\/?$/.exec(pathname);
+  if (project) return `Project ${decodeURIComponent(project[1])}`;
   const match = titles.find(
     ([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
@@ -137,6 +142,14 @@ export function PortalShell({ user, children }: ShellProps) {
                 <span className="sr-only">, </span>
                 {user.requestCount}
               </span>
+            </NavItem>
+            <NavItem
+              href={routes.portalProjects}
+              icon={FolderKanban}
+              active={under(routes.portalProjects)}
+              onClick={closeMenu}
+            >
+              My Projects
             </NavItem>
             <NavItem
               href={routes.portalNotifications}

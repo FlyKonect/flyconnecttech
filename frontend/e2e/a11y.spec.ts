@@ -351,6 +351,60 @@ test("every client portal screen", async ({ page }) => {
   await expectAccessible(page, `/portal/requests/${code} (phone)`);
 });
 
+test("projects: the team's list, page and dialogs, and My Projects", async ({
+  page,
+  browser,
+}) => {
+  test.slow();
+  const admin = await createPerson("admin");
+  const customer = await createPerson("customer");
+  const code = addProject(customer.email, "Harbour booking platform");
+  await postAs(admin, `/team/projects/${code}/items`, {
+    lines: "Flight search\nHotel search\nPayments",
+  });
+  await postAs(admin, `/team/projects/${code}/updates`, {
+    body: "Designs are signed off. We start on flight search next.",
+  });
+
+  await signInBrowser(page.context(), admin);
+  for (const path of [
+    "/team/projects",
+    "/team/projects/new",
+    `/team/projects/${code}`,
+  ]) {
+    await page.goto(path);
+    await expectAccessible(page, path);
+  }
+
+  await page.getByRole("button", { name: "Edit details" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expectAccessible(page, "Edit project details dialog");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Actions for Flight search" }).click();
+  await expect(page.getByRole("menuitem", { name: "Move down" })).toBeVisible();
+  await expectAccessible(page, "Project item menu open");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Delete project" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expectAccessible(page, "Delete project dialog");
+  await page.keyboard.press("Escape");
+  await page.setViewportSize(phone);
+  await page.goto(`/team/projects/${code}`);
+  await expectAccessible(page, `/team/projects/${code} (phone)`);
+
+  const context = await browser.newContext();
+  const portal = await context.newPage();
+  await signInBrowser(context, customer);
+  for (const path of ["/portal/projects", `/portal/projects/${code}`]) {
+    await portal.goto(path);
+    await expectAccessible(portal, path);
+  }
+  await portal.setViewportSize(phone);
+  await portal.goto(`/portal/projects/${code}`);
+  await expectAccessible(portal, `/portal/projects/${code} (phone)`);
+  await context.close();
+});
+
 // ------------------------------------------------------------- team panel
 
 /** A request sent by a new customer and assigned to a new developer. */

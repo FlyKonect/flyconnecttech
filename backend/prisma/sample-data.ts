@@ -184,6 +184,67 @@ const PROJECT_NAMES: [string, ProjectType][] = [
   ['support plan', 'MAINTENANCE_PLAN'],
   ['back office system', 'CUSTOM_SOFTWARE'],
 ];
+/** What a sample project includes, and the updates on it. */
+const SAMPLE_ITEMS = [
+  'Discovery and plan',
+  'Designs',
+  'Flight search',
+  'Hotel search',
+  'Stripe payments',
+  'Confirmation emails',
+  'Testing',
+  'Launch',
+];
+const SAMPLE_UPDATES = [
+  'Designs are signed off. We start building the search pages this week.',
+  'Flight search is ready to try on the test site. Next up: payments.',
+];
+
+/**
+ * Items (the first few Done, how many depends on the status) and one or
+ * two updates, so the project pages and My Projects have progress.
+ */
+async function addProgress(
+  projectId: string,
+  status: ProjectStatus,
+  authorId: string,
+) {
+  const done = {
+    PLANNING: 0,
+    IN_DESIGN: 1,
+    IN_DEVELOPMENT: 4,
+    LIVE: 8,
+    COMPLETED: 8,
+  }[status];
+  await prisma.projectItem.createMany({
+    data: SAMPLE_ITEMS.map((title, position) => ({
+      projectId,
+      title,
+      position,
+      status:
+        position < done ? 'DONE' : position === done ? 'IN_PROGRESS' : 'TODO',
+      doneAt: position < done ? new Date() : null,
+    })),
+  });
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      description: 'Online booking for flights and hotels, with payments.',
+      builtWith: 'Next.js, Amadeus, Stripe',
+      leadId: authorId,
+    },
+  });
+  if (done > 0) {
+    await prisma.projectUpdate.createMany({
+      data: SAMPLE_UPDATES.slice(0, done > 3 ? 2 : 1).map((body) => ({
+        projectId,
+        body,
+        authorId,
+      })),
+    });
+  }
+}
+
 const PROJECT_STATUSES: ProjectStatus[] = [
   'LIVE',
   'LIVE',
@@ -387,6 +448,7 @@ async function addForCustomer(email: string) {
         },
       }),
     );
+    await addProgress(project.id, status, developers[0].id);
     const where = {
       id: project.id,
       customerId: contact.customerId!,
@@ -781,6 +843,7 @@ async function addAll() {
           },
         }),
       );
+      await addProgress(project.id, project.status, developers[0].id);
       projects.push({
         id: project.id,
         customerId: customer.id,

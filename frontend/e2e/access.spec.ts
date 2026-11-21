@@ -14,11 +14,14 @@ type Outcome = "opens" | "not found" | `goes to ${string}`;
 const PAGES = [
   "/portal",
   "/portal/requests",
+  "/portal/projects",
   "/team",
   "/team/requests",
   "/team/notifications",
   "/team/customers",
   "/team/customers/new",
+  "/team/projects",
+  "/team/projects/new",
   "/team/users",
   "/team/users/new",
   "/team/leads/demos",
@@ -65,6 +68,7 @@ async function check(page: Page, want: Record<Page_, Outcome>) {
 const teamOnly = {
   "/portal": "goes to /team",
   "/portal/requests": "goes to /team",
+  "/portal/projects": "goes to /team",
 } as const;
 
 test("signed out: every page asks you to sign in", async ({ page }) => {
@@ -74,6 +78,7 @@ test("signed out: every page asks you to sign in", async ({ page }) => {
       {
         "/portal": "goes to /portal/sign-in",
         "/portal/requests": "goes to /portal/sign-in",
+        "/portal/projects": "goes to /portal/sign-in",
       },
       "goes to /team/sign-in",
     ),
@@ -83,7 +88,11 @@ test("signed out: every page asks you to sign in", async ({ page }) => {
 const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
   [
     "customer",
-    { "/portal": "opens", "/portal/requests": "opens" },
+    {
+      "/portal": "opens",
+      "/portal/requests": "opens",
+      "/portal/projects": "opens",
+    },
     "goes to /portal",
   ],
   [
@@ -92,6 +101,8 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
       ...teamOnly,
       "/team/customers": "not found",
       "/team/customers/new": "not found",
+      "/team/projects": "not found",
+      "/team/projects/new": "not found",
       "/team/users": "not found",
       "/team/users/new": "not found",
       "/team/leads/demos": "not found",
@@ -109,6 +120,7 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
     {
       ...teamOnly,
       "/team/customers/new": "not found",
+      "/team/projects/new": "not found",
       "/team/users": "not found",
       "/team/users/new": "not found",
       "/team/website-content": "not found",

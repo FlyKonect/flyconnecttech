@@ -908,6 +908,8 @@ describe("A customer's data as a ZIP", () => {
       'README.txt',
       'profile.csv',
       'projects.csv',
+      'project-items.csv',
+      'project-updates.csv',
       'requests.csv',
       'messages.csv',
     ]) {

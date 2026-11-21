@@ -6,6 +6,7 @@ import type {
   RequestStatus,
   RequestType,
 } from "@/lib/labels";
+import type { ProjectPage, Progress } from "@/lib/projects";
 
 /**
  * What the backend's client portal routes return
@@ -24,12 +25,22 @@ export type PortalSummary = {
   unreadNotifications: number;
 };
 
+/** GET /portal/projects: My Projects, and the choices in New request. */
 export type PortalProject = {
   id: string;
   code: string;
   name: string;
   type: ProjectType;
   status: ProjectStatus;
+  description: string | null;
+  targetDate: string | null;
+  lead: string | null;
+  progress: Progress;
+};
+
+/** GET /portal/projects/:code: one of the customer's projects. */
+export type PortalProjectPage = ProjectPage & {
+  lead: { name: string; jobTitle: string | null } | null;
 };
 
 export type PortalTab = "all" | "open" | "waiting" | "resolved";
@@ -111,6 +122,7 @@ export type EmailPrefs = {
   replies: boolean;
   statusChanges: boolean;
   weeklySummary: boolean;
+  projectUpdates: boolean;
 };
 
 export type Profile = {

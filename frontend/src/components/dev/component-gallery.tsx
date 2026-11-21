@@ -30,6 +30,7 @@ import {
 import { FileChip } from "@/components/ui/file-chip";
 import { KpiTile } from "@/components/ui/kpi-tile";
 import { StatCard } from "@/components/ui/stat-card";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { NotificationRow } from "@/components/ui/notification-row";
 import { LabelPill } from "@/components/ui/pill";
 import { RowMenu, RowMenuItem } from "@/components/ui/row-menu";
@@ -98,6 +99,7 @@ const pillGroupTitles: Record<PillGroup, string> = {
   role: "Role",
   userStatus: "Account",
   projectStatus: "Project",
+  projectItemStatus: "Project item",
   demoStatus: "Demo requests",
   quoteStatus: "Quote requests",
   contactStatus: "Messages",
@@ -420,6 +422,21 @@ export function ComponentGallery() {
               value={1}
               label="Invitations pending"
             />
+          </div>
+        </Section>
+
+        <Section title="Progress bar (projects)">
+          <div className="grid max-w-[560px] gap-4">
+            <ProgressBar
+              progress={{ done: 6, total: 10, percent: 60 }}
+              label="Bluewave booking website"
+            />
+            <ProgressBar
+              progress={{ done: 10, total: 10, percent: 100 }}
+              label="Skyline website"
+              size="lg"
+            />
+            <ProgressBar progress={{ done: 0, total: 0, percent: null }} />
           </div>
         </Section>
 

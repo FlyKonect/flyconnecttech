@@ -41,12 +41,21 @@ const card = "rounded-3xl border border-line-2 bg-white";
 
 /**
  * Create support request: one page with everything on it. The project is
- * picked already when the customer has only one.
+ * picked already when the customer has only one, or came from a project's
+ * page (?project=P-0004).
  */
-export function NewRequestForm({ projects }: { projects: PortalProject[] }) {
+export function NewRequestForm({
+  projects,
+  projectCode,
+}: {
+  projects: PortalProject[];
+  projectCode?: string;
+}) {
   const router = useRouter();
   const [answers, setAnswers] = React.useState<Answers>({
-    projectId: projects.length === 1 ? projects[0].id : "",
+    projectId:
+      projects.find((project) => project.code === projectCode)?.id ??
+      (projects.length === 1 ? projects[0].id : ""),
     type: "",
     priority: "MEDIUM",
     title: "",

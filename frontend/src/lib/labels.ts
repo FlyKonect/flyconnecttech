@@ -92,6 +92,15 @@ export const projectStatuses: Record<ProjectStatus, WithTone> = {
   COMPLETED: { label: "Completed", tone: MINT },
 };
 
+/** One thing a project includes ("What's included"). */
+export type ProjectItemStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
+export const projectItemStatuses: Record<ProjectItemStatus, WithTone> = {
+  TODO: { label: "To do", tone: SLATE },
+  IN_PROGRESS: { label: "In progress", tone: BLUE },
+  DONE: { label: "Done", tone: GREEN },
+};
+
 // ------------------------------------------------------ Support requests
 
 export type RequestType =
@@ -283,7 +292,8 @@ export type NotificationKind =
   | "high"
   | "review"
   | "invite"
-  | "lead";
+  | "lead"
+  | "project";
 
 /** Dot colour of a notification row, by kind. */
 export const notificationDots: Record<NotificationKind, string> = {
@@ -298,6 +308,7 @@ export const notificationDots: Record<NotificationKind, string> = {
   urgent: "#DC2626",
   review: "#CA8A04",
   lead: "#D3AF34",
+  project: "#0369A1",
 };
 
 /** The small heading above a notification's text (screens 14 and 32). */
@@ -313,6 +324,7 @@ export const notificationHeadings: Record<NotificationKind, string> = {
   review: "Assignment",
   invite: "Invitation",
   lead: "Website",
+  project: "Project update",
 };
 
 // ---------------------------------------------------------- Website content
@@ -354,6 +366,7 @@ export const pillGroups = {
   role: roles,
   userStatus: userStatuses,
   projectStatus: projectStatuses,
+  projectItemStatus: projectItemStatuses,
   priority: priorities,
   requestStatus: requestStatuses,
   sla: slaStates,

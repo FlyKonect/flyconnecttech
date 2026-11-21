@@ -16,6 +16,7 @@ import type {
   UserStatus,
 } from "@/lib/labels";
 import type { NotificationItem } from "@/lib/portal/types";
+import type { ProjectPage, Progress } from "@/lib/projects";
 
 /**
  * What the backend's team routes return (backend/src/requests/team-*).
@@ -264,7 +265,63 @@ export type CustomerProject = {
   name: string;
   type: ProjectType;
   status: ProjectStatus;
+  progress: Progress;
   openRequests: number;
+};
+
+// --------------------------------------------------------------- projects
+
+export type TeamMemberChoice = {
+  id: string;
+  name: string;
+  jobTitle: string | null;
+};
+
+/** GET /team/projects: the Projects menu's list, one page. */
+export type ProjectList = {
+  summary: Record<ProjectStatus, number> & { all: number; deleted: number };
+  can: { manage: boolean; delete: boolean };
+  total: number;
+  page: number;
+  pageSize: number;
+  rows: ProjectRow[];
+};
+
+export type ProjectRow = {
+  id: string;
+  code: string;
+  name: string;
+  type: ProjectType;
+  status: ProjectStatus;
+  targetDate: string | null;
+  deletedAt: string | null;
+  customer: { id: string; company: string };
+  lead: string | null;
+  progress: Progress;
+  openRequests: number;
+};
+
+/** GET /team/projects/choices: for Add project. */
+export type ProjectChoices = {
+  customers: { id: string; company: string }[];
+  leads: TeamMemberChoice[];
+};
+
+/** GET /team/projects/:code: a project's page in the team panel. */
+export type TeamProjectPage = ProjectPage & {
+  lead: TeamMemberChoice | null;
+  /** Only the team sees these. */
+  teamNotes: string | null;
+  deletedAt: string | null;
+  deletedBy: string | null;
+  customer: {
+    id: string;
+    company: string;
+    contactName: string | null;
+    contactStatus: UserStatus | null;
+  };
+  can: { manage: boolean; delete: boolean };
+  leadChoices: TeamMemberChoice[];
 };
 
 // ------------------------------------------------------------------ users

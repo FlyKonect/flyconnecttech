@@ -17,6 +17,7 @@ Better Auth generates its own tables (user, session, account, verification, two-
 | `UserStatus` | INVITED, ACTIVE, DISABLED |
 | `ProjectType` | WEBSITE, WEB_APPLICATION, TRAVEL_BOOKING_PLATFORM, AGENT_PORTAL, API_INTEGRATION, CUSTOM_SOFTWARE, UI_UX_DESIGN, MAINTENANCE_PLAN |
 | `ProjectStatus` | PLANNING, IN_DESIGN, IN_DEVELOPMENT, LIVE, COMPLETED |
+| `ProjectItemStatus` | TODO, IN_PROGRESS, DONE |
 | `RequestType` | TECHNICAL_ISSUE, BUG_REPORT, FEATURE_REQUEST, INTEGRATION_PROBLEM, DESIGN_MODIFICATION, GENERAL_INQUIRY, MAINTENANCE_REQUEST |
 | `Priority` | LOW, MEDIUM, HIGH, URGENT |
 | `RequestStatus` | SUBMITTED, UNDER_REVIEW, IN_PROGRESS, WAITING_FOR_CUSTOMER, RESOLVED, CLOSED |
@@ -45,7 +46,7 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
   - `jobTitle?` (staff), `country?`, `timezone` (default `Europe/London`)
   - `customerId?`: set only for role CUSTOMER, and unique
   - `twoFactorEnabled` (staff must enable it)
-  - `emailPrefs Json`: replies, status changes, weekly summary
+  - `emailPrefs Json`: replies, status changes, weekly summary, project updates (on when not saved)
   - `lastActiveAt?`, `invitedAt?`, `activatedAt?`, `createdById?`
   - `deletedAt?`, `deletedEmail?`: set when an admin deletes the account (status `DELETED`): sign-in and personal details are erased, `email` and `loginEmail` become a private address, the old email is kept in `deletedEmail` so adding it again can offer to restore the history. Index `deletedEmail, side`.
   - `createdAt`, `updatedAt`
@@ -73,7 +74,28 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
   - `id`, `code` (unique, `P-1042`), `name`
   - `type: ProjectType`, `status: ProjectStatus` (default PLANNING)
   - `customerId` (required: a project belongs to exactly one customer)
-  - `createdAt`
+  - `description?` (up to 2,000 characters; the customer sees it)
+  - `startDate?`, `targetDate?`, `liveDate?`, `supportUntil?` (calendar dates)
+  - `liveUrl?`, `testUrl?` (http or https), `builtWith?` (for example "Next.js, Amadeus, Stripe")
+  - `leadId?` (a team member; cleared if that person is deleted)
+  - `teamNotes?`: **team only**, never in the portal, emails or the customer's data export
+  - `createdAt`, `updatedAt`
+  - `deletedAt?`, `deletedById?`: set by Delete project when it has history (hidden, name marked "(deleted)"; Restore clears them). A project with no requests and no updates is removed instead.
+- **Index:** `deletedAt, status`.
+
+### ProjectItem
+One thing a project includes ("What's included"). Progress is the share of items that are Done.
+- **Fields:** `id`, `projectId` (deleted with the project), `title` (up to 160), `detail?` (up to 500), `status: ProjectItemStatus` (default TODO), `position` (the order, from 0), `doneAt?` (set when it becomes Done, cleared when it leaves Done), `createdAt`, `updatedAt`.
+- Up to 50 items a project. **Index:** `projectId, position`.
+
+### ProjectUpdate
+What has been done: a dated note from the team. Posting one notifies and emails the customer's contact.
+- **Fields:** `id`, `projectId` (deleted with the project), `body` (up to 4,000; may be empty when files are attached), `authorId`, `createdAt`, `editedAt?`.
+
+### ProjectFile
+A file on a project update, kept on the server disk under `UPLOAD_DIR/projects/<project id>/`.
+- **Fields:** `id`, `projectId`, `updateId` (deleted with the update), `fileName`, `contentType`, `size`, `storageKey` (unique), `uploadedById`, `createdAt`.
+- Same rules as request files: up to 5 an update, 10 MB each, checked by name, type and first bytes.
 
 ### SupportRequest
 - **Fields:**
@@ -144,7 +166,7 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
 ### Notification
 - **Fields:**
   - `id`, `userId`
-  - `kind`: reply, info, status, ok, closed, urgent, new, high, review, invite, lead
+  - `kind`: reply, info, status, ok, closed, urgent, new, high, review, invite, lead, project
   - `text`, `href`, `readAt?`, `createdAt`
 - **Index:** `userId, readAt`.
 
@@ -172,7 +194,7 @@ A client's quote shown on the public website, managed on the Website content scr
 - **Fields:** `name` (for example `TKT-2026`), `value`. Increment it in the same transaction that creates the record, to produce the readable codes.
 
 ## Relations at a glance
-- Customer has one contact user (CUSTOMER) and many projects. A project has many support requests.
+- Customer has one contact user (CUSTOMER) and many projects. A project has many support requests, items and updates (an update has files), and an optional lead (a team user).
 - Each support request has messages, status changes and attachments. Its assignee is a DEVELOPER user.
 - Demo requests, quote requests and contact messages are leads. They can each have an owner (a non-developer staff user), activity entries, and a customer once converted. A quote request has many estimates.
 - Users have notifications.

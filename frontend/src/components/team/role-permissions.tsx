@@ -35,16 +35,23 @@ export const PERMISSION_ROWS: {
     label: "Change priority, close requests",
     actions: ["requests.changePriority", "requests.close"],
   },
-  { label: "View customers and projects", actions: ["customers.view"] },
-  { label: "Add customers and projects", actions: ["customers.manage"] },
+  {
+    label: "View customers and projects, with their progress",
+    actions: ["customers.view"],
+  },
+  {
+    label:
+      "Add customers and projects; edit project details, items and updates",
+    actions: ["customers.manage"],
+  },
   { label: "Add team users", actions: ["users.invite"] },
   {
     label: "Reset a team member's two-step sign-in",
     actions: ["users.resetTwoFactor"],
   },
   {
-    label: "Delete team users and customers (their history is kept)",
-    actions: ["users.delete", "customers.delete"],
+    label: "Delete team users, customers and projects (their history is kept)",
+    actions: ["users.delete", "customers.delete", "projects.delete"],
   },
   {
     label: "Website leads: demos, quotes, messages",

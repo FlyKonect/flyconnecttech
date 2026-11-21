@@ -11,6 +11,7 @@ import {
   CalendarClock,
   ChartColumn,
   FileText,
+  FolderKanban,
   Globe,
   Inbox,
   LayoutDashboard,
@@ -51,6 +52,7 @@ const titles: [prefix: string, title: string][] = [
   [routes.teamMessages, "Messages"],
   [routes.teamWebsiteContent, "Website content"],
   [routes.teamCustomers, "Customers"],
+  [routes.teamProjects, "Projects"],
   [routes.teamUsers, "Users"],
   [routes.teamReports, "Reports & Analytics"],
   [routes.teamNotifications, "Notifications"],
@@ -79,6 +81,10 @@ export function teamTitle(pathname: string): string {
   const path = pathname.replace(/\/$/, "");
   if (path === routes.teamNewCustomer) return "Add customer";
   if (path === routes.teamNewUser) return "Add user";
+  if (path === routes.teamNewProject) return "Add project";
+  // One project: "Project P-0004".
+  const project = /^\/team\/projects\/([^/]+)$/.exec(path);
+  if (project) return `Project ${decodeURIComponent(project[1])}`;
   // One customer. The page adds the company with <TeamPageTitle>.
   if (path.startsWith(`${routes.teamCustomers}/`)) return "Customer";
   const match = titles.find(
@@ -235,6 +241,7 @@ const navIcons: Record<TeamNavKey, LucideIcon> = {
   messages: MessageSquare,
   websiteContent: Globe,
   customers: Building2,
+  projects: FolderKanban,
   users: Users,
   reports: ChartColumn,
   failedEmails: MailWarning,
