@@ -437,7 +437,7 @@ test("team: dashboards, requests and their dialogs, for each role", async ({
   const ownerWindow = await browser.newContext({ baseURL });
   await signInBrowser(ownerWindow, await createPerson("super-admin"));
   const owner = await ownerWindow.newPage();
-  for (const path of ["/team", "/team/settings"]) {
+  for (const path of ["/team", "/team/settings", "/team/activity-log"]) {
     await owner.goto(path);
     await expectAccessible(owner, `${path} (super admin)`);
   }

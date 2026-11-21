@@ -884,6 +884,35 @@ describe('Download CSV', () => {
   });
 });
 
+describe('Activity log', () => {
+  it('super admins read who changed what, filtered and paged; admins may not', async () => {
+    const who = await person('DEVELOPER', 'Logged Lena');
+    await as(admin).post(`/team/users/${who.id}/disable`).expect(200);
+
+    const log = await as(superAdmin)
+      .get(`/team/audit?what=accounts&person=${admin.id}&size=10`)
+      .expect(200);
+    expect(log.body).toMatchObject({ page: 1, pageSize: 10 });
+    expect(log.body.groups).toContain('accounts');
+    const first = log.body.rows[0] as {
+      who: string;
+      did: string;
+      subject: string;
+    };
+    expect(first).toMatchObject({ who: 'Emma Clarke', did: 'disabled' });
+    expect(first.subject).toBe(who.email);
+
+    // Another group: nothing about accounts.
+    const exports = await as(superAdmin)
+      .get('/team/audit?what=exports')
+      .expect(200);
+    for (const row of exports.body.rows as { did: string }[]) {
+      expect(row.did).toBe('downloaded a CSV of');
+    }
+    await as(admin).get('/team/audit').expect(403);
+  });
+});
+
 describe('last active', () => {
   it('is saved when someone uses the app, at most every few minutes', async () => {
     const recent = new Date(Date.now() - 2 * 60 * 1000);

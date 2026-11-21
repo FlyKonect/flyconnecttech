@@ -169,6 +169,13 @@ const expected: Record<Action, Record<Role, boolean>> = {
     DEVELOPER: false,
     CUSTOMER: false,
   },
+  'audit.view': {
+    SUPER_ADMIN: true,
+    ADMIN: false,
+    MANAGER: false,
+    DEVELOPER: false,
+    CUSTOMER: false,
+  },
 };
 
 describe('permission table (docs/01, section 1)', () => {

@@ -57,6 +57,7 @@ export const routes = {
   teamNotifications: "/team/notifications",
   teamSettings: "/team/settings",
   teamFailedEmails: "/team/failed-emails",
+  teamActivityLog: "/team/activity-log",
   /** The link in the "Confirm your new email" email. */
   confirmEmail: (token: string) => `/confirm-email/${token}`,
   teamProfile: "/team/profile",

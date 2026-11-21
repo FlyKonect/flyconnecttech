@@ -58,6 +58,7 @@ export const PERMISSION_ROWS: {
   { label: "Reports and analytics", actions: ["reports.view"] },
   { label: "Failed emails: resend or remove", actions: ["emails.manage"] },
   { label: "Settings", actions: ["settings.manage"] },
+  { label: "Activity log", actions: ["audit.view"] },
 ];
 
 export type PermissionCell = "yes" | "own" | "no";

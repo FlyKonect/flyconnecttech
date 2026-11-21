@@ -26,6 +26,7 @@ const PAGES = [
   "/team/leads/messages",
   "/team/website-content",
   "/team/failed-emails",
+  "/team/activity-log",
   "/team/reports",
   "/team/settings",
   "/team/profile",
@@ -98,6 +99,7 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
       "/team/leads/messages": "not found",
       "/team/website-content": "not found",
       "/team/failed-emails": "not found",
+      "/team/activity-log": "not found",
       "/team/reports": "not found",
       "/team/settings": "not found",
     },
@@ -111,10 +113,18 @@ const cases: [Role, Partial<Record<Page_, Outcome>>, Outcome?][] = [
       "/team/users/new": "not found",
       "/team/website-content": "not found",
       "/team/failed-emails": "not found",
+      "/team/activity-log": "not found",
       "/team/settings": "not found",
     },
   ],
-  ["admin", { ...teamOnly, "/team/settings": "not found" }],
+  [
+    "admin",
+    {
+      ...teamOnly,
+      "/team/settings": "not found",
+      "/team/activity-log": "not found",
+    },
+  ],
   ["super-admin", { ...teamOnly }],
 ];
 

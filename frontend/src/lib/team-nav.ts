@@ -25,6 +25,7 @@ export type TeamNavKey =
   | "users"
   | "reports"
   | "failedEmails"
+  | "activityLog"
   | "notifications"
   | "settings";
 
@@ -149,6 +150,11 @@ export function teamNav(role: TeamRole): TeamNavSection[] {
       },
       ...(isSuperAdmin
         ? [
+            {
+              key: "activityLog",
+              label: "Activity log",
+              href: routes.teamActivityLog,
+            } satisfies TeamNavItem,
             {
               key: "settings",
               label: "Settings",

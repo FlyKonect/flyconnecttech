@@ -73,7 +73,9 @@ export type Action =
   /** Failed emails: see them, resend or remove them. */
   | 'emails.manage'
   /** Download a list as CSV (requests, customers, leads). */
-  | 'exports.download';
+  | 'exports.download'
+  /** The Activity log: who changed what. */
+  | 'audit.view';
 
 const ALL_TEAM: TeamRole[] = ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'DEVELOPER'];
 const NOT_DEVELOPER: TeamRole[] = ['SUPER_ADMIN', 'ADMIN', 'MANAGER'];
@@ -102,6 +104,7 @@ export const PERMISSIONS: Record<Action, readonly TeamRole[]> = {
   'website.manage': ADMINS,
   'emails.manage': ADMINS,
   'exports.download': ADMINS,
+  'audit.view': ['SUPER_ADMIN'],
 };
 
 export function isTeamRole(role: Role): role is TeamRole {

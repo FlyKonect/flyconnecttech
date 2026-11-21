@@ -28,6 +28,7 @@ describe("team menu per role (docs/01, section 5)", () => {
       "reports",
       "failedEmails",
       "notifications",
+      "activityLog",
       "settings",
     ]);
     expect(headings("SUPER_ADMIN")).toEqual([
