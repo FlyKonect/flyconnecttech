@@ -10,6 +10,7 @@ import {
   type OutgoingEmail,
 } from '../../src/email/email.service.js';
 import type { Prisma, Role } from '../../src/generated/prisma/client.js';
+import { noteRun } from '../../src/jobs/job-runs.js';
 import { defaultSettings } from '../../src/settings/defaults.js';
 import { PrismaService } from '../../src/prisma/prisma.service.js';
 import { ReportsService } from '../../src/reports/reports.service.js';
@@ -372,6 +373,33 @@ describe('Settings', () => {
       autoCloseResolvedAfter7Days: false,
     },
   };
+
+  it('Scheduled jobs: when each last ran, and which are late', async () => {
+    await prisma.setting.deleteMany({ where: { key: { startsWith: 'job:' } } });
+    await noteRun(prisma, 'send-emails', {
+      at: new Date().toISOString(),
+      ok: true,
+      done: '1 sent, 0 still waiting',
+    });
+    await noteRun(prisma, 'daily-digest', {
+      at: new Date(Date.now() - 3 * 24 * 3_600_000).toISOString(),
+      ok: false,
+      done: 'SMTP down',
+    });
+    const read = await as(superAdmin).get('/team/settings/jobs').expect(200);
+    const jobs = read.body.jobs as {
+      name: string;
+      late: boolean;
+      ok: boolean | null;
+    }[];
+    const job = (name: string) => jobs.find((j) => j.name === name)!;
+    expect(job('send-emails')).toMatchObject({ late: false, ok: true });
+    expect(job('daily-digest')).toMatchObject({ late: true, ok: false });
+    // Never ran: late, nothing known.
+    expect(job('weekly-summary')).toMatchObject({ late: true, ok: null });
+    await as(admin).get('/team/settings/jobs').expect(403);
+    await prisma.setting.deleteMany({ where: { key: { startsWith: 'job:' } } });
+  });
 
   it('only super admins read and save them', async () => {
     const read = await as(superAdmin).get('/team/settings').expect(200);

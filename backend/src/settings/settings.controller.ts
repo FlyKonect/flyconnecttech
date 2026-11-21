@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { Area, Can, CurrentUser } from '../auth/decorators.js';
 import type { SignedIn } from '../auth/signed-in.js';
 import { parseTarget } from '../requests/sla.js';
+import { jobHealth } from '../jobs/job-runs.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { SettingsService } from './settings.service.js';
 
 /** The longest response target: 30 business days, or the same in hours. */
@@ -68,11 +70,20 @@ const settingsSchema = z.object({
 @Can('settings.manage')
 @Controller('team/settings')
 export class SettingsController {
-  constructor(private readonly settings: SettingsService) {}
+  constructor(
+    private readonly settings: SettingsService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Get()
   read() {
     return this.settings.all();
+  }
+
+  /** Cron health: when each scheduled job last ran, and which are late. */
+  @Get('jobs')
+  async jobs() {
+    return { jobs: await jobHealth(this.prisma) };
   }
 
   @Post()

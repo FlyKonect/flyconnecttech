@@ -359,6 +359,7 @@ Four small jobs run on a timetable. The hosting has no programs running in the b
 
 Notes:
 - **The times are the server's clock.** cPanel shows the server's time at the top of the Cron Jobs page. If it is an hour off from UK time, move the hour by one.
+- **Check they run:** the team panel's **Settings > Scheduled jobs** shows when each job last ran, and says **Late**, **Never ran** or **Failed** when one has stopped. That usually means its cron line is missing or wrong.
 - **Each run adds one line to `jobs.log`** in the backend folder, with the time and what it did, for example `daily-digest: sent to 3 of 3 people, 2 waiting`. A deploy never touches this file.
 - **To try a job now**, run the same command in the Terminal (after the `source … activate` line), without the `>> …` part.
 - Turning a switch off in Settings is enough to stop a job doing anything; the cron line can stay.

@@ -335,6 +335,18 @@ export const emailStates: Record<EmailState, WithTone> = {
   failed: { label: "Failed", tone: RED },
 };
 
+// ----------------------------------------------------------- Scheduled jobs
+
+/** A scheduled job on the Settings screen (cron health). */
+export type JobState = "onTime" | "late" | "never" | "failed";
+
+export const jobStates: Record<JobState, WithTone> = {
+  onTime: { label: "On time", tone: GREEN },
+  late: { label: "Late", tone: AMBER },
+  never: { label: "Never ran", tone: AMBER },
+  failed: { label: "Failed", tone: RED },
+};
+
 // ------------------------------------------------------------- Pill lookup
 
 /** Every group that is shown as a coloured pill. */
@@ -350,6 +362,7 @@ export const pillGroups = {
   contactStatus: contactStatuses,
   testimonialPlace: testimonialPlaces,
   emailState: emailStates,
+  jobState: jobStates,
 } as const;
 
 export type PillGroup = keyof typeof pillGroups;

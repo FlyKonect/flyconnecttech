@@ -14,7 +14,9 @@
 import '../config/load-env.js';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module.js';
+import { noteRun } from '../jobs/job-runs.js';
 import { JobsService, type JobResult } from '../jobs/jobs.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 const JOBS: Record<string, (jobs: JobsService) => Promise<JobResult>> = {
   'daily-digest': (jobs) => jobs.dailyDigest(),
@@ -43,15 +45,26 @@ const app = await NestFactory.createApplicationContext(AppModule, {
   logger: ['error', 'warn'],
 });
 
+const prisma = app.get(PrismaService);
 try {
   const result = await job(app.get(JobsService));
   if (result.done) {
     console.log(`${new Date().toISOString()} ${name}: ${result.done}`);
   }
+  // Cron health (Settings > Scheduled jobs): this run went fine.
+  await noteRun(prisma, name, {
+    at: new Date().toISOString(),
+    ok: true,
+    done: result.done || 'nothing to do',
+  }).catch(() => undefined);
 } catch (error) {
-  console.error(
-    `${new Date().toISOString()} ${name} failed: ${(error as Error).message}`,
-  );
+  const message = (error as Error).message;
+  console.error(`${new Date().toISOString()} ${name} failed: ${message}`);
+  await noteRun(prisma, name, {
+    at: new Date().toISOString(),
+    ok: false,
+    done: message,
+  }).catch(() => undefined);
   process.exitCode = 1;
 } finally {
   await app.close();

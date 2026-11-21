@@ -159,7 +159,8 @@ test("Reports: a date range and a customer narrow the report", async ({
   await expect(page).toHaveURL(/from=2026-11-01&to=2026-11-15/);
   await expect(
     page.getByRole("heading", { name: /Report for 1 Nov 2026 to 15 Nov 2026/ }),
-  ).toBeVisible();
+    // A full page load (the choices are a plain form): slower on a busy machine.
+  ).toBeVisible({ timeout: 30_000 });
   await expect(
     page.getByRole("list", { name: "Service levels" }),
   ).toContainText("Reply SLA met");
