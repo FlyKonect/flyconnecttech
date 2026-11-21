@@ -250,6 +250,7 @@ async function addProgress(
   projectId: string,
   status: ProjectStatus,
   authorId: string,
+  contactId: string,
 ) {
   const day = 24 * 60 * 60 * 1000;
   for (const [index, sample] of SAMPLE_MODULES.entries()) {
@@ -322,7 +323,79 @@ async function addProgress(
         (body) => ({ projectId, body, authorId }),
       ),
     });
+    await addDiscussions(projectId, authorId, contactId);
   }
+}
+
+/**
+ * Two discussions: a customer topic with a reply, an approved proposal
+ * and the answer marked; and a team topic that asks the developer.
+ */
+async function addDiscussions(
+  projectId: string,
+  developerId: string,
+  contactId: string,
+) {
+  const topic = await prisma.projectTopic.create({
+    data: {
+      projectId,
+      number: 1,
+      kind: 'CUSTOMER',
+      title: 'Checkout on one page?',
+      authorId: contactId,
+      posts: {
+        create: [
+          {
+            authorId: contactId,
+            body: 'Could the passenger details and payment sit on one page? Our agents find two steps slow.',
+          },
+          {
+            authorId: developerId,
+            body: 'Yes. Details above, payment below, with the total always in view.',
+          },
+          {
+            authorId: developerId,
+            kind: 'PROPOSAL',
+            body: 'We propose a one-page checkout, live in the next release.',
+            proposalState: 'APPROVED',
+            decidedById: contactId,
+            decidedAt: new Date(),
+          },
+          {
+            authorId: null,
+            kind: 'SYSTEM',
+            body: 'The customer approved the proposal',
+          },
+        ],
+      },
+    },
+    select: { id: true, posts: { select: { id: true, authorId: true } } },
+  });
+  const reply = topic.posts.find((post) => post.authorId === developerId);
+  if (reply) {
+    await prisma.projectTopic.update({
+      where: { id: topic.id },
+      data: { answerPostId: reply.id },
+    });
+  }
+  await prisma.projectTopic.create({
+    data: {
+      projectId,
+      number: 2,
+      kind: 'INTERNAL',
+      title: 'Card fee wording',
+      authorId: developerId,
+      posts: {
+        create: [
+          {
+            authorId: developerId,
+            body: 'Do we show the card fee before or after the passenger step?',
+          },
+        ],
+      },
+      asks: { create: { userId: developerId, askedById: developerId } },
+    },
+  });
 }
 
 const PROJECT_STATUSES: ProjectStatus[] = [
@@ -528,7 +601,7 @@ async function addForCustomer(email: string) {
         },
       }),
     );
-    await addProgress(project.id, status, developers[0].id);
+    await addProgress(project.id, status, developers[0].id, contact.id);
     const where = {
       id: project.id,
       customerId: contact.customerId!,
@@ -923,7 +996,12 @@ async function addAll() {
           },
         }),
       );
-      await addProgress(project.id, project.status, developers[0].id);
+      await addProgress(
+        project.id,
+        project.status,
+        developers[0].id,
+        contact.id,
+      );
       projects.push({
         id: project.id,
         customerId: customer.id,

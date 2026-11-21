@@ -910,6 +910,10 @@ describe("A customer's data as a ZIP", () => {
       'projects.csv',
       'project-items.csv',
       'project-updates.csv',
+      'modules.csv',
+      'module-timeline.csv',
+      'discussions.csv',
+      'discussion-messages.csv',
       'requests.csv',
       'messages.csv',
     ]) {

@@ -18,7 +18,8 @@ import { routes } from "@/lib/routes";
 import type { TeamProjectPage } from "@/lib/team/types";
 
 /** The tabs of a project's page in the team panel. */
-export type TeamProjectTab = "" | "modules" | "timeline" | "updates";
+export type TeamProjectTab =
+  "" | "modules" | "timeline" | "discussions" | "team-discussions" | "updates";
 
 /** Who is signed in, and the project (only within their scope). */
 export async function loadTeamProject(
@@ -117,6 +118,8 @@ export function TeamProjectFrame({
             count: project.modules.length,
           },
           { label: "Timeline", href: href("timeline") },
+          { label: "Discussions", href: href("discussions") },
+          { label: "Team discussions", href: href("team-discussions") },
           {
             label: "Updates",
             href: href("updates"),

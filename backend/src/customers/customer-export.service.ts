@@ -15,7 +15,11 @@ import {
   visibleFiles,
 } from '../requests/requests.service.js';
 import { FileStorageService } from '../uploads/file-storage.service.js';
-import type { ProjectItemStatus } from '../generated/prisma/client.js';
+import type {
+  ProjectItemStatus,
+  ProposalState,
+} from '../generated/prisma/client.js';
+import { STAGE_LABELS } from '../projects/module-rules.js';
 import {
   calendarDay,
   progressOf,
@@ -32,14 +36,19 @@ access):
 - projects.csv         your projects and their details
 - project-items.csv    what each project includes, and how far it is
 - project-updates.csv  the updates we posted on your projects
+- modules.csv          each project's modules, their stage and dates
+- module-timeline.csv  every stage each module went through
+- discussions.csv      your project discussions with us
+- discussion-messages.csv  the messages in them
 - requests.csv         your support requests
 - messages.csv         the conversation on each request (your replies, our
                        replies and the status lines)
 - files/               the files on your requests (one folder per request)
-                       and on project updates (files/projects/<code>/)
+                       and on project updates and discussions
+                       (files/projects/<code>/)
 
-Our team's internal notes (on requests and projects) are not part of your
-data and are not included.
+Our team's internal notes (on requests and projects) and our team's own
+discussions are not part of your data and are not included.
 Questions: info@flyconnecttech.co.uk
 `;
 
@@ -47,6 +56,12 @@ const ITEM_WORDS: Record<ProjectItemStatus, string> = {
   TODO: 'To do',
   IN_PROGRESS: 'In progress',
   DONE: 'Done',
+};
+
+const PROPOSAL_WORDS: Record<ProposalState, string> = {
+  PENDING: 'waiting',
+  APPROVED: 'approved',
+  CHANGES_REQUESTED: 'changes requested',
 };
 
 const KIND_WORDS: Record<string, string> = {
@@ -117,7 +132,64 @@ export class CustomerExportService {
             lead: { select: { name: true } },
             items: {
               orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
-              select: { title: true, detail: true, status: true, doneAt: true },
+              select: {
+                title: true,
+                detail: true,
+                status: true,
+                doneAt: true,
+                module: { select: { name: true } },
+              },
+            },
+            modules: {
+              orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+              select: {
+                name: true,
+                stage: true,
+                round: true,
+                startDate: true,
+                targetDate: true,
+                doneAt: true,
+                stages: {
+                  orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+                  select: {
+                    from: true,
+                    to: true,
+                    round: true,
+                    note: true,
+                    createdAt: true,
+                    by: { select: { name: true } },
+                  },
+                },
+              },
+            },
+            // Customer discussions only: team topics are not their data.
+            topics: {
+              where: { kind: 'CUSTOMER' },
+              orderBy: { number: 'asc' },
+              select: {
+                number: true,
+                title: true,
+                status: true,
+                createdAt: true,
+                closedAt: true,
+                closeNote: true,
+                module: { select: { name: true } },
+                author: { select: { name: true } },
+                posts: {
+                  orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+                  select: {
+                    kind: true,
+                    body: true,
+                    createdAt: true,
+                    proposalState: true,
+                    author: { select: { name: true } },
+                    files: {
+                      orderBy: { createdAt: 'asc' },
+                      select: { fileName: true, storageKey: true },
+                    },
+                  },
+                },
+              },
             },
             updates: {
               orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
@@ -245,15 +317,105 @@ export class CustomerExportService {
     add(
       'project-items.csv',
       toCsv(
-        ['Project', 'Item', 'Detail', 'Status', 'Done'],
+        ['Project', 'Module', 'Item', 'Detail', 'Status', 'Done'],
         customer.projects.flatMap((p) =>
           p.items.map((item) => [
             p.code,
+            item.module.name,
             item.title,
             item.detail,
             ITEM_WORDS[item.status],
             ukStamp(item.doneAt),
           ]),
+        ),
+      ),
+    );
+    add(
+      'modules.csv',
+      toCsv(
+        ['Project', 'Module', 'Stage', 'Round', 'Start', 'Target', 'Done'],
+        customer.projects.flatMap((p) =>
+          p.modules.map((m) => [
+            p.code,
+            m.name,
+            STAGE_LABELS[m.stage],
+            m.round,
+            calendarDay(m.startDate),
+            calendarDay(m.targetDate),
+            ukStamp(m.doneAt),
+          ]),
+        ),
+      ),
+    );
+    add(
+      'module-timeline.csv',
+      toCsv(
+        ['Project', 'Module', 'When', 'From', 'To', 'Round', 'By', 'Note'],
+        customer.projects.flatMap((p) =>
+          p.modules.flatMap((m) =>
+            m.stages.map((change) => [
+              p.code,
+              m.name,
+              ukStamp(change.createdAt),
+              change.from ? STAGE_LABELS[change.from] : '',
+              STAGE_LABELS[change.to],
+              change.round,
+              change.by?.name ?? '',
+              change.note,
+            ]),
+          ),
+        ),
+      ),
+    );
+    add(
+      'discussions.csv',
+      toCsv(
+        [
+          'Project',
+          'Topic',
+          'Title',
+          'Module',
+          'Started by',
+          'Started',
+          'Status',
+          'Closed',
+          'Closing note',
+        ],
+        customer.projects.flatMap((p) =>
+          p.topics.map((topic) => [
+            p.code,
+            `#${topic.number}`,
+            topic.title,
+            topic.module?.name ?? '',
+            topic.author.name,
+            ukStamp(topic.createdAt),
+            topic.status === 'OPEN' ? 'Open' : 'Closed',
+            ukStamp(topic.closedAt),
+            topic.closeNote,
+          ]),
+        ),
+      ),
+    );
+    add(
+      'discussion-messages.csv',
+      toCsv(
+        ['Project', 'Topic', 'When', 'From', 'Kind', 'Message', 'Files'],
+        customer.projects.flatMap((p) =>
+          p.topics.flatMap((topic) =>
+            topic.posts.map((post) => [
+              p.code,
+              `#${topic.number}`,
+              ukStamp(post.createdAt),
+              post.author?.name ?? '',
+              post.kind === 'PROPOSAL'
+                ? `Proposal (${PROPOSAL_WORDS[post.proposalState ?? 'PENDING']})`
+                : post.kind === 'SYSTEM'
+                  ? 'Line'
+                  : 'Message',
+              post.body,
+              post.files.map((file) => file.fileName).join(', '),
+            ]),
+          ),
         ),
       ),
     );
@@ -352,6 +514,22 @@ export class CustomerExportService {
           `files/projects/${project.code}/${name}`,
         );
         files += 1;
+      }
+    }
+    for (const project of customer.projects) {
+      for (const topic of project.topics) {
+        const used = new Set<string>();
+        for (const file of topic.posts.flatMap((post) => post.files)) {
+          let name = safeName(file.fileName);
+          for (let n = 2; used.has(name); n += 1)
+            name = `${n}-${safeName(file.fileName)}`;
+          used.add(name);
+          zip.addReadStream(
+            this.storage.read(file.storageKey),
+            `files/projects/${project.code}/discussion-${topic.number}/${name}`,
+          );
+          files += 1;
+        }
       }
     }
     zip.end();

@@ -10,7 +10,8 @@ import type { PortalProjectPage } from "@/lib/portal/types";
 import { routes } from "@/lib/routes";
 
 /** The tabs of a project's page in the client portal. */
-export type PortalProjectTab = "" | "modules" | "timeline" | "updates";
+export type PortalProjectTab =
+  "" | "modules" | "timeline" | "discussions" | "updates";
 
 /** The signed-in customer and one of their own projects. */
 export async function loadPortalProject(
@@ -67,6 +68,7 @@ export function PortalProjectFrame({
           count: inReview || project.modules.length,
         },
         { label: "Timeline", href: href("timeline") },
+        { label: "Discussions", href: href("discussions") },
         {
           label: "Updates",
           href: href("updates"),

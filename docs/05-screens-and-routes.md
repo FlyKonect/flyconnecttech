@@ -52,7 +52,8 @@ Dialogs and form states (there is no separate route for these):
 | 12 | My requests | `/portal/requests` | `12-my-requests.jpg` |
 | 13 | Request conversation | `/portal/requests/[code]` | `13-request-conversation.jpg`, `m4-mobile-request.jpg` |
 | — | My Projects: each project's status and progress | `/portal/projects` | none (built from the portal's cards and pills) |
-| — | One project, view only: what's included, updates, details | `/portal/projects/[code]` | none (built like the customer details screen) |
+| — | One project: Overview, Modules (with client review), Timeline, Updates | `/portal/projects/[code]`, `/modules`, `/timeline`, `/updates` | none (built like the customer details screen) |
+| — | The customer's project discussions, and one topic | `/portal/projects/[code]/discussions`, `/discussions/[number]` | none |
 | 14 | Notifications | `/portal/notifications` | `14-notifications.jpg` |
 | 15 | Profile and password | `/portal/profile` | `15-profile-and-password.jpg` |
 
@@ -71,7 +72,10 @@ Dialogs and form states (there is no separate route for these):
 | 28 | Customer details | `/team/customers/[id]` | `28-customer-details.jpg` |
 | — | Projects: every customer's projects, with tabs and progress | `/team/projects` | none (built from the Customers screen's parts) |
 | — | Add project | `/team/projects/new` (`?customer=<id>` from a customer's page) | none (built from Add customer's parts) |
-| — | Project page: details, what's included, updates, team notes, delete and restore | `/team/projects/[code]` | none (built from the customer details screen's parts) |
+| — | Project page: Overview (modules at a glance, details, team notes, project team), delete and restore | `/team/projects/[code]` | none (built from the customer details screen's parts) |
+| — | A project's Modules (stepper, items, Move to…), Timeline and Updates | `/team/projects/[code]/modules`, `/timeline`, `/updates` | none |
+| — | A project's discussions with the customer, and one topic | `/team/projects/[code]/discussions`, `/discussions/[number]` | none |
+| — | A project's team discussions (internal), and one topic | `/team/projects/[code]/team-discussions`, `/team-discussions/[number]` | none |
 | 29 | Users | `/team/users` | `29-users.jpg` |
 | 30 | Add user | `/team/users/new` | `30-add-user.jpg` |
 | 31 | Reports and analytics | `/team/reports` | `31-reports-and-analytics.jpg` |

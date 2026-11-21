@@ -39,6 +39,7 @@ const profileSchema = z.object({
       statusChanges: z.boolean(),
       weeklySummary: z.boolean(),
       projectUpdates: z.boolean(),
+      discussionReplies: z.boolean(),
     })
     .optional(),
 });
@@ -205,6 +206,7 @@ export function ProfileForm(props: ProfileFormProps) {
                   ],
                   ["weeklySummary", "Weekly summary of my requests"],
                   ["projectUpdates", "A project update is posted"],
+                  ["discussionReplies", "A discussion reply is posted"],
                 ] as const
               ).map(([key, text]) => (
                 <div

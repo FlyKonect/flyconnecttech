@@ -123,6 +123,28 @@ export const moduleStages: Record<ModuleStage, WithTone> = {
   DONE: { label: "Done", tone: GREEN },
 };
 
+/** A discussion topic, and a proposal in it. */
+export type TopicStatus = "OPEN" | "CLOSED";
+
+export const topicStatuses: Record<TopicStatus, WithTone> = {
+  OPEN: { label: "Open", tone: BLUE },
+  CLOSED: { label: "Closed", tone: GREY },
+};
+
+export type ProposalState = "PENDING" | "APPROVED" | "CHANGES_REQUESTED";
+
+export const proposalStates: Record<ProposalState, WithTone> = {
+  PENDING: { label: "Waiting for approval", tone: AMBER },
+  APPROVED: { label: "Approved", tone: GREEN },
+  CHANGES_REQUESTED: { label: "Changes requested", tone: ORANGE },
+};
+
+export const topicFlags = {
+  ANSWERED: { label: "Answered", tone: GREEN },
+  PROPOSAL_WAITING: { label: "Proposal waiting", tone: AMBER },
+  WAITING: { label: "Waiting for a reply", tone: AMBER },
+} satisfies Record<string, WithTone>;
+
 /** A module past its target day. */
 export const moduleFlags = {
   LATE: { label: "Late", tone: RED },
@@ -403,6 +425,9 @@ export const pillGroups = {
   projectItemStatus: projectItemStatuses,
   moduleStage: moduleStages,
   moduleFlag: moduleFlags,
+  topicStatus: topicStatuses,
+  proposalState: proposalStates,
+  topicFlag: topicFlags,
   priority: priorities,
   requestStatus: requestStatuses,
   sla: slaStates,

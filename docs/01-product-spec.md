@@ -31,6 +31,10 @@ Each project belongs to exactly one customer.
 | View customers and projects (with their progress) | Yes | Yes | View only | No |
 | Add customers and projects, edit project details, items and updates, resend invitations, send reset links | Yes | Yes | No | No |
 | Delete and restore projects | Yes | Yes | No | No |
+| See projects (Projects menu, modules, timeline) | All | All | All | Only the projects they are on |
+| Add modules, edit them, the project team | Yes | Yes | No | No |
+| Move module stages, tick items | Any stage | Any stage | No | Working stages and Client review, never Done (their projects) |
+| Take part in project discussions | Yes | Yes | Yes | Their projects |
 | Add team users | Any role | Admin, Manager, Developer | No | No |
 | Website leads (demos, quotes, messages) | Yes | Yes | Yes | No |
 | Convert a lead to a customer | Yes | Yes | No | No |
@@ -268,7 +272,8 @@ Someone already signed in never sees these pages: sign in, forgot password, the 
   - The team replies (on).
   - A status changes or more information is needed (on).
   - Weekly summary of my requests (off).
-  - A project update is posted (on).
+  - A project update is posted (on). Also used for "Ready for your review".
+  - A discussion reply is posted (on).
 - **Change password:** current password, new password, confirm. Same password rules as above.
 
 ---
@@ -386,6 +391,29 @@ Each tile opens its list, filtered.
   - Support requests: open and total, with "View its requests".
 - **Delete project:** refused while the project has open requests ("Move or close its 2 open requests first"). With no requests and no updates the project is removed for good; otherwise it is hidden: it leaves the lists, the portal and New request, its name gets "(deleted)", and its requests, items and updates stay as history. The Deleted tab lists it; its page shows **Restore project**.
 - The customer page links each project to its page and shows its progress.
+- **Tabs** on a project's page: Overview (modules at a glance, details, team notes, Project team, requests, latest update), Modules, Timeline, Discussions, Team discussions, Updates. The client portal has the same without team notes, the project team and Team discussions.
+
+### Modules, stages and the timeline (added after the design)
+- A project is split into **modules** (for example Flight booking, Agent portal, Payments), each with a name, description, start and target dates, its own **items** (To do, In progress, Done) and a **stage**. Items typed in Add customer or Add project go into a first module, "General"; existing items were moved there.
+- **Stages:** Not started → Design → Development → Testing → Client review → Done. When the customer asks for changes the module goes to **Changes requested**, back to Development, then **Retest** and Client review again; each round is counted ("Round 2").
+- **Who moves them:** super admins and admins to any stage; developers on the project team through Design, Development, Testing, Retest and Client review (never Done or Not started); managers look. Every move can have a note and is dated on the module's **timeline**.
+- **Client review:** the customer gets a notice and the email "Ready for your review: {module}". On the Modules tab they **Approve module** (it becomes Done and its open items are ticked) or **Request changes** with a note (Changes requested, a new round). The project lead and the team developers (or super admins and admins when nobody is on the team) get a notice and an email.
+- **Module card:** name, stage, round, Late (target passed, not Done), dates, the **stage stepper** (done steps ticked with their day, the current one highlighted, rework shown on its step), progress, items, and "Show history". Admins: "Move to…", and "⋯" Edit, Move up, Move down, Remove (its items and timeline go with it; discussions about it are kept). Developers on the team: "Move to…" and the item status.
+- **Timeline tab:** each module as a bar from start to target (late in red, done in green) with a line for today, then every stage move, newest first, with the round, who and the note.
+- **Progress:** per module from its items; the project shows "60% · 6 of 10 done" and "2 of 5 modules done". Lists show the module count and "in client review"; My Projects shows "Waiting for your review".
+
+### Project team (added after the design)
+- Super admins and admins add active team members to a project's team (Overview tab) and take them off; both are in the Activity log. Super admins, admins and managers always see every project; **developers see only the projects they are on** (their menu: "My projects"), with no link to the customer.
+
+### Project discussions (added after the design)
+- Each project has two boards: **Discussions** (with the customer) and **Team discussions** (internal: only the project team, never the customer, not in emails to them or their data export).
+- **A topic:** a title, an optional module, the first message and up to 5 files (the request upload rules). Topics are numbered per project (#1, #2…). The list has Open and Closed tabs; each row shows the module, who started it, replies, last activity, and Answered, Proposal waiting and (team) "Waiting for: …".
+- **Replies** with files. On customer topics the team can **post a proposal**: the customer **Approves** it or **Requests changes** (a note is needed), once; the decision shows on the proposal and as a line in the thread.
+- **The answer:** whoever started the topic, or a super admin or admin, marks the reply that answered it; it is pinned on top.
+- **Close and reopen:** whoever started the topic, the project lead, super admins and admins, with an optional closing note shown at the top. A closed topic takes no replies.
+- **Team topics:** ask people by name (super admins, admins, managers and the team developers); they get a notice and an email, and the topic shows "Waiting for: {name}" until they reply.
+- **Edit and remove:** authors edit their own messages (marked "edited"; an answered proposal can't be edited); super admins and admins remove a message (not the first) or delete a whole topic (in the Activity log).
+- **Who hears:** a new customer topic: the lead and the team developers (or super admins and admins), and the customer when the team starts it; a reply: everyone taking part except the author; a proposal: the customer ("Proposal waiting for your approval"); a decision: everyone taking part. Customers follow their "A discussion reply is posted" choice.
 
 ### Users (screens 29–30)
 - **List:**
@@ -536,6 +564,9 @@ In-app notifications go to the people listed; emails respect each person's prefe
 | Status changed / needs info / resolved / closed | Customer | Customer. "Resolved" asks them to confirm |
 | Daily digest of requests waiting for review | — | Admins, Managers (setting) |
 | Project update posted (added after the design) | Customer | Customer ("Update on {project}", with the progress), if "A project update is posted" is ticked |
+| Module ready for client review (added after the design) | Customer | Customer ("Ready for your review: {module}"), if "A project update is posted" is ticked |
+| Customer approved a module or asked for changes (added after the design) | Lead and team developers (or super admins and admins) | The same people |
+| Discussion topic, reply, proposal, decision or "asked" (added after the design) | Everyone taking part (see "Project discussions") | The same people; customers if "A discussion reply is posted" is ticked |
 | Demo requested | Super admins, Admins, Managers | Visitor confirmation. Team alert |
 | Demo confirmed or rescheduled | Owner and host | Visitor, with `.ics` |
 | Demo cancelled | — | Visitor, if chosen |

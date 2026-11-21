@@ -18,6 +18,11 @@ Better Auth generates its own tables (user, session, account, verification, two-
 | `ProjectType` | WEBSITE, WEB_APPLICATION, TRAVEL_BOOKING_PLATFORM, AGENT_PORTAL, API_INTEGRATION, CUSTOM_SOFTWARE, UI_UX_DESIGN, MAINTENANCE_PLAN |
 | `ProjectStatus` | PLANNING, IN_DESIGN, IN_DEVELOPMENT, LIVE, COMPLETED |
 | `ProjectItemStatus` | TODO, IN_PROGRESS, DONE |
+| `ModuleStage` | NOT_STARTED, DESIGN, DEVELOPMENT, TESTING, CLIENT_REVIEW, CHANGES_REQUESTED, RETEST, DONE |
+| `TopicKind` | CUSTOMER, INTERNAL |
+| `TopicStatus` | OPEN, CLOSED |
+| `PostKind` | MESSAGE, PROPOSAL, SYSTEM |
+| `ProposalState` | PENDING, APPROVED, CHANGES_REQUESTED |
 | `RequestType` | TECHNICAL_ISSUE, BUG_REPORT, FEATURE_REQUEST, INTEGRATION_PROBLEM, DESIGN_MODIFICATION, GENERAL_INQUIRY, MAINTENANCE_REQUEST |
 | `Priority` | LOW, MEDIUM, HIGH, URGENT |
 | `RequestStatus` | SUBMITTED, UNDER_REVIEW, IN_PROGRESS, WAITING_FOR_CUSTOMER, RESOLVED, CLOSED |
@@ -46,7 +51,7 @@ Keep the display labels (for example "Waiting for Customer", "£5k – £15k") i
   - `jobTitle?` (staff), `country?`, `timezone` (default `Europe/London`)
   - `customerId?`: set only for role CUSTOMER, and unique
   - `twoFactorEnabled` (staff must enable it)
-  - `emailPrefs Json`: replies, status changes, weekly summary, project updates (on when not saved)
+  - `emailPrefs Json`: replies, status changes, weekly summary, project updates and discussion replies (both on when not saved)
   - `lastActiveAt?`, `invitedAt?`, `activatedAt?`, `createdById?`
   - `deletedAt?`, `deletedEmail?`: set when an admin deletes the account (status `DELETED`): sign-in and personal details are erased, `email` and `loginEmail` become a private address, the old email is kept in `deletedEmail` so adding it again can offer to restore the history. Index `deletedEmail, side`.
   - `createdAt`, `updatedAt`
@@ -96,6 +101,29 @@ What has been done: a dated note from the team. Posting one notifies and emails 
 A file on a project update, kept on the server disk under `UPLOAD_DIR/projects/<project id>/`.
 - **Fields:** `id`, `projectId`, `updateId` (deleted with the update), `fileName`, `contentType`, `size`, `storageKey` (unique), `uploadedById`, `createdAt`.
 - Same rules as request files: up to 5 an update, 10 MB each, checked by name, type and first bytes.
+
+### ProjectModule
+A part of a project with its own items, stage and timeline.
+- **Fields:** `id`, `projectId` (deleted with the project), `name` (160), `description?` (1,000), `stage: ModuleStage` (default NOT_STARTED), `round` (1, plus one each time the customer asks for changes), `position`, `startDate?`, `targetDate?` (calendar days), `doneAt?`, `createdAt`, `updatedAt`.
+- `ProjectItem` has a required `moduleId` (items are deleted with their module). Items that existed before modules were moved into one "General" module per project.
+
+### ModuleStageChange
+A module's timeline: `id`, `moduleId`, `from?`, `to`, `round`, `note?` (500), `byId?` (empty for the first line made by the migration; cleared if that person is deleted), `createdAt`.
+
+### ProjectMember
+The project team: `projectId` and `userId` (key), `addedById?`, `createdAt`. A developer sees only the projects they are a member of.
+
+### ProjectTopic
+A discussion: `id`, `projectId`, `number` (unique within the project), `kind: TopicKind`, `moduleId?` (cleared if the module is removed), `title` (200), `status`, `authorId`, `answerPostId?` (the marked answer), `closedAt?`, `closedById?`, `closeNote?` (500), `lastPostAt`, `createdAt`, `updatedAt`. **INTERNAL topics never reach the customer.**
+
+### TopicPost
+`id`, `topicId`, `authorId?` (empty for SYSTEM lines), `kind: PostKind`, `body` (10,000), `proposalState?`, `decidedById?`, `decidedAt?`, `decisionNote?` (500), `editedAt?`, `createdAt`.
+
+### TopicAsk
+Someone asked on a team topic: `topicId` and `userId` (key), `askedById`, `createdAt`, `answeredAt?` (set when they reply; asking again clears it).
+
+### TopicFile
+A file on a discussion post, under `UPLOAD_DIR/topics/<topic id>/`: `id`, `topicId`, `postId`, `fileName`, `contentType`, `size`, `storageKey`, `uploadedById`, `createdAt`. Same rules as request files.
 
 ### SupportRequest
 - **Fields:**
@@ -166,7 +194,7 @@ A file on a project update, kept on the server disk under `UPLOAD_DIR/projects/<
 ### Notification
 - **Fields:**
   - `id`, `userId`
-  - `kind`: reply, info, status, ok, closed, urgent, new, high, review, invite, lead, project
+  - `kind`: reply, info, status, ok, closed, urgent, new, high, review, invite, lead, project, module, discussion
   - `text`, `href`, `readAt?`, `createdAt`
 - **Index:** `userId, readAt`.
 

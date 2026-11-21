@@ -16,6 +16,7 @@ const ROWS = [
   'Weekly summary of my requests',
   'Project update posted',
   'Module review',
+  'Project discussion',
   'Demo requested',
   'Demo confirmed or rescheduled',
   'Demo cancelled',

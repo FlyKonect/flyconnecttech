@@ -375,6 +375,15 @@ test("projects: the team's list, tabs and dialogs, and My Projects", async ({
   await postAs(admin, `/team/projects/${code}/updates`, {
     body: "Designs are signed off. We start on flight search next.",
   });
+  const { number } = (await postAs(
+    customer,
+    `/portal/projects/${code}/discussions`,
+    { title: "Checkout on one page?", body: "Our agents find two steps slow." },
+  )) as { number: number };
+  await postAs(admin, `/team/projects/${code}/discussions/${number}/posts`, {
+    body: "We propose a one-page checkout.",
+    proposal: true,
+  });
 
   await signInBrowser(page.context(), admin);
   for (const path of [
@@ -384,6 +393,9 @@ test("projects: the team's list, tabs and dialogs, and My Projects", async ({
     `/team/projects/${code}/modules`,
     `/team/projects/${code}/timeline`,
     `/team/projects/${code}/updates`,
+    `/team/projects/${code}/discussions`,
+    `/team/projects/${code}/discussions/${number}`,
+    `/team/projects/${code}/team-discussions`,
   ]) {
     await page.goto(path);
     await expectAccessible(page, path);
@@ -418,10 +430,21 @@ test("projects: the team's list, tabs and dialogs, and My Projects", async ({
     `/portal/projects/${code}`,
     `/portal/projects/${code}/modules`,
     `/portal/projects/${code}/timeline`,
+    `/portal/projects/${code}/discussions`,
+    `/portal/projects/${code}/discussions/${number}`,
   ]) {
     await portal.goto(path);
     await expectAccessible(portal, path);
   }
+  await portal.getByRole("button", { name: "Approve proposal" }).click();
+  await expect(portal.getByRole("dialog")).toBeVisible();
+  await expectAccessible(portal, "Approve proposal dialog");
+  await portal.keyboard.press("Escape");
+  await portal.goto(`/portal/projects/${code}/discussions`);
+  await portal.getByRole("button", { name: "+ New topic" }).click();
+  await expect(portal.getByRole("dialog")).toBeVisible();
+  await expectAccessible(portal, "New topic dialog");
+  await portal.keyboard.press("Escape");
   await portal.goto(`/portal/projects/${code}/modules`);
   await portal.getByRole("button", { name: "Request changes" }).click();
   await expect(portal.getByRole("dialog")).toBeVisible();

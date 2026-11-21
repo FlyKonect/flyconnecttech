@@ -56,6 +56,7 @@ import {
   ModuleReviewEmail,
   moduleReviewSubject,
 } from './templates/module-review.js';
+import { DiscussionEmail, discussionSubject } from './templates/discussion.js';
 import {
   ProjectUpdateEmail,
   projectUpdateSubject,
@@ -488,6 +489,80 @@ export const EMAIL_PREVIEWS: EmailPreview[] = [
       />
     ),
   },
+
+  ...(
+    [
+      [
+        'discussion-new',
+        'new',
+        'Priya',
+        'Sarah Mitchell',
+        false,
+        'The lead and the team developers (or super admins and admins), and the customer when the team starts a customer topic',
+      ],
+      [
+        'discussion-reply',
+        'reply',
+        'Sarah',
+        'Priya Nair',
+        false,
+        'Everyone taking part, except the author (customers: "A discussion reply is posted")',
+      ],
+      [
+        'discussion-asked',
+        'asked',
+        'Daniyal',
+        'Emma Clarke',
+        true,
+        'The people asked on a team topic (never the customer)',
+      ],
+      [
+        'discussion-proposal',
+        'proposal',
+        'Sarah',
+        'Emma Clarke',
+        false,
+        'The customer, when the team posts a proposal on a customer topic',
+      ],
+      [
+        'discussion-approved',
+        'approved',
+        'Emma',
+        'Sarah Mitchell',
+        false,
+        'Everyone taking part, when the customer approves a proposal',
+      ],
+      [
+        'discussion-changes',
+        'changes',
+        'Emma',
+        'Sarah Mitchell',
+        false,
+        'Everyone taking part, when the customer asks for changes to a proposal',
+      ],
+    ] as const
+  ).map(([key, kind, first, author, internal, to]) => ({
+    key,
+    row: 'Project discussion',
+    to,
+    subject: discussionSubject(kind, author, 'Checkout on one page?'),
+    render: (siteUrl: string) => (
+      <DiscussionEmail
+        siteUrl={siteUrl}
+        firstName={first}
+        kind={kind}
+        authorName={author}
+        code="P-0004"
+        projectName="Bluewave booking website"
+        number={3}
+        title="Checkout on one page?"
+        body="Could the passenger details and payment sit on one page? Our agents find two steps slow."
+        files={kind === 'reply' ? 1 : 0}
+        internal={internal}
+        link={`${siteUrl}/${first === 'Sarah' ? 'portal' : 'team'}/projects/P-0004/${internal ? 'team-discussions' : 'discussions'}/3`}
+      />
+    ),
+  })),
 
   // -------------------------------------------------------- website leads
   {

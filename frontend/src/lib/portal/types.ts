@@ -124,6 +124,7 @@ export type EmailPrefs = {
   statusChanges: boolean;
   weeklySummary: boolean;
   projectUpdates: boolean;
+  discussionReplies: boolean;
 };
 
 export type Profile = {

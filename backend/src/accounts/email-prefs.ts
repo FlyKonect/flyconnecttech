@@ -13,6 +13,8 @@ export const emailPrefsSchema = z.object({
   weeklySummary: z.boolean(),
   /** The team posts a project update (added later: on when not saved). */
   projectUpdates: z.boolean().default(true),
+  /** A reply in one of their project discussions (on when not saved). */
+  discussionReplies: z.boolean().default(true),
 });
 
 export type EmailPrefs = z.infer<typeof emailPrefsSchema>;
@@ -22,6 +24,7 @@ export const defaultEmailPrefs: EmailPrefs = {
   statusChanges: true,
   weeklySummary: false,
   projectUpdates: true,
+  discussionReplies: true,
 };
 
 /** The saved choices, with the defaults for anything missing or broken. */

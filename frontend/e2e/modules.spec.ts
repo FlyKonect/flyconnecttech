@@ -17,13 +17,13 @@ const toast = (page: Page, text: string | RegExp) =>
   page.getByRole("status").filter({ hasText: text });
 
 /** Opens "Move to…" on the module and moves it to the stage. */
-async function moveTo(page: Page, module: string, stage: string) {
-  const card = page.getByRole("region", { name: new RegExp(`^${module}`) });
+async function moveTo(page: Page, part: string, stage: string) {
+  const card = page.getByRole("region", { name: new RegExp(`^${part}`) });
   await card.getByRole("button", { name: "Move to…" }).click();
-  const dialog = page.getByRole("dialog", { name: `Move ${module}` });
+  const dialog = page.getByRole("dialog", { name: `Move ${part}` });
   await dialog.getByLabel("New stage").selectOption({ label: stage });
   await dialog.getByRole("button", { name: "Move" }).click();
-  await expect(toast(page, `${module} moved to ${stage}`)).toBeVisible();
+  await expect(toast(page, `${part} moved to ${stage}`)).toBeVisible();
 }
 
 test("a module from development to client review, a round of changes, then approved", async ({
@@ -31,7 +31,7 @@ test("a module from development to client review, a round of changes, then appro
   browser,
 }) => {
   const word = randomUUID().slice(0, 6);
-  const module = `Payments ${word}`;
+  const part = `Payments ${word}`;
   const admin = await createPerson("admin");
   const developer = await createPerson("developer", `Dev ${word}`);
   const customer = await createPerson("customer");
@@ -39,7 +39,7 @@ test("a module from development to client review, a round of changes, then appro
   const { id: moduleId } = (await postAs(
     admin,
     `/team/projects/${code}/modules`,
-    { name: module },
+    { name: part },
   )) as { id: string };
   await postAs(admin, `/team/projects/${code}/items`, {
     moduleId,
@@ -66,12 +66,12 @@ test("a module from development to client review, a round of changes, then appro
   await expect(dev.getByRole("button", { name: "Edit details" })).toHaveCount(
     0,
   );
-  await moveTo(dev, module, "Development");
-  await moveTo(dev, module, "Testing");
-  await moveTo(dev, module, "Client review");
+  await moveTo(dev, part, "Development");
+  await moveTo(dev, part, "Testing");
+  await moveTo(dev, part, "Client review");
   const ready = await waitForEmail(
     customer.email,
-    new RegExp(`^Ready for your review: ${module}`),
+    new RegExp(`^Ready for your review: ${part}`),
   );
   expect(ready.text).toContain(`/portal/projects/${code}/modules`);
 
@@ -80,7 +80,7 @@ test("a module from development to client review, a round of changes, then appro
   const portal = await customerContext.newPage();
   await signInBrowser(customerContext, customer);
   await portal.goto(`/portal/projects/${code}/modules`);
-  const review = portal.getByRole("group", { name: `Review ${module}` });
+  const review = portal.getByRole("group", { name: `Review ${part}` });
   await review.getByRole("button", { name: "Request changes" }).click();
   const changes = portal.getByRole("dialog");
   await changes.getByRole("button", { name: "Send changes" }).click();
@@ -93,29 +93,29 @@ test("a module from development to client review, a round of changes, then appro
   await expect(portal.getByText("Round 2").first()).toBeVisible();
   await waitForEmail(
     developer.email,
-    new RegExp(`^Changes requested on ${module}`),
+    new RegExp(`^Changes requested on ${part}`),
   );
 
   // Rework, retest, back for review.
   await dev.reload();
-  await moveTo(dev, module, "Development");
-  await moveTo(dev, module, "Retest");
-  await moveTo(dev, module, "Client review");
+  await moveTo(dev, part, "Development");
+  await moveTo(dev, part, "Retest");
+  await moveTo(dev, part, "Client review");
 
   // Approved: Done, with every item done.
   await portal.reload();
   await portal
-    .getByRole("group", { name: `Review ${module}` })
+    .getByRole("group", { name: `Review ${part}` })
     .getByRole("button", { name: "Approve module" })
     .click();
   await portal
     .getByRole("dialog")
     .getByRole("button", { name: "Approve module" })
     .click();
-  await expect(toast(portal, `${module} approved`)).toBeVisible();
-  const card = portal.getByRole("region", { name: new RegExp(`^${module}`) });
+  await expect(toast(portal, `${part} approved`)).toBeVisible();
+  const card = portal.getByRole("region", { name: new RegExp(`^${part}`) });
   await expect(
-    card.getByRole("progressbar", { name: `Progress of ${module}` }),
+    card.getByRole("progressbar", { name: `Progress of ${part}` }),
   ).toHaveAttribute("aria-valuenow", "100");
   await expect(card.getByRole("group", { name: /^Review/ })).toHaveCount(0);
 
